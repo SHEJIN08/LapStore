@@ -534,5 +534,14 @@ ul {
     background-color: var(--light-blue);
 }
 
+.icon-img {
+  opacity: 0.5; /* initial slightly faded look */
+  transition: opacity 0.3s ease; /* smooth fade */
+}
+
+.icon-img:hover {
+  opacity: 1; /* full visibility on hover */
+}
+
 /* ========= Responsiveness Removed ========= */
 /* The @media blocks that were here have been deleted. */

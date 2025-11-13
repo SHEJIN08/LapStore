@@ -87,11 +87,18 @@ const loadDashboard = async (req, res) => {
     });
 };
 
+const logout = (req,res) => {
+  req.session.admin = null;
+    
+  res.redirect('/admin/login')
+}
+
 // 📦 Export controller
 const authController = {
   loadDashboard,
   loadLogin,
   login,
+  logout
 };
 
 export default authController;
