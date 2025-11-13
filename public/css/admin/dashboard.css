@@ -1,0 +1,538 @@
+/* ========= Global Styles & Variables ========= */
+:root {
+    --primary-blue: #007BFF;
+    --light-blue: #E6F2FF;
+    --body-bg: #F5F7FA;
+    --card-bg: #FFFFFF;
+    --text-dark: #2C3E50;
+    --text-light: #888888;
+    --border-color: #ECEEF1;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    --status-green-bg: #EAF7E9;
+    --status-green-text: #28a745;
+    --status-red-bg: #FDECEC;
+    --status-red-text: #dc3545;
+    --status-yellow-bg: #FEF7E6;
+    --status-yellow-text: #ffc107;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* ========= Main Layout ========= */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: var(--card-bg);
+    border-right: 1px solid var(--border-color);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 24px;
+    overflow-x: hidden;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 24px;
+}
+
+/* ========= Sidebar ========= */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo-icon {
+    width: 28px;
+    height: 28px;
+}
+.logo-icon path {
+    fill: var(--primary-blue);
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.sidebar-nav {
+    flex-grow: 1;
+    margin-top: 24px;
+}
+
+.sidebar-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    color: var(--text-light);
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav a svg {
+    stroke: var(--text-light);
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav a:hover {
+    background-color: var(--body-bg);
+    color: var(--text-dark);
+}
+.sidebar-nav a:hover svg {
+    stroke: var(--text-dark);
+}
+
+.sidebar-nav a.active {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+.sidebar-nav a.active svg {
+    stroke: var(--primary-blue);
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--body-bg);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.admin-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.admin-profile div {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-name {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.admin-role {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    color: var(--text-light);
+    transition: all 0.2s ease;
+}
+
+.logout-link:hover {
+    background-color: var(--status-red-bg);
+    color: var(--status-red-text);
+}
+.logout-link:hover svg {
+    stroke: var(--status-red-text);
+}
+
+
+/* ========= Main Header ========= */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.header-title h2 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.header-title p {
+    color: var(--text-light);
+    font-weight: 400;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.search-bar {
+    position: relative;
+}
+
+.search-bar input {
+    width: 250px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0 16px 0 40px;
+    font-size: 14px;
+    background: var(--card-bg);
+}
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px var(--light-blue);
+}
+
+.search-bar svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+}
+
+.icon-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    position: relative;
+}
+.icon-button:hover {
+    background-color: var(--body-bg);
+}
+
+.notification-button .notification-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--status-red-text);
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: 2px solid var(--card-bg);
+}
+
+.btn {
+    height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* ========= Stats Cards ========= */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.card-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.revenue-icon { background-color: #E6F2FF; color: #007BFF; }
+.sales-icon { background-color: #EAF7E9; color: #28a745; }
+.orders-icon { background-color: #FEF7E6; color: #ffc107; }
+.customers-icon { background-color: #FDECEC; color: #dc3545; }
+.revenue-icon svg { stroke: #007BFF; }
+.sales-icon svg { stroke: #28a745; }
+.orders-icon svg { stroke: #ffc107; }
+.customers-icon svg { stroke: #dc3545; }
+
+.card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+.card-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.card-change {
+    font-size: 12px;
+    font-weight: 500;
+}
+.card-change.positive {
+    color: var(--status-green-text);
+}
+.card-change.negative {
+    color: var(--status-red-text);
+}
+
+/* ========= Dashboard Row (Chart + Feed) ========= */
+.dashboard-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.sales-overview {
+    flex-basis: 65%;
+}
+
+.activity-feed {
+    flex-basis: 35%;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.tabs {
+    display: flex;
+    background-color: var(--body-bg);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.tab-btn {
+    padding: 6px 16px;
+    border: none;
+    background-color: transparent;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background-color: var(--card-bg);
+    color: var(--text-dark);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.chart-placeholder {
+    width: 100%;
+    min-height: 300px;
+    /* In a real app, a JS library would mount here */
+}
+
+.feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.feed-item {
+    display: flex;
+    gap: 12px;
+}
+
+.feed-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.feed-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.user-icon { background-color: var(--status-green-bg); color: var(--status-green-text); }
+.edit-icon { background-color: var(--light-blue); color: var(--primary-blue); }
+.cancel-icon { background-color: var(--status-red-bg); color: var(--status-red-text); }
+.message-icon { background-color: var(--status-yellow-bg); color: var(--status-yellow-text); }
+.user-icon svg { stroke: var(--status-green-text); }
+.edit-icon svg { stroke: var(--primary-blue); }
+.cancel-icon svg { stroke: var(--status-red-text); }
+.message-icon svg { stroke: var(--status-yellow-text); }
+
+.feed-content p {
+    font-size: 14px;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+.feed-content p strong {
+    font-weight: 600;
+}
+
+.feed-time {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+/* ========= Orders Table ========= */
+.orders-table {
+    padding-bottom: 12px;
+}
+
+.orders-table .card-header {
+    border-bottom: none;
+    margin-bottom: 12px;
+    padding-bottom: 0;
+}
+
+.orders-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table th,
+.orders-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.orders-table th {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+    text-transform: uppercase;
+}
+
+.orders-table td {
+    font-size: 14px;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.status {
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status.completed {
+    background-color: var(--status-green-bg);
+    color: var(--status-green-text);
+}
+.status.cancelled {
+    background-color: var(--status-red-bg);
+    color: var(--status-red-text);
+}
+.status.pending {
+    background-color: var(--status-yellow-bg);
+    color: var(--status-yellow-text);
+}
+
+.view-all-link {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    margin-top: 16px;
+    color: var(--primary-blue);
+    font-weight: 600;
+    border-radius: 8px;
+}
+.view-all-link:hover {
+    background-color: var(--light-blue);
+}
+
+/* ========= Responsiveness Removed ========= */
+/* The @media blocks that were here have been deleted. */

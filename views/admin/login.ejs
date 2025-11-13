@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/admin/login.css">
+<body>
+
+    <div class="login-container">
+        
+        <div class="login-form-wrapper">
+            <div class="form-content">
+                <div class="form-header">
+                    <svg class="laptop-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55A1 1 0 0 1 20.28 20H3.72a1 1 0 0 1-.9-1.45L4 16z"></path></svg>
+                    <h2>Admin Panel Login</h2>
+                    <p>Welcome back! Please enter your details.</p>
+                </div>
+                
+                <form method="post" action="/admin/login">
+                    <div class="form-group">
+                         <input type="text" id="message" value="<%= message %>" name="message" hidden>
+                         <input type="hidden" id="type" value="<%= type %>" name="value">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Enter your password" >
+                            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </div>
+                    </div>
+
+                    <div class="options-row">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember">
+                            <label for="remember">Remember me</label>
+                        </div>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="login-btn">Log In</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="info-content">
+                <h1>Powerful, Fast, Secure</h1>
+                <p>Manage your e-commerce platform with an intuitive and robust admin interface. All the tools you need, right at your fingertips.</p>
+            </div>
+        </div>
+
+    </div>
+
+   
+
+    <%- include('../partials/footer') %>

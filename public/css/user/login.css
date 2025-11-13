@@ -1,0 +1,239 @@
+/* 1. Global Reset & Body Styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    height: 100vh;
+    color: #1E293B; /* Default dark text */
+    background-color: #FFFFFF;
+}
+
+/* 2. Left Panel: Logo */
+.logo-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFFFFF;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Space between icon and text */
+}
+
+.logo svg {
+    width: 56px;
+    height: 56px;
+}
+
+.logo span {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+/* 3. Right Panel: Login Form */
+.login-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFFFFF;
+    padding: 40px;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 400px; /* Constrains the form width */
+}
+
+/* 4. Form Typography */
+h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: #4A90E2; /* Link blue */
+    margin-bottom: 40px;
+}
+
+/* 5. Form Elements */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between form groups */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #4B5563; /* Medium gray text */
+}
+
+.forgot-link {
+    font-size: 14px;
+    color: #4A90E2;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* 6. Input Fields */
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid #D1D5DB; /* Light gray border */
+    border-radius: 8px;
+    background-color: #F9FAFB; /* Slightly off-white background */
+    color: #1E293B;
+}
+
+input::placeholder {
+    color: #9CA3AF; /* Placeholder text color */
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 45px; /* Make space for the icon */
+}
+
+.eye-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    stroke: #9CA3AF; /* Icon color */
+    cursor: pointer;
+}
+
+/* 7. Buttons */
+.btn {
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #3A5FEC; /* Main blue button */
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: #2a4bdc;
+}
+
+.btn-google {
+    background-color: #FFFFFF;
+    color: #374151; /* Dark text for Google button */
+    border: 1px solid #D1D5DB;
+}
+
+.btn-google:hover {
+    background-color: #F9FAFB;
+}
+
+.btn-google svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* 8. Separator ("Or continue with") */
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #9CA3AF;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #E5E7EB; /* Light line color */
+}
+
+.separator span {
+    padding: 0 12px;
+    font-size: 14px;
+}
+
+/* 9. Sign Up Link */
+.signup-link {
+    text-align: center;
+    font-size: 15px;
+    color: #4B5563;
+}
+
+.signup-link a {
+    color: #4A90E2;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+/* 10. Responsive Design */
+@media (max-width: 900px) {
+    body {
+        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .logo-panel {
+        padding: 40px;
+        /* Hide logo panel on very small screens or just pad it */
+    }
+
+    .login-panel {
+        padding: 40px 20px; /* Add horizontal padding */
+    }
+}

@@ -1,0 +1,192 @@
+/* ========= Global Styles ========= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #ffffff;
+    color: #333;
+}
+
+/* ========= Main Layout ========= */
+.login-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ========= Left Column: Form ========= */
+.login-form-wrapper {
+    flex: 1; /* Takes up 50% of the width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.form-content {
+    max-width: 400px;
+    width: 100%;
+}
+
+.form-header {
+    margin-bottom: 32px;
+}
+
+.laptop-icon {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.form-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-header p {
+    font-size: 16px;
+    color: #888;
+}
+
+/* ========= Form Elements ========= */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #007BFF;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.eye-icon {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    color: #aaa;
+    cursor: pointer;
+}
+
+.options-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    font-size: 14px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+}
+
+.remember-me input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+.forgot-password {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.login-btn:hover {
+    background-color: #0056b3;
+}
+
+/* ========= Right Column: Info Panel ========= */
+.info-panel {
+    flex: 1; /* Takes up 50% of the width */
+    background-color: #f0f0f0; /* Fallback */
+    
+    /* --- Replace with your image --- */
+    background-image: url('https://images.unsplash.com/photo-1522252234503-e356532cafd5?q=80&w=1925&auto=format&fit=crop');
+    
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: white;
+    text-align: center;
+}
+
+/* --- This is the blue overlay --- */
+.info-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #1967d2; /* A nice blue */
+    opacity: 0.85; /* Adjust as needed */
+    z-index: 1;
+}
+
+.info-content {
+    position: relative;
+    z-index: 2; /* Sits on top of the overlay */
+    max-width: 450px;
+}
+
+.info-content h1 {
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.info-content p {
+    font-size: 18px;
+    line-height: 1.6;
+    opacity: 0.9;
+}
