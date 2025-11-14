@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase:true, trim:true },
   password: { type: String, required: true },
   avatar: { type: String,default:'user'},
-  refferalCode: {type: String, required:optional},
+  isVerified: { type: Boolean, default: false },
+  refferalCode: {type: String},
   isActive: {type: String, default: true},
   role: { type:String, default: 'User'}
 },

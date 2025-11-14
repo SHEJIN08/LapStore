@@ -1,7 +1,8 @@
 import Joi from "joi"; // 1. Import Joi
 import bcrypt from "bcrypt";
 import userSchema from "../../model/userMode.js";
-
+import { sendOtp } from "../../utils/otp.js";
+import UserOtpVerification from "../../model/otpModel.js";
 const saltround = 10;
 
 // 2. Define your Joi validation schema
@@ -22,6 +23,17 @@ const registerSchema = Joi.object({
     'string.empty': 'Please confirm your password.'
   })
 });
+
+const forgotPasswordSchema = Joi.object({
+  email: Joi.string()
+    .email()
+    .required()
+    .messages({
+      "string.empty": "Email is required.",
+      "string.email": "Enter a valid email address.",
+    }),
+});
+
 
 const registerUser = async (req, res) => {
   try {
@@ -54,14 +66,13 @@ const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, saltround);
-    const newUser = new userSchema({ name, email, password: hashedPassword });
-    await newUser.save();
+    const newUser = new userSchema({ name, email, password: hashedPassword, isVerified: false });
+       await sendOtp(email);
+    req.session.email = email;
 
-    req.session.message = "User registration successful, please log in";
-    req.session.type = "success";
-    return req.session.save(() => {
-        res.redirect("/user/login");
-      });
+    return res.redirect("/user/verify-otp");
+
+ 
   } catch (err) {
     console.error(err);
     // 5. Updated catch block message
@@ -72,6 +83,29 @@ const registerUser = async (req, res) => {
       });
   }
 };
+
+
+ const resendOtp = async (req, res) => {
+  try {
+    const email = req.session.email;
+
+    await UserOtpVerification.deleteMany({ email });
+
+    await sendOtp(email);
+
+    req.session.message = "OTP resent successfully!";
+    req.session.type = "success";
+
+    return res.redirect("/user/verify-otp");
+
+  } catch (error) {
+    req.session.message = "Failed to resend OTP";
+    req.session.type = "error";
+    return res.redirect("/user/verify-otp");
+  }
+};
+
+
 
 const loadRegister = (req, res) => {
   const message = req.session.message || "";
@@ -96,4 +130,54 @@ const loadLogin = (req, res) => {
   res.render("user/login", { message, type });
 };
 
-export default { registerUser, loadRegister, loadLogin };
+const forgotPassword = (req,res) => {
+  res.render('user/forgotPassword')
+}
+
+const forgotPasswordPost = async (req, res) => {
+  try {
+    // Joi validation
+    const { error } = forgotPasswordSchema.validate(req.body);
+
+    if (error) {
+      req.session.message = error.details[0].message;
+      req.session.type = "error";
+      return req.session.save(() => {
+        res.redirect("/user/forgot-password");
+      });
+    }
+
+    const { email } = req.body;
+
+    // check if user exists
+    const user = await userSchema.findOne({ email });
+
+    if (!user) {
+      req.session.message = "User not found!";
+      req.session.type = "error";
+      return req.session.save(() => {
+        res.redirect("/user/forgot-password");
+      });
+    }
+
+    // send OTP
+    await UserOtpVerification.deleteMany({ email });
+    await sendOtp(email);
+
+    req.session.email = email;
+    req.session.type = "success";
+    req.session.message = "OTP sent successfully";
+
+    return res.redirect("/user/reset-verify-otp");
+
+  } catch (err) {
+    console.log(err);
+    req.session.message = "Something went wrong";
+    req.session.type = "error";
+    return res.redirect("/user/forgot-password");
+  }
+};
+
+
+
+export default { registerUser, loadRegister, loadLogin, resendOtp, forgotPassword, forgotPasswordPost};

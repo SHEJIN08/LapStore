@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="/css/user/otp.css">
+<%- include('../partials/header') %>
+
+ 
+<div class="top-bar">
+        3-7 business days delivery | Free returns
+    </div>
+
+    <header class="main-header">
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/laptop.png" alt="LapStore Logo Icon" width="20">
+            </div>
+            <span class="logo-name">LapStore</span>
+        </a>
+        <nav class="navigation">
+            <a href="#" class="login-link">Login</a>
+            <a href="#" class="btn btn-signup">Sign Up</a>
+        </nav>
+    </header>
+<main class="content-wrapper">
+<div class="verification-card">
+    <h1>Verify Your Account</h1>
+            <p>Enter the 6-digit OTP sent to your email.</p>
+
+    <form action="/user/verify-otp" method="POST" id="otpForm">
+
+        <div class="otp-inputs">
+            <input type="text" maxlength="1"  class="otp-input" required>
+            <input type="text" maxlength="1" class="otp-input" required>
+            <input type="text" maxlength="1" class="otp-input" required>
+            <input type="text" maxlength="1" class="otp-input" required>
+            <input type="text" maxlength="1" class="otp-input" required>
+            <input type="text" maxlength="1" class="otp-input" required>
+        </div>
+
+        <input type="hidden" id="fullOtp" name="otp">
+
+       <button type="submit" class="btn btn-primary">Verify & Continue</button>
+
+        <p class="message"><%= message %></p>
+
+        <p class="resend-text">
+                Didn't get the OTP? <a href="/user/resend-otp">Resend in 30s</a>
+            </p>
+    </form>
+</div>
+</main>
+
+<script>
+    const inputs = document.querySelectorAll(".otp-input" );
+    const fullOtpInput = document.getElementById("fullOtp");
+
+    inputs.forEach((input, index) => {
+        input.addEventListener("input", () => {
+            if (input.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+
+            let otp = "";
+            inputs.forEach(i => otp += i.value);
+            fullOtpInput.value = otp;
+        });
+
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace" && index > 0 && input.value === "") {
+                inputs[index - 1].focus();
+            }
+        });
+    });
+</script>
+
+
+
+<%- include('../partials/footer') %>
