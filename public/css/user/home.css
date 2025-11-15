@@ -1,0 +1,336 @@
+/* --- Global Styles & Variables --- */
+:root {
+    --primary-blue: #0048ff;
+    --light-blue-bg: #e6f0ff;
+    --text-dark: #111;
+    --text-light: #555;
+    --text-lighter: #888;
+    --border-color: #e0e0e0;
+    --white: #ffffff;
+    --body-bg: #f9f9f9;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: var(--white);
+    color: var(--text-dark);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- 1. Header Navigation --- */
+.main-header {
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 0;
+}
+
+.main-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.search-bar {
+    flex-grow: 1;
+    margin: 0 40px;
+}
+
+.search-bar input {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    background-color: var(--body-bg);
+}
+
+.user-nav {
+    display: flex;
+    gap: 25px;
+}
+
+.user-nav a {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-size: 20px;
+}
+
+/* --- 2. Hero Section --- */
+.hero {
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px 20px;
+}
+
+.hero-text {
+    max-width: 45%;
+}
+
+.hero-text h1 {
+    font-size: 42px;
+    margin: 0 0 15px;
+}
+
+.hero-text p {
+    font-size: 16px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.btn-shop-now {
+    background-color: var(--white);
+    color: var(--primary-blue);
+    padding: 12px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.hero-image img {
+    max-width: 450px;
+    height: auto;
+}
+
+/* --- 3. Category Nav --- */
+.category-nav {
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.category-nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 35px;
+}
+
+.category-nav li a {
+    display: block;
+    padding: 15px 5px;
+    text-decoration: none;
+    color: var(--text-light);
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+}
+
+.category-nav li a.active {
+    color: var(--primary-blue);
+    border-bottom-color: var(--primary-blue);
+}
+
+/* --- 4. Main Content Area --- */
+.main-content {
+    padding-top: 30px;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.filter-bar label {
+    margin-right: 10px;
+    color: var(--text-light);
+}
+
+.filter-bar select,
+.filter-bar .filter-btn {
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: var(--white);
+}
+
+.filter-bar .filter-btn {
+    cursor: pointer;
+}
+
+/* Product Grid */
+.product-section h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.product-card {
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.product-card img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3/2;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.product-card .category-tag {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.product-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    color: var(--text-dark);
+}
+
+.product-card .rating {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+}
+
+.product-card .rating span:first-child {
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.product-card .rating span:last-child {
+    font-size: 12px;
+}
+
+.product-card .specs {
+    font-size: 12px;
+    color: var(--text-lighter);
+    margin-bottom: 15px;
+}
+
+.price-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.price-box .price {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.price-box .add-to-cart {
+    background-color: var(--light-blue-bg);
+    color: var(--primary-blue);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- 5. Pagination --- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 40px 0;
+}
+
+.pagination a {
+    text-decoration: none;
+    color: var(--text-light);
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.pagination a.active {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border-color: var(--primary-blue);
+}
+
+.pagination a:hover:not(.active) {
+    background-color: var(--body-bg);
+}
+
+/* --- Responsive (Simple) --- */
+@media (max-width: 992px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .hero-content {
+        flex-direction: column-reverse;
+        text-align: center;
+    }
+    .hero-text {
+        max-width: 100%;
+    }
+    .hero-image {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header .container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .search-bar {
+        margin: 0;
+        width: 100%;
+    }
+    .category-nav ul {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+    .filter-bar {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
