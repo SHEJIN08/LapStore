@@ -16,11 +16,13 @@ router.get("/verify-otp", (req, res) => {
   req.session.type = null;
 });
 router.post('/verify-otp',verifyOtp)
-router.get("/resend-otp",userAuth.isLogin, authController.resendOtp);
+router.get("/resend-otp",authController.resendOtp);
 router.get('/forgot-password',authController.forgotPassword)
 router.post('/forgot-password',authController.forgotPasswordPost)
+router.get('/reset-password', authController.loadResetPassword)
+router.post('/reset-password',authController.resetPasswordPost)
 router.get('/login',userAuth.isLogin,authController.loadLogin)
-
- router.get('/home',userController.loadHome)
+router.post('/login',authController.login)
+router.get('/home',userController.loadHome)
 
 export default router;
