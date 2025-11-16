@@ -1,6 +1,6 @@
 import Joi from "joi"; // 1. Import Joi
 import bcrypt from "bcrypt";
-import userSchema from "../../model/userMode.js";
+import userSchema from "../../model/userModel.js";
 import { sendOtp } from "../../utils/otp.js";
 import UserOtpVerification from "../../model/otpModel.js";
 const saltround = 10;
@@ -78,7 +78,8 @@ const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, saltround);
-    const newUser = new userSchema({ name, email, password: hashedPassword, isVerified: false });
+    const userId = `user_${Date.now()}`;
+    const newUser = new userSchema({ userId,name, email, password: hashedPassword, isVerified: false });
        await sendOtp(email);
        await newUser.save();
 

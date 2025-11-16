@@ -1,6 +1,6 @@
 import { register } from "node:module";
 import UserOtpVerification from "../../model/otpModel.js";
-import userSchema from "../../model/userMode.js";
+import userSchema from "../../model/userModel.js";
 
 // ...existing code...
 export const verifyOtp = async (req, res) => {

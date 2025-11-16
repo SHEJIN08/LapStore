@@ -1,0 +1,136 @@
+/* ========= Main Layout (Sidebar part) ========= */
+.sidebar {
+    width: 260px;
+    background-color: var(--card-bg); /* Uses your global variable */
+    border-right: 1px solid var(--border-color); /* Uses your global variable */
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0; /* Prevents sidebar from shrinking */
+}
+
+/* ========= Sidebar ========= */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* This creates the space you wanted */
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo-icon {
+    width: 28px;
+    height: 28px;
+}
+.logo-icon path {
+    fill: var(--primary-blue);
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.sidebar-nav {
+    flex-grow: 1; /* Pushes footer to the bottom */
+    margin-top: 24px;
+}
+
+.sidebar-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Space between nav items */
+    padding-left: 0rem;
+}
+
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* This creates the space between icon and text */
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    color: var(--text-light);
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav a svg {
+    stroke: var(--text-light);
+    transition: all 0.2s ease;
+}
+
+/* Hover effect for nav items */
+.sidebar-nav a:hover {
+    background-color: var(--body-bg);
+    color: var(--text-dark);
+}
+.sidebar-nav a:hover svg {
+    stroke: var(--text-dark);
+}
+
+/* Active (selected) nav item style */
+.sidebar-nav a.active {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+.sidebar-nav a.active svg {
+    stroke: var(--primary-blue);
+}
+
+.sidebar-footer {
+    margin-top: auto; /* Pushes itself to the bottom */
+    padding-top: 20px;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--body-bg);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.admin-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.admin-profile div {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-name {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.admin-role {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    color: var(--text-light);
+    transition: all 0.2s ease;
+}
+
+.logout-link:hover {
+    background-color: var(--status-red-bg);
+    color: var(--status-red-text);
+}
+.logout-link:hover svg {
+    stroke: var(--status-red-text);
+}

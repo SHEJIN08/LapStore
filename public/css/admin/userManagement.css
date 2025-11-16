@@ -1,0 +1,384 @@
+/* ========= Global Styles & Variables ========= */
+:root {
+    --primary-blue: #007BFF;
+    --light-blue: #E6F2FF;
+    --body-bg: #F5F7FA;
+    --card-bg: #FFFFFF;
+    --text-dark: #2C3E50;
+    --text-light: #888888;
+    --border-color: #ECEEF1;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    --status-green-bg: #EAF7E9;
+    --status-green-text: #28a745;
+    --status-red-bg: #FDECEC;
+    --status-red-text: #dc3545;
+    --status-yellow-bg: #FEF7E6;
+    --status-yellow-text: #ffc107;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* ========= Main Layout ========= */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* This was missing - it's the main area for your content */
+.main-content {
+    flex-grow: 1;
+    padding: 24px;
+}
+
+
+/* ========= Main Header ========= */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.header-title h2 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.header-title p {
+    color: var(--text-light);
+    font-weight: 400;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.btn {
+    height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+
+/* ========= Card Styles ========= */
+/* A generic style for your main content blocks */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+}
+
+/* Moved this from the unused chart section */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+
+/* ========= Orders Table ========= */
+/* Targets the table inside your new section */
+.orders-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table th,
+.orders-table td {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.orders-table thead th {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 600;
+    background-color: var(--body-bg);
+}
+
+.orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Status Badges */
+.status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status.completed {
+    background-color: var(--status-green-bg);
+    color: var(--status-green-text);
+}
+
+.status.cancelled {
+    background-color: var(--status-red-bg);
+    color: var(--status-red-text);
+}
+
+.status.pending {
+    background-color: var(--status-yellow-bg);
+    color: var(--status-yellow-text);
+}
+
+/* Style for the "View All" link */
+.view-all-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: var(--primary-blue);
+    font-weight: 500;
+}
+.view-all-link:hover {
+    text-decoration: underline;
+}
+/* Base style for all badges */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 15px; /* This makes it a "pill" shape */  
+    font-size: 0.9em;
+    text-align: center;
+}
+
+/* Style for the "Active" badge */
+.status-active {
+    background-color: #defee5; /* A nice green */
+    color: green;
+}
+
+/* Style for the "Blocked" badge */
+.status-blocked {
+    background-color: #ffdde1; /* A nice red */
+    color:red;
+}
+/* Makes the button inside the "Unblock" form
+  look just like a regular dropdown link.
+*/
+.dropdown-form {
+    margin: 0;
+}
+
+.dropdown-form .dropdown-item {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+}
+/* Optional: Make sure hover/focus matches your other items */
+.dropdown-form .dropdown-item:hover,
+.dropdown-form .dropdown-item:focus {
+    background-color: #f8f9fa; /* Or your dropdown's hover color */
+}
+
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dimmed background */
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 450px; /* From your image */
+    font-family: Arial, sans-serif;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.warning-icon {
+    font-size: 1.5rem;
+    color: #f0ad4e; /* Orange warning color */
+}
+
+.modal-close-btn {
+    font-size: 2rem;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-body #modalUserName {
+    color: #333;
+}
+
+.modal-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 10px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.modal-footer button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+/* Styles for the Block Modal */
+.btn-cancel {
+    background-color: transparent;
+    color: #555;
+}
+.btn-cancel:hover {
+    background-color: #f4f4f4;
+}
+
+.btn-confirm-block {
+    background-color: #d9534f; /* Red/Orange for blocking */
+    color: white;
+}
+.btn-confirm-block:hover {
+    background-color: #c9302c;
+}
+
+/* Styles for the Delete Modal */
+.danger-icon {
+    font-size: 1.5rem;
+    color: #dc3545; /* Red danger color */
+}
+
+.btn-confirm-delete {
+    background-color: #dc3545; /* Red */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-confirm-delete:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+/* CSS for Edit Modal Form */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Make Address span full width */
+.form-group-full {
+    grid-column: 1 / -1; /* Span both columns */
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.form-group input[disabled] {
+    background-color: #f4f4f4;
+    cursor: not-allowed;
+}
+
+.form-group small {
+    font-size: 0.8rem;
+    color: #777;
+    margin-top: 4px;
+}
+
+.btn-confirm-save {
+    background-color: #007bff; /* Blue */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-confirm-save:hover {
+    background-color: #0056b3;
+}
