@@ -13,6 +13,7 @@ router.get('/users',adminAuth.checkSession,usersController.loadUsers)
 router.post('/users/toggle-block/:id',usersController.BlockOrUnblock)
 router.post('/users/delete/:id',usersController.DeleteUser)
 router.post('/users/edit/:id',usersController.EditUser)
+router.post('/users/add',usersController.AddNewUser)
 router.get('/logout',adminAuth.checkSession,authController.logout)
 
 export default router;

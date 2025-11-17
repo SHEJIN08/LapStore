@@ -1,15 +1,67 @@
+import { name } from "ejs";
 import userSchema  from "../../model/userModel.js"
+import bcrypt from "bcrypt";
 
   const loadUsers = async (req,res) => {
     try {
-        const users = await userSchema.find()
-         const message = req.session.message || ""
+        const search = req.query.search ||'';
+        const status = req.query.status ||'all';
+
+
+        // --- 2. Pagination parameters ---
+        const page = Number.parseInt(req.query.page) || 1; // Get page number, default to 1
+        const limit = 5; // Set a fixed number of users per page
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        let query = {};
+        
+        if(status === 'active') {
+            query.isActive = true;
+            query.isVerified = true;
+        } else if(status === 'blocked'){
+             query.isActive = false;
+             query.isVerified = true;
+        } else if(status === 'pending'){
+            query.isVerified = false;
+        }
+
+        if(search) {
+            const searchRegex = new RegExp(search,'i')
+
+            query.$or = [
+                {name: searchRegex},
+                {email: searchRegex},
+                {userId: searchRegex}
+            ];
+        }
+
+        // --- 4. Execute two queries ---
+        //    Query 1: Get the total count of users matching the filter
+        const totalUsers = await userSchema.countDocuments(query);
+        
+        //    Query 2: Get the actual users for the current page
+        const users = await userSchema.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)   // <-- Add skip
+            .limit(limit); // <-- Add limit
+
+        // --- 5. Calculate total pages ---
+        const totalPages = Math.ceil(totalUsers / limit);
+
+
+        const message = req.session.message || ""
         const type = req.session.type || ""
         req.session.message = null
         req.session.type = null
-    return  res.render('admin/users',{users, message, type})
+    return  res.render('admin/users',{users:users,currentSearch: search,
+            currentStatus: status,totalUsers: totalUsers,
+            totalPages: totalPages,
+            currentPage: page,
+            limit: limit, message, type})
     } catch (err) {
         console.error(err)
+        req.session.message = 'Something went wrong'
+        req.session.type = 'error'
         res.status(500).send('Error loading users')
     }
 }; 
@@ -35,6 +87,8 @@ const BlockOrUnblock = async (req,res) => {
         
     } catch (err) {
         console.error(err)
+        req.session.message = 'Something went wrong'
+        req.session.type = 'error'
         return res.status(500).redirect('/admin/users')
     }
 }
@@ -86,4 +140,42 @@ const EditUser = async (req,res) => {
     }
 };
 
-export default {loadUsers, BlockOrUnblock, DeleteUser, EditUser};
+const AddNewUser = async (req,res) => {
+    try {
+        const { name, email, phone, address, isActive, password } = req.body;
+
+        // 1. Check if user with that email already exists
+        const existingUser = await userSchema.findOne({ email });
+        if (existingUser) {
+            req.session.message = 'User with this email already exists.';
+            req.session.type = 'error'
+            return res.redirect('/admin/users'); 
+        }
+            const userId = `user_${Date.now()}`;
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            const newUser = new userSchema({
+            userId: userId, 
+            name,
+            email,
+            phone,
+            address,
+            password: hashedPassword,
+            isActive: (isActive === 'true'), // Convert "true" string to boolean
+            isVerified: true, 
+            role: 'User' 
+        });
+
+        await newUser.save();
+        req.session.message = 'New User created successfully'
+        req.session.type = 'success'
+        res.redirect('/admin/users')
+    } catch (err) {
+        console.error(err)
+          req.session.message = 'Error while adding new user.';
+        req.session.type = 'error'
+    }
+}
+
+export default {loadUsers, BlockOrUnblock, DeleteUser, EditUser, AddNewUser};

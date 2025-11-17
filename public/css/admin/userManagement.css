@@ -183,6 +183,10 @@ ul {
     font-size: 0.9em;
     text-align: center;
 }
+.status-pending {
+    background-color: #f5ffcf; /* A nice yellow/orange */
+    color: #9c9c03; /* Dark text for light background */
+}
 
 /* Style for the "Active" badge */
 .status-active {
@@ -330,8 +334,8 @@ ul {
 /* CSS for Edit Modal Form */
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
-    gap: 20px;
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px;
 }
 
 .form-group {
@@ -339,9 +343,9 @@ ul {
     flex-direction: column;
 }
 
-/* Make Address span full width */
+
 .form-group-full {
-    grid-column: 1 / -1; /* Span both columns */
+    grid-column: 1 / -1; 
 }
 
 .form-group label {
@@ -371,7 +375,7 @@ ul {
 }
 
 .btn-confirm-save {
-    background-color: #007bff; /* Blue */
+    background-color: #007bff; 
     color: white;
     padding: 10px 20px;
     border: none;
@@ -381,4 +385,115 @@ ul {
 }
 .btn-confirm-save:hover {
     background-color: #0056b3;
+}
+
+.required {
+    color: #dc3545; /* Red color */
+    margin-left: 3px;
+    font-weight: normal;
+}
+
+/* Style for the "Add User" button */
+.btn-confirm-add {
+    background-color: #007bff; 
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-confirm-add:hover {
+    background-color: #0056b3;
+}
+
+/* Search and Filter Bar */
+.search-filter-container {
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.search-bar {
+    flex-grow: 1; /* Makes the search bar take up most of the space */
+    position: relative;
+}
+
+.search-bar .search-icon,
+.filter-status .filter-icon {
+    position: relative;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+    margin-bottom: -83px;
+}
+
+.search-bar input,
+.filter-status select {
+    width: 100%;
+    padding: 12px 15px 12px 50px; /* Left padding for the icon */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+/* Remove default arrow on select */
+.filter-status select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 15px; /* Reset padding */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 1em;
+}
+
+.search-form .btn {
+    flex-shrink: 0; /* Prevents the button from shrinking */
+}
+
+/* Pagination styles */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-top: 1px solid #eee;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 10px;
+}
+
+/* Style for disabled links */
+.btn.disabled-link {
+    pointer-events: none; /* Makes the link unclickable */
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.next-btn {
+     background-color: #007bff; 
+     height: 32px;
+     padding-top: 4px;
+}
+.prev-btn {
+     height: 32px;
+     padding-top: 4px;
+
 }
