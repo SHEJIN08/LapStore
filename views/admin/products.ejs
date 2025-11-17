@@ -1,11 +1,122 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/admin/product.css">
 <body>
-    <h3>Product page</h3>
-</body>
+    
+    <div class="product-main-content">
+        
+        <%- include('../partials/sidebar',{activePage: 'products' }) %>
+    
+        <div class="main-page-content"> 
+
+            <div class="product-header">
+                <h1>Products</h1>
+                <button class="add-product-btn">Add New Product</button>
+            </div>
+    
+            <div class="product-grid">
+    
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="/images/admin/Laps/lap-4.png" alt="ProBook X1">
+                    </div>
+                    <div class="card-content">
+                        <h3>Dell XPS 13</h3>
+                        <p class="stock-status">150 in stock</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="price">$1200.00</span>
+                        <div class="card-actions">
+                            <button title="Edit"><img src="/images/admin/icons/edit-btn.png" alt=""></button>
+                            <button title="Delete"><img src="/images/admin/icons/delete-btn.png" alt=""></button>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="/images/admin/Laps/lap-2.png" alt="AeroBook Pro">
+                    </div>
+                    <div class="card-content">
+                        <h3>AeroBook Pro</h3>
+                        <p class="stock-status">78 in stock</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="price">$1499.00</span>
+                        <div class="card-actions">
+                            <button title="Edit"><img src="/images/admin/icons/edit-btn.png" alt=""></button>
+                            <button title="Delete"><img src="/images/admin/icons/delete-btn.png" alt=""></button>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="/images/admin/Laps/lap-3.png" alt="Convertible Touch 14">
+                    </div>
+                    <div class="card-content">
+                        <h3>Titan Gamin Beast</h3>
+                        <p class="stock-status">out of stock</p>
+                    </div>
+                    <div class="card-footer"> 
+                        <span class="price">$1350.00</span>
+                        <div class="card-actions">
+                            <button title="Edit"><img src="/images/admin/icons/edit-btn.png" alt=""></button>
+                            <button title="Delete"><img src="/images/admin/icons/delete-btn.png" alt=""></button>
+                        </div>
+                    </div>
+                </div>
+                 <div class="product-card">
+                    <div class="card-image">
+                        <img src="/images/admin/Laps/lap-5.png" alt="Convertible Touch 14">
+                    </div>
+                    <div class="card-content">
+                        <h3>MacBook Pro</h3>
+                        <p class="stock-status">50 in stock</p>
+                    </div>
+                    <div class="card-footer"> 
+                        <span class="price">$1950.00</span>
+                        <div class="card-actions">
+                            <button title="Edit"><img src="/images/admin/icons/edit-btn.png" alt=""></button>
+                            <button title="Delete"><img src="/images/admin/icons/delete-btn.png" alt=""></button>
+                        </div>
+                    </div>
+                </div>
+                 <div class="product-card">
+                    <div class="card-image">
+                        <img src="/images/admin/Laps/lap-6.png" alt="Convertible Touch 14">
+                    </div>
+                    <div class="card-content">
+                        <h3>ProBook X1</h3>
+                        <p class="stock-status">200 in stock</p>
+                    </div>
+                    <div class="card-footer"> 
+                        <span class="price">$1550.00</span>
+                        <div class="card-actions">
+                            <button title="Edit"><img src="/images/admin/icons/edit-btn.png" alt=""></button>
+                            <button title="Delete"><img src="/images/admin/icons/delete-btn.png" alt=""></button>
+                        </div>
+                    </div>
+                </div>
+                 <div class="product-card">
+                    <div class="card-image">
+                        <img src="/images/admin/Laps/lap-7.png" alt="Convertible Touch 14">
+                    </div>
+                    <div class="card-content">
+                        <h3>Lenovo V15 G4</h3>
+                        <p class="stock-status">100 in stock</p>
+                    </div>
+                    <div class="card-footer"> 
+                        <span class="price">$1850.00</span>
+                        <div class="card-actions">
+                            <button title="Edit"><img src="/images/admin/icons/edit-btn.png" alt=""></button>
+                            <button title="Delete"><img src="/images/admin/icons/delete-btn.png" alt=""></button>
+                        </div>
+                    </div>
+                </div>
+                
+                </div> 
+            </div> 
+            </div> 
+            
+            </body>
 </html>
