@@ -9,6 +9,9 @@ router.get('/login',adminAuth.isLogin,authController.loadLogin)
 router.post('/login',authController.login)
 router.get('/dashboard',adminAuth.checkSession,authController.loadDashboard)
 router.get('/products',adminAuth.checkSession,productController.loadProduct)
+router.get('/add-product',(req,res) => {
+    res.render('admin/add-product');
+})
 router.get('/users',adminAuth.checkSession,usersController.loadUsers)
 router.post('/users/toggle-block/:id',usersController.BlockOrUnblock)
 router.post('/users/delete/:id',usersController.DeleteUser)

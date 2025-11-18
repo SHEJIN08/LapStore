@@ -1,0 +1,182 @@
+<%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/admin/product.css">
+    <link rel="stylesheet" href="/css/admin/add-product.css">
+
+    <body>
+        <div class="product-main-content">
+            <%- include('../partials/sidebar',{activePage: 'products' }) %>
+
+                <div class="main-page-content">
+
+                    <form action="/admin/add-product" method="POST" enctype="multipart/form-data">
+
+                        <div class="product-header">
+                            <div>
+                                <p class="breadcrumb">Dashboard / Products / Add Product</p>
+                                <h1>Add Product</h1>
+                            </div>
+                            <div class="header-actions">
+                                <a href="/admin/products" class="btn-cancel">Cancel</a>
+                                <button type="submit" class="btn-save">Save Changes</button>
+                            </div>
+                        </div>
+
+                        <div class="add-product-grid">
+
+                            <div class="left-col">
+
+                                <div class="form-card">
+                                    <h3>Basic Information</h3>
+                                    <div class="form-group">
+                                        <label for="product-name">Product Name</label>
+                                        <input id="product-name" type="text" name="name" placeholder="Product name"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="product-description">Product Description</label>
+                                        <textarea id="product-description" name="description" placeholder="Description"
+                                            rows="4"></textarea>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-card">
+                                    <h3>Product Images</h3>
+                                    <div class="image-upload-area">
+                                        <div class="upload-placeholder">
+                                            <span>⬆️</span>
+                                            <p>Drag & drop files here</p>
+                                            <label for="file-upload" class="upload-link">Browse Files</label>
+                                            <input id="file-upload" type="file" name="images" multiple hidden>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-card">
+                                    <h3>Specifications</h3>
+
+                                    <div id="specs-container">
+
+                                        <div class="spec-row">
+                                            <div class="spec-group">
+                                                <input type="text" name="specKeys[]" placeholder="Key (e.g. RAM)"
+                                                    required>
+                                            </div>
+                                            <div class="spec-group">
+                                                <input type="text" name="specValues[]" placeholder="Value (e.g. 16GB)"
+                                                    required>
+                                            </div>
+                                            <button type="button" class="delete-spec"
+                                                onclick="removeSpec(this)">🗑️</button>
+                                        </div>
+
+                                    </div>
+
+                                    <button type="button" id="add-spec-btn" class="btn-add-spec">Add
+                                        Specification</button>
+                                </div>
+
+                            </div>
+
+                            <div class="right-col">
+
+                                <div class="form-card">
+                                    <h3>Pricing</h3>
+                                    <div class="form-group">
+                                        <label>Price</label>
+                                        <input type="number" name="price" placeholder="0.00" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Discounted Price</label>
+                                        <input type="number" name="discountPrice" placeholder="0.00">
+                                    </div>
+                                </div>
+
+                                <div class="form-card">
+                                    <h3>Inventory</h3>
+                                    <div class="form-group">
+                                        <label>SKU</label>
+                                        <input type="text" name="sku" placeholder="LP-AERO-15-7">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Stock Quantity</label>
+                                        <input type="number" name="stock" placeholder="0">
+                                    </div>
+                                </div>
+
+                                <div class="form-card">
+                                    <h3>Organization</h3>
+                                    <div class="form-group">
+                                        <label>Brand</label>
+                                        <input type="text" name="brand" placeholder="InnovateTech">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Category</label>
+                                        <select name="category">
+                                            <option value="ultrabook">Ultrabook</option>
+                                            <option value="gaming">Gaming</option>
+                                            <option value="workstation">Workstation</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-card">
+                                    <h3>Status</h3>
+                                    <div class="status-toggle">
+                                        <span>Published</span>
+                                        <label class="switch">
+                                            <input type="checkbox" name="isPublished" checked>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+        </div>
+        <script>
+    // 1. Select the button and the container
+    const addSpecBtn = document.getElementById('add-spec-btn');
+    const specsContainer = document.getElementById('specs-container');
+
+    // 2. Function to add a new row
+    addSpecBtn.addEventListener('click', () => {
+        // Create a new div for the row
+        const newRow = document.createElement('div');
+        newRow.classList.add('spec-row');
+
+        // Set the HTML content for the new row
+        newRow.innerHTML = `
+            <div class="spec-group">
+                <input type="text" name="specKeys[]" placeholder="Key" required>
+            </div>
+            <div class="spec-group">
+                <input type="text" name="specValues[]" placeholder="Value" required>
+            </div>
+            <button type="button" class="delete-spec" onclick="removeSpec(this)">🗑️</button>
+        `;
+
+        // Append the new row to the container
+        specsContainer.appendChild(newRow);
+    });
+
+    // 3. Function to remove a row
+    function removeSpec(button) {
+        // Find the row (.spec-row) that contains the clicked button
+        const row = button.closest('.spec-row');
+        
+        // If there is more than one row, remove it.
+        // (Optional: Keep at least one row so the form isn't empty)
+        const totalRows = document.querySelectorAll('.spec-row').length;
+        if (totalRows > 1) {
+            row.remove();
+        } else {
+            // Clear the inputs if it's the last row
+            row.querySelector('input[name="specKeys[]"]').value = '';
+            row.querySelector('input[name="specValues[]"]').value = '';
+        }
+    }
+</script>
+    </body>
