@@ -9,6 +9,7 @@
     --border-color: #ECEEF1;
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
+    /* Status colors */
     --status-green-bg: #EAF7E9;
     --status-green-text: #28a745;
     --status-red-bg: #FDECEC;
@@ -45,12 +46,10 @@ ul {
     min-height: 100vh;
 }
 
-/* This was missing - it's the main area for your content */
 .main-content {
     flex-grow: 1;
     padding: 24px;
 }
-
 
 /* ========= Main Header ========= */
 .main-header {
@@ -70,12 +69,7 @@ ul {
     font-weight: 400;
 }
 
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
+/* ========= Buttons ========= */
 .btn {
     height: 40px;
     padding: 0 16px;
@@ -91,13 +85,12 @@ ul {
     background-color: var(--primary-blue);
     color: white;
 }
+
 .btn-primary:hover {
     background-color: #0056b3;
 }
 
-
 /* ========= Card Styles ========= */
-/* A generic style for your main content blocks */
 .card {
     background-color: var(--card-bg);
     border-radius: 10px;
@@ -105,19 +98,62 @@ ul {
     padding: 20px;
 }
 
-/* Moved this from the unused chart section */
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* ========= Search and Filter Bar ========= */
+.search-filter-container {
+    padding: 20px;
     margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border-color);
 }
 
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
 
-/* ========= Orders Table ========= */
-/* Targets the table inside your new section */
+.search-bar {
+    flex-grow: 1;
+    position: relative;
+}
+
+.search-bar .search-icon,
+.filter-status .filter-icon {
+    position: relative;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+    margin-bottom: -83px;
+}
+
+.search-bar input,
+.filter-status select {
+    width: 100%;
+    padding: 12px 15px 12px 50px; /* Left padding for the icon */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+/* Remove default arrow on select */
+.filter-status select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 15px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 1em;
+}
+
+.search-form .btn {
+    flex-shrink: 0;
+}
+
+/* ========= Users Table ========= */
 .orders-table table {
     width: 100%;
     border-collapse: collapse;
@@ -141,67 +177,30 @@ ul {
     border-bottom: none;
 }
 
-/* Status Badges */
-.status {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    display: inline-block;
-}
-
-.status.completed {
-    background-color: var(--status-green-bg);
-    color: var(--status-green-text);
-}
-
-.status.cancelled {
-    background-color: var(--status-red-bg);
-    color: var(--status-red-text);
-}
-
-.status.pending {
-    background-color: var(--status-yellow-bg);
-    color: var(--status-yellow-text);
-}
-
-/* Style for the "View All" link */
-.view-all-link {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-    color: var(--primary-blue);
-    font-weight: 500;
-}
-.view-all-link:hover {
-    text-decoration: underline;
-}
-/* Base style for all badges */
+/* ========= Status Badges ========= */
 .status-badge {
     padding: 5px 12px;
-    border-radius: 15px; /* This makes it a "pill" shape */  
+    border-radius: 15px;
     font-size: 0.9em;
     text-align: center;
 }
+
 .status-pending {
-    background-color: #f5ffcf; /* A nice yellow/orange */
-    color: #9c9c03; /* Dark text for light background */
+    background-color: #f5ffcf;
+    color: #9c9c03;
 }
 
-/* Style for the "Active" badge */
 .status-active {
-    background-color: #defee5; /* A nice green */
+    background-color: #defee5;
     color: green;
 }
 
-/* Style for the "Blocked" badge */
 .status-blocked {
-    background-color: #ffdde1; /* A nice red */
-    color:red;
+    background-color: #ffdde1;
+    color: red;
 }
-/* Makes the button inside the "Unblock" form
-  look just like a regular dropdown link.
-*/
+
+/* ========= Dropdown Actions ========= */
 .dropdown-form {
     margin: 0;
 }
@@ -212,21 +211,21 @@ ul {
     background: none;
     border: none;
 }
-/* Optional: Make sure hover/focus matches your other items */
+
 .dropdown-form .dropdown-item:hover,
 .dropdown-form .dropdown-item:focus {
-    background-color: #f8f9fa; /* Or your dropdown's hover color */
+    background-color: #f8f9fa;
 }
 
-/* Modal styles */
+/* ========= Modal Styles (Block User) ========= */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Dimmed background */
-    display: none; /* Hidden by default */
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -238,7 +237,7 @@ ul {
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 90%;
-    max-width: 450px; /* From your image */
+    max-width: 450px;
     font-family: Arial, sans-serif;
 }
 
@@ -261,7 +260,7 @@ ul {
 
 .warning-icon {
     font-size: 1.5rem;
-    color: #f0ad4e; /* Orange warning color */
+    color: #f0ad4e;
 }
 
 .modal-close-btn {
@@ -295,174 +294,26 @@ ul {
     font-weight: bold;
     cursor: pointer;
 }
-/* Styles for the Block Modal */
+
 .btn-cancel {
     background-color: transparent;
     color: #555;
 }
+
 .btn-cancel:hover {
     background-color: #f4f4f4;
 }
 
 .btn-confirm-block {
-    background-color: #d9534f; /* Red/Orange for blocking */
+    background-color: #d9534f;
     color: white;
 }
+
 .btn-confirm-block:hover {
     background-color: #c9302c;
 }
 
-/* Styles for the Delete Modal */
-.danger-icon {
-    font-size: 1.5rem;
-    color: #dc3545; /* Red danger color */
-}
-
-.btn-confirm-delete {
-    background-color: #dc3545; /* Red */
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.btn-confirm-delete:hover {
-    background-color: #c82333; /* Darker red on hover */
-}
-
-/* CSS for Edit Modal Form */
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; 
-    gap: 10px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-
-.form-group-full {
-    grid-column: 1 / -1; 
-}
-
-.form-group label {
-    margin-bottom: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #333;
-}
-
-.form-group input,
-.form-group select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-}
-
-.form-group input[disabled] {
-    background-color: #f4f4f4;
-    cursor: not-allowed;
-}
-
-.form-group small {
-    font-size: 0.8rem;
-    color: #777;
-    margin-top: 4px;
-}
-
-.btn-confirm-save {
-    background-color: #007bff; 
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.btn-confirm-save:hover {
-    background-color: #0056b3;
-}
-
-.required {
-    color: #dc3545; /* Red color */
-    margin-left: 3px;
-    font-weight: normal;
-}
-
-/* Style for the "Add User" button */
-.btn-confirm-add {
-    background-color: #007bff; 
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.btn-confirm-add:hover {
-    background-color: #0056b3;
-}
-
-/* Search and Filter Bar */
-.search-filter-container {
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.search-form {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-}
-
-.search-bar {
-    flex-grow: 1; /* Makes the search bar take up most of the space */
-    position: relative;
-}
-
-.search-bar .search-icon,
-.filter-status .filter-icon {
-    position: relative;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    opacity: 0.6;
-    margin-bottom: -83px;
-}
-
-.search-bar input,
-.filter-status select {
-    width: 100%;
-    padding: 12px 15px 12px 50px; /* Left padding for the icon */
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-}
-
-/* Remove default arrow on select */
-.filter-status select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    padding-right: 15px; /* Reset padding */
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    background-size: 1em;
-}
-
-.search-form .btn {
-    flex-shrink: 0; /* Prevents the button from shrinking */
-}
-
-/* Pagination styles */
+/* ========= Pagination ========= */
 .pagination-container {
     display: flex;
     justify-content: space-between;
@@ -481,19 +332,19 @@ ul {
     gap: 10px;
 }
 
-/* Style for disabled links */
 .btn.disabled-link {
-    pointer-events: none; /* Makes the link unclickable */
+    pointer-events: none;
     opacity: 0.6;
     cursor: not-allowed;
 }
-.next-btn {
-     background-color: #007bff; 
-     height: 32px;
-     padding-top: 4px;
-}
-.prev-btn {
-     height: 32px;
-     padding-top: 4px;
 
+.next-btn {
+    background-color: #007bff;
+    height: 32px;
+    padding-top: 4px;
+}
+
+.prev-btn {
+    height: 32px;
+    padding-top: 4px;
 }
