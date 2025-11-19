@@ -9,6 +9,7 @@ import adminRoute from './routes/admin.js';
 import userRoute from './routes/user.js'
 import session from 'express-session';
 import nocache from 'nocache';
+import multer from 'multer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +28,7 @@ app.use(session({
 }))
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use("/uploads", express.static("uploads"));
 app.use(express.static('public'));
 app.use(express.urlencoded({extended:true}))
 app.use(express.json()); 
@@ -37,5 +39,13 @@ app.use('/admin', adminRoute);
 
 connectDB();
 
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ error: err.message });
+  } else if (err) {
+    return res.status(404).json({ error: err.message });
+  }
+  next();
+}); 
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

@@ -1,4 +1,3 @@
-import { name } from "ejs";
 import userSchema  from "../../model/userModel.js"
 import bcrypt from "bcrypt";
 
