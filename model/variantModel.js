@@ -7,10 +7,6 @@ const variantSchema = new mongoose.Schema({
         ref: 'Product', // Links to the 'Product' model
         required: true
     },
-    processor: {
-        type: String,
-        required: true
-    },
     ram: {
         type: String,
         required: true
@@ -21,7 +17,7 @@ const variantSchema = new mongoose.Schema({
     },
     color: {
         type: String,
-        required: true
+       default: "Standard"
     },
     graphics: {
         type: String,

@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
@@ -6,32 +7,37 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // 1. Corrected naming and type
-    categoryId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category", // Add 'ref' to link to your Category model
-      required: true,
-    },
+    // categoryId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Category", 
+    //   required: true,
+    // },
+    category: {type: String,required:true},
     description: {
       type: String,
-      maxlength: 200, // This is a good addition!
+      maxlength: 200, 
     },
     images: {
       type: [String],
       required: true,
     },
-    // 2. Corrected type
-    rating: {
+      rating: {
       type: Number,
       required: true,
-      default: 0, // A default value is good practice
+      default: 0, 
     },
-    // 3. Corrected naming and type
-    brandId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Brand", // Add 'ref' to link to your Brand model
-      required: true,
+    
+    // brandId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Brand", 
+    //   required: true,
+    // },
+
+    brand: { 
+      type: String, 
+      required: true, 
     },
+    isPublished: { type: Boolean, default: true }
   },
   {
     timestamps: true,
@@ -46,4 +52,4 @@ productSchema.virtual("variants", {
   foreignField: "productId", // ...'Variant.productId' matches 'this._id'
 });
 
-export default mongoose.model("Product", productSchema); // Changed "product" to "Product" (Mongoose convention)
+export default mongoose.model("Product", productSchema); 
