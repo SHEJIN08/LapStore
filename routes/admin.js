@@ -4,6 +4,7 @@ import authController from '../Controller/admin/authController.js'
 import adminAuth from '../middleware/adminAuth.js'
 import productController from '../Controller/admin/productController.js'
 import usersController from '../Controller/admin/usersController.js'
+import brandController from '../Controller/admin/brandController.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
 router.post('/login',authController.login)
@@ -14,6 +15,7 @@ router.post('/users/toggle-block/:id',usersController.BlockOrUnblock)
 router.post('/users/delete/:id',usersController.DeleteUser)
 router.post('/users/edit/:id',usersController.EditUser)
 router.post('/users/add',usersController.AddNewUser)
+router.get('/brands',brandController.loadBrand)
 router.get('/logout',adminAuth.checkSession,authController.logout)
 
 export default router;

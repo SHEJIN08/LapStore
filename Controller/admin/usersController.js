@@ -178,4 +178,5 @@ const AddNewUser = async (req,res) => {
     }
 }
 
+
 export default {loadUsers, BlockOrUnblock, DeleteUser, EditUser, AddNewUser};
