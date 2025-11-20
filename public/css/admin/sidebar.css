@@ -1,3 +1,20 @@
+:root {
+    --primary-blue: #007BFF;
+    --light-blue: #E6F2FF;
+    --body-bg: #F5F7FA;
+    --card-bg: #FFFFFF;
+    --text-dark: #2C3E50;
+    --text-light: #888888;
+    --border-color: #ECEEF1;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    --status-green-bg: #EAF7E9;
+    --status-green-text: #28a745;
+    --status-red-bg: #FDECEC;
+    --status-red-text: #dc3545;
+    --status-yellow-bg: #FEF7E6;
+    --status-yellow-text: #ffc107;
+}
 /* ========= Main Layout (Sidebar part) ========= */
 .sidebar {
     width: 260px;

@@ -1,4 +1,3 @@
-import { register } from "node:module";
 import UserOtpVerification from "../../model/otpModel.js";
 import userSchema from "../../model/userModel.js";
 

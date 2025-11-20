@@ -1,107 +1,132 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/admin/brand.css">
+    <link rel="stylesheet" href="/css/admin/brand.css">
 
-<body>
+    <body>
 
-    <div class="dashboard-container">
+        <div class="dashboard-container">
 
-        <%- include('../partials/sidebar',{activePage: 'brands' }) %>
+            <%- include('../partials/sidebar',{activePage: 'brands' }) %>
 
-        <main class="main-content">
+                <main class="main-content">
 
-            <header class="main-header">
-                <div class="header-title">
-                    <h2>Brand Management</h2>
-                    <p>List all Brands and manage access.</p>
-                </div>
-                <a href="/admin/brands/add" class="btn btn-primary">
-                    + New Brand
-                </a>
-            </header>
+                    <header class="main-header">
+                        <div class="header-title">
+                            <h2>Brand Management</h2>
+                            <p>List all Brands and manage access.</p>
+                        </div>
+                        <a href="/admin/brands/add" class="btn btn-primary">
+                            + New Brand
+                        </a>
+                    </header>
 
-            <section class="card">
-                <div class="table-responsive">
-                    <table class="brand-table">
-                        <thead>
-                            <tr>
-                                <th>Logo</th>
-                                <th>Brand Name</th>
-                                <th>Country</th>
-                                <th>Founded</th>
-                                <th>Website</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                    <td>
-                                        <div class="img-container">
-                                            <img src="/images/brands/dell.png" alt="Dell" class="brand-logo">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="brand-info">
-                                            <span class="brand-name">Dell</span>
-                                            <span class="brand-id">BRD-001</span>
-                                        </div>
-                                    </td>
-                                    <td>United States</td>
-                                    <td>1984</td>
-                                    <td><a href="#" class="visit-site">Visit Site</a></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="/admin/brands/edit/1" class="action-btn edit" title="Edit">
-                                                <i class="bi bi-pencil"></i> </a>
-                                            <a href="/admin/brands/delete/1" class="action-btn delete" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
+                    <section class="card">
+                        <div class="table-responsive">
+                            <table class="brand-table">
+                                <thead>
+                                    <tr>
+                                        <th>Logo</th>
+                                        <th>Brand Name</th>
+                                        <th>Country</th>
+                                        <th>Founded</th>
+                                        <th>Website</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (data && data.length> 0) { %>
+                                        <% data.forEach((brand, index)=> { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="img-container">
+                                                        <img src="<%= brand.brandImage[0] %>"
+                                                            alt="<%= brand.brandName %>" class="brand-logo">
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="brand-info">
+                                                        <span class="brand-name">
+                                                            <%= brand.brandName %>
+                                                        </span>
+                                                        <span class="brand-id">BRD-<%= String(brand._id).substring(20,
+                                                                24).toUpperCase() %></span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <%= brand.country %>
+                                                </td>
+                                                <td>
+                                                    <%= brand.foundedYear %>
+                                                </td>
+                                                <td>
+                                                    <a href="<%= brand.website %>" target="_blank"
+                                                        class="visit-site">Visit Site</a>
+                                                </td>
+                                                <td>
+                                                    <div class="action-buttons">
 
-                                <tr>
-                                    <td>
-                                        <div class="img-container">
-                                            <img src="/images/brands/hp.png" alt="HP" class="brand-logo">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="brand-info">
-                                            <span class="brand-name">HP</span>
-                                            <span class="brand-id">BRD-002</span>
-                                        </div>
-                                    </td>
-                                    <td>United States</td>
-                                    <td>1939</td>
-                                    <td><a href="#" class="visit-site">Visit Site</a></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="/admin/brands/edit/2" class="action-btn edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <a href="/admin/brands/delete/2" class="action-btn delete">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
+                                                        <a href="/admin/brands/edit?id=<%= brand._id %>"
+                                                            class="action-btn text-primary" id="brand-edit" title="Edit Brand">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </a>
 
+                                                        <% if(brand.isBlocked===false) { %>
+                                                            <a href="/admin/blockBrand?id=<%= brand._id %>"
+                                                                class="action-btn text-danger" title="Click to Unlist">
+                                                                <i class="bi bi-slash-circle"></i>
+                                                            </a>
+                                                            <% } else { %>
+                                                                <a href="/admin/unBlockBrand?id=<%= brand._id %>"
+                                                                    class="action-btn text-success"
+                                                                    title="Click to List">
+                                                                    <i class="bi bi-check-circle"></i>
+                                                                </a>
+                                                                <% } %>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="6" style="text-align:center; padding: 20px;">
+                                                            No brands found. Click "New Brand" to add one.
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
                                 </tbody>
-                    </table>
-                </div>
+                            </table>
+                        </div>
 
-                <div class="pagination-container">
-                    <span class="pagination-info">
-                        Showing 1 to 10 of 97 results
-                    </span>
-                    <div class="pagination-controls">
-                        <button class="btn prev-btn disabled-link">Previous</button>
-                        <button class="btn btn-primary next-btn">Next</button>
-                    </div>
-                </div>
-            </section>
+                        <div class="pagination-container">
+                            <span class="pagination-info">
+                                Showing <%= ((currentPage - 1) * 4) + 1 %>
+                                    to <%= Math.min(currentPage * 4, totalBrands) %>
+                                        of <%= totalBrands %> results
+                            </span>
 
-        </main>
-    </div>
+                            <div class="pagination-controls">
+                                <% if (currentPage> 1) { %>
+                                    <a href="/admin/brands?page=<%= currentPage - 1 %>"
+                                        class="btn prev-btn">Previous</a>
+                                    <% } else { %>
+                                        <button class="btn prev-btn disabled-link" disabled>Previous</button>
+                                        <% } %>
 
-<%- include('../partials/footer') %>
+                                            <% if (currentPage < totalPages) { %>
+                                                <a href="/admin/brands?page=<%= currentPage + 1 %>"
+                                                    class="btn btn-primary next-btn">Next</a>
+                                                <% } else { %>
+                                                    <button class="btn btn-primary next-btn" disabled>Next</button>
+                                                    <% } %>
+                            </div>
+                        </div>
+                    </section>
+
+                </main>
+        </div>
+         <input type="text" id="message" value="<%= message %>" name="message" hidden>
+        <input type="hidden" id="type" value="<%= type %>" name="value">
+
+        
+
+        <%- include('../partials/footer') %>

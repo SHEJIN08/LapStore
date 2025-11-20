@@ -1,15 +1,13 @@
 import Product from '../../model/productModel.js' 
-import Variant from '../../model/variantModel.js'; // Import this!
+import Variant from '../../model/variantModel.js'; 
 import Category from '../../model/categoryModel.js';
 
 const loadProduct = async (req, res) => {
     try {
-        // You might fetch data from DB here later, 
-        // but for now, we pass an empty array to fix the error.
-        
+       
         res.render('admin/products', { 
-            products: [],      // <--- You were missing this!
-            currentPage: 1,    // Adding this to prevent pagination errors
+            products: [],     
+            currentPage: 1,   
             totalPages: 1      // Adding this to prevent pagination errors
         });
 
