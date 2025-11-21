@@ -11,9 +11,11 @@ export const sendOtp = async (email) => {
     // Generate OTP
     const otp = `${Math.floor(100000 + Math.random() * 900000)}`;
 
+    await UserOtpVerification.deleteMany({ email });
+
     // Save to DB using correct field name
     await UserOtpVerification.create({
-      email,
+      email: email,
       otpCode: otp,
       createdAt: new Date()
     });
@@ -25,7 +27,7 @@ export const sendOtp = async (email) => {
       subject: "OTP Verification",
       html: `
         <h2>Your OTP is: <b>${otp}</b></h2>
-        <p>This OTP is valid for 5 minutes.</p>
+        <p>This OTP is valid for 2 minutes.</p>
       `
     });
 

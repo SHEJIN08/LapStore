@@ -7,6 +7,13 @@ export const verifyOtp = async (req, res) => {
     const email = req.session.email;
     const { otp } = req.body;
     
+     const message = req.session.message;
+    const type = req.session.type;
+
+  // Clear message BEFORE rendering page
+  req.session.message = null;
+  req.session.type = null;
+
     if (!email || !req.session.otpPurpose) {
   req.session.message = "Session expired. Please try again.";
   req.session.type = "error";
@@ -15,6 +22,8 @@ export const verifyOtp = async (req, res) => {
 
 
     const record = await UserOtpVerification.findOne({ email });
+
+  
 
     if (!record) {
       req.session.message = "OTP expired. Request again.";
@@ -28,6 +37,7 @@ export const verifyOtp = async (req, res) => {
       return res.redirect("/user/verify-otp");
     }
 
+    
     // OTP is correct
     await UserOtpVerification.deleteMany({ email });
 
@@ -39,7 +49,7 @@ export const verifyOtp = async (req, res) => {
         { isVerified: true }
       );
 
-      req.session.message = "Account verified!";
+      req.session.message = "Email verified!";
       req.session.type = "success";
       return res.redirect("/user/login");
     }

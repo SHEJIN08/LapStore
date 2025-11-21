@@ -7,14 +7,7 @@ import { verifyOtp } from "../Controller/user/otpController.js";
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
 router.post('/register',authController.registerUser)
-router.get("/verify-otp", (req, res) => {
-  res.render("user/verifyOtp", {
-    message: req.session.message,
-    type: req.session.type
-  });
-  req.session.message = null;
-  req.session.type = null;
-});
+router.get("/verify-otp",authController.loadVerifyOtp);
 router.post('/verify-otp',verifyOtp)
 router.get("/resend-otp",authController.resendOtp);
 router.get('/forgot-password',authController.forgotPassword)

@@ -45,12 +45,37 @@
         <p class="resend-text">
                 Didn't get the OTP? <a href="/user/resend-otp">Resend in 30s</a>
             </p>
+
+            <div id="timer"></div>
     </form>
 </div>
+  
 </main>
 
 <script>
-    const inputs = document.querySelectorAll(".otp-input" );
+
+     const expiresAt = JSON.parse('<%= JSON.stringify(otpExpiresAt) %>');
+  
+  function updateTimer() {
+    const now = Date.now();
+    const diff = expiresAt - now;  
+
+    if (diff <= 0) {
+      document.getElementById("timer").innerHTML = "<span style='color:red'>OTP expired!</span>";
+      // FIXED: use querySelectorAll instead of getElementById
+      document.querySelectorAll("#otpForm input, #otpForm button").forEach(el => el.disabled = true);
+      return;
+    }
+
+    const seconds = Math.floor(diff / 1000);
+    document.getElementById("timer").textContent = "OTP expires in " + seconds + "s";
+
+    setTimeout(updateTimer, 1000);
+  }
+
+  updateTimer();
+  
+    const inputs = document.querySelectorAll(".otp-input");
     const fullOtpInput = document.getElementById("fullOtp");
 
     inputs.forEach((input, index) => {
@@ -71,7 +96,8 @@
         });
     });
 </script>
-
+<input type="text" id="message" value="<%= message %>" name="message" hidden>
+    <input type="hidden" id="type" value="<%= type %>" name="value">
 
 
 <%- include('../partials/footer') %>
