@@ -5,6 +5,7 @@ import adminAuth from '../middleware/adminAuth.js'
 import productController from '../Controller/admin/productController.js'
 import usersController from '../Controller/admin/usersController.js'
 import brandController from '../Controller/admin/brandController.js'
+import categoryController from '../Controller/admin/categoryController.js'
 import upload from '../middleware/multer.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
@@ -25,10 +26,12 @@ router.get('/brands', brandController.getBrandPage);
 router.get('/brands/add', brandController.getAddBrandPage);
 router.post('/brands/add', upload.single('brandLogo'), brandController.addBrand); 
 router.get('/brands/edit', brandController.getEditBrand);
-
 router.post('/brands/edit', upload.single('brandLogo'), brandController.editBrand);
 router.get('/blockBrand', brandController.blockBrand);
 router.get('/unBlockBrand', brandController.unBlockBrand);
+
+router.get('/category',categoryController.loadCategory);
+router.post('/category/add-category', categoryController.addCategory)
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

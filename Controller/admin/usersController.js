@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 
         // --- 2. Pagination parameters ---
         const page = Number.parseInt(req.query.page) || 1; // Get page number, default to 1
-        const limit = 5; // Set a fixed number of users per page
+        const limit = 10; // Set a fixed number of users per page
         const skip = (page - 1) * limit; // Calculate how many documents to skip
 
         let query = {};

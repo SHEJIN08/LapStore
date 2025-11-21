@@ -1,0 +1,141 @@
+<%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/admin/category.css">
+
+    <body>
+
+        <div class="dashboard-container">
+
+            <%- include('../partials/sidebar',{activePage: 'category' }) %>
+
+                <main class="main-content">
+
+                    <header class="main-header">
+                        <div class="header-title">
+                            <h2>Category Management</h2>
+                            <p>List all category and manage access.</p>
+                        </div>
+                        <button type="button" id="openModalBtn" class="btn btn-primary">
+                            + Add New Category
+                        </button>
+                    </header>
+
+                    <section class="card">
+                        <div class="table-responsive">
+                            <table class="category-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category Name</th>
+                                        <th>Products</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% categories.forEach(category => { %>
+                                        <tr>
+                                            <td><%= category.categoryName  %></td>
+                                            <td><%= category.orders %></td>
+                                            <td>
+                                               <% if(!category.isListed){ %>
+                                                    <span class="status-badge status-blocked">Unlisted</span>
+                                             <%   } else {  %>
+                                                    <span class="status-badge status-active">Listed</span>
+                                             <%   }  %>
+                                            </td>
+                                            <td> <%= String(category.createdAt).split(' ').slice(1,4).join(" ") %> </td>
+                                            <td><img src="/images/admin/icons/edit-btn.png" alt=""
+                                                    style="width: 20px; height: 20px;">
+                                                <img src="/image/admin/icons/delete-btn.png" alt=""
+                                                    style="width: 20px; height: 20px;">
+                                            </td>
+    
+                                        </tr>
+                                    </tbody>
+                             <%    })  %> 
+                            </table>
+                        </div>
+
+                    </section>
+
+                    <!-- Add new category modal -->
+                    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="modalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow-lg rounded-3">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalLabel">Add New Category</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <form action="/admin/category/add-category" method="POST" id="categoryForm">
+
+                                        
+                                            <div class="mb-4">
+                                                <label for="catName" class="form-label">Category Name <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="categoryName" id="catName"
+                                                    placeholder="e.g. Laptops" required>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label for="catDesc" class="form-label">Description</label>
+                                                <textarea class="form-control" name="description" id="catDesc" rows="3"
+                                                    placeholder="Brief description"></textarea>
+                                            </div>
+
+                                            <div class="row mb-4">
+                                                <div class="col-md-6">
+                                                    <label for="catOrder" class="form-label">Display Order</label>
+                                                    <input type="number" class="form-control" name="orders"
+                                                        id="catOrder" value="0" min="0">
+                                                    <div class="form-text text-muted small mt-1">Lower numbers display
+                                                        first</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="catStatus" class="form-label">Status</label>
+                                                    <select class="form-select" name="isListed" id="catStatus">
+                                                        <option value="true" selected>List</option>
+                                                        <option value="false">Unlist</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" name="showInNav"
+                                                        value="true" id="showNav" checked>
+                                                    <label class="form-check-label" for="showNav">Show in navigation
+                                                        menu</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="isFeatured"
+                                                        value="true" id="isFeatured" checked>
+                                                    <label class="form-check-label" for="isFeatured">Featured
+                                                        category</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-cancel"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-save">Save Category</button>
+                                        </div>
+
+                                    </form>
+                               
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <input type="text" id="message" value="<%= message %>" name="message" hidden>
+                    <input type="hidden" id="type" value="<%= type %>" name="value">
+
+                    <script src="/js/admin/category.js" defer></script>
+                    <%- include('../partials/footer') %>
