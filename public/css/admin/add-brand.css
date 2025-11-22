@@ -239,3 +239,19 @@ ul {
         justify-content: flex-end;
         gap: 10px;
     }
+    .my-custom-toast {
+        border-radius: 20px;
+        font-weight: 500;
+    }
+   
+    /* Ensure preview image fits container for cropping */
+    .preview-content img {
+        display: block;
+        max-width: 100%; /* This rule is very important, please do not ignore this */
+        max-height: 400px; /* Limit height so it doesn't take over screen */
+    }
+    /* Fix Cropper container styling */
+    .cropper-container {
+        width: 100%;
+        height: auto;
+    }

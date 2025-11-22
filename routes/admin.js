@@ -25,10 +25,10 @@ router.post('/users/toggle-block/:id',usersController.BlockOrUnblock)
 router.get('/brands', brandController.getBrandPage);
 router.get('/brands/add', brandController.getAddBrandPage);
 router.post('/brands/add', upload.single('brandLogo'), brandController.addBrand); 
-router.get('/brands/edit', brandController.getEditBrand);
-router.post('/brands/edit', upload.single('brandLogo'), brandController.editBrand);
-router.get('/blockBrand', brandController.blockBrand);
-router.get('/unBlockBrand', brandController.unBlockBrand);
+router.get('/brands/edit/:brandId', brandController.getEditBrand);
+router.patch('/brands/edit/:brandId', upload.single('brandLogo'), brandController.editBrand);
+router.get('/brands/block/:brandId', brandController.blockBrand);
+router.get('/brands/unblock/:brandId', brandController.unBlockBrand);
 
 router.get('/category',categoryController.loadCategory);
 router.post('/category/add-category', categoryController.addCategory)

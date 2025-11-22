@@ -17,22 +17,16 @@ const getBrandPage = async (req, res) => {
         // Count total for pagination
         const totalBrands = await Brand.countDocuments();
         const totalPages = Math.ceil(totalBrands / limit);
-        
-        const message = req.session.message || ""
-        const type = req.session.type || ""
-        req.session.message = null
-        req.session.type = null
-
+    
         res.render('admin/brand', {
             data: brandData,
             currentPage: page,
             totalPages: totalPages,
             totalBrands: totalBrands,
-            message,type
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Server Error");
+        res.status(500).json({success: false, message: 'Something went wrong'});
     }
 };
 
@@ -46,9 +40,7 @@ const addBrand = async (req, res) => {
     try {
         const { brandName, country, foundedYear, website, description } = req.body;
         if(!req.file){
-            req.session.message = 'Please upload a brand logo';
-            req.session.type =  'error'
-            return res.render('admin/add-brand')
+           return res.status(400).json({success: false, message: 'Please upload a brand logo'});
         }
         const image = req.file.url; //path contains full url of cloudinary
 
@@ -56,9 +48,7 @@ const addBrand = async (req, res) => {
         const findBrand = await Brand.findOne({ brandName: { $regex: new RegExp("^" + brandName + "$", "i") }});
         
         if (findBrand) {
-            req.session.message = 'Brand already exists';
-            req.sessiontype='error' 
-            return res.render('admin/add-brand');
+           return res.status(400).json({success: false, message: 'Brand already exist'});
         }
 
         const newBrand = new Brand({
@@ -71,30 +61,28 @@ const addBrand = async (req, res) => {
         });
 
         await newBrand.save();
-        req.session.message = 'New Brand Added successfully';
-        req.session.type = 'success';
-        res.redirect('/admin/brands');
+       return res.status(200).json({success: true, message: 'New brand added successfully'});
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Server Error");
+    } catch (err) {
+        console.error(err);
+       return res.status(500).json({success: false, message: 'Something went wrong'});
     }
 };
 
-// 4. GET: Block/Unblock Brand (Optional Extra)
 const blockBrand = async (req, res) => {
     try {
-        const id = req.query.id;
+        const id = req.params.id;
         await Brand.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        res.redirect('/admin/brands');
-    } catch (error) {
-        console.error(error);
+        return res.status(200).json({success: true, message: 'Blocked'})
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({success: false, message: 'Something went wrong'});
     }
 };
 
 const unBlockBrand = async (req, res) => {
     try {
-        const id = req.query.id;
+        const id = req.params.id;
         await Brand.updateOne({ _id: id }, { $set: { isBlocked: false } });
         res.redirect('/admin/brands');
     } catch (error) {
@@ -104,24 +92,31 @@ const unBlockBrand = async (req, res) => {
 // Render the Edit Page with existing data
 const getEditBrand = async (req, res) => {
     try {
-        const id = req.query.id;
-        const brand = await Brand.findById(id);
+        // 1. Get the ID from the URL (based on your logs, it is 'brandId')
+        const brandId = req.params.brandId;
         
+        // 2. Find the brand
+        const brand = await Brand.findById(brandId);
+
+        // 3. CHECK FIRST: If brand doesn't exist, redirect and STOP.
         if (!brand) {
-            return res.redirect('/admin/brands');
+            return res.redirect('/admin/brands'); // 'return' is crucial here!
         }
 
-        res.render('admin/edit-brand', { brand: brand });
+        // 4. Render ONLY if the brand exists (and hasn't redirected)
+        res.render('admin/edit-brand', { brand });
+
     } catch (error) {
-        console.error(error);
-        res.redirect('/admin/pageerror');
+        console.error("Error in getEditBrand:", error);
+        // If ID format is invalid, redirect back to list
+        return res.redirect('/admin/brands'); 
     }
 };
 
 //  Handle the Update
 const editBrand = async (req, res) => {
     try {
-        const id = req.query.id;
+        const id = req.params.brandId;
         const { brandName, country, foundedYear, website, description } = req.body;
         
         // Find the existing brand first
@@ -142,16 +137,12 @@ const editBrand = async (req, res) => {
         if (req.file) {
             brand.brandImage = [req.file.url];
         }
-      req.session.message = 'Brand edited successfully';
-      req.session.type = 'success';
-
         await brand.save();
+        return res.status(200).json({success: true, message: 'Brand updated successfully'});
 
-        res.redirect('/admin/brands');
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
+    } catch (err) {
+        console.error(err);
+          return res.status(500).json({success: false, message: 'Something went wrong'});
     }
 };
 

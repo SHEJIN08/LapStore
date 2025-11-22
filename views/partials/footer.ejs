@@ -8,30 +8,5 @@
     </footer>
 
 
-    <script>
-        const msg = document.getElementById("message").value;
-        const type = document.getElementById("type").value;
-
-  if (msg) {
-  Toastify({
-    text: msg,
-    duration: 3000,
-    gravity: "top",
-    position: "right",
-   className: "my-custom-toast",
-    backgroundColor:
-      type === "success"
-        ? "#28a745"
-        : "linear-gradient(to right, #e52d27, #b31217)"
-  }).showToast();
-}
-    </script>
-
-    <style>
-      .my-custom-toast {
-      border-radius: 20px; 
-      }  
-    </style>
-    
 </body>
 </html>

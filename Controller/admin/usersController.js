@@ -1,5 +1,5 @@
 import userSchema  from "../../model/userModel.js"
-import bcrypt from "bcrypt";
+
 
   const loadUsers = async (req,res) => {
     try {
@@ -48,20 +48,15 @@ import bcrypt from "bcrypt";
         const totalPages = Math.ceil(totalUsers / limit);
 
 
-        const message = req.session.message || ""
-        const type = req.session.type || ""
-        req.session.message = null
-        req.session.type = null
+       
     return  res.render('admin/users',{users:users,currentSearch: search,
             currentStatus: status,totalUsers: totalUsers,
             totalPages: totalPages,
             currentPage: page,
-            limit: limit, message, type})
+            limit: limit})
     } catch (err) {
         console.error(err)
-        req.session.message = 'Something went wrong'
-        req.session.type = 'error'
-        res.status(500).send('Error loading users')
+        res.status(500).json({success: false, message: 'Something went wrong'})
     }
 }; 
 
@@ -71,24 +66,16 @@ const BlockOrUnblock = async (req,res) => {
 
         const user = await userSchema.findById(userId);
         if(!user){
-           req.session.message = 'User not found'
-           req.session.type = 'error'
-            return res.redirect('/admin/users')
+          return   res.status(400).json({success: false, message: 'User not found'})
         }
 
         user.isActive = !user.isActive;
         await user.save();
-
-        req.session.message = "User status changed successfully";
-        req.session.type = 'success';
-
-        res.redirect('/admin/users')
+        return  res.status(200).json({success: true, message: 'User status changed successfully'})
         
     } catch (err) {
         console.error(err)
-        req.session.message = 'Something went wrong'
-        req.session.type = 'error'
-        return res.status(500).redirect('/admin/users')
+        return   res.status(500).json({success: false, message: 'Something went wrong'})
     }
 }
 

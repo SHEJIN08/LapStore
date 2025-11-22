@@ -14,8 +14,8 @@
                 </div>
             </header>
 
-            <div class="card form-card">
-                <form action="/admin/brands/add" method="POST" enctype="multipart/form-data" id="addBrandForm">
+           <div class="card form-card">
+                <form id="addBrandForm" enctype="multipart/form-data">
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -49,11 +49,13 @@
                             </div>
                             
                             <div class="preview-content" id="previewContent" style="display: none;">
-                                <img src="" alt="Preview" id="imagePreview">
+                                <div>
+                                    <img src="" alt="Preview" id="imagePreview">
+                                </div>
                                 <button type="button" id="removeImageBtn">&times;</button>
                             </div>
 
-                            <input type="file" name="brandLogo" id="fileInput" accept="image/*" hidden required>
+                            <input type="file" name="brandLogo" id="fileInput" accept="image/*" hidden>
                         </div>
                     </div>
 
@@ -64,52 +66,15 @@
 
                     <div class="form-actions">
                         <a href="/admin/brands" class="btn btn-cancel">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Add Brand</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Add Brand</button>
                     </div>
 
                 </form>
             </div>
         </main>
     </div>
-
-    <script>
-        // Simple script to handle Image Preview
-        const uploadContainer = document.getElementById('uploadContainer');
-        const fileInput = document.getElementById('fileInput');
-        const uploadContent = document.getElementById('uploadContent');
-        const previewContent = document.getElementById('previewContent');
-        const imagePreview = document.getElementById('imagePreview');
-        const removeBtn = document.getElementById('removeImageBtn');
-
-        // Trigger file input when clicking the container
-        uploadContainer.addEventListener('click', () => {
-            if (fileInput.value === '') {
-                fileInput.click();
-            }
-        });
-
-        // Handle file selection
-        fileInput.addEventListener('change', function(e) {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    imagePreview.src = event.target.result;
-                    uploadContent.style.display = 'none';
-                    previewContent.style.display = 'flex';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Handle remove image
-        removeBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering container click
-            fileInput.value = '';
-            imagePreview.src = '';
-            uploadContent.style.display = 'flex';
-            previewContent.style.display = 'none';
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
 <%- include('../partials/footer') %>
+<script src="/js/axios.min.js"></script>
+<script src="/js/admin/add-brand.js"></script>

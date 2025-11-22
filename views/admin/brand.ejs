@@ -64,18 +64,18 @@
                                                 <td>
                                                     <div class="action-buttons">
 
-                                                        <a href="/admin/brands/edit?id=<%= brand._id %>"
+                                                        <a href="/admin/brands/edit/<%= brand._id %>"
                                                             class="action-btn text-primary" id="brand-edit" title="Edit Brand">
                                                             <i class="bi bi-pencil-square"></i>
                                                         </a>
 
                                                         <% if(brand.isBlocked===false) { %>
-                                                            <a href="/admin/blockBrand?id=<%= brand._id %>"
+                                                            <a href="/admin/brands/block/<%= brand._id %>"
                                                                 class="action-btn text-danger" title="Click to Unlist">
                                                                 <i class="bi bi-slash-circle"></i>
                                                             </a>
                                                             <% } else { %>
-                                                                <a href="/admin/unBlockBrand?id=<%= brand._id %>"
+                                                                <a href="/admin/brands/unblock/<%= brand._id %>"
                                                                     class="action-btn text-success"
                                                                     title="Click to List">
                                                                     <i class="bi bi-check-circle"></i>
@@ -124,9 +124,7 @@
 
                 </main>
         </div>
-         <input type="text" id="message" value="<%= message %>" name="message" hidden>
-        <input type="hidden" id="type" value="<%= type %>" name="value">
-
+       
         
 
         <%- include('../partials/footer') %>

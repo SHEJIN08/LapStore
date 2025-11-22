@@ -71,7 +71,7 @@
                                 </div>
 
                                 <div class="modal-body">
-                                    <form action="/admin/category/add-category" method="POST" id="categoryForm">
+                                    <form id="categoryForm">
 
                                         
                                             <div class="mb-4">
@@ -134,8 +134,7 @@
 
 
 
-                    <input type="text" id="message" value="<%= message %>" name="message" hidden>
-                    <input type="hidden" id="type" value="<%= type %>" name="value">
-
-                    <script src="/js/admin/category.js" defer></script>
+                    
                     <%- include('../partials/footer') %>
+                    <script src="/js/axios.min.js"></script>
+                    <script src="/js/admin/category.js" defer></script>

@@ -348,3 +348,7 @@ ul {
     height: 32px;
     padding-top: 4px;
 }
+ /* tostify */
+ .my-custom-toast {
+      border-radius: 20px; 
+      }  
