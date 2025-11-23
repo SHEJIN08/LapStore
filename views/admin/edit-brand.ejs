@@ -1,259 +1,263 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-<link rel="stylesheet" href="/css/admin/add-brand.css"> 
-<style>
-    
-    .current-logo-preview {
-        margin-bottom: 10px;
-        text-align: center;
-    }
-  
-   
-</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link rel="stylesheet" href="/css/admin/add-brand.css">
+    <style>
+        .current-logo-preview {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+    </style>
 
-<body>
-    <div class="dashboard-container">
-        
-        <%- include('../partials/sidebar', { activePage: 'brands' }) %>
+    <body>
+        <div class="dashboard-container">
 
-        <main class="main-content">
-            <header class="main-header">
-                <div class="header-title">
-                    <h2>Laptop Brands</h2>
-                </div>
-            </header>
+            <%- include('../partials/sidebar', { activePage: 'brands' }) %>
 
-            <div class="card form-card">
-                <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-                    <h3>Edit Brand</h3>
-                </div>
-
-                <form id="editBrandForm"  enctype="multipart/form-data" >
-                    <input type="hidden" id="brandId" value="<%= brand._id %>">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Brand Name <span class="required">*</span></label>
-                            <input type="text" id="brandName" name="brandName" value="<%= brand.brandName %>" required>
+                <main class="main-content">
+                    <header class="main-header">
+                        <div class="header-title">
+                            <h2>Laptop Brands</h2>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Country <span class="required">*</span></label>
-                            <input type="text" name="country" value="<%= brand.country %>" required>
-                        </div>
-                    </div>
+                    </header>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Founded Year <span class="required">*</span></label>
-                            <input type="number" name="foundedYear" value="<%= brand.foundedYear %>" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Website <span class="required">*</span></label>
-                            <input type="url" name="website" value="<%= brand.website %>" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label class="form-label">Logo</label>
-                        
-                       <div class="current-logo-preview">
-                            <p style="font-size: 12px; color: #888;">Current Logo:</p>
-                            <% if(brand.brandImage && brand.brandImage.length > 0) { %>
-                                <img src="/uploads/brands/<%= brand.brandImage[0] %>" alt="Current Logo" style="max-height: 100px;">
-                            <% } else { %>
-                                <p>No logo uploaded</p>
-                            <% } %>
+                    <div class="card form-card">
+                        <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                            <h3>Edit Brand</h3>
                         </div>
 
-                        <div class="upload-container" id="uploadContainer">
-                            <div class="upload-content" id="uploadContent">
-                                <img src="/images/admin/icons/upload-cloud.svg" alt="Upload" class="upload-icon">
-                                <p>Drag & drop files here to replace</p>
-                                <span class="browse-btn">Browse Files</span>
-                            </div>
-                            
-                            <div class="preview-content" id="previewContent" style="display: none;">
-                                <img src="" alt="Preview" id="imagePreview">
-                                <button type="button" id="removeImageBtn">&times;</button>
+                        <form id="editBrandForm" enctype="multipart/form-data">
+                            <input type="hidden" id="brandId" value="<%= brand._id %>">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Brand Name <span class="required">*</span></label>
+                                    <input type="text" id="brandName" name="brandName" value="<%= brand.brandName %>"
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Country <span class="required">*</span></label>
+                                    <input type="text" name="country" value="<%= brand.country %>" required>
+                                </div>
                             </div>
 
-                            <input type="file" name="brandLogo" id="fileInput" accept="image/*" hidden>
-                        </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Founded Year <span class="required">*</span></label>
+                                    <input type="number" name="foundedYear" value="<%= brand.foundedYear %>" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Website <span class="required">*</span></label>
+                                    <input type="url" name="website" value="<%= brand.website %>" required>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Logo</label>
+
+                                <div class="current-logo-preview">
+                                    <p style="font-size: 12px; color: #888;">Current Logo:</p>
+
+                                    <% if (brand.brandImage && brand.brandImage.length> 0) { %>
+
+                                        <img src="<%= brand.brandImage[0].startsWith('http') ? brand.brandImage[0] : '/uploads/brands/' + brand.brandImage[0] %>"
+                                            alt="Current Logo"
+                                            style="max-height: 100px; border-radius: 5px; border: 1px solid #ddd;">
+
+                                        <% } else { %>
+                                            <p>No logo uploaded</p>
+                                            <% } %>
+                                </div>
+
+                                <div class="upload-container" id="uploadContainer">
+                                    <div class="upload-content" id="uploadContent">
+                                        <div style="font-size: 40px; margin-bottom: 10px;">☁️</div>
+
+                                        <p>Drag & drop files here to replace</p>
+                                        <span class="browse-btn">Browse Files</span>
+                                    </div>
+
+                                    <div class="preview-content" id="previewContent" style="display: none;">
+                                        <img src="" alt="Preview" id="imagePreview">
+                                        <button type="button" id="removeImageBtn">&times;</button>
+                                    </div>
+
+                                    <input type="file" name="brandLogo" id="fileInput" accept="image/*" hidden>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">Description <span class="required">*</span></label>
+                                <textarea id="description" name="description" rows="4"
+                                    required><%= brand.description %></textarea>
+                            </div>
+
+                            <div class="form-actions" style="justify-content: flex-end;">
+                                <a href="/admin/brands" class="btn btn-cancel">Cancel</a>
+                                <button type="submit" class="btn btn-primary" id="submitBtn">Update Brand</button>
+                            </div>
+
+                        </form>
                     </div>
+                </main>
+        </div>
 
-                    <div class="form-group full-width">
-                        <label class="form-label">Description <span class="required">*</span></label>
-                        <textarea id="description" name="description" rows="4" required><%= brand.description %></textarea>
-                    </div>
-
-                    <div class="form-actions" style="justify-content: flex-end;">
-                        <a href="/admin/brands" class="btn btn-cancel">Cancel</a>
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Update Brand</button>
-                    </div>
-
-                </form>
-            </div>
-        </main>
-    </div>
-
-    <div id="cropperModal" class="cropper-modal" style="display: none;">
-        <div class="cropper-container-box">
-            <h3>Crop Image</h3>
-            <div class="cropper-image-wrapper">
-                <img id="imageToCrop" src="" alt="To Crop">
-            </div>
-            <div class="cropper-actions">
-                <button type="button" class="btn btn-cancel" id="cancelCropBtn">Cancel</button>
-                <button type="button" class="btn btn-primary" id="cropImageBtn">Crop & Save</button>
+        <div id="cropperModal" class="cropper-modal" style="display: none;">
+            <div class="cropper-container-box">
+                <h3>Crop Image</h3>
+                <div class="cropper-image-wrapper">
+                    <img id="imageToCrop" src="" alt="To Crop">
+                </div>
+                <div class="cropper-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelCropBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="cropImageBtn">Crop & Save</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-    <script>
-const uploadContainer = document.getElementById('uploadContainer');
-        const fileInput = document.getElementById('fileInput');
-        const uploadContent = document.getElementById('uploadContent');
-        const previewContent = document.getElementById('previewContent');
-        const imagePreview = document.getElementById('imagePreview');
-        const removeBtn = document.getElementById('removeImageBtn');
-        const form = document.getElementById('editBrandForm');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        // Cropper Elements
-        const cropperModal = document.getElementById('cropperModal');
-        const imageToCrop = document.getElementById('imageToCrop');
-        const cropBtn = document.getElementById('cropImageBtn');
-        const cancelCropBtn = document.getElementById('cancelCropBtn');
-        
-        let cropper = null;
+        <script>
+            const uploadContainer = document.getElementById('uploadContainer');
+            const fileInput = document.getElementById('fileInput');
+            const uploadContent = document.getElementById('uploadContent');
+            const previewContent = document.getElementById('previewContent');
+            const imagePreview = document.getElementById('imagePreview');
+            const removeBtn = document.getElementById('removeImageBtn');
+            const form = document.getElementById('editBrandForm');
+            const submitBtn = document.getElementById('submitBtn');
 
-        // --- Helper: Toast Notification ---
-        const showToast = (msg, type) => {
-            Toastify({
-                text: msg,
-                duration: 3000,
-                gravity: "top",
-                position: "right",
-                className: "my-custom-toast",
-                backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",
-            }).showToast();
-        };
+            // Cropper Elements
+            const cropperModal = document.getElementById('cropperModal');
+            const imageToCrop = document.getElementById('imageToCrop');
+            const cropBtn = document.getElementById('cropImageBtn');
+            const cancelCropBtn = document.getElementById('cancelCropBtn');
 
-        // --- File Selection & Cropper Logic ---
-        uploadContainer.addEventListener('click', () => {
-            if (fileInput.value === '') fileInput.click();
-        });
+            let cropper = null;
 
-        fileInput.addEventListener('change', function(e) {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    imageToCrop.src = event.target.result;
-                    cropperModal.style.display = 'flex';
-                    if (cropper) cropper.destroy();
-                    cropper = new Cropper(imageToCrop, {
-                        aspectRatio: 1, 
-                        viewMode: 1,
-                        autoCropArea: 1,
-                    });
-                }
-                reader.readAsDataURL(file);
-            }
-        });
+            // --- Helper: Toast Notification ---
+            const showToast = (msg, type) => {
+                Toastify({
+                    text: msg,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    className: "my-custom-toast",
+                    backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",
+                }).showToast();
+            };
 
-        cropBtn.addEventListener('click', () => {
-            if (cropper) {
-                const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
-                canvas.toBlob(function(blob) {
-                    // Create a new file from the blob
-                    const croppedFile = new File([blob], 'brand-logo.png', { type: 'image/png' });
-                    
-                    // Update the file input with the cropped file
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(croppedFile);
-                    fileInput.files = dataTransfer.files;
+            // --- File Selection & Cropper Logic ---
+            uploadContainer.addEventListener('click', () => {
+                if (fileInput.value === '') fileInput.click();
+            });
 
-                    // Update Preview
-                    imagePreview.src = URL.createObjectURL(croppedFile);
-                    uploadContent.style.display = 'none';
-                    previewContent.style.display = 'flex';
-                    closeModal();
-                }, 'image/png');
-            }
-        });
-
-        cancelCropBtn.addEventListener('click', () => {
-            closeModal();
-            fileInput.value = ''; 
-        });
-
-        function closeModal() {
-            cropperModal.style.display = 'none';
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
-            }
-        }
-
-        removeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fileInput.value = '';
-            imagePreview.src = '';
-            uploadContent.style.display = 'flex';
-            previewContent.style.display = 'none';
-        });
-
-        // --- AXIOS SUBMISSION LOGIC ---
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            // 1. Validate
-            const brandName = document.getElementById('brandName').value;
-            if (!brandName.trim()) {
-                showToast("Brand Name is required", "error");
-                return;
-            }
-
-            // 2. Disable button
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Updating...";
-
-            try {
-                // 3. Prepare Data
-                const formData = new FormData(form);
-                const brandId = document.getElementById('brandId').value;
-
-                // 4. Send Request
-                // Using POST to /edit/:id
-                const response = await axios.patch(`/admin/brands/edit/${brandId}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
+            fileInput.addEventListener('change', function (e) {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        imageToCrop.src = event.target.result;
+                        cropperModal.style.display = 'flex';
+                        if (cropper) cropper.destroy();
+                        cropper = new Cropper(imageToCrop, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 1,
+                        });
                     }
-                });
+                    reader.readAsDataURL(file);
+                }
+            });
 
-                // 5. Handle Response
-                if (response.data.success) {
-                    showToast(response.data.message, "success");
-                    setTimeout(() => {
-                        window.location.href = '/admin/brands';
-                    }, 1000);
-                } else {
-                    showToast(response.data.message, "error");
+            cropBtn.addEventListener('click', () => {
+                if (cropper) {
+                    const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+                    canvas.toBlob(function (blob) {
+                        // Create a new file from the blob
+                        const croppedFile = new File([blob], 'brand-logo.png', { type: 'image/png' });
+
+                        // Update the file input with the cropped file
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(croppedFile);
+                        fileInput.files = dataTransfer.files;
+
+                        // Update Preview
+                        imagePreview.src = URL.createObjectURL(croppedFile);
+                        uploadContent.style.display = 'none';
+                        previewContent.style.display = 'flex';
+                        closeModal();
+                    }, 'image/png');
+                }
+            });
+
+            cancelCropBtn.addEventListener('click', () => {
+                closeModal();
+                fileInput.value = '';
+            });
+
+            function closeModal() {
+                cropperModal.style.display = 'none';
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                }
+            }
+
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fileInput.value = '';
+                imagePreview.src = '';
+                uploadContent.style.display = 'flex';
+                previewContent.style.display = 'none';
+            });
+
+            // --- AXIOS SUBMISSION LOGIC ---
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // 1. Validate
+                const brandName = document.getElementById('brandName').value;
+                if (!brandName.trim()) {
+                    showToast("Brand Name is required", "error");
+                    return;
+                }
+
+                // 2. Disable button
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Updating...";
+
+                try {
+                    // 3. Prepare Data
+                    const formData = new FormData(form);
+                    const brandId = document.getElementById('brandId').value;
+
+                    // 4. Send Request
+                    // Using POST to /edit/:id
+                    const response = await axios.patch(`/admin/brands/edit/${brandId}`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+
+                    // 5. Handle Response
+                    if (response.data.success) {
+                        showToast(response.data.message, "success");
+                        setTimeout(() => {
+                            window.location.href = '/admin/brands';
+                        }, 1000);
+                    } else {
+                        showToast(response.data.message, "error");
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Update Brand";
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    const errMsg = error.response?.data?.message || "Something went wrong";
+                    showToast(errMsg, "error");
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Update Brand";
                 }
+            });
+        </script>
 
-            } catch (error) {
-                console.error(error);
-                const errMsg = error.response?.data?.message || "Something went wrong";
-                showToast(errMsg, "error");
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Update Brand";
-            }
-        });
-    </script>
-
-<%- include('../partials/footer') %>
-<script src="/js/axios.min.js"></script>
+        <%- include('../partials/footer') %>
+            <script src="/js/axios.min.js"></script>

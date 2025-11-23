@@ -7,15 +7,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // categoryId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Category", 
-    //   required: true,
-    // },
-    category: {type: String,required:true},
-    description: {
-      type: String,
-      maxlength: 200, 
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category", 
+      required: true,
     },
     images: {
       type: [String],
@@ -27,15 +22,10 @@ const productSchema = new mongoose.Schema(
       default: 0, 
     },
     
-    // brandId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Brand", 
-    //   required: true,
-    // },
-
-    brand: { 
-      type: String, 
-      required: true, 
+    brand: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Brand", 
+      required: true,
     },
     isPublished: { type: Boolean, default: true }
   },

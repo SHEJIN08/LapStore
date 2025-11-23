@@ -120,7 +120,7 @@ const getEditBrand = async (req, res) => {
         }
 
         // 4. Render ONLY if the brand exists (and hasn't redirected)
-        res.render('admin/edit-brand', { brand });
+        res.render('admin/edit-brand', { brand:brand });
 
     } catch (error) {
         console.error("Error in getEditBrand:", error);
