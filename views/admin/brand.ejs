@@ -19,6 +19,36 @@
                         </a>
                     </header>
 
+                    <div class="search-filter-container card">
+                        <form action="/admin/brands" method="GET" class="search-form">
+                            <div class="search-bar">
+                                <img src="/images/admin/icons/search.png" alt="" class="search-icon">
+                                <input type="text" name="search" placeholder="Search by Brand name..."
+                                    value="<%= typeof currentSearch !== 'undefined' ? currentSearch : '' %>">
+                            </div>
+
+                            <div class="filter-status">
+                                <img src="/images/admin/icons/filter.png" alt="" class="filter-icon">
+                                <select name="status">
+                                    <option value="all" <%=(typeof currentStatus==='undefined' || currentStatus==='all'
+                                        ) ? 'selected' : '' %>>
+                                        Status: All
+                                    </option>
+                                    <option value="active" <%=(typeof currentStatus !=='undefined' &&
+                                        currentStatus==='active' ) ? 'selected' : '' %>>
+                                        Status: Active
+                                    </option>
+                                    <option value="blocked" <%=(typeof currentStatus !=='undefined' &&
+                                        currentStatus==='blocked' ) ? 'selected' : '' %>>
+                                        Status: Blocked
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </form>
+                    </div>
+
                     <section class="card">
                         <div class="table-responsive">
                             <table class="brand-table">
@@ -65,18 +95,21 @@
                                                     <div class="action-buttons">
 
                                                         <a href="/admin/brands/edit/<%= brand._id %>"
-                                                            class="action-btn text-primary" id="brand-edit" title="Edit Brand">
+                                                            class="action-btn text-primary" id="brand-edit"
+                                                            title="Edit Brand">
                                                             <i class="bi bi-pencil-square"></i>
                                                         </a>
 
                                                         <% if(brand.isBlocked===false) { %>
-                                                            <a href="/admin/brands/block/<%= brand._id %>"
-                                                                class="action-btn text-danger" title="Click to Unlist">
+                                                            <a href="#" class="action-btn text-danger block-btn"
+                                                                title="Click to Unlist" data-brand-id="<%= brand._id %>"
+                                                                data-brand-name="<%= brand.brandName %>">
                                                                 <i class="bi bi-slash-circle"></i>
                                                             </a>
                                                             <% } else { %>
-                                                                <a href="/admin/brands/unblock/<%= brand._id %>"
-                                                                    class="action-btn text-success"
+                                                                <a class="action-btn text-success unblock-btn"
+                                                                    data-brand-id="<%= brand._id %>"
+                                                                    data-brand-name="<%= brand.brandName %>"
                                                                     title="Click to List">
                                                                     <i class="bi bi-check-circle"></i>
                                                                 </a>
@@ -124,7 +157,157 @@
 
                 </main>
         </div>
-       
-        
+
+        <div id="confirmationModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h3><span class="warning-icon">&#9888;</span> <span id="modalTitle">Update Brand</span></h3>
+                    <span class="modal-close-btn">&times;</span>
+                </div>
+
+                <div class="modal-body">
+                    <p>
+                        Are you sure you want to <strong id="actionText">update</strong>
+                        <strong id="modalBrandName">this brand</strong>?
+                    </p>
+                    <p class="modal-subtitle" id="modalSubText">
+                        This action will change the brand's visibility.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel">Cancel</button>
+
+                    <button type="button" id="confirmActionBtn" class="btn-confirm-block">
+                        Confirm
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+
 
         <%- include('../partials/footer') %>
+
+            <script src="/js/axios.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    // 1. Select Elements
+                    const modal = document.getElementById('confirmationModal'); // Changed ID
+                    const modalBrandName = document.getElementById('modalBrandName');
+                    const modalTitle = document.getElementById('modalTitle');
+                    const actionText = document.getElementById('actionText');
+                    const modalSubText = document.getElementById('modalSubText');
+                    const confirmBtn = document.getElementById('confirmActionBtn');
+                    const closeBtn = document.querySelector('.modal-close-btn');
+                    const cancelBtn = document.querySelector('.btn-cancel');
+
+                    let targetBrandId = null;
+
+                    // Toast Helper
+                    const showToast = (msg, type) => {
+                        if (typeof Toastify === 'function') {
+                            Toastify({
+                                text: msg,
+                                duration: 3000,
+                                gravity: "top",
+                                position: "right",
+                                style: { background: type === "success" ? "#28a745" : "#dc3545" }
+                            }).showToast();
+                        } else {
+                            alert(msg);
+                        }
+                    };
+
+                    // API Call
+                    const toggleBrandStatus = async (brandId) => {
+                        try {
+                            // Using axios.post with empty body {}
+                            const response = await axios.patch(`/admin/brands/toggle-block/${brandId}`, {});
+
+                            if (response.data.success) {
+                                showToast(response.data.message, "success");
+                                setTimeout(() => window.location.reload(), 1000);
+                            } else {
+                                showToast(response.data.message || 'Action failed', 'error');
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            showToast(err.response?.data?.message || 'Something went wrong', "error");
+                        }
+                    };
+
+                    // 2. Open Modal Logic (Handles BOTH Block and Unblock)
+                    const openModal = (brandId, brandName, actionType) => {
+                        targetBrandId = brandId;
+                        modalBrandName.textContent = brandName;
+                        modal.style.display = 'flex';
+
+                        if (actionType === 'block') {
+                            // Set UI for Blocking (Red/Warning)
+                            modalTitle.textContent = "Block Brand";
+                            actionText.textContent = "block";
+                            actionText.style.color = "#dc3545"; // Red
+                            modalSubText.textContent = "This brand will effectively be hidden from users.";
+
+                            confirmBtn.textContent = "Block Brand";
+                            confirmBtn.className = "btn-confirm-block"; // Red style
+                            confirmBtn.style.backgroundColor = "#dc3545"; // Force Red
+                        } else {
+                            // Set UI for Unblocking (Green/Safe)
+                            modalTitle.textContent = "Unblock Brand";
+                            actionText.textContent = "unblock";
+                            actionText.style.color = "#28a745"; // Green
+                            modalSubText.textContent = "This brand will become visible to users again.";
+
+                            confirmBtn.textContent = "Unblock Brand";
+                            confirmBtn.className = "btn-confirm-unblock"; // Green style
+                            confirmBtn.style.backgroundColor = "#28a745"; // Force Green
+                        }
+                    };
+
+                    // 3. Attach Event Listeners to Buttons
+
+                    // Block Buttons
+                    document.querySelectorAll('.block-btn').forEach(btn => {
+                        btn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const id = this.getAttribute('data-brand-id');
+                            const name = this.getAttribute('data-brand-name');
+                            openModal(id, name, 'block');
+                        });
+                    });
+
+                    // Unblock Buttons (Now opens modal too!)
+                    document.querySelectorAll('.unblock-btn').forEach(btn => {
+                        btn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const id = this.getAttribute('data-brand-id');
+                            
+                           
+                            const name = this.getAttribute('data-brand-name') || 'this brand';
+                            openModal(id, name, 'unblock');
+                        });
+                    });
+
+                    // 4. Confirm Button Click
+                    if (confirmBtn) {
+                        confirmBtn.addEventListener('click', function () {
+                            if (targetBrandId) {
+                                toggleBrandStatus(targetBrandId);
+                                modal.style.display = 'none';
+                            }
+                        });
+                    }
+
+                    // Close Modal Logic
+                    const hideModal = () => { modal.style.display = 'none'; };
+                    if (closeBtn) closeBtn.addEventListener('click', hideModal);
+                    if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+                    window.addEventListener('click', (e) => {
+                        if (e.target === modal) hideModal();
+                    });
+                });
+            </script>

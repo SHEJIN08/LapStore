@@ -1,0 +1,99 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/admin/category.css">
+
+<body>
+    <div class="dashboard-container">
+        <%- include('../partials/sidebar', {activePage: 'category'}) %>
+
+        <main class="main-content">
+            <header class="main-header mb-4">
+                <div class="header-title">
+                    <h2>Edit Category: <%= category.categoryName %></h2>
+                </div>
+                <a href="/admin/category" class="btn-close-custom" style="font-size: 1.5rem; text-decoration: none; color: #666;">&times;</a>
+            </header>
+
+            <form id="editCategoryForm">
+                
+                <section class="card mb-4 p-4">
+                    <h5 class="mb-3">Category Details</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Category Name</label>
+                            <input type="text" class="form-control bg-light" name="categoryName" id="categoryName" value="<%= category.categoryName %>">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="isListed" id="isListed">
+                                <option value="true" <%= category.isListed ? 'selected' : '' %>>Listed (Active)</option>
+                                <option value="false" <%= !category.isListed ? 'selected' : '' %>>Unlisted</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control bg-light" name="description" id="description" rows="3"><%= category.description %></textarea>
+                    </div>
+                </section>
+
+                <div class="form-footer d-flex justify-content-end gap-2 mt-4">
+                    <a href="/admin/category" class="btn btn-light border">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                </div>
+            </form>
+        </main>
+    </div>
+    
+    <%- include('../partials/footer') %>
+    <script src="/js/axios.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('editCategoryForm');
+            
+            // Get the Category ID from the EJS variable embedded in script
+            const categoryId = '<%= category._id %>'; 
+
+            const showToast = (msg, type) => {
+                Toastify({
+                    text: msg,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: type === "success" ? "#28a745" : "#dc3545" }
+                }).showToast();
+            };
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Stop page reload
+
+                // Gather data
+                const categoryName = document.getElementById('categoryName').value;
+                const description = document.getElementById('description').value;
+                const isListed = document.getElementById('isListed').value;
+
+                try {
+                    // Send PUT request
+                    const response = await axios.patch(`/admin/category/edit/${categoryId}`, {
+                        categoryName,
+                        description,
+                        isListed
+                    });
+
+                    if (response.data.success) {
+                        showToast(response.data.message, 'success');
+                        // Redirect after 1 second so user sees the message
+                        setTimeout(() => {
+                            window.location.href = '/admin/category';
+                        }, 1000);
+                    } else {
+                        showToast(response.data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    const errMsg = error.response?.data?.message || 'Something went wrong';
+                    showToast(errMsg, 'error');
+                }
+            });
+        });
+    </script>

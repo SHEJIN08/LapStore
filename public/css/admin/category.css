@@ -68,6 +68,61 @@ ul {
     color: #333;
 }
 
+.search-filter-container {
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.search-bar {
+    flex-grow: 1;
+    position: relative;
+}
+
+.search-bar .search-icon,
+.filter-status .filter-icon {
+    position: relative;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+    margin-bottom: -83px;
+}
+
+.search-bar input,
+.filter-status select {
+    width: 100%;
+    padding: 12px 15px 12px 50px; /* Left padding for the icon */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+/* Remove default arrow on select */
+.filter-status select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 15px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 1em;
+}
+
+.search-form .btn {
+    flex-shrink: 0;
+}
+
+
 /* modal css */
 
 .modal-dialog {
@@ -172,3 +227,169 @@ ul {
  .my-custom-toast {
       border-radius: 20px; 
       }  
+      .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050; /* Higher than navbar */
+     /* Optional: Slight blur effect */
+}
+
+/* Specific styling for the small confirmation box */
+#confirmationModal .modal-content {
+    background: white;
+    width: 90%;
+    max-width: 400px; /* Smaller width for confirmation */
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Header Tweaks */
+#confirmationModal .modal-header {
+    border-bottom: none; /* Clean look */
+    padding-bottom: 0;
+}
+
+#confirmationModal h3 {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    color: #1f2937;
+    margin: 0;
+}
+
+/* The Warning Icon (Triangle) */
+.warning-icon {
+    color: #f59e0b; /* Amber/Orange color */
+    font-size: 1.4rem;
+    margin-right: 10px;
+}
+
+/* Close 'X' Button */
+.modal-close-btn {
+    font-size: 1.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.modal-close-btn:hover {
+    color: #111827;
+}
+
+/* Body Text */
+#confirmationModal .modal-body {
+    padding: 1.5rem 2rem;
+    text-align: left;
+}
+
+#confirmationModal p {
+    font-size: 1rem;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.modal-subtitle {
+    font-size: 0.85rem !important;
+    color: #6b7280 !important; /* Muted gray text */
+    margin-top: 5px;
+}
+
+/* Highlight the dynamic action text (block/unlist) */
+#actionText {
+    text-transform: lowercase;
+}
+
+/* Footer & Buttons */
+#confirmationModal .modal-footer {
+    padding: 1rem 1.5rem;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* The Red Confirm Button (Block/Unlist) */
+.btn-confirm-block {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-confirm-block:hover {
+    background-color: #b02a37;
+}
+
+/* The Green Confirm Button (Unblock/List) - Optional if needed */
+.btn-confirm-unblock {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-confirm-unblock:hover {
+    background-color: #218838;
+}
+
+/* Simple Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* pagination */
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-top: 1px solid #eee;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.btn.disabled-link {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.next-btn {
+    background-color: #007bff;
+    height: 32px;
+    padding-top: 4px;
+}
+
+.prev-btn {
+    height: 32px;
+    padding-top: 4px;
+}

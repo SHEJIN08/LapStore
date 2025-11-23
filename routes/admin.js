@@ -22,16 +22,19 @@ router.get('/users',adminAuth.checkSession,usersController.loadUsers)
 router.post('/users/toggle-block/:id',usersController.BlockOrUnblock)
 
 
-router.get('/brands', brandController.getBrandPage);
-router.get('/brands/add', brandController.getAddBrandPage);
-router.post('/brands/add', upload.single('brandLogo'), brandController.addBrand); 
-router.get('/brands/edit/:brandId', brandController.getEditBrand);
-router.patch('/brands/edit/:brandId', upload.single('brandLogo'), brandController.editBrand);
-router.get('/brands/block/:brandId', brandController.blockBrand);
-router.get('/brands/unblock/:brandId', brandController.unBlockBrand);
+router.get('/brands',adminAuth.checkSession, brandController.getBrandPage);
+router.get('/brands/add',adminAuth.checkSession, brandController.getAddBrandPage);
+router.post('/brands/add',adminAuth.checkSession, upload.single('brandLogo'), brandController.addBrand); 
+router.get('/brands/edit/:brandId',adminAuth.checkSession, brandController.getEditBrand);
+router.patch('/brands/edit/:brandId',adminAuth.checkSession, upload.single('brandLogo'), brandController.editBrand);
+router.patch('/brands/toggle-block/:brandId',adminAuth.checkSession, brandController.BlockOrUnblock);
 
-router.get('/category',categoryController.loadCategory);
-router.post('/category/add-category', categoryController.addCategory)
+router.get('/category',adminAuth.checkSession,categoryController.loadCategory);
+router.post('/category/add-category',adminAuth.checkSession, categoryController.addCategory)
+router.get('/category/edit/:id',adminAuth.checkSession, categoryController.getEditCategory);
+router.patch('/category/edit/:id',adminAuth.checkSession, categoryController.editCategory); 
+
+router.patch('/category/toggle-status/:id',adminAuth.checkSession, categoryController.getListOrUnlist);
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

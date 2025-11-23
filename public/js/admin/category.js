@@ -1,82 +1,171 @@
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // --- 1. SETUP ELEMENTS ---
-    const openBtn = document.getElementById('openModalBtn');
-    const modalElement = document.getElementById('addCategoryModal');
-    const form = document.getElementById('categoryForm');
-    
-    // Check if elements exist to avoid errors
-    if (!modalElement || !form) return;
+document.addEventListener('DOMContentLoaded', () => {
 
-    // Initialize Bootstrap Modal Controller
-    const myModal = new bootstrap.Modal(modalElement);
+    // 1. Select Elements
+    const modal = document.getElementById('confirmationModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalCatName = document.getElementById('modalCatName');
+    const actionText = document.getElementById('actionText');
+    const modalSubText = document.getElementById('modalSubText');
+    const confirmBtn = document.getElementById('confirmActionBtn');
+    const closeBtn = document.querySelector('.modal-close-btn');
+    const cancelBtn = document.getElementById('cancelModalBtn');
 
-    // --- 2. OPEN MODAL LOGIC (The "Other Method") ---
-    if (openBtn) {
-        openBtn.addEventListener('click', function() {
-            console.log("Button Clicked!"); // Debugging check
+    let targetId = null;
+
+    // Toast Helper
+    const showToast = (msg, type) => {
+        if (typeof Toastify === 'function') {
+            Toastify({
+                text: msg,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { background: type === "success" ? "#28a745" : "#dc3545" }
+            }).showToast();
+        } else {
+            alert(msg);
+        }
+    };
+
+    // 2. Function to Open Modal
+    const openModal = (id, name, action) => {
+        targetId = id;
+        modalCatName.textContent = name;
+        modal.style.display = 'flex';
+
+        if (action === 'unlist') {
+            // UI for Unlisting (Red/Warning)
+            modalTitle.textContent = "Unlist Category";
+            actionText.textContent = "unlist";
+            actionText.style.color = "#dc3545"; 
+            modalSubText.textContent = "This category will be hidden from users.";
             
-            form.reset(); // Clear previous inputs
-            myModal.show(); // <--- Manually triggers the modal
+            confirmBtn.textContent = "Unlist";
+            confirmBtn.style.backgroundColor = "#dc3545"; // Red
+        } else {
+            // UI for Listing (Green/Safe)
+            modalTitle.textContent = "List Category";
+            actionText.textContent = "list";
+            actionText.style.color = "#28a745"; 
+            modalSubText.textContent = "This category will be visible to users.";
+            
+            confirmBtn.textContent = "List";
+            confirmBtn.style.backgroundColor = "#28a745"; // Green
+        }
+    };
+
+    // 3. Attach Event Listeners to Buttons
+    
+    // Handle "Unlist" (Block) buttons
+    document.body.addEventListener('click', (e) => {
+        // Use closest() to handle clicks on the icon inside the button
+        const btn = e.target.closest('.block-btn');
+        if (btn) {
+            e.preventDefault();
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            openModal(id, name, 'unlist');
+        }
+    });
+
+    // Handle "List" (Unblock) buttons
+    document.body.addEventListener('click', (e) => {
+        const btn = e.target.closest('.unblock-btn');
+        if (btn) {
+            e.preventDefault();
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            openModal(id, name, 'list');
+        }
+    });
+
+    // 4. Confirm Action (Axios)
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', async () => {
+            if (!targetId) return;
+
+            try {
+                // Ensure this route matches your backend router.post('/category/toggle-status/:id')
+                const response = await axios.patch(`/admin/category/toggle-status/${targetId}`, {});
+
+                if (response.data.success) {
+                    showToast(response.data.message, "success");
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast(response.data.message, "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Something went wrong", "error");
+            }
+            modal.style.display = 'none';
         });
     }
 
-    // Focus input when modal opens
-    modalElement.addEventListener('shown.bs.modal', function () {
-        document.getElementById('catName').focus();
+    // 5. Close Modal Logic
+    const hideModal = () => { modal.style.display = 'none'; };
+    if (closeBtn) closeBtn.addEventListener('click', hideModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) hideModal();
     });
 
-    // --- 3. AXIOS SUBMIT LOGIC ---
-    // Your custom Toast function
-    function showToast(msg, type) {
-        Toastify({
-            text: msg,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            className: "my-custom-toast",
-            backgroundColor: type === "success" 
-                ? "#28a745" 
-                : "linear-gradient(to right, #e52d27, #b31217)"
-        }).showToast();
+
+
+// --- NEW: Add Category Form Handling ---
+    const categoryForm = document.getElementById('categoryForm');
+
+    if (categoryForm) {
+        categoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // 1. Stop the browser from reloading
+
+            // 2. Get data from the form
+            const formData = new FormData(categoryForm);
+            // Convert FormData to a simple JavaScript Object
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                // 3. Send via Axios
+                const response = await axios.post('/admin/category/add-category', data);
+
+                if (response.data.success) {
+                    // 4. Success: Show Toast & Reload
+                    Toastify({
+                        text: response.data.message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: "#28a745" } // Green
+                    }).showToast();
+
+                    // Close modal and reload page after 1 second
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    // Logic failure (e.g. name already exists)
+                    Toastify({
+                        text: response.data.message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: "#dc3545" } // Red
+                    }).showToast();
+                }
+
+            } catch (error) {
+                console.error("Error adding category:", error);
+                // 5. Network/Server Error
+                const errMsg = error.response?.data?.message || "Something went wrong";
+                Toastify({
+                    text: errMsg,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: "#dc3545" }
+                }).showToast();
+            }
+        });
     }
 
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        // Gather Data
-        const data = {
-            categoryName: document.getElementById('catName').value,
-            description: document.getElementById('catDesc').value,
-            orders: document.getElementById('catOrder').value,
-            isListed: document.getElementById('catStatus').value === 'true',
-            showInNav: document.getElementById('showNav').checked,
-            isFeatured: document.getElementById('isFeatured').checked
-        };
-
-        // Validation
-        if (!data.categoryName.trim()) {
-            showToast("Category Name is required", "error");
-            return;
-        }
-
-        try {
-            // Send Axios Request
-            const response = await axios.post('/admin/category/add-category', data);
-
-            if (response.data.success) {
-                myModal.hide();
-                form.reset();
-                showToast("Category Added Successfully!", "success");
-                setTimeout(() => { window.location.reload(); }, 1000);
-            } else {
-                showToast(response.data.message, "error");
-            }
-
-        } catch (error) {
-            console.error('Error:', error);
-            const errMsg = error.response?.data?.message || "Something went wrong";
-            showToast(errMsg, "error");
-        }
     });
-});

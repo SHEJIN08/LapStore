@@ -3,13 +3,31 @@ import Brand from '../../model/brandModel.js'
 // 1. GET: Load the Brands Table Page
 const getBrandPage = async (req, res) => {
     try {
+        const search = req.query.search || '';
+        const status = req.query.status || 'all';
+
         // Pagination logic
         const page = Number.parseInt(req.query.page) || 1;
         const limit = 4;
         const skip = (page - 1) * limit;
 
+        let query = {};
+
+        if(status === 'active'){
+            query.isBlocked = false;
+        } else if(status === 'blocked'){
+            query.isBlocked = true;
+        }
+        
+        if(search) {
+            const searchRegex = new RegExp(search,'i')
+
+            query.$or = [
+                {brandName: searchRegex}
+            ]
+        }
         // Fetch brands from DB
-        const brandData = await Brand.find({})
+        const brandData = await Brand.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
@@ -20,6 +38,8 @@ const getBrandPage = async (req, res) => {
     
         res.render('admin/brand', {
             data: brandData,
+            currentSearch: search,
+            currentStatus: status,
             currentPage: page,
             totalPages: totalPages,
             totalBrands: totalBrands,
@@ -69,26 +89,22 @@ const addBrand = async (req, res) => {
     }
 };
 
-const blockBrand = async (req, res) => {
+const BlockOrUnblock = async (req, res) => {
     try {
-        const id = req.params.id;
-        await Brand.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        return res.status(200).json({success: true, message: 'Blocked'})
+        const id = req.params.brandId;
+        const brand = await Brand.findById(id);
+        if(!brand){
+            return res.status(400).json({success: false, message: "Brand not found"});
+        }
+        brand.isBlocked = !brand.isBlocked;
+        await brand.save();
+        return res.status(200).json({success: true, message: 'Brand status changed'})
     } catch (err) {
         console.error(err);
         return res.status(500).json({success: false, message: 'Something went wrong'});
     }
 };
 
-const unBlockBrand = async (req, res) => {
-    try {
-        const id = req.params.id;
-        await Brand.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        res.redirect('/admin/brands');
-    } catch (error) {
-        console.error(error);
-    }
-};
 // Render the Edit Page with existing data
 const getEditBrand = async (req, res) => {
     try {
@@ -146,5 +162,5 @@ const editBrand = async (req, res) => {
     }
 };
 
-export default {getBrandPage, getAddBrandPage, addBrand, blockBrand, unBlockBrand, getEditBrand, editBrand};
+export default {getBrandPage, getAddBrandPage, addBrand, BlockOrUnblock, getEditBrand, editBrand};
 
