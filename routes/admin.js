@@ -13,9 +13,8 @@ router.post('/login',authController.login)
 router.get('/dashboard',adminAuth.checkSession,authController.loadDashboard)
 
 router.get('/products',adminAuth.checkSession,productController.loadProduct)
-router.get('/add-product',(req,res) => {
-    res.render('admin/add-product');
-})
+router.patch('/products/toggle-block/:id',adminAuth.checkSession,productController.BlockOrUnblock)
+router.get('/add-product', adminAuth.checkSession,productController.loadAddProduct)
 router.post('/add-product', upload.array('images',5), productController.addProduct);
 
 router.get('/users',adminAuth.checkSession,usersController.loadUsers)

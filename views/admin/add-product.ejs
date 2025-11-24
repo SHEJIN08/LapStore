@@ -8,7 +8,7 @@
 
                 <div class="main-page-content">
 
-                    <form action="/admin/add-product" method="POST" enctype="multipart/form-data">
+                    <form id="addProductForm">
 
                         <div class="product-header">
                             <div>
@@ -24,8 +24,7 @@
                         <div class="add-product-grid">
 
                             <div class="left-col">
-
-                                <div class="form-card">
+                                 <div class="form-card">
                                     <h3>Basic Information</h3>
                                     <div class="form-group">
                                         <label for="product-name">Product Name</label>
@@ -39,17 +38,110 @@
                                     </div>
                                 </div>
 
-
                                 <div class="form-card">
                                     <h3>Product Images</h3>
                                     <div class="image-upload-area">
+
                                         <div class="upload-placeholder">
                                             <span>⬆️</span>
                                             <p>Drag & drop files here</p>
-                                            <label for="file-upload" class="upload-link">Browse Files</label>
-                                            <input id="file-upload" type="file" name="images" multiple hidden>
+                                            <label for="imageInput" class="upload-link">Browse Files</label>
+                                            <input id="imageInput" type="file" name="images" multiple hidden accept="image/*">
+                                        </div>
+
+                                        <div id="image-preview-container" class="image-preview-grid"></div>
+
+                                    </div>
+                                </div>
+                                <div id="cropperModal"
+                                    style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 9999; align-items:center; justify-content:center;">
+                                    <div
+                                        style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column;">
+
+                                        <h3 style="margin-bottom: 10px;">Crop Image</h3>
+
+                                        <div style="height: 400px; overflow: hidden; background: #333;">
+                                            <img id="imageToCrop" src="" style="max-width: 100%; display: block;">
+                                        </div>
+
+                                        <div
+                                            style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                                            <button type="button" class="btn btn-secondary"
+                                                onclick="closeCropper()">Cancel</button>
+                                            <button type="button" class="btn btn-primary" onclick="saveCrop()">Crop &
+                                                Save</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="card-container"
+                                    style="background: white; padding: 24px; border-radius: 12px; margin-top: 20px;">
+                                    <h3>Product Variants</h3>
+                                    <p class="text-muted">Add different configurations for this laptop (e.g., RAM &
+                                        Storage combinations).</p>
+
+                                    <div class="variant-input-grid"
+                                        style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; gap: 10px; margin-top: 15px;">
+
+                                        <div>
+                                            <label>RAM</label>
+                                            <input type="text" id="v_ram" placeholder="e.g. 16GB" class="form-control">
+                                        </div>
+
+                                        <div>
+                                            <label>Storage</label>
+                                            <input type="text" id="v_storage" placeholder="e.g. 512GB SSD"
+                                                class="form-control">
+                                        </div>
+
+                                        <div>
+                                            <label>Color</label>
+                                            <input type="text" id="v_color" placeholder="e.g. Silver"
+                                                class="form-control">
+                                        </div>
+
+                                        <div>
+                                            <label>Price (₹)</label>
+                                            <input type="number" id="v_price" placeholder="0.00" class="form-control">
+                                        </div>
+
+                                        <div>
+                                            <label>Stock</label>
+                                            <input type="number" id="v_stock" placeholder="0" class="form-control">
+                                        </div>
+                                        <div>
+                                            <label>Graphics card</label>
+                                            <input type="text" id="v_graphics" placeholder="e.g. RTX-4030" class="form-control">
+                                        </div>
+
+                                        <div style="display: flex; align-items: end;">
+                                            <button type="button" onclick="addVariant()" class="btn-add-variant"
+                                                style="background: #0d6efd; color: white; border: none; padding: 10px 15px; border-radius: 6px;">
+                                                + Add
+                                            </button>
                                         </div>
                                     </div>
+
+                                    <div class="table-responsive" style="margin-top: 20px;">
+                                        <table class="table" id="variantTable">
+                                            <thead>
+                                                <tr style="background: #f8f9fa;">
+                                                    <th>RAM</th>
+                                                    <th>Storage</th>
+                                                    <th>Color</th>
+                                                    <th>Price</th>
+                                                    <th>Stock</th>
+                                                    <th>Graphics</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="variantBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <input type="hidden" name="variantsData" id="variantsData">
                                 </div>
 
                                 <div class="form-card">
@@ -68,12 +160,12 @@
 
                                         <div class="spec-row">
                                             <div class="spec-group">
-                                                <input type="text" name="specKeys[]" placeholder="Key (e.g. RAM)"
+                                                <input type="text" name="specKeys[]" placeholder="Key (e.g. Display)"
                                                     required>
                                             </div>
                                             <div class="spec-group">
-                                                <input type="text" name="specValues[]" placeholder="Value (e.g. 16GB)"
-                                                    required>
+                                                <input type="text" name="specValues[]"
+                                                    placeholder="Value (e.g. 15 inch)" required>
                                             </div>
                                             <button type="button" class="delete-spec"
                                                 onclick="removeSpec(this)">🗑️</button>
@@ -89,122 +181,332 @@
 
                             <div class="right-col">
                                 <div class="form-card">
-                                    <h3>Main Variant Details</h3>
-                                    <div class="form-group">
-                                        <label>RAM</label>
-                                        <input type="text" name="ram" placeholder="e.g. 16GB" required>
+
+
+                                    <div class="form-card">
+
+                                        <div class="form-group">
+                                            <label>Discounted Price</label>
+                                            <input type="number" name="discountPrice" placeholder="0.00">
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Graphics</label>
-                                        <input type="text" name="graphics" placeholder="e.g. NVIDIA RTX 3060" required>
-                                    </div> 
-                                    <div class="form-group">
-                                    <label>Storage</label>
-                                    <input type="text" name="storage" placeholder="e.g. 512GB SSD" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Color</label>
-                                    <input type="text" name="color" placeholder="e.g. Silver">
+
+
+
+                                    <div class="form-card">
+                                        <h3>Organization</h3>
+
+                                        <div class="form-group">
+                                            <label>Brand</label>
+                                            <select name="brand" required>
+                                                <option value="" disabled selected>Select a Brand</option>
+                                                <% if(brand && brand.length> 0) { %>
+                                                    <% brand.forEach(function(b) { %>
+                                                        <option value="<%= b._id %>">
+                                                            <%= b.brandName %>
+                                                        </option>
+                                                        <% }); %>
+                                                            <% } else { %>
+                                                                <option value="" disabled>No Brands Available</option>
+                                                                <% } %>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Category</label>
+                                            <select name="category" required>
+                                                <option value="" disabled selected>Select a Category</option>
+                                                <% if(cat && cat.length> 0) { %>
+                                                    <% cat.forEach(function(c) { %>
+                                                        <option value="<%= c._id %>">
+                                                            <%= c.categoryName%>
+                                                        </option>
+                                                        <% }); %>
+                                                            <% } else { %>
+                                                                <option value="" disabled>No Categories Available
+                                                                </option>
+                                                                <% } %>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-card">
+                                        <h3>Status</h3>
+                                        <div class="status-toggle">
+                                            <span>Published</span>
+                                            <label class="switch">
+                                                <input type="checkbox" name="isPublished" checked>
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
-
-                            <div class="form-card">
-                                <h3>Pricing</h3>
-                                <div class="form-group">
-                                    <label>Price</label>
-                                    <input type="number" name="price" placeholder="0.00" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Discounted Price</label>
-                                    <input type="number" name="discountPrice" placeholder="0.00">
-                                </div>
-                            </div>
-
-                            <div class="form-card">
-                                <h3>Inventory</h3>
-                                <div class="form-group">
-                                    <label>SKU</label>
-                                    <input type="text" name="sku" placeholder="LP-AERO-15-7">
-                                </div>
-                                <div class="form-group">
-                                    <label>Stock Quantity</label>
-                                    <input type="number" name="stock" placeholder="0">
-                                </div>
-                            </div>
-
-                            <div class="form-card">
-                                <h3>Organization</h3>
-                                <div class="form-group">
-                                    <label>Brand</label>
-                                    <input type="text" name="brand" placeholder="InnovateTech">
-                                </div>
-                                <div class="form-group">
-                                    <label>Category</label>
-                                    <select name="category">
-                                        <option value="ultrabook">Ultrabook</option>
-                                        <option value="gaming">Gaming</option>
-                                        <option value="workstation">Workstation</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-card">
-                                <h3>Status</h3>
-                                <div class="status-toggle">
-                                    <span>Published</span>
-                                    <label class="switch">
-                                        <input type="checkbox" name="isPublished" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                        </div>
+                    </form>
                 </div>
-                </form>
         </div>
-        </div>
+
+        <script src="/js/axios.min.js"></script>
         <script>
-            // 1. Select the button and the container
-            const addSpecBtn = document.getElementById('add-spec-btn');
-            const specsContainer = document.getElementById('specs-container');
+    // ==========================================
+    // 1. SPECIFICATIONS LOGIC
+    // ==========================================
+    const addSpecBtn = document.getElementById('add-spec-btn');
+    const specsContainer = document.getElementById('specs-container');
 
-            // 2. Function to add a new row
-            addSpecBtn.addEventListener('click', () => {
-                // Create a new div for the row
-                const newRow = document.createElement('div');
-                newRow.classList.add('spec-row');
+    if(addSpecBtn) {
+        addSpecBtn.addEventListener('click', () => {
+            const newRow = document.createElement('div');
+            newRow.classList.add('spec-row');
+            newRow.innerHTML = `
+                <div class="spec-group"><input type="text" name="specKeys[]" placeholder="Key" required></div>
+                <div class="spec-group"><input type="text" name="specValues[]" placeholder="Value" required></div>
+                <button type="button" class="delete-spec" onclick="removeSpec(this)">🗑️</button>
+            `;
+            specsContainer.appendChild(newRow);
+        });
+    }
 
-                // Set the HTML content for the new row
-                newRow.innerHTML = `
-            <div class="spec-group">
-                <input type="text" name="specKeys[]" placeholder="Key" required>
-            </div>
-            <div class="spec-group">
-                <input type="text" name="specValues[]" placeholder="Value" required>
-            </div>
-            <button type="button" class="delete-spec" onclick="removeSpec(this)">🗑️</button>
-        `;
+    function removeSpec(button) {
+        const row = button.closest('.spec-row');
+        const totalRows = document.querySelectorAll('.spec-row').length;
+        if (totalRows > 1) {
+            row.remove();
+        } else {
+            row.querySelector('input[name="specKeys[]"]').value = '';
+            row.querySelector('input[name="specValues[]"]').value = '';
+        }
+    }
 
-                // Append the new row to the container
-                specsContainer.appendChild(newRow);
+    // ==========================================
+    // 2. VARIANT LOGIC
+    // ==========================================
+    let variants = [];
+
+    function addVariant() {
+        const ram = document.getElementById('v_ram').value;
+        const storage = document.getElementById('v_storage').value;
+        const color = document.getElementById('v_color').value;
+        const price = document.getElementById('v_price').value;
+        const stock = document.getElementById('v_stock').value;
+         const graphics = document.getElementById('v_graphics').value;
+
+        if (!ram || !storage || !price || !stock || !graphics) {
+            showToast("Please fill all variant fields (RAM, Storage, Price, Stock, graphics)", 'error');
+            return;
+        }
+
+        const newVariant = { ram, storage, color: color || 'Standard', price, stock };
+        variants.push(newVariant);
+        renderVariants();
+        clearInputs();
+        updateHiddenInput();
+    }
+
+    function renderVariants() {
+        const tbody = document.getElementById('variantBody');
+        tbody.innerHTML = '';
+        variants.forEach((v, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${v.ram}</td>
+                <td>${v.storage}</td>
+                <td>${v.color}</td>
+                <td>₹${v.price}</td>
+                <td>${v.stock}</td>
+                 <td>${v.graphics}</td>
+                <td><button type="button" onclick="removeVariant(${index})" style="color: red; border: none; background: none;"><i class="bi bi-trash"></i> Remove</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function removeVariant(index) {
+        variants.splice(index, 1);
+        renderVariants();
+        updateHiddenInput();
+    }
+
+    function clearInputs() {
+        document.getElementById('v_ram').value = '';
+        document.getElementById('v_storage').value = '';
+        document.getElementById('v_price').value = '';
+        document.getElementById('v_stock').value = '';
+         document.getElementById('v_graphics').value = '';
+    }
+
+    function updateHiddenInput() {
+        document.getElementById('variantsData').value = JSON.stringify(variants);
+    }
+
+    // ==========================================
+    // 3. IMAGE UPLOAD & CROPPER LOGIC
+    // ==========================================
+    let cropper;
+    let currentFileIndex = -1;
+    const imageInput = document.getElementById('imageInput');
+    const previewContainer = document.getElementById('image-preview-container');
+    const cropperModal = document.getElementById('cropperModal');
+    const imageToCrop = document.getElementById('imageToCrop');
+    
+    // We use DataTransfer to manipulate the FileList
+    const dataTransfer = new DataTransfer();
+
+    // Listen for file selection
+    imageInput.addEventListener('change', function(e) {
+        const files = this.files;
+        for(let i=0; i<files.length; i++){
+            dataTransfer.items.add(files[i]);
+        }
+        // Update input files
+        imageInput.files = dataTransfer.files;
+        renderPreviews();
+    });
+
+    function renderPreviews() {
+        previewContainer.innerHTML = '';
+        Array.from(dataTransfer.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const div = document.createElement('div');
+                div.style.cssText = "position: relative; width: 100px; height: 100px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; margin-right: 10px; margin-bottom: 10px;";
+                
+                div.innerHTML = `
+                    <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <button type="button" onclick="openCropper(${index})" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; border: none; font-size: 11px; cursor: pointer; padding: 2px;">Crop</button>
+                    <button type="button" onclick="removeImage(${index})" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+                `;
+                previewContainer.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function openCropper(index) {
+        currentFileIndex = index;
+        const file = dataTransfer.files[index];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imageToCrop.src = e.target.result;
+            cropperModal.style.display = 'flex';
+            if(cropper) { cropper.destroy(); }
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: 1, 
+                viewMode: 1,
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function saveCrop() {
+        if (!cropper) return;
+        cropper.getCroppedCanvas().toBlob((blob) => {
+            const originalFile = dataTransfer.files[currentFileIndex];
+            const croppedFile = new File([blob], originalFile.name, { type: originalFile.type });
+
+            // Rebuild DataTransfer
+            const newDataTransfer = new DataTransfer();
+            Array.from(dataTransfer.files).forEach((file, i) => {
+                if (i === currentFileIndex) {
+                    newDataTransfer.items.add(croppedFile);
+                } else {
+                    newDataTransfer.items.add(file);
+                }
             });
 
-            // 3. Function to remove a row
-            function removeSpec(button) {
-                // Find the row (.spec-row) that contains the clicked button
-                const row = button.closest('.spec-row');
+            // Update
+            dataTransfer.items.clear();
+            Array.from(newDataTransfer.files).forEach(file => dataTransfer.items.add(file));
+            imageInput.files = dataTransfer.files;
 
-                // If there is more than one row, remove it.
-                // (Optional: Keep at least one row so the form isn't empty)
-                const totalRows = document.querySelectorAll('.spec-row').length;
-                if (totalRows > 1) {
-                    row.remove();
-                } else {
-                    // Clear the inputs if it's the last row
-                    row.querySelector('input[name="specKeys[]"]').value = '';
-                    row.querySelector('input[name="specValues[]"]').value = '';
-                }
+            renderPreviews();
+            closeCropper();
+        });
+    }
+
+    function closeCropper() {
+        cropperModal.style.display = 'none';
+        if(cropper) { cropper.destroy(); }
+    }
+
+    function removeImage(index) {
+        const newDataTransfer = new DataTransfer();
+        Array.from(dataTransfer.files).forEach((file, i) => {
+            if (i !== index) {
+                newDataTransfer.items.add(file);
             }
-        </script>
-    </body>
+        });
+
+        dataTransfer.items.clear();
+        Array.from(newDataTransfer.files).forEach(file => dataTransfer.items.add(file));
+        imageInput.files = dataTransfer.files;
+        renderPreviews();
+    }
+
+    // ==========================================
+    // 4. FORM SUBMISSION
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+        const productForm = document.getElementById('addProductForm');
+        if (productForm) {
+            productForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = productForm.querySelector('.btn-save');
+                
+                // --- Validation ---
+                if (imageInput.files.length < 3) {
+                    showToast('Please select at least 3 product images.', 'error');
+                    return;
+                }
+                if (variants.length === 0) {
+                    showToast('Please add at least one variant.', 'error');
+                    return;
+                }
+                // ------------------
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Saving...';
+                
+                const formData = new FormData(productForm);
+
+                try {
+                    const response = await axios.post('/admin/add-product', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+
+                    if (response.data.success) {
+                        showToast(response.data.message, 'success');
+                        setTimeout(() => window.location.href = '/admin/products', 1000);
+                    } else {
+                        showToast(response.data.message, 'error');
+                        resetBtn(submitBtn);
+                    }
+                } catch (err) {
+                    console.error("Error:", err);
+                    showToast("Something went wrong.", 'error');
+                    resetBtn(submitBtn);
+                }
+            });
+        }
+    });
+
+    function resetBtn(btn) {
+        btn.disabled = false;
+        btn.innerText = "Save Changes";
+    }
+
+    function showToast(msg, type) {
+        if(typeof Toastify === 'function'){
+             Toastify({
+                text: msg,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { background: type === "success" ? "#28a745" : "#dc3545" }
+            }).showToast();
+        } else {
+            alert(msg);
+        }
+    }
+</script>

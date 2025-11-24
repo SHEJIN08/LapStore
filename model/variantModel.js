@@ -21,7 +21,6 @@ const variantSchema = new mongoose.Schema({
     },
     graphics: {
         type: String,
-        required: true
     },
     price: {
         type: Number,
@@ -31,6 +30,10 @@ const variantSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0
+    },
+    image: {
+        type: String,
+        default: ''
     }
 });
 
