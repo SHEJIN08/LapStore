@@ -1,0 +1,486 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/admin/edit-product.css">
+
+<body>
+    
+    <div class="product-main-content">
+        <%- include('../partials/sidebar',{activePage: 'products' }) %>
+
+        <div class="main-page-content">
+
+            <form id="editProductForm">
+                
+                <div class="product-header">
+                    <div>
+                        <p class="breadcrumb">Dashboard / Products / Edit Product</p>
+                        <h1>Edit Product</h1>
+                    </div>
+                    <div class="header-actions">
+                        <a href="/admin/products" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn-save">Update Product</button>
+                    </div>
+                </div>
+
+                <div class="add-product-grid">
+
+                    <div class="left-col">
+
+                        <div class="form-card">
+                            <h3>Basic Information</h3>
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <input type="text" name="name" value="<%= product.name %>" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Product Description</label>
+                                <textarea name="description" rows="4"><%= product.description %></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-card">
+                            <h3>Product Images</h3>
+                            
+                            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Current Images (Click X to remove)</p>
+                            <div class="existing-images-grid" id="existingImagesContainer">
+                                <% product.images.forEach((img, index) => { %>
+                                    <div class="existing-image-item" id="existing-img-<%= index %>">
+                                        <img src="<%= img %>" alt="Product Image">
+                                        <button type="button" class="delete-image-btn" onclick="markImageForDeletion('<%= img %>', '<%= index %>')">×</button>
+                                    </div>
+                                <% }) %>
+                            </div>
+                            
+                            <input type="hidden" name="deletedImages" id="deletedImagesInput">
+
+                            <div class="image-upload-area">
+                                <div class="upload-placeholder">
+                                    <span>⬆️</span>
+                                    <p>Add New Images</p>
+                                    <label for="imageInput" class="upload-link">Browse Files</label>
+                                    <input id="imageInput" type="file" name="newImages" multiple hidden accept="image/*">
+                                </div>
+                                <div id="image-preview-container" class="image-preview-grid"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-card">
+                            <h3>Manage Variants</h3>
+                            
+                            <div class="variant-input-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr ; gap: 10px; margin-bottom: 20px;">
+                                <div><label>RAM</label><input type="text" id="v_ram" class="form-control"></div>
+                                <div><label>Storage</label><input type="text" id="v_storage" class="form-control"></div>
+                                <div><label>Color</label><input type="text" id="v_color" class="form-control"></div>
+                                <div><label>Price</label><input type="number" id="v_price" class="form-control"></div>
+                                <div><label>Stock</label><input type="number" id="v_stock" class="form-control"></div>
+                                 <div><label>Graphics</label><input type="text" id="v_graphics" class="form-control"></div>
+                                <div style="display:flex; align-items:end;">
+                                    <button type="button" onclick="addVariant()" class="btn-add-variant" style="background: #0d6efd; color: white; border: none; padding: 0px;">+ Add</button>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Specs (RAM/Graph/Stor/Col)</th>
+                                            <th>Price</th>
+                                              <th>Graphics</th>
+                                            <th>Stock</th>
+                                            <th>Image</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="variantBody"></tbody>
+                                </table>
+                            </div>
+                            <input type="hidden" name="variantsData" id="variantsData">
+                        </div>
+
+                    </div>
+
+                    <div class="right-col">
+                        <div class="form-card">
+                            <h3>Organization</h3>
+                            <div class="form-group">
+                                <label>Brand</label>
+                                <select name="brand" required>
+                                    <% brands.forEach(b => { %>
+                                        <option value="<%= b._id %>" <%= product.brand && product.brand.toString() === b._id.toString() ? 'selected' : '' %>>
+                                            <%= b.brandName %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select name="category" required>
+                                    <% categories.forEach(c => { %>
+                                        <option value="<%= c._id %>" <%= product.category && product.category.toString() === c._id.toString() ? 'selected' : '' %>>
+                                            <%= c.categoryName %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                        </div>
+
+                       <div class="form-card">
+                            <h3>Specifications</h3>
+                            
+                            <div class="form-group">
+                                <label>Processor</label>
+                                <input type="text" name="processor" 
+                                    value="<%= (product.specifications || []).find(s => s.key === 'Processor')?.value || '' %>">
+                            </div>
+                            
+                            <div id="specs-container">
+                                <% (product.specifications || []).filter(s => s.key !== 'Processor').forEach(spec => { %>
+                                    <div class="spec-row">
+                                        <div class="spec-group">
+                                            <input type="text" name="specKeys[]" value="<%= spec.key %>">
+                                        </div>
+                                        <div class="spec-group">
+                                            <input type="text" name="specValues[]" value="<%= spec.value %>">
+                                        </div>
+                                        <button type="button" class="delete-spec" onclick="removeSpec(this)">🗑️</button>
+                                    </div>
+                                <% }) %>
+                            </div>
+                            
+                            <button type="button" id="add-spec-btn" class="btn-add-spec">Add Spec</button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="cropperModal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 9999; align-items:center; justify-content:center;">
+        <div style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 600px;">
+            <h3>Crop Image</h3>
+            <div style="height: 400px; background: #333; overflow:hidden;">
+                <img id="imageToCrop" src="" style="max-width: 100%; display: block;">
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button type="button" class="btn btn-secondary" onclick="closeCropper()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveCrop()">Crop & Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/axios.min.js"></script>
+
+    <script>
+      
+    // ==========================================
+    // 1. GLOBAL VARIABLES & INITIALIZATION
+    // ==========================================
+    // 'variants' and 'product' come from your EJS variables
+        let variants = JSON.parse('<%- JSON.stringify(variants || []) %>');
+        let deletedImages = []; 
+        const productId = "<%= product._id %>";
+
+    // Variables for Cropper
+    let cropper;
+    let currentFileIndex = -1;
+    const dataTransfer = new DataTransfer(); // Holds new files
+
+    // DOM Elements for Cropper
+    const imageInput = document.getElementById('imageInput');
+    const previewContainer = document.getElementById('image-preview-container');
+    const cropperModal = document.getElementById('cropperModal');
+    const imageToCrop = document.getElementById('imageToCrop');
+
+    // Run on load
+    document.addEventListener('DOMContentLoaded', () => {
+        renderVariants(); 
+    });
+
+    // ==========================================
+    // 2. EXISTING IMAGE LOGIC (Delete)
+    // ==========================================
+    function markImageForDeletion(imageUrl, index) {
+        deletedImages.push(imageUrl);
+        const imgDiv = document.getElementById(`existing-img-${index}`);
+        if(imgDiv) imgDiv.style.display = 'none';
+        
+        // Update hidden input so backend knows what to delete
+        document.getElementById('deletedImagesInput').value = JSON.stringify(deletedImages);
+    }
+
+    // ==========================================
+    // 3. NEW IMAGE CROPPER LOGIC (The part you asked for)
+    // ==========================================
+    
+    // A. Listen for file selection
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const files = this.files;
+            for(let i=0; i<files.length; i++){
+                dataTransfer.items.add(files[i]);
+            }
+            imageInput.files = dataTransfer.files; // Sync input
+            renderPreviews();
+        });
+    }
+
+    // B. Render Thumbnails for New Images
+    function renderPreviews() {
+        previewContainer.innerHTML = '';
+        Array.from(dataTransfer.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const div = document.createElement('div');
+                // Styling specifically for the preview item
+                div.style.cssText = "position: relative; width: 80px; height: 80px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; margin-right: 10px; margin-bottom: 10px;";
+                
+                div.innerHTML = `
+                    <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <button type="button" onclick="openCropper(${index})" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; border: none; font-size: 10px; cursor: pointer; padding: 2px;">Crop</button>
+                    <button type="button" onclick="removeNewImage(${index})" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+                `;
+                previewContainer.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // C. Open Cropper Modal
+    function openCropper(index) {
+        currentFileIndex = index;
+        const file = dataTransfer.files[index];
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            imageToCrop.src = e.target.result;
+            cropperModal.style.display = 'flex';
+            
+            if(cropper) { cropper.destroy(); }
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: 1, // Square crop. Set to NaN for free crop.
+                viewMode: 1,
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // D. Save the Cropped Image
+    function saveCrop() {
+        if (!cropper) return;
+        cropper.getCroppedCanvas().toBlob((blob) => {
+            const originalFile = dataTransfer.files[currentFileIndex];
+            const croppedFile = new File([blob], originalFile.name, { type: originalFile.type });
+
+            // Rebuild DataTransfer with the new file
+            const newDataTransfer = new DataTransfer();
+            Array.from(dataTransfer.files).forEach((file, i) => {
+                if (i === currentFileIndex) {
+                    newDataTransfer.items.add(croppedFile);
+                } else {
+                    newDataTransfer.items.add(file);
+                }
+            });
+
+            // Update globals
+            dataTransfer.items.clear();
+            Array.from(newDataTransfer.files).forEach(file => dataTransfer.items.add(file));
+            imageInput.files = dataTransfer.files;
+
+            renderPreviews();
+            closeCropper();
+        });
+    }
+
+    // E. Remove New Image
+    function removeNewImage(index) {
+        const newDataTransfer = new DataTransfer();
+        Array.from(dataTransfer.files).forEach((file, i) => {
+            if (i !== index) newDataTransfer.items.add(file);
+        });
+        
+        dataTransfer.items.clear();
+        Array.from(newDataTransfer.files).forEach(file => dataTransfer.items.add(file));
+        imageInput.files = dataTransfer.files;
+        
+        renderPreviews();
+    }
+
+    function closeCropper() {
+        cropperModal.style.display = 'none';
+        if(cropper) { cropper.destroy(); }
+    }
+
+
+    // ==========================================
+    // 4. VARIANT LOGIC
+    // ==========================================
+    function renderVariants() {
+        const tbody = document.getElementById('variantBody');
+        tbody.innerHTML = '';
+
+        variants.forEach((v, index) => {
+            // Determine image source (Existing or Placeholder)
+            let imgSrc = '/assets/imgs/theme/upload.svg'; // Default placeholder
+        if (v.image) {
+            // If it starts with http, use it as is. Otherwise, add /uploads/
+            imgSrc = v.image.startsWith('http') ? v.image : `/uploads/${v.image}`;
+        }
+        
+        const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <strong>${v.ram} / ${v.storage}</strong><br>
+                    <small>${v.color}</small>
+                </td>
+                <td>$${v.price}</td>
+                <td>${v.graphics}</td>
+                <td>${v.stock}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <img src="${imgSrc}" class="variant-img-preview" id="v-preview-${index}" style="width:40px; height:40px; object-fit:cover; border:1px solid #ddd;">
+                        <label class="btn btn-sm btn-light" style="margin:0; cursor:pointer; padding: 2px 5px; font-size: 12px; border: 1px solid #ccc;">
+                            <i class="bi bi-upload"></i> Upload
+                            <input type="file" hidden accept="image/*" onchange="uploadVariantImage(event, '${v._id}', ${index})">
+                        </label>
+                    </div>
+                </td>
+                <td>
+                    <button type="button" onclick="removeVariant(${index})" style="color: red; border: none; background: none;">Remove</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        updateHiddenInput();
+    }
+
+    function addVariant() {
+        const ram = document.getElementById('v_ram').value;
+        const storage = document.getElementById('v_storage').value;
+        const color = document.getElementById('v_color').value;
+        const price = document.getElementById('v_price').value;
+        const stock = document.getElementById('v_stock').value;
+        const graphics = document.getElementById('v_graphics').value;
+
+        if (!ram || !storage || !price || !stock  || !graphics) return showToast('Fill all fields', 'error');
+
+        // New variants don't have IDs yet
+        variants.push({ ram, storage, color: color || 'Standard', price, graphics ,stock, image: '' });
+        renderVariants();
+        
+        // Clear inputs
+        document.getElementById('v_ram').value = '';
+        document.getElementById('v_storage').value = '';
+        document.getElementById('v_price').value = '';
+        document.getElementById('v_stock').value = '';
+        document.getElementById('v_graphics').value = '';
+    }
+
+    function removeVariant(index) {
+        variants.splice(index, 1);
+        renderVariants();
+    }
+
+    function updateHiddenInput() {
+        document.getElementById('variantsData').value = JSON.stringify(variants);
+    }
+
+    async function uploadVariantImage(event, variantId, index) {
+        const file = event.target.files[0];
+        if(!file) return;
+
+        if(!variantId || variantId === 'undefined' || variantId === '') {
+            showToast("Please update/save the product first to create this variant.", "error");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('variantImage', file);
+
+        try {
+            showToast("Uploading...", "success");
+            const res = await axios.post(`/admin/variant/upload-image/${variantId}`, formData);
+            if(res.data.success) {
+                showToast("Image Uploaded", "success");
+                variants[index].image = res.data.image; // Update local data
+                renderVariants(); // Refresh view
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Upload failed", "error");
+        }
+    }
+
+
+    // ==========================================
+    // 5. SPECIFICATIONS LOGIC
+    // ==========================================
+    const addSpecBtn = document.getElementById('add-spec-btn');
+    const specsContainer = document.getElementById('specs-container');
+
+    if (addSpecBtn) {
+        addSpecBtn.addEventListener('click', () => {
+            const newRow = document.createElement('div');
+            newRow.classList.add('spec-row');
+            newRow.innerHTML = `
+                <div class="spec-group"><input type="text" name="specKeys[]" placeholder="Key"></div>
+                <div class="spec-group"><input type="text" name="specValues[]" placeholder="Value"></div>
+                <button type="button" class="delete-spec" onclick="this.closest('.spec-row').remove()">🗑️</button>
+            `;
+            specsContainer.appendChild(newRow);
+        });
+    }
+
+    function removeSpec(btn) {
+        btn.closest('.spec-row').remove();
+    }
+
+
+    // ==========================================
+    // 6. MAIN FORM SUBMISSION
+    // ==========================================
+    document.getElementById('editProductForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('.btn-save');
+        btn.disabled = true;
+        btn.innerText = "Updating...";
+
+        const formData = new FormData(e.target);
+        
+        // IMPORTANT: Manually append the new cropped files
+        for (let i = 0; i < dataTransfer.files.length; i++) {
+            formData.append('newImages', dataTransfer.files[i]);
+        }
+
+        try {
+            const res = await axios.put(`/admin/edit-product/${productId}`, formData);
+            if(res.data.success) {
+                showToast("Product Updated!", "success");
+                setTimeout(() => window.location.href = '/admin/products', 1000);
+            } else {
+                showToast(res.data.message || "Update failed", "error");
+                btn.disabled = false;
+                btn.innerText = "Update Product";
+            }
+        } catch (err) {
+            console.error(err);
+            if(err.responce && err.responce.status === 404) {
+                showToast('Product not found! Redirecting...',"error")
+                setTimeout(() => {
+                    window.location.href = '/admin/products'
+                }, 1500)
+            }else {
+            showToast("Server Error", "error");
+            btn.disabled = false;
+            btn.innerText = "Update Product";
+        }
+      }
+    });
+
+    function showToast(msg, type) {
+        if(typeof Toastify === 'function'){
+             Toastify({ text: msg, duration: 3000, style: { background: type === "success" ? "#28a745" : "#dc3545" } }).showToast();
+        } else {
+            alert(msg);
+        }
+    }
+    </script>

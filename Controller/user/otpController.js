@@ -1,71 +1,83 @@
 import UserOtpVerification from "../../model/otpModel.js";
 import userSchema from "../../model/userModel.js";
 
-// ...existing code...
 export const verifyOtp = async (req, res) => {
   try {
     const email = req.session.email;
     const { otp } = req.body;
-    
-     const message = req.session.message;
-    const type = req.session.type;
 
-  // Clear message BEFORE rendering page
-  req.session.message = null;
-  req.session.type = null;
-
+    // 1. Check if session exists
     if (!email || !req.session.otpPurpose) {
-  req.session.message = "Session expired. Please try again.";
-  req.session.type = "error";
-  return res.redirect("/user/login");
-}
+      return res.status(400).json({ 
+        success: false, 
+        message: "Session expired. Please try to login or register again." 
+      });
+    }
 
-
+    // 2. Find OTP record in DB
     const record = await UserOtpVerification.findOne({ email });
 
-  
-
     if (!record) {
-      req.session.message = "OTP expired. Request again.";
-      req.session.type = "error";
-      return res.redirect("/user/verify-otp");
+      return res.status(400).json({ 
+        success: false, 
+        message: "OTP expired or invalid. Please request a new one." 
+      });
     }
 
+    // 3. Verify OTP Match
     if (record.otpCode !== otp) {
-      req.session.message = "Invalid OTP!";
-      req.session.type = "error";
-      return res.redirect("/user/verify-otp");
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid OTP! Please check and try again." 
+      });
     }
 
+    // -----------------------------------------
+    // ✅ SUCCESS: OTP IS VALID
+    // -----------------------------------------
     
-    // OTP is correct
+    // Clean up OTP from DB (prevent reuse)
     await UserOtpVerification.deleteMany({ email });
 
-    // CASE 1 — Registration Verification
+    // CASE A: Registration Verification
     if (req.session.otpPurpose === "register") {
       
-      const user = await userSchema.findOneAndUpdate( 
+      // Update user to verified status
+      await userSchema.findOneAndUpdate( 
         { email },
         { isVerified: true }
       );
 
-      req.session.message = "Email verified!";
-      req.session.type = "success";
-      return res.redirect("/user/login");
+      // Clear specific session flags
+      req.session.otpPurpose = null; 
+      req.session.email = null;
+
+      return res.status(200).json({ 
+        success: true, 
+        message: "Email verified successfully!", 
+        redirectUrl: "/user/login" // Frontend will use this
+      });
     }
 
-    // CASE 2 — Forgot Password
+    // CASE B: Forgot Password Verification
     if (req.session.otpPurpose === "password-reset") {
+      
+      // Mark session as allowed to reset password
       req.session.allowReset = true;
+      req.session.otpPurpose = null;
 
-      return res.redirect("/user/reset-password");
+      return res.status(200).json({ 
+        success: true, 
+        message: "OTP Verified! Redirecting...", 
+        redirectUrl: "/user/reset-password" 
+      });
     }
 
   } catch (err) {
-    console.error(err)
-    req.session.message = "Something went wrong";
-    req.session.type = "error";
-    return res.redirect("/user/verify-otp");
+    console.error("OTP Error:", err);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Something went wrong during verification." 
+    });
   }
 };
-

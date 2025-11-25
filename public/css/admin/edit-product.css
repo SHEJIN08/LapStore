@@ -1,0 +1,312 @@
+/* =========================================
+   1. MAIN LAYOUT (Fixes Sidebar Issue)
+   ========================================= */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.product-main-content {
+    display: flex;          /* CRITICAL: Puts Sidebar & Content side-by-side */
+    width: 100%;
+    height: 100vh;          /* Full height of screen */
+    overflow: hidden;       /* Prevents double scrollbars */
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+.main-page-content {
+    flex-grow: 1;           /* Takes all remaining space next to sidebar */
+    padding: 30px;
+    overflow-y: auto;       /* Makes only this part scrollable */
+    background-color: #f8f9fa;
+}
+
+/* =========================================
+   2. EDIT PAGE GRID (Left vs Right Columns)
+   ========================================= */
+.add-product-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Left is wide, Right is narrow */
+    gap: 24px;
+    align-items: start;
+}
+
+/* Responsive: Stack columns on tablets/mobile */
+@media (max-width: 992px) {
+    .add-product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================
+   3. GENERAL FORM STYLES
+   ========================================= */
+.form-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #eee;
+    margin-bottom: 24px;
+}
+
+.form-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.form-group input, 
+.form-group textarea, 
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    transition: border 0.2s;
+    background-color: #fff;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #0d6efd;
+}
+
+/* Header & Buttons */
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.breadcrumb {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.product-header h1 {
+    font-size: 24px;
+    margin: 0;
+    font-weight: 600;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    color: #555;
+    text-decoration: none;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-save {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-save:hover { background-color: #0b5ed7; }
+
+/* =========================================
+   4. EDIT SPECIFIC: EXISTING IMAGES
+   ========================================= */
+.existing-images-grid {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #eee;
+}
+
+.existing-image-item {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.existing-image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Shows whole image */
+}
+
+/* Red "X" Button */
+.delete-image-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: 0.2s;
+}
+.delete-image-btn:hover { background: #c82333; }
+
+/* =========================================
+   5. NEW IMAGE UPLOAD & PREVIEWS
+   ========================================= */
+.image-upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    background-color: #fafafa;
+}
+
+.upload-link {
+    color: #0d6efd;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.image-preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.image-preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.image-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 2px; right: 2px;
+    background: red; color: white;
+    border: none; border-radius: 50%;
+    width: 18px; height: 18px;
+    font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* =========================================
+   6. VARIANTS & SPECS ALIGNMENT
+   ========================================= */
+
+/* Variant Inputs Alignment */
+.variant-input-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr) auto; /* 5 inputs + 1 button */
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: end; /* Aligns button to bottom */
+}
+
+.btn-add-variant {
+    height: 42px; /* Matches input height */
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .variant-input-grid { grid-template-columns: 1fr 1fr; }
+    .variant-input-grid div:last-child { grid-column: span 2; }
+}
+
+/* Variant Table Image */
+.variant-img-preview {
+    width: 36px; height: 36px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+/* Specs Rows */
+.spec-row {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f9f9f9;
+    align-items: center;
+}
+.spec-group { flex: 1; }
+.spec-group input { margin: 0; }
+
+.delete-spec {
+    background: #fff5f5;
+    color: #dc3545;
+    border: none;
+    border-radius: 4px;
+    width: 30px; height: 30px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.delete-spec:hover { background: #dc3545; color: white; }
+
+.btn-add-spec {
+    background: #e9ecef;
+    color: #333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 15px;
+}

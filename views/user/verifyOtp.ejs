@@ -23,7 +23,7 @@
     <h1>Verify Your Account</h1>
             <p>Enter the 6-digit OTP sent to your email.</p>
 
-    <form action="/user/verify-otp" method="POST" id="otpForm">
+    <form id="otpForm">
 
         <div class="otp-inputs">
             <input type="text" maxlength="1"  class="otp-input" required>
@@ -40,7 +40,7 @@
 
        <button type="submit" class="btn btn-primary">Verify & Continue</button>
 
-        <p class="message"><%= message %></p>
+        
 
         <p class="resend-text">
                 Didn't get the OTP? <a href="/user/resend-otp">Resend in 30s</a>
@@ -51,42 +51,60 @@
 </div>
   
 </main>
-
+ <script src="/js/axios.min.js"></script>
 <script>
+    // 1. Setup Toastify Function
+    const showToast = (message, type) => {
+        const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: { background: bgColor }
+        }).showToast();
+    };
 
-     const expiresAt = JSON.parse('<%= JSON.stringify(otpExpiresAt) %>');
-  
-  function updateTimer() {
-    const now = Date.now();
-    const diff = expiresAt - now;  
+    // 2. Timer Logic (Runs immediately on page load)
+    const expiresAt = JSON.parse('<%= JSON.stringify(otpExpiresAt) %>');
+    const timerElement = document.getElementById("timer");
+    const resendLink = document.getElementById("resendLink");
+    const otpForm = document.getElementById('otpForm');
 
-    if (diff <= 0) {
-      document.getElementById("timer").innerHTML = "<span style='color:red'>OTP expired!</span>";
-      // FIXED: use querySelectorAll instead of getElementById
-      document.querySelectorAll("#otpForm input, #otpForm button").forEach(el => el.disabled = true);
-      return;
+ function updateTimer() {
+        const now = Date.now();
+        const diff = expiresAt - now;
+
+        if (diff <= 0) {
+            timerElement.innerHTML = "<span style='color:red'>OTP expired!</span>";
+            resendLink.style.pointerEvents = "auto";
+            resendLink.style.color = "#3B82F6"; 
+            resendLink.innerText = "Resend Now";
+            return;
+        }
+
+        // ✅ MODIFIED: Calculate total seconds only
+        const totalSeconds = Math.floor(diff / 1000);
+        
+        timerElement.textContent = `OTP expires in ${totalSeconds}s`;
+
+        setTimeout(updateTimer, 1000);
     }
+    updateTimer(); // Start timer immediately
 
-    const seconds = Math.floor(diff / 1000);
-    document.getElementById("timer").textContent = "OTP expires in " + seconds + "s";
-
-    setTimeout(updateTimer, 1000);
-  }
-
-  updateTimer();
-  
+    // 3. Input Focus Logic (Runs immediately)
     const inputs = document.querySelectorAll(".otp-input");
     const fullOtpInput = document.getElementById("fullOtp");
 
     inputs.forEach((input, index) => {
-        input.addEventListener("input", () => {
+        // Allow only numbers
+        input.addEventListener("input", (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numbers
+            
             if (input.value.length === 1 && index < inputs.length - 1) {
                 inputs[index + 1].focus();
             }
-
-            let otp = "";
-            inputs.forEach(i => otp += i.value);
-            fullOtpInput.value = otp;
+            updateHiddenInput();
         });
 
         input.addEventListener("keydown", (e) => {
@@ -95,9 +113,49 @@
             }
         });
     });
+
+    function updateHiddenInput() {
+        let otp = "";
+        inputs.forEach(i => otp += i.value);
+        fullOtpInput.value = otp;
+    }
+
+    // 4. Form Submission Logic (Runs ONLY when you click verify)
+    otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Get the value from the hidden input
+        const otpValue = document.getElementById('fullOtp').value;
+
+        // Validation: Ensure 6 digits
+        if (otpValue.length !== 6) {
+            showToast("Please enter the full 6-digit OTP", "error");
+            return;
+        }
+
+        try {
+            // FIX: You must send the data { otp: ... } to the server!
+            const response = await axios.post('/user/verify-otp', { 
+                otp: otpValue 
+            });
+
+            if (response.data.success) {
+                showToast("Verification Successful!", "success");
+                setTimeout(() => {
+                    // Redirect to home or login based on your flow
+                   window.location.href = response.data.redirectUrl || '/user/login';
+                }, 1500);
+            } else {
+                showToast(response.data.message || "Verification Failed", "error");
+            }
+
+        } catch (error) {
+            console.error(error);
+            const errMsg = error.response?.data?.message || "Something went wrong";
+            showToast(errMsg, "error");
+        }
+    });
 </script>
-<input type="text" id="message" value="<%= message %>" name="message" hidden>
-    <input type="hidden" id="type" value="<%= type %>" name="value">
 
 
 <%- include('../partials/footer') %>

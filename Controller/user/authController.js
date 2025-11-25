@@ -1,74 +1,47 @@
-import Joi from "joi"; // 1. Import Joi
+import Joi from "joi"; 
 import bcrypt from "bcrypt";
 import userSchema from "../../model/userModel.js";
 import { sendOtp } from "../../utils/otp.js";
 import UserOtpVerification from "../../model/otpModel.js";
 const saltround = 10;
 
-// 2. Define your Joi validation schema
+// ... (Your Joi Schemas remain the same) ...
 const registerSchema = Joi.object({
-  name: Joi.string().required().messages({
-    "string.empty": "Name is required.",
-  }),
-  email: Joi.string().email().required().messages({
-    "string.empty": "Email is required.",
-    "string.email": "Please enter a valid email address.",
-  }),
-  password: Joi.string().min(6).required().messages({
-    "string.empty": "Password is required.",
-    "string.min": "Password must be at least 6 characters long.",
-  }),
-  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
-    "any.only": "Passwords do not match.",
-    "string.empty": "Please confirm your password.",
-  }),
+  name: Joi.string().required().messages({ "string.empty": "Name is required." }),
+  email: Joi.string().email().required().messages({ "string.empty": "Email is required.", "string.email": "Please enter a valid email address." }),
+  password: Joi.string().min(6).required().messages({ "string.empty": "Password is required.", "string.min": "Password must be at least 6 characters long." }),
+  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({ "any.only": "Passwords do not match.", "string.empty": "Please confirm your password." }),
 });
 
 const forgotPasswordSchema = Joi.object({
-  email: Joi.string().email().required().messages({
-    "string.empty": "Email is required.",
-    "string.email": "Enter a valid email address.",
-  }),
+  email: Joi.string().email().required().messages({ "string.empty": "Email is required.", "string.email": "Enter a valid email address." }),
 });
 
 const resetPasswordSchema = Joi.object({
-  password: Joi.string().min(6).required().messages({
-    "string.empty": "Password is required.",
-    "string.min": "Password must be at least 6 characters long.",
-  }),
-  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
-    "any.only": "Passwords do not match.",
-    "string.empty": "Please confirm your password.",
-  }),
+  password: Joi.string().min(6).required().messages({ "string.empty": "Password is required.", "string.min": "Password must be at least 6 characters long." }),
+  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({ "any.only": "Passwords do not match.", "string.empty": "Please confirm your password." }),
 });
 
+// ==========================================
+// 🚀 REGISTER USER
+// ==========================================
 const registerUser = async (req, res) => {
   try {
     // 1. Joi validation
-    const { error } = registerSchema.validate(req.body, {
-      abortEarly: false,
-      allowUnknown: true,
-    });
-
+    const { error } = registerSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
     if (error) {
-      req.session.message = error.details[0].message;
-      req.session.type = "error";
-      return req.session.save(() => res.redirect("/user/register"));
+      return res.status(400).json({success: false, message: error.details[0].message});
     }
 
-    // 2. Extract fields
     const { name, email, password } = req.body;
 
-    // 3. Check user exists
+    // 2. Check user exists
     const existingUser = await userSchema.findOne({ email });
-
     if (existingUser) {
-      req.session.message = "User already exists";
-      req.session.type = "error";
-      return req.session.save(() => res.redirect("/user/register"));
+      return res.status(400).json({success: false, message: 'User already exists'});
     }
 
-    // 4. Save user (unverified)
+    // 3. Save user (unverified)
     const hashedPassword = await bcrypt.hash(password, saltround);
     const userId = `user_${Date.now()}`;
 
@@ -82,129 +55,107 @@ const registerUser = async (req, res) => {
 
     await newUser.save();
 
-    // 5. Send OTP
+    // 4. Send OTP
     await sendOtp(email);
 
-    // 6. Set session for OTP verification
+    // 5. Set session
     req.session.email = email;
     req.session.otpPurpose = "register";
-    req.session.otpExpiresAt = Date.now() + 2 * 60 * 1000; //2 min
+    req.session.otpExpiresAt = Date.now() + 2 * 60 * 1000; 
 
-    // 7. Redirect (NOT render)
-    return res.redirect("/user/verify-otp");
+    // ✅ FIXED: Return JSON success (Frontend handles redirect)
+    return res.status(200).json({success: true, message: "Registration successful"});
 
   } catch (err) {
     console.error(err);
-
-    req.session.message = "Something went wrong!";
-    req.session.type = "error";
-
-    return res.redirect("/user/register");
+    return res.status(500).json({success: false, message: 'Something went wrong'});
   }
 };
 
-
+// ==========================================
+// 🚀 LOAD VERIFY OTP PAGE
+// ==========================================
 const loadVerifyOtp = (req, res) => {
    if (!req.session.email) {
-    req.session.message = "Unauthorized access!";
-    req.session.type = "error";
-    return res.redirect("/user/register");
+     return res.redirect('/user/register'); // Redirect if no session
   }
-  const message = req.session.message || "";
-  const type = req.session.type || "";
+
   const otpExpiresAt = req.session.otpExpiresAt;
 
-  req.session.message = null;
-  req.session.type = null;
-
+  // ✅ FIXED: Removed undefined 'message' and 'type' variables
   return res.render("user/verifyOtp", {
-    message,
-    type,
     otpExpiresAt,
   });
 };
 
-
+// ==========================================
+// 🚀 RESEND OTP
+// ==========================================
 const resendOtp = async (req, res) => {
   try {
     const email = req.session.email;
 
-      if (!email) {
-      req.session.message = "Session expired — please try again.";
-      req.session.type = "error";
-      return res.redirect("/user/register");
+    if (!email) {
+      return res.status(400).json({success: false, message: 'Session expired — please try again.'});
     }
 
     await UserOtpVerification.deleteMany({ email });
-
     await sendOtp(email);
+    req.session.otpExpiresAt = Date.now() + 2 * 60 * 1000; 
 
-    req.session.otpExpiresAt = Date.now() + 2 * 60 * 1000; // reset timer
+    // ✅ FIXED: Only JSON, no redirect
+    return res.status(200).json({success: true, message: 'OTP resent successfully.'});
 
-    req.session.message = "OTP resent successfully!";
-    req.session.type = "success";
-
-    return res.redirect("/user/verify-otp");
   } catch (err) {
     console.error(err);
-    req.session.message = "Failed to resend OTP";
-    req.session.type = "error";
-    return res.redirect("/user/verify-otp");
+    return res.status(500).json({success: false, message: 'Failed to resend otp.'});
   }
 };
 
+// ==========================================
+// 🚀 FORGOT PASSWORD (POST)
+// ==========================================
 const forgotPasswordPost = async (req, res) => {
   try {
     const { email } = req.body;
 
-    console.log("BODY:", req.body);
-
-    // Validate input
     const { error } = forgotPasswordSchema.validate({ email });
     if (error) {
-      req.session.message = error.details[0].message;
-      req.session.type = "error";
-      return res.redirect("/user/forgot-password");
+       return res.status(400).json({success: false, message: error.details[0].message });
     }
 
     const user = await userSchema.findOne({ email });
-
     if (!user) {
-      req.session.message = "No account found with this email!";
-      req.session.type = "error";
-      return res.redirect("/user/forgot-password");
+       return res.status(400).json({success: false, message: 'No account found with this email'});
     }
 
-    // Save email & type of OTP process
     req.session.email = email;
-    req.session.otpPurpose = "password-reset"; // 👈 Important
+    req.session.otpPurpose = "password-reset"; 
 
-    // Send OTP
     await sendOtp(email);
 
-    return res.redirect("/user/verify-otp"); // 👈 SAME OTP PAGE USED IN REGISTER
+    // ✅ FIXED: Return JSON
+    return res.status(200).json({success: true, message: "OTP sent to email"});
+    
   } catch (err) {
     console.error(err);
-    req.session.message = "Something went wrong";
-    req.session.type = "error";
-    return res.redirect("/user/forgot-password");
+    return res.status(500).json({success: false, message: 'Something went wrong'});
   }
 };
 
+// ==========================================
+// 🚀 RESET PASSWORD (POST)
+// ==========================================
 const resetPasswordPost = async (req, res) => {
   try {
     if (!req.session.allowReset || !req.session.email) {
-      req.session.message = "Unauthorized access!";
-      req.session.type = "error";
-      return res.redirect("/user/login");
+       return res.status(401).json({success: false, message: 'Unauthorized access'});
     }
 
     const { error } = resetPasswordSchema.validate(req.body);
-
     if (error) {
-      req.session.message = error.details[0].message;
-      req.session.type = "error";
-      return res.redirect("/user/reset-password");
+       // ✅ FIXED: Typo error.details.message[0] -> error.details[0].message
+       return res.status(400).json({success: false, message: error.details[0].message});
     }
 
     const { password } = req.body;
@@ -215,88 +166,75 @@ const resetPasswordPost = async (req, res) => {
       { password: hashedPassword }
     );
 
-    // Clear session flags
     req.session.allowReset = false;
     req.session.email = null;
 
-    req.session.message = "Password reset successfully!";
-    req.session.type = "success";
+    // ✅ FIXED: Removed unreachable redirect
+    return res.status(200).json({success: true, message: 'Password reset successful'});
 
-    return res.redirect("/user/login");
   } catch (err) {
     console.log(err);
-    req.session.message = "Something went wrong!";
-    req.session.type = "error";
-    return res.redirect("/user/reset-password");
+    return res.status(500).json({success: false, message: 'Something went wrong'});
   }
 };
+
+// ==========================================
+// 🚀 LOGIN
+// ==========================================
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await userSchema.findOne({ email });
+    
+    // ✅ FIXED: Added 'return' to stop execution if user not found
     if (!user) {
-      req.session.message = "User not found";
-      req.session.type = "error";
-      return res.redirect("/user/login");
+       return res.status(400).json({success: false, message: 'User not found'});
     }
+    
+    // Optional: Check if user is verified
+    // if (!user.isVerified) {
+    //    return res.status(401).json({success: false, message: 'Please verify your email first'});
+    // }
 
     const isMatch = await bcrypt.compare(password, user.password);
+    
+    // ✅ FIXED: Added 'return'
     if (!isMatch) {
-      req.session.message = "Incorrect password";
-      req.session.type = "error";
-      return res.redirect("/user/login");
+       return res.status(400).json({success: false, message: 'Incorrect password'});
     }
-    req.session.message = "User Login Successfully";
-    req.session.type = "success";
-    return res.redirect("/user/home");
+
+    // ✅ FIXED: Actually create the session!
+    req.session.user = user._id; 
+
+    return res.status(200).json({success: true, message: 'Login successful'});
+
   } catch (err) {
     console.error(err);
-    req.session.message = "An error occurred";
-    req.session.type = "error";
-    return res.redirect("/user/login");
+    return res.status(500).json({success: false, message: 'Something went wrong'});
   }
 };
 
+// ==========================================
+// 🚀 RENDER PAGES (GET)
+// ==========================================
 const loadRegister = (req, res) => {
-  const message = req.session.message || "";
-  const type = req.session.type || "";
-
-  // Clear the message from session
-  req.session.message = null;
-  req.session.type = null;
-
-  res.render("user/register", { message, type });
+  res.render("user/register");
 };
 
 const loadResetPassword = (req, res) => {
   if (!req.session.allowReset) {
-    req.session.message = "Unauthorized request!";
-    req.session.type = "error";
-    return res.redirect("/user/login");
+     return res.redirect("/user/login"); // Redirect for GET request if unauthorized
   }
-
-  const message = req.session.message || "";
-  const type = req.session.type || "";
-
-  req.session.message = null;
-  req.session.type = null;
-
-  res.render("user/resetPassword", { message, type });
+  res.render("user/resetPassword");
 };
 
 const forgotPassword = (req, res) => {
   res.render("user/forgotPassword");
 };
+
 const loadLogin = (req, res) => {
-  const message = req.session.message || "";
-  const type = req.session.type || "";
-
-  // Clear the message from session so it only shows once
-  req.session.message = null;
-  req.session.type = null;
-
-  res.render("user/login", { message, type });
+  res.render("user/login");
 };
 
 export default {

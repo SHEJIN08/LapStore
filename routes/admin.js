@@ -16,6 +16,9 @@ router.get('/products',adminAuth.checkSession,productController.loadProduct)
 router.patch('/products/toggle-block/:id',adminAuth.checkSession,productController.BlockOrUnblock)
 router.get('/add-product', adminAuth.checkSession,productController.loadAddProduct)
 router.post('/add-product', upload.array('images',5), productController.addProduct);
+router.get('/edit-product/:id',adminAuth.checkSession,productController.loadEditProduct);
+router.put('/edit-product/:id', upload.array('newImages',5),productController.editProduct)
+router.post('/variant/upload-image/:variantId', upload.single('variantImage'),productController.uploadVariantImage)
 
 router.get('/users',adminAuth.checkSession,usersController.loadUsers)
 router.post('/users/toggle-block/:id',usersController.BlockOrUnblock)

@@ -24,7 +24,7 @@
                 <p>Join us to get the best deals on the latest laptops.</p>
             </div>
 
-            <form method="post" action="/user/register">
+            <form id="Formdata">
                 <div class="form-group">
                     <label for="full-name">Full Name</label>
                     <input type="text" id="full-name" name="name" placeholder="Enter your full name">
@@ -56,7 +56,7 @@
 
                 <div class="form-group">
                     <label for="referral" class="label-optional">Optional</label>
-                    <input type="text" id="referral" placeholder="Referral Code">
+                    <input type="text" id="referral" placeholder="Referral Code" >
                 </div>
 
                 <div class="form-check">
@@ -75,7 +75,48 @@
 
         </div>
     </main>
-    <input type="text" id="message" value="<%= message %>" name="message" hidden>
-    <input type="hidden" id="type" value="<%= type %>" name="value">
 
 <%- include('../partials/footer') %>
+ <script src="/js/axios.min.js"></script>
+<script>
+    const Formdata = document.getElementById('Formdata');
+
+     const showToast = (message, type) => {
+            const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top", 
+                position: "right", 
+                style: { background: bgColor }
+            }).showToast();
+        };
+
+    Formdata.addEventListener('submit',async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('full-name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('con-password').value;
+
+        try {
+            const response = await axios.post('/user/register', {
+                name: name,email:email, password:password,confirmPassword:confirmPassword
+            })
+
+            if(response.data.success){
+                showToast('register successful...','success');
+                setTimeout(() => {
+                    window.location.href = '/user/verify-otp'
+                },1000)
+            }else{
+                showToast(response.data.message || 'Register failed','error')
+            }
+        } catch (error) {
+            console.error(error)
+
+               const errMsg = error.response?.data?.message || 'Something went wrong';
+                showToast(errMsg, 'error');
+        }
+    })
+</script>
