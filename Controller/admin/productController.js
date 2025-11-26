@@ -6,15 +6,47 @@ import Brand from "../../model/brandModel.js";
 
 const loadProduct = async (req, res) => {
   try {
-    const products = await Product.find({})
+        const search = req.query.search || '';
+        const status = req.query.status || 'all';
+
+         // Pagination logic
+        const page = Number.parseInt(req.query.page) || 1;
+        const limit = 4;
+        const skip = (page - 1) * limit;
+
+        let query = {};
+
+        if(status === 'active'){
+          query.isPublished = true;
+        } else if(status === 'blocked'){
+          query.isPublished = false;
+        }
+
+        if(search){
+          const searchRegex = new RegExp(search,'i')
+
+          query.$or = [
+            {name: searchRegex}
+          ]
+        }
+
+    const products = await Product.find(query)
       .populate("category")
       .populate("brand")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+      const totalProducts = await Product.countDocuments();
+      const totalPages = Math.ceil(totalProducts / limit);
 
     res.render("admin/products", {
       products: products,
-      currentPage: 1,
-      totalPages: 1, // Adding this to prevent pagination errors
+      currentSearch : search,
+      currentStatus: status,
+      currentPage: page,
+      totalPages: totalPages,
+      totalProducts: totalProducts
     });
   } catch (error) {
     console.log(error.message);

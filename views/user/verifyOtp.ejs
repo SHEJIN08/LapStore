@@ -43,7 +43,8 @@
         
 
         <p class="resend-text">
-                Didn't get the OTP? <a href="/user/resend-otp">Resend in 30s</a>
+                Didn't get the OTP? 
+                <a href="/user/resend-otp" id="resendLink">Resend in 30s</a>
             </p>
 
             <div id="timer"></div>
@@ -66,40 +67,87 @@
     };
 
     // 2. Timer Logic (Runs immediately on page load)
-    const expiresAt = JSON.parse('<%= JSON.stringify(otpExpiresAt) %>');
+ const expiresAtString = '<%= otpExpiresAt %>';
+    let expiresAt = (expiresAtString && expiresAtString !== 'undefined') ? Number(expiresAtString) : 0;
+    
     const timerElement = document.getElementById("timer");
     const resendLink = document.getElementById("resendLink");
     const otpForm = document.getElementById('otpForm');
 
- function updateTimer() {
+    function updateTimer() {
+
+        if (expiresAt === 0) {
+            timerElement.textContent = ""; // Clear text (or say "Request a new OTP")
+            
+            // Enable Resend Link immediately
+            resendLink.style.pointerEvents = "auto";
+            resendLink.style.cursor = "pointer";
+            resendLink.style.color = "#3B82F6"; 
+            resendLink.innerText = "Resend Now";
+            return;
+        }
         const now = Date.now();
         const diff = expiresAt - now;
 
         if (diff <= 0) {
             timerElement.innerHTML = "<span style='color:red'>OTP expired!</span>";
+            
+            // Enable the link
+            
             resendLink.style.pointerEvents = "auto";
+            resendLink.style.cursor = "pointer"; 
             resendLink.style.color = "#3B82F6"; 
             resendLink.innerText = "Resend Now";
-            return;
+            return; 
         }
 
-        // ✅ MODIFIED: Calculate total seconds only
         const totalSeconds = Math.floor(diff / 1000);
-        
         timerElement.textContent = `OTP expires in ${totalSeconds}s`;
+
+        // Disable link while timer is running
+        resendLink.style.pointerEvents = "none";
+        resendLink.style.cursor = "default";
+        resendLink.style.color = "gray";
+      
 
         setTimeout(updateTimer, 1000);
     }
-    updateTimer(); // Start timer immediately
+    
+    // Start the timer initially
+    updateTimer(); 
 
-    // 3. Input Focus Logic (Runs immediately)
+    // 3. Handle Resend Click
+    if (resendLink) {
+        resendLink.addEventListener('click', async (e) => {
+            e.preventDefault(); // Stop any default navigation
+
+            try {
+                // Send background request
+                const response = await axios.get('/user/resend-otp'); 
+
+                if (response.data.success) {
+                    showToast(response.data.message, "success");
+
+                    // Reset Timer (Add 60 seconds)
+                    expiresAt = Date.now() + 60000; 
+                    updateTimer(); // Restart the loop
+                } else {
+                    showToast(response.data.message, "error");
+                }
+            } catch (error) {
+                console.error(error);
+                showToast("Failed to resend OTP", "error");
+            }
+        });
+    }
+
+    // 4. Input Focus Logic
     const inputs = document.querySelectorAll(".otp-input");
     const fullOtpInput = document.getElementById("fullOtp");
 
     inputs.forEach((input, index) => {
-        // Allow only numbers
         input.addEventListener("input", (e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numbers
+            e.target.value = e.target.value.replace(/[^0-9]/g, ''); 
             
             if (input.value.length === 1 && index < inputs.length - 1) {
                 inputs[index + 1].focus();
@@ -120,30 +168,23 @@
         fullOtpInput.value = otp;
     }
 
-    // 4. Form Submission Logic (Runs ONLY when you click verify)
+    // 5. Form Submission Logic
     otpForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        // Get the value from the hidden input
         const otpValue = document.getElementById('fullOtp').value;
 
-        // Validation: Ensure 6 digits
         if (otpValue.length !== 6) {
             showToast("Please enter the full 6-digit OTP", "error");
             return;
         }
 
         try {
-            // FIX: You must send the data { otp: ... } to the server!
-            const response = await axios.post('/user/verify-otp', { 
-                otp: otpValue 
-            });
+            const response = await axios.post('/user/verify-otp', { otp: otpValue });
 
             if (response.data.success) {
                 showToast("Verification Successful!", "success");
                 setTimeout(() => {
-                    // Redirect to home or login based on your flow
-                   window.location.href = response.data.redirectUrl || '/user/login';
+                    window.location.href = response.data.redirectUrl || '/user/login';
                 }, 1500);
             } else {
                 showToast(response.data.message || "Verification Failed", "error");

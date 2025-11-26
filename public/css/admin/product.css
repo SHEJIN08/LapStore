@@ -78,6 +78,61 @@ ul {
     color: white;
 }
 
+/* search bar */
+.search-filter-container {
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.search-bar {
+    flex-grow: 1;
+    position: relative;
+}
+
+.search-bar .search-icon,
+.filter-status .filter-icon {
+    position: relative;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+    margin-bottom: -83px;
+}
+
+.search-bar input,
+.filter-status select {
+    width: 100%;
+    padding: 12px 15px 12px 50px; /* Left padding for the icon */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+/* Remove default arrow on select */
+.filter-status select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 15px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 1em;
+}
+
+.search-form .btn {
+    flex-shrink: 0;
+}
+
 /* =========================================
    4. TABLE STYLING (The "Card" Look)
    ========================================= */
@@ -127,6 +182,15 @@ ul {
     color: #525f7f;
     font-size: 14px;
 }
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0 0 0; /* Top padding only inside the card */
+    margin-top: 10px;
+}
+
 
 /* Product Image Column */
 .product-img-container {

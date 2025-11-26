@@ -80,11 +80,11 @@ const loadVerifyOtp = (req, res) => {
      return res.redirect('/user/register'); // Redirect if no session
   }
 
-  const otpExpiresAt = req.session.otpExpiresAt;
+  const otpExpiresAt = req.session.otpExpiresAt || 0;
 
   // ✅ FIXED: Removed undefined 'message' and 'type' variables
   return res.render("user/verifyOtp", {
-    otpExpiresAt,
+    otpExpiresAt: otpExpiresAt,
   });
 };
 
