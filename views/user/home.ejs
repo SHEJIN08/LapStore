@@ -1,164 +1,147 @@
 <%- include('../partials/header') %>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/css/user/home.css">
 
-<body>
+    <body>
 
-    <header class="main-header">
-        <div class="container">
-            <div class="logo">LapStore</div>
-            <div class="search-bar">
-                <input type="text" placeholder="Search for laptops...">
-            </div>
-            <nav class="user-nav">
-                <a href="#">&#9825;</a> <a href="#">&#128722;</a> <a href="#">&#128100;</a> </nav>
-        </div>
-    </header>
-
-    <section class="hero">
-        <div class="container hero-content">
-            <div class="hero-text">
-                <h1>DISCOVER THE BEST LAPTOPS FOR YOU</h1>
-                <p>Premium laptops with cutting-edge technology and unbeatable performance</p>
-                <a href="#" class="btn-shop-now">
-                    Shop Now <span>&#8964;</span>
+        <header class="main-header">
+            <div class="container header-wrapper">
+                <a href="/" class="logo">
+                    <i class='bx bx-laptop'></i> LapStore
                 </a>
-            </div>
-            <div class="hero-image">
-                <img src="https://placehold.co/450x300/ffffff/000000?text=Laptop+Image" alt="Featured Laptop">
-            </div>
+
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for laptops...">
+                    <button><i class='bx bx-search'></i></button>
+                </div>
+         
+                <nav class="user-nav">
+        <% if (typeof user !== 'undefined' && user) { %>
+       <a href="/user/wishlist" class="nav-icon">
+            <i class='bx bx-heart'></i>
+            <span class="tooltip">Wishlist</span>
+        </a>
+        <a href="/user/cart" class="nav-icon">
+            <i class='bx bx-cart'></i>
+            <span class="tooltip">Cart</span>
+        </a>
+        <a href="/user/profile" class="nav-icon">
+            <i class='bx bx-user'></i>
+            <span class="tooltip">Profile</span>
+        </a>
+        
+        <a href="/user/logout" class="nav-icon" style="color: #dc3545;"> <i class='bx bx-log-out'></i>
+            <span class="tooltip">Logout</span>
+        </a>
+        
+    <% } else { %>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <a href="/user/login" style="text-decoration: none; color: #333; font-weight: 500;">Log In</a>
+            <a href="/user/register" style="text-decoration: none; background-color: #333; color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: 500; transition: 0.3s;">Sign Up</a>
         </div>
-    </section>
-
-    <nav class="category-nav">
-        <div class="container">
-            <ul>
-                <li><a href="#" class="active">All Laptops</a></li>
-                <li><a href="#">Gaming</a></li>
-                <li><a href="#">Business</a></li>
-                <li><a href="#">2-in-1</a></li>
-                <li><a href="#">Under $1000</a></li>
-                <li><a href="#">Offers</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <main class="container main-content">
-        <div class="filter-bar">
-            <div class="sort-by">
-                <label for="sort">Sort by:</label>
-                <select id="sort">
-                    <option value="featured">Featured</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                </select>
+    <% } %>
+</nav>
             </div>
-            <div class="filter-by">
-                <button class="filter-btn">Filter by: Brands <span>&#8964;</span></button>
-            </div>
-        </div>
+        </header>
 
-        <section class="product-section">
-            <h2>Featured Laptops</h2>
-            <div class="product-grid">
-                <div class="product-card">
-                    <img src="https://placehold.co/300x200/f0f0f0/333?text=MacBook+Pro+14" alt="MacBook Pro 14">
-                    <span class="category-tag">Apple</span>
-                    <h3>MacBook Pro 14"</h3>
-                    <div class="rating">
-                        <span>4.8</span> &#9733; <span>(234 reviews)</span>
-                    </div>
-                    <div class="specs">M2 Pro | 16GB | 512GB | 10-core GPU</div>
-                    <div class="price-box">
-                        <span class="price">$2499</span>
-                        <button class="add-to-cart">&#128722;</button>
-                    </div>
+        <section class="hero">
+            <div class="container hero-content">
+                <div class="hero-text">
+                    <span class="tagline">New Arrivals</span>
+                    <h1>Discover the Future of Performance</h1>
+                    <p>Premium laptops with cutting-edge technology and unbeatable battery life.</p>
+                    <a href="#products" class="btn-shop-now">
+                        Shop Now <i class='bx bx-right-arrow-alt'></i>
+                    </a>
                 </div>
-
-                <div class="product-card">
-                    <img src="https://placehold.co/300x200/f0f0f0/333?text=Dell+XPS+15" alt="Dell XPS 15">
-                    <span class="category-tag">Dell</span>
-                    <h3>Dell XPS 15</h3>
-                    <div class="rating">
-                        <span>4.6</span> &#9733; <span>(597 reviews)</span>
-                    </div>
-                    <div class="specs">i7-13700H | 16GB | 1TB | RTX 4050</div>
-                    <div class="price-box">
-                        <span class="price">$1899</span>
-                        <button class="add-to-cart">&#128722;</button>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <img src="https://placehold.co/300x200/f0f0f0/333?text=HP+Spectre+x360" alt="HP Spectre x360">
-                    <span class="category-tag">HP</span>
-                    <h3>HP Spectre x360</h3>
-                    <div class="rating">
-                        <span>4.5</span> &#9733; <span>(411 reviews)</span>
-                    </div>
-                    <div class="specs">i7-1355U | 16GB | 1TB | Intel Iris Xe</div>
-                    <div class="price-box">
-                        <span class="price">$1599</span>
-                        <button class="add-to-cart">&#128722;</button>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <img src="https://placehold.co/300x200/f0f0f0/333?text=Lenovo+ThinkPad" alt="Lenovo ThinkPad X1 Carbon">
-                    <span class="category-tag">Lenovo</span>
-                    <h3>Lenovo ThinkPad X1 Carbon</h3>
-                    <div class="rating">
-                        <span>4.7</span> &#9733; <span>(308 reviews)</span>
-                    </div>
-                    <div class="specs">i7-1365U | 32GB | 1TB | Intel Iris Xe</div>
-                    <div class="price-box">
-                        <span class="price">$1749</span>
-                        <button class="add-to-cart">&#128722;</button>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <img src="https://placehold.co/300x200/f0f0f0/333?text=ASUS+ROG+Zephyrus" alt="ASUS ROG Zephyrus G14">
-                    <span class="category-tag">ASUS</span>
-                    <h3>ASUS ROG Zephyrus G14</h3>
-                    <div class="rating">
-                        <span>4.6</span> &#9733; <span>(783 reviews)</span>
-                    </div>
-                    <div class="specs">Ryzen 9 | 16GB | 1TB | RTX 4060</div>
-                    <div class="price-box">
-                        <span class="price">$1999</span>
-                        <button class="add-to-cart">&#128722;</button>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <img src="https://placehold.co/300x200/f0f0f0/333?text=Microsoft+Surface" alt="Microsoft Surface Laptop 5">
-                    <span class="category-tag">Microsoft</span>
-                    <h3>Microsoft Surface Laptop 5</h3>
-                    <div class="rating">
-                        <span>4.4</span> &#9733; <span>(211 reviews)</span>
-                    </div>
-                    <div class="specs">i5-1235U | 8GB | 256GB | Intel Iris Xe</div>
-                    <div class="price-box">
-                        <span class="price">$1299</span>
-                        <button class="add-to-cart">&#128722;</button>
-                    </div>
+                <div class="hero-image">
+                    <img src="/images/banner-img.png" alt="Hero Laptop">
                 </div>
             </div>
         </section>
 
-        <nav class="pagination">
-            <a href="#">&laquo; Previous</a>
-            <a href="#" class="active">1</a>
-            <a href="#">2</a>
-            <a href="#">3</a>
-            <a href="#">4</a>
-            <a href="#">5</a>
-            <a href="#">Next &raquo;</a>
-        </nav>
-    </main>
+        <nav class="category-nav">
+    <div class="container">
+        <div class="category-list">
+            
+            <a href="/" class="cat-item <%= typeof selectedCat === 'undefined' ? 'active' : '' %>">All</a>
 
+            <% if(categories && categories.length > 0) { %>
+                <% categories.forEach(cat => { %>
+                    
+                    <a href="/user/category/<%= cat._id %>" 
+                       class="cat-item <%= (typeof selectedCat !== 'undefined' && selectedCat.toString() === cat._id.toString()) ? 'active' : '' %>">
+                        <%= cat.categoryName %>
+                    </a>
+                    
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+</nav>
 
-    
-<%- include('../partials/footer') %>
-</body>
-</html>
+        <main class="container main-content" id="products">
+            <div class="filter-bar">
+                <h2>Featured Laptops</h2>
+
+                <div class="filter-actions">
+                    <div class="dropdown">
+                        <label for="sort">Sort by:</label>
+                        <select id="sort">
+                            <option value="featured">Featured</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                        </select>
+                    </div>
+                    <button class="filter-btn"><i class='bx bx-filter'></i> Filter</button>
+                </div>
+            </div>
+
+            <section class="product-grid">
+                <% if(products.length> 0) { %>
+                    <% products.forEach(product=> { %>
+
+                        <div class="product-card">
+                            <div class="badge">Hot</div>
+                            <div class="product-tumb">
+                                <% if(product.images && product.images.length> 0) { %>
+
+                                    <img src="<%= product.images[0] %>" alt="<% product.name %>">
+                                    <% } %>
+                            </div>
+                            <div class="product-details">
+                                <span class="product-cat">
+                                    <%= product.brand.brandName || 'Generic' %>
+                                </span>
+                                <h4><a href="">
+                                        <%= product.name %>
+                                    </a></h4>
+                                <div class="product-bottom-details">
+                                    <div class="product-price">
+                                        <% if(product.minPrice) { %>
+                                            ₹<%= product.minPrice.toLocaleString('en-IN') %>
+                                                <% }else { %>
+                                                    Unavailable
+                                                    <% } %>
+                                    </div>
+                                    <a href="/product/<%= product._id %>" class="btn-view-options">
+                                        View Options
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                            <% } %>
+
+            </section>
+
+            <nav class="pagination">
+                <a href="#" class="prev"><i class='bx bx-chevron-left'></i> Prev</a>
+                <a href="#" class="active">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <a href="#" class="next">Next <i class='bx bx-chevron-right'></i></a>
+            </nav>
+        </main>
+
+        <%- include('../partials/footer') %>

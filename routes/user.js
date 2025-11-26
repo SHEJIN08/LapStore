@@ -16,6 +16,10 @@ router.get('/reset-password', authController.loadResetPassword)
 router.post('/reset-password',authController.resetPasswordPost)
 router.get('/login',userAuth.isLogin,authController.loadLogin)
 router.post('/login',authController.login)
+
 router.get('/home',userController.loadHome)
+router.get('/category/:id', userController.filterByCategory);
+
+router.get('/logout', userController.logout);
 
 export default router;

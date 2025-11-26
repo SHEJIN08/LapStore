@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import connectDB from './db/ConnectDB.js'; 
 import adminRoute from './routes/admin.js'; 
 import userRoute from './routes/user.js'
+import userAuth from './middleware/userAuth.js';
+import userController from './Controller/user/userController.js';
 import session from 'express-session';
 import nocache from 'nocache';
 
@@ -32,10 +34,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json()); 
 app.use(express.urlencoded({extended:true}))
 
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
 
 app.use('/user',userRoute)
 app.use('/admin', adminRoute);
-
+app.get('/',userAuth.isLogin,userController.loadHome);
+    
 
 connectDB();
 

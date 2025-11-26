@@ -137,6 +137,7 @@ const addProduct = async (req, res) => {
 
     // 4. Save to Database
     const savedProduct = await newProduct.save();
+    await Category.updateOne({_id: category },{$inc: {orders: 1}});
     if (variantsData) {
         // Parse the string back into an Array
         const parsedVariants = JSON.parse(variantsData);
@@ -247,10 +248,29 @@ const editProduct = async (req,res) => {
     if(!product) {
       return res.status(404).json({success: false, message: 'Product not found'})
     }
+
+    const oldCategoryId = product.category.toString(); // Get the ID of the current category
+        const newCategoryId = category; // The ID of the category from the form submission
+
+        // Check if the category has been changed
+        if (oldCategoryId !== newCategoryId) {
+            // 1. Decrement count on the OLD category
+            await Category.updateOne(
+                { _id: oldCategoryId },
+                { $inc: { orders: -1 } }
+            );
+
+            // 2. Increment count on the NEW category
+            await Category.updateOne(
+                { _id: newCategoryId },
+                { $inc: { orders: 1 } }
+            );
+        }
+
     product.name = name;
     product.description = description;
     product.brand = brand;
-    product.category = category;
+    product.category = newCategoryId;
 
     // --- B. HANDLE SPECIFICATIONS ---
         let specifications = [];

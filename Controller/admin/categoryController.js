@@ -1,4 +1,6 @@
 import Category from '../../model/categoryModel.js'
+import Product from '../../model/productModel.js';
+import Variant from '../../model/variantModel.js';
 
 // 1. GET: Load Categories with Pagination
 const loadCategory = async (req, res) => {
@@ -95,12 +97,41 @@ const getEditCategory = async (req, res) => {
         if (!category) {
             return res.redirect('/admin/category');
         }
+// 2. Fetch Products in this Category
+        const productDocs = await Product.find({ category: id }).sort({ createdAt: -1 });
 
-        res.render('admin/edit-category', { category });
+        // 3. Fetch Variants for each product to get Price, Stock, & SKU
+        // We use Promise.all to handle multiple async database calls efficiently
+        const products = await Promise.all(productDocs.map(async (product) => {
+            const variants = await Variant.find({ productId: product._id });
+
+            // Calculate "Starts At" Price (Lowest price among variants)
+            const prices = variants.map(v => v.price).filter(p => p !== undefined);
+            const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+
+            // Calculate Total Stock (Sum of all variant stocks)
+            const totalStock = variants.reduce((acc, curr) => acc + (curr.stock || 0), 0);
+
+            return {
+                _id: product._id,
+                name: product.name,
+                isPublished: product.isPublished,
+                price: minPrice,    // Populated from Variant
+                stock: totalStock   // Populated from Variant
+            };
+        }));
+
+        // 4. Render
+        res.render('admin/edit-category', { 
+            category: category, 
+            products: products 
+        });
+
     } catch (error) {
-        console.error(error);
+        console.error("Error in getEditCategory:", error);
         res.redirect('/admin/category');
     }
+
 };
 
 // 4. PUT: Handle Edit Form Submission
