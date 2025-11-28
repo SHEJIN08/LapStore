@@ -34,7 +34,7 @@ ul { list-style: none; }
 
 /* 2. Header Styles */
 .main-header {
-    background: var(--white);
+    background: rgb(246, 246, 247);
     box-shadow: var(--shadow-sm);
     position: sticky;
     top: 0;

@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     position: "right",
                     className: "my-custom-toast",
                     backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",
+                    borderRadius: '10px'
                 }).showToast();
             };
 

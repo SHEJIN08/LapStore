@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gravity: "top",
                 position: "right",
                 // Fixed: Use style.background instead of backgroundColor
-                style: { background: type === "success" ? "#28a745" : "#dc3545" }
+                style: { background: type === "success" ? "#28a745" : "#dc3545", borderRadius: '10px' }
             }).showToast();
         } else {
             alert(msg);

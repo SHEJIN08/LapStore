@@ -1,4 +1,5 @@
 import Brand from '../../model/brandModel.js'
+import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 // 1. GET: Load the Brands Table Page
 const getBrandPage = async (req, res) => {
@@ -46,7 +47,7 @@ const getBrandPage = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({success: false, message: 'Something went wrong'});
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR});
     }
 };
 
@@ -60,7 +61,7 @@ const addBrand = async (req, res) => {
     try {
         const { brandName, country, foundedYear, website, description } = req.body;
         if(!req.file){
-           return res.status(400).json({success: false, message: 'Please upload a brand logo'});
+           return res.status(StatusCode.BAD_REQUEST).json({success: false, message: ResponseMessage.BRAND});
         }
         const image = req.file.url; //path contains full url of cloudinary
 
@@ -68,7 +69,7 @@ const addBrand = async (req, res) => {
         const findBrand = await Brand.findOne({ brandName: { $regex: new RegExp("^" + brandName + "$", "i") }});
         
         if (findBrand) {
-           return res.status(400).json({success: false, message: 'Brand already exist'});
+           return res.status(StatusCode.BAD_REQUEST).json({success: false, message: ResponseMessage.DUP_BRAND});
         }
 
         const newBrand = new Brand({
@@ -81,11 +82,11 @@ const addBrand = async (req, res) => {
         });
 
         await newBrand.save();
-       return res.status(200).json({success: true, message: 'New brand added successfully'});
+       return res.status(StatusCode.OK).json({success: true, message: ResponseMessage.NEW_BRAND});
 
     } catch (err) {
         console.error(err);
-       return res.status(500).json({success: false, message: 'Something went wrong'});
+       return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR});
     }
 };
 
@@ -94,14 +95,14 @@ const BlockOrUnblock = async (req, res) => {
         const id = req.params.brandId;
         const brand = await Brand.findById(id);
         if(!brand){
-            return res.status(400).json({success: false, message: "Brand not found"});
+            return res.status(StatusCode.BAD_REQUEST).json({success: false, message: ResponseMessage.BRAND_NOT_FOUND});
         }
         brand.isBlocked = !brand.isBlocked;
         await brand.save();
-        return res.status(200).json({success: true, message: 'Brand status changed'})
+        return res.status(StatusCode.OK).json({success: true, message: ResponseMessage.BRAND_STATUS})
     } catch (err) {
         console.error(err);
-        return res.status(500).json({success: false, message: 'Something went wrong'});
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR});
     }
 };
 
@@ -139,7 +140,7 @@ const editBrand = async (req, res) => {
         const brand = await Brand.findById(id);
 
         if (!brand) {
-            return res.status(404).send('Brand not found');
+            return res.status(StatusCode.NOT_FOUND).json({success: false, message: ResponseMessage.BRAND_NOT_FOUND});
         }
 
         // Update text fields
@@ -154,11 +155,11 @@ const editBrand = async (req, res) => {
             brand.brandImage = [req.file.url];
         }
         await brand.save();
-        return res.status(200).json({success: true, message: 'Brand updated successfully'});
+        return res.status(StatusCode.OK).json({success: true, message: ResponseMessage.BRAND_STATUS});
 
     } catch (err) {
         console.error(err);
-          return res.status(500).json({success: false, message: 'Something went wrong'});
+          return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR});
     }
 };
 

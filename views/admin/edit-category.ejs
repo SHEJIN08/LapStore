@@ -104,7 +104,7 @@
                     duration: 3000,
                     gravity: "top",
                     position: "right",
-                    style: { background: type === "success" ? "#28a745" : "#dc3545" }
+                    style: { background: type === "success" ? "#28a745" : "#dc3545", borderRadius: '10px' }
                 }).showToast();
             };
 
@@ -126,7 +126,7 @@
 
                     if (response.data.success) {
                         showToast(response.data.message, 'success');
-                        // Redirect after 1 second so user sees the message
+                        
                         setTimeout(() => {
                             window.location.href = '/admin/category';
                         }, 1000);

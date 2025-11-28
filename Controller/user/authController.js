@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import userSchema from "../../model/userModel.js";
 import { sendOtp } from "../../utils/otp.js";
 import UserOtpVerification from "../../model/otpModel.js";
+import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 const saltround = 10;
 
 // ... (Your Joi Schemas remain the same) ...
@@ -72,7 +73,7 @@ const registerUser = async (req, res) => {
     });
     if (error) {
       return res
-        .status(400)
+        .status(StatusCode.BAD_REQUEST)
         .json({ success: false, message: error.details[0].message });
     }
 
@@ -82,8 +83,8 @@ const registerUser = async (req, res) => {
     const existingUser = await userSchema.findOne({ email });
     if (existingUser) {
       return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
+        .status(StatusCode.BAD_REQUEST)
+        .json({ success: false, message: ResponseMessage.DUP_USER});
     }
 
     // 3. Save user (unverified)
@@ -110,13 +111,13 @@ const registerUser = async (req, res) => {
 
     // ✅ FIXED: Return JSON success (Frontend handles redirect)
     return res
-      .status(200)
-      .json({ success: true, message: "Registration successful" });
+      .status(StatusCode.OK)
+      .json({ success: true, message: ResponseMessage.REG_SUCCESS });
   } catch (err) {
     console.error(err);
     return res
-      .status(500)
-      .json({ success: false, message: "Something went wrong" });
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message:ResponseMessage.SERVER_ERROR });
   }
 };
 
@@ -145,10 +146,10 @@ const resendOtp = async (req, res) => {
 
     if (!email) {
       return res
-        .status(400)
+        .status(StatusCode.BAD_REQUEST)
         .json({
           success: false,
-          message: "Session expired — please try again.",
+          message: ResponseMessage.OTP_EXP
         });
     }
 
@@ -158,13 +159,13 @@ const resendOtp = async (req, res) => {
 
     // ✅ FIXED: Only JSON, no redirect
     return res
-      .status(200)
-      .json({ success: true, message: "OTP resent successfully." });
+      .status(StatusCode.OK)
+      .json({ success: true, message: ResponseMessage.OTP_SUC});
   } catch (err) {
     console.error(err);
     return res
-      .status(500)
-      .json({ success: false, message: "Failed to resend otp." });
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.OTP_REJ });
   }
 };
 
@@ -178,15 +179,15 @@ const forgotPasswordPost = async (req, res) => {
     const { error } = forgotPasswordSchema.validate({ email });
     if (error) {
       return res
-        .status(400)
+        .status(StatusCode.BAD_REQUEST)
         .json({ success: false, message: error.details[0].message });
     }
 
     const user = await userSchema.findOne({ email });
     if (!user) {
       return res
-        .status(400)
-        .json({ success: false, message: "No account found with this email" });
+        .status(StatusCode.BAD_REQUEST)
+        .json({ success: false, message: ResponseMessage.BAD_REQUEST });
     }
 
     req.session.email = email;
@@ -196,13 +197,13 @@ const forgotPasswordPost = async (req, res) => {
 
     // ✅ FIXED: Return JSON
     return res
-      .status(200)
-      .json({ success: true, message: "OTP sent to email" });
+      .status(StatusCode.OK)
+      .json({ success: true, message: ResponseMessage.OTP });
   } catch (err) {
     console.error(err);
     return res
-      .status(500)
-      .json({ success: false, message: "Something went wrong" });
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
@@ -213,15 +214,15 @@ const resetPasswordPost = async (req, res) => {
   try {
     if (!req.session.allowReset || !req.session.email) {
       return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized access" });
+        .status(StatusCode.UNAUTHORIZED)
+        .json({ success: false, message: ResponseMessage.UNAUTHORIZED });
     }
 
     const { error } = resetPasswordSchema.validate(req.body);
     if (error) {
       // ✅ FIXED: Typo error.details.message[0] -> error.details[0].message
       return res
-        .status(400)
+        .status(StatusCode.BAD_REQUEST)
         .json({ success: false, message: error.details[0].message });
     }
 
@@ -238,13 +239,13 @@ const resetPasswordPost = async (req, res) => {
 
     // ✅ FIXED: Removed unreachable redirect
     return res
-      .status(200)
-      .json({ success: true, message: "Password reset successful" });
+      .status(StatusCode.OK)
+      .json({ success: true, message: ResponseMessage.PASS_RES });
   } catch (err) {
     console.log(err);
     return res
-      .status(500)
-      .json({ success: false, message: "Something went wrong" });
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
@@ -261,17 +262,17 @@ const login = async (req, res) => {
     // ✅ FIXED: Added 'return' to stop execution if user not found
     if (!user) {
       return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+        .status(StatusCode.BAD_REQUEST)
+        .json({ success: false, message: ResponseMessage.USER_NOT_FOUND});
     }
 
     
     if (!user.isVerified) {
-       return res.status(401).json({success: false, message: 'Please verify your email first'});
+       return res.status(StatusCode.UNAUTHORIZED).json({success: false, message: ResponseMessage.VER_EMAIL});
     }
      
     if(!user.isActive) {
-      return res.status(401).json({success: false, message: 'You have been blocked my admin'})
+      return res.status(StatusCode.UNAUTHORIZED).json({success: false, message: ResponseMessage.USER_BLOCK})
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -279,19 +280,19 @@ const login = async (req, res) => {
     // ✅ FIXED: Added 'return'
     if (!isMatch) {
       return res
-        .status(400)
-        .json({ success: false, message: "Incorrect password" });
+        .status(StatusCode.BAD_REQUEST)
+        .json({ success: false, message: ResponseMessage.WRONG_PASS });
     }
 
     // ✅ FIXED: Actually create the session!
     req.session.user = user._id;
 
-    return res.status(200).json({ success: true, message: "Login successful" });
+    return res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.LOGIN_SUCCESS});
   } catch (err) {
     console.error(err);
     return res
-      .status(500)
-      .json({ success: false, message: "Something went wrong" });
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 

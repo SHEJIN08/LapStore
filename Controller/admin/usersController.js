@@ -1,5 +1,5 @@
 import userSchema  from "../../model/userModel.js"
-
+import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
   const loadUsers = async (req,res) => {
     try {
@@ -56,7 +56,7 @@ import userSchema  from "../../model/userModel.js"
             limit: limit})
     } catch (err) {
         console.error(err)
-        res.status(500).json({success: false, message: 'Something went wrong'})
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR})
     }
 }; 
 
@@ -66,16 +66,16 @@ const BlockOrUnblock = async (req,res) => {
 
         const user = await userSchema.findById(userId);
         if(!user){
-          return   res.status(400).json({success: false, message: 'User not found'})
+          return   res.status(StatusCode.BAD_REQUEST).json({success: false, message: ResponseMessage.USER_NOT_FOUND})
         }
 
         user.isActive = !user.isActive;
         await user.save();
-        return  res.status(200).json({success: true, message: 'User status changed successfully'})
+        return  res.status(StatusCode.OK).json({success: true, message: ResponseMessage.USER_STATUS})
         
     } catch (err) {
         console.error(err)
-        return   res.status(500).json({success: false, message: 'Something went wrong'})
+        return   res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR})
     }
 }
 

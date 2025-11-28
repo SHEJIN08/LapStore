@@ -3,6 +3,7 @@ import Product from "../../model/productModel.js";
 import Variant from "../../model/variantModel.js";
 import Category from "../../model/categoryModel.js";
 import Brand from "../../model/brandModel.js";
+import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 const loadProduct = async (req, res) => {
   try {
@@ -50,7 +51,7 @@ const loadProduct = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ success: false, message: "Error adding product" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
@@ -62,7 +63,7 @@ const loadAddProduct = async (req, res) => {
     res.render("admin/add-product", { cat: category, brand: brand });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "Error loading product" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
@@ -70,18 +71,18 @@ const BlockOrUnblock = async (req, res) => {
     try {
         const id = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, message: "Invalid Product ID format" });
+            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: ResponseMessage.BAD_REQUEST });
         }
         const product = await Product.findById(id);
         if(!product){
-            return res.status(400).json({success: false, message: "product not found"});
+            return res.status(StatusCode.BAD_REQUEST).json({success: false, message: ResponseMessage.PRODUCT_NOT_FOUND});
         }
         product.isPublished = !product.isPublished;
         await product.save();
-        return res.status(200).json({success: true, message: 'product status changed'})
+        return res.status(StatusCode.OK).json({success: true, message: ResponseMessage.PRODUCT_STATUS})
     } catch (err) {
         console.error(err);
-        return res.status(500).json({success: false, message: 'Something went wrong'});
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR});
     }
 };
 
@@ -162,11 +163,11 @@ const addProduct = async (req, res) => {
     }
     // 5. Redirect back to products list
     return res
-      .status(201)
-      .json({ success: true, message: "Product and variants added successfully!" });
+      .status(StatusCode.CREATED)
+      .json({ success: true, message: ResponseMessage.PRODUCT });
   } catch (error) {
     console.error("Error adding product:", error);
-    res.status(500).json({ success: false, message: "Error adding product" });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
@@ -176,7 +177,7 @@ const loadEditProduct = async (req,res) => {
 
     const product = await Product.findById(id);
     if(!product){
-      return res.status(404).json({success: false, message: 'Product not found or has been deleted'})
+      return res.status(StatusCode.NOT_FOUND).json({success: false, message: ResponseMessage.PRODUCT_NOT_FOUND})
     }
 
     const variants = await Variant.find({productId: id});
@@ -192,7 +193,7 @@ const loadEditProduct = async (req,res) => {
     })
   }catch (err){
     console.error("Erro while loading edit page", err)
-    res.status(500).json({success: false, message: 'Something went wrong'})
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR})
   }
 }
 
@@ -203,7 +204,7 @@ const uploadVariantImage = async (req, res) => {
         const file = req.file; // This comes from Multer
 
         if (!file) {
-            return res.status(400).json({ success: false, message: "No file uploaded" });
+            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: ResponseMessage.VAR_PIC });
         }
 
         // Find the variant and update just the 'image' field
@@ -214,19 +215,19 @@ const uploadVariantImage = async (req, res) => {
         );
 
         if (!updatedVariant) {
-            return res.status(404).json({ success: false, message: "Variant not found" });
+            return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.VARIANT_NOT_FOUND });
         }
 
         // Send back the new image filename so the frontend can show it immediately
-        return res.status(200).json({ 
+        return res.status(StatusCode.OK).json({ 
             success: true, 
-            message: "Variant image updated successfully",
+            message: ResponseMessage.VAR_IMG_SUC,
             image: file.secure_url
         });
 
     } catch (error) {
-        console.error("Error uploading variant image:", error);
-        res.status(500).json({ success: false, message: "Server Error" });
+        console.error("Error uploading variant image:", error); 
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR});
     }
 };
 
@@ -246,7 +247,7 @@ const editProduct = async (req,res) => {
 
     const product = await Product.findById(id);
     if(!product) {
-      return res.status(404).json({success: false, message: 'Product not found'})
+      return res.status(StatusCode.NOT_FOUND).json({success: false, message: ResponseMessage.VARIANT_NOT_FOUND})
     }
 
     const oldCategoryId = product.category.toString(); // Get the ID of the current category
@@ -350,11 +351,11 @@ const editProduct = async (req,res) => {
             }
         }
 
-        res.status(200).json({ success: true, message: "Product updated successfully!" });
+        res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.PRODUCT_STATUS });
 
     } catch (error) {
         console.error("Error updating product:", error);
-        res.status(500).json({ success: false, message: "Error updating product" });
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
     }
 };
   

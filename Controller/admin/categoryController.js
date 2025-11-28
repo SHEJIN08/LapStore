@@ -1,7 +1,7 @@
 import Category from '../../model/categoryModel.js'
 import Product from '../../model/productModel.js';
 import Variant from '../../model/variantModel.js';
-
+import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 // 1. GET: Load Categories with Pagination
 const loadCategory = async (req, res) => {
     try {
@@ -50,7 +50,7 @@ const loadCategory = async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server Error');
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR});
     }
 }
 
@@ -60,7 +60,7 @@ const addCategory = async (req, res) => {
         const { categoryName, description, isListed, orders } = req.body;
 
         if (!categoryName) {
-            return res.status(400).json({ success: false, message: 'Category name is required' });
+            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: ResponseMessage.MISSING_FIELDS });
         }
 
         // Case-insensitive check for existing category
@@ -69,7 +69,7 @@ const addCategory = async (req, res) => {
         });
 
         if (existingCategory) {
-            return res.status(400).json({ success: false, message: 'Category already exists' });
+            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: ResponseMessage.DUP_CATEGORY });
         }
 
         const newCategory = new Category({
@@ -80,11 +80,11 @@ const addCategory = async (req, res) => {
         });
 
         await newCategory.save();
-        return res.status(201).json({ success: true, message: 'New Category added successfully' });
+        return res.status(StatusCode.CREATED).json({ success: true, message: ResponseMessage.CREATED });
 
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: 'Something went wrong' });
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
     }
 }
 
@@ -97,10 +97,10 @@ const getEditCategory = async (req, res) => {
         if (!category) {
             return res.redirect('/admin/category');
         }
-// 2. Fetch Products in this Category
+//  Fetch Products in this Category
         const productDocs = await Product.find({ category: id }).sort({ createdAt: -1 });
 
-        // 3. Fetch Variants for each product to get Price, Stock, & SKU
+        //  Fetch Variants for each product to get Price, Stock, & SKU
         // We use Promise.all to handle multiple async database calls efficiently
         const products = await Promise.all(productDocs.map(async (product) => {
             const variants = await Variant.find({ productId: product._id });
@@ -116,8 +116,8 @@ const getEditCategory = async (req, res) => {
                 _id: product._id,
                 name: product.name,
                 isPublished: product.isPublished,
-                price: minPrice,    // Populated from Variant
-                stock: totalStock   // Populated from Variant
+                price: minPrice,    
+                stock: totalStock   
             };
         }));
 
@@ -142,7 +142,7 @@ const editCategory = async (req, res) => {
 
         const category = await Category.findById(id);
         if (!category) {
-            return res.status(404).json({ success: false, message: 'Category not found' });
+            return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.CATEGORY_NOT_FOUND });
         }
 
         // Check for duplicate name (excluding current category)
@@ -152,7 +152,7 @@ const editCategory = async (req, res) => {
         });
 
         if (existingCategory) {
-            return res.status(400).json({ success: false, message: 'Category name already exists' });
+            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: ResponseMessage.DUP_CATEGORY });
         }
 
         category.categoryName = categoryName;
@@ -163,11 +163,11 @@ const editCategory = async (req, res) => {
         await category.save();
 
         // RETURN JSON INSTEAD OF REDIRECT
-        return res.status(200).json({ success: true, message: 'Category updated successfully' });
+        return res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.CATEGORY_STATUS });
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
     }
 };
 
@@ -178,7 +178,7 @@ const getListOrUnlist = async (req, res) => {
         const category = await Category.findById(id);
 
         if (!category) {
-            return res.status(404).json({ success: false, message: 'Category not found' });
+            return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.CATEGORY_NOT_FOUND });
         }
 
         // Toggle status
@@ -186,11 +186,11 @@ const getListOrUnlist = async (req, res) => {
         await category.save();
 
         const statusText = category.isListed ? 'Listed' : 'Unlisted';
-        return res.status(200).json({ success: true, message: `Category ${statusText} successfully` });
+        return res.status(StatusCode.OK).json({ success: true, message: `Category ${statusText} successfully` });
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false, message: 'Something went wrong' });
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
     }
 };
 

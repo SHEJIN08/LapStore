@@ -19,6 +19,7 @@ router.post('/login',authController.login)
 
 router.get('/home',userController.loadHome)
 router.get('/category/:id', userController.filterByCategory);
+router.get('/product/:id', userController.detailedPage)
 
 router.get('/logout', userController.logout);
 

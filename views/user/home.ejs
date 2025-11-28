@@ -10,37 +10,41 @@
                     <i class='bx bx-laptop'></i> LapStore
                 </a>
 
-                <div class="search-bar">
-                    <input type="text" placeholder="Search for laptops...">
-                    <button><i class='bx bx-search'></i></button>
-                </div>
-         
+                <form action="/" method="GET" class="search-bar">
+                    <input type="text" name="search" placeholder="Search for laptops..."
+                        value="<%= typeof search !== 'undefined' ? search : '' %>">
+                    <button type="submit"><i class='bx bx-search'></i></button>
+                </form>
+
                 <nav class="user-nav">
-        <% if (typeof user !== 'undefined' && user) { %>
-       <a href="/user/wishlist" class="nav-icon">
-            <i class='bx bx-heart'></i>
-            <span class="tooltip">Wishlist</span>
-        </a>
-        <a href="/user/cart" class="nav-icon">
-            <i class='bx bx-cart'></i>
-            <span class="tooltip">Cart</span>
-        </a>
-        <a href="/user/profile" class="nav-icon">
-            <i class='bx bx-user'></i>
-            <span class="tooltip">Profile</span>
-        </a>
-        
-        <a href="/user/logout" class="nav-icon" style="color: #dc3545;"> <i class='bx bx-log-out'></i>
-            <span class="tooltip">Logout</span>
-        </a>
-        
-    <% } else { %>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <a href="/user/login" style="text-decoration: none; color: #333; font-weight: 500;">Log In</a>
-            <a href="/user/register" style="text-decoration: none; background-color: #333; color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: 500; transition: 0.3s;">Sign Up</a>
-        </div>
-    <% } %>
-</nav>
+                    <% if (typeof user !=='undefined' && user) { %>
+                        <a href="/user/wishlist" class="nav-icon">
+                            <i class='bx bx-heart'></i>
+                            <span class="tooltip">Wishlist</span>
+                        </a>
+                        <a href="/user/cart" class="nav-icon">
+                            <i class='bx bx-cart'></i>
+                            <span class="tooltip">Cart</span>
+                        </a>
+                        <a href="/user/profile" class="nav-icon">
+                            <i class='bx bx-user'></i>
+                            <span class="tooltip">Profile</span>
+                        </a>
+
+                        <a href="/user/logout" class="nav-icon" style="color: #dc3545;"> <i class='bx bx-log-out'></i>
+                            <span class="tooltip">Logout</span>
+                        </a>
+
+                        <% } else { %>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <a href="/user/login" style="text-decoration: none; color: #333; font-weight: 500;">Log
+                                    In</a>
+                                <a href="/user/register"
+                                    style="text-decoration: none; background-color: #333; color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: 500; transition: 0.3s;">Sign
+                                    Up</a>
+                            </div>
+                            <% } %>
+                </nav>
             </div>
         </header>
 
@@ -50,7 +54,7 @@
                     <span class="tagline">New Arrivals</span>
                     <h1>Discover the Future of Performance</h1>
                     <p>Premium laptops with cutting-edge technology and unbeatable battery life.</p>
-                    <a href="#products" class="btn-shop-now">
+                    <a href="/user/login" class="btn-shop-now">
                         Shop Now <i class='bx bx-right-arrow-alt'></i>
                     </a>
                 </div>
@@ -61,24 +65,24 @@
         </section>
 
         <nav class="category-nav">
-    <div class="container">
-        <div class="category-list">
-            
-            <a href="/" class="cat-item <%= typeof selectedCat === 'undefined' ? 'active' : '' %>">All</a>
+            <div class="container">
+                <div class="category-list">
 
-            <% if(categories && categories.length > 0) { %>
-                <% categories.forEach(cat => { %>
-                    
-                    <a href="/user/category/<%= cat._id %>" 
-                       class="cat-item <%= (typeof selectedCat !== 'undefined' && selectedCat.toString() === cat._id.toString()) ? 'active' : '' %>">
-                        <%= cat.categoryName %>
-                    </a>
-                    
-                <% }) %>
-            <% } %>
-        </div>
-    </div>
-</nav>
+                    <a href="/" class="cat-item <%= typeof selectedCat === 'undefined' ? 'active' : '' %>">All</a>
+
+                    <% if(categories && categories.length> 0) { %>
+                        <% categories.forEach(cat=> { %>
+
+                            <a href="/user/category/<%= cat._id %>"
+                                class="cat-item <%= (typeof selectedCat !== 'undefined' && selectedCat.toString() === cat._id.toString()) ? 'active' : '' %>">
+                                <%= cat.categoryName %>
+                            </a>
+
+                            <% }) %>
+                                <% } %>
+                </div>
+            </div>
+        </nav>
 
         <main class="container main-content" id="products">
             <div class="filter-bar">
@@ -88,12 +92,14 @@
                     <div class="dropdown">
                         <label for="sort">Sort by:</label>
                         <select id="sort">
-                            <option value="featured">Featured</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
+                            <option value="featured" <%=currentSort==='featured' ? 'selected' : '' %>>Featured</option>
+                            <option value="price-low" <%=currentSort==='price-low' ? 'selected' : '' %>>Price: Low to
+                                High</option>
+                            <option value="price-high" <%=currentSort==='price-high' ? 'selected' : '' %>>Price: High to
+                                Low</option>
                         </select>
                     </div>
-                    <button class="filter-btn"><i class='bx bx-filter'></i> Filter</button>
+                    
                 </div>
             </div>
 
@@ -111,7 +117,7 @@
                             </div>
                             <div class="product-details">
                                 <span class="product-cat">
-                                    <%= product.brand.brandName || 'Generic' %>
+                                    <%= product.brandDetails.brandName || 'Generic' %>
                                 </span>
                                 <h4><a href="">
                                         <%= product.name %>
@@ -124,8 +130,8 @@
                                                     Unavailable
                                                     <% } %>
                                     </div>
-                                    <a href="/product/<%= product._id %>" class="btn-view-options">
-                                        View Options
+                                    <a href="/user/product/<%= product._id %>" class="btn-view-options">
+                                        Get details
                                     </a>
                                 </div>
                             </div>
@@ -143,5 +149,27 @@
                 <a href="#" class="next">Next <i class='bx bx-chevron-right'></i></a>
             </nav>
         </main>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sortDropdown = document.getElementById('sort');
+
+                if (sortDropdown) {
+                    sortDropdown.addEventListener('change', (e) => {
+                        const selectedValue = e.target.value;
+                        let newUrl = window.location.pathname;
+
+                        // 1. Check if the value is 'featured' (default state)
+                        if (selectedValue === 'featured') {
+                            // Redirect without any query parameters
+                            window.location.href = newUrl;
+                        } else {
+                            // 2. Redirect with the new sort parameter
+                            // e.g., /user/home?sort=price-low
+                            window.location.href = newUrl + `?sort=${selectedValue}`;
+                        }
+                    });
+                }
+            });
+        </script>
 
         <%- include('../partials/footer') %>

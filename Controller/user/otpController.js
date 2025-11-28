@@ -1,5 +1,6 @@
 import UserOtpVerification from "../../model/otpModel.js";
 import userSchema from "../../model/userModel.js";
+import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 export const verifyOtp = async (req, res) => {
   try {
@@ -8,9 +9,9 @@ export const verifyOtp = async (req, res) => {
 
     // 1. Check if session exists
     if (!email || !req.session.otpPurpose) {
-      return res.status(400).json({ 
+      return res.status(StatusCode.BAD_REQUEST).json({ 
         success: false, 
-        message: "Session expired. Please try to login or register again." 
+        message: ResponseMessage.OTP_EXP 
       });
     }
 
@@ -18,17 +19,17 @@ export const verifyOtp = async (req, res) => {
     const record = await UserOtpVerification.findOne({ email });
 
     if (!record) {
-      return res.status(400).json({ 
+      return res.status(StatusCode.BAD_REQUEST).json({ 
         success: false, 
-        message: "OTP expired or invalid. Please request a new one." 
+        message: ResponseMessage.OTP_EXP
       });
     }
 
     // 3. Verify OTP Match
     if (record.otpCode !== otp) {
-      return res.status(400).json({ 
+      return res.status(StatusCode.BAD_REQUEST).json({ 
         success: false, 
-        message: "Invalid OTP! Please check and try again." 
+        message: ResponseMessage.INV_OTP
       });
     }
 
@@ -52,9 +53,9 @@ export const verifyOtp = async (req, res) => {
       req.session.otpPurpose = null; 
       req.session.email = null;
 
-      return res.status(200).json({ 
+      return res.status(StatusCode.OK).json({ 
         success: true, 
-        message: "Email verified successfully!", 
+        message: ResponseMessage.EMAIL_VER, 
         redirectUrl: "/user/login" // Frontend will use this
       });
     }
@@ -66,18 +67,18 @@ export const verifyOtp = async (req, res) => {
       req.session.allowReset = true;
       req.session.otpPurpose = null;
 
-      return res.status(200).json({ 
+      return res.status(StatusCode.OK).json({ 
         success: true, 
-        message: "OTP Verified! Redirecting...", 
+        message: ResponseMessage.OTP_VER, 
         redirectUrl: "/user/reset-password" 
       });
     }
 
   } catch (err) {
     console.error("OTP Error:", err);
-    return res.status(500).json({ 
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ 
       success: false, 
-      message: "Something went wrong during verification." 
+      message: ResponseMessage.SERVER_ERROR
     });
   }
 };
