@@ -12,7 +12,7 @@
                 
                 <div class="product-header">
                     <div>
-                        <p class="breadcrumb">Dashboard / Products / Edit Product</p>
+                        <p class="breadcrumb">Dashboard / Edit Product</p>
                         <h1>Edit Product</h1>
                     </div>
                     <div class="header-actions">
@@ -99,13 +99,12 @@
                     </div>
 
                     <div class="right-col">
-                        <div class="form-card">
-                            <h3>Discount price</h3>
-                            <div class="form-card">
-                                <label>Discount</label>
-                                <input type="text" name="discount" id="discount" placeholder="">
-                            </div>
-                        </div>
+                        <div class="form-group">
+    <label>Discount Amount (₹)</label>
+    <input type="number" name="discountAmount" id="discount" 
+           value="<%= product.productOffer || 0 %>" 
+           placeholder="e.g. 2000" min="0">
+</div>
 
                         <div class="form-card">
                             <h3>Organization</h3>
@@ -133,12 +132,7 @@
 
                        <div class="form-card">
                             <h3>Specifications</h3>
-                            
-                            <div class="form-group">
-                                <label>Processor</label>
-                                <input type="text" name="processor" 
-                                    value="<%= (product.specifications || []).find(s => s.key === 'Processor')?.value || '' %>">
-                            </div>
+                           
                             
                             <div id="specs-container">
                                 <% (product.specifications || []).filter(s => s.key !== 'Processor').forEach(spec => { %>
@@ -179,318 +173,329 @@
     <script src="/js/axios.min.js"></script>
 
     <script>
-      
-    // ==========================================
-    // 1. GLOBAL VARIABLES & INITIALIZATION
-    // ==========================================
-    // 'variants' and 'product' come from your EJS variables
+        // ==========================================
+        // 1. GLOBAL VARIABLES & INITIALIZATION
+        // ==========================================
         let variants = JSON.parse('<%- JSON.stringify(variants || []) %>');
-        let deletedImages = []; 
+        let deletedImages = [];
         const productId = "<%= product._id %>";
 
-    // Variables for Cropper
-    let cropper;
-    let currentFileIndex = -1;
-    const dataTransfer = new DataTransfer(); // Holds new files
+        // Cropper Variables
+        let cropper;
+        let currentFileIndex = -1;
+        const dataTransfer = new DataTransfer();
 
-    // DOM Elements for Cropper
-    const imageInput = document.getElementById('imageInput');
-    const previewContainer = document.getElementById('image-preview-container');
-    const cropperModal = document.getElementById('cropperModal');
-    const imageToCrop = document.getElementById('imageToCrop');
+        const imageInput = document.getElementById('imageInput');
+        const previewContainer = document.getElementById('image-preview-container');
+        const cropperModal = document.getElementById('cropperModal');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const discountInput = document.getElementById('discount');
 
-    // Run on load
-    document.addEventListener('DOMContentLoaded', () => {
-        renderVariants(); 
-    });
-
-    // ==========================================
-    // 2. EXISTING IMAGE LOGIC (Delete)
-    // ==========================================
-    function markImageForDeletion(imageUrl, index) {
-        deletedImages.push(imageUrl);
-        const imgDiv = document.getElementById(`existing-img-${index}`);
-        if(imgDiv) imgDiv.style.display = 'none';
-        
-        // Update hidden input so backend knows what to delete
-        document.getElementById('deletedImagesInput').value = JSON.stringify(deletedImages);
-    }
-
-    // ==========================================
-    // 3. NEW IMAGE CROPPER LOGIC (The part you asked for)
-    // ==========================================
-    
-    // A. Listen for file selection
-    if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
-            const files = this.files;
-            for(let i=0; i<files.length; i++){
-                dataTransfer.items.add(files[i]);
-            }
-            imageInput.files = dataTransfer.files; // Sync input
-            renderPreviews();
+        document.addEventListener('DOMContentLoaded', () => {
+            renderVariants();
         });
-    }
 
-    // B. Render Thumbnails for New Images
-    function renderPreviews() {
-        previewContainer.innerHTML = '';
-        Array.from(dataTransfer.files).forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const div = document.createElement('div');
-                // Styling specifically for the preview item
-                div.style.cssText = "position: relative; width: 80px; height: 80px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; margin-right: 10px; margin-bottom: 10px;";
-                
-                div.innerHTML = `
+        // 🟢 NEW: Update table when Discount changes
+        if (discountInput) {
+            discountInput.addEventListener('input', renderVariants);
+        }
+
+        // ==========================================
+        // 2. EXISTING IMAGE LOGIC
+        // ==========================================
+        function markImageForDeletion(imageUrl, index) {
+            deletedImages.push(imageUrl);
+            const imgDiv = document.getElementById(`existing-img-${index}`);
+            if (imgDiv) imgDiv.style.display = 'none';
+            document.getElementById('deletedImagesInput').value = JSON.stringify(deletedImages);
+        }
+
+        // ==========================================
+        // 3. IMAGE CROPPER LOGIC
+        // ==========================================
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const files = this.files;
+                for (let i = 0; i < files.length; i++) {
+                    dataTransfer.items.add(files[i]);
+                }
+                imageInput.files = dataTransfer.files;
+                renderPreviews();
+            });
+        }
+
+        function renderPreviews() {
+            previewContainer.innerHTML = '';
+            Array.from(dataTransfer.files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.style.cssText = "position: relative; width: 80px; height: 80px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; margin-right: 10px; margin-bottom: 10px;";
+                    div.innerHTML = `
                     <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">
                     <button type="button" onclick="openCropper(${index})" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; border: none; font-size: 10px; cursor: pointer; padding: 2px;">Crop</button>
                     <button type="button" onclick="removeNewImage(${index})" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
                 `;
-                previewContainer.appendChild(div);
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function openCropper(index) {
+            currentFileIndex = index;
+            const file = dataTransfer.files[index];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imageToCrop.src = e.target.result;
+                cropperModal.style.display = 'flex';
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                });
             };
             reader.readAsDataURL(file);
-        });
-    }
+        }
 
-    // C. Open Cropper Modal
-    function openCropper(index) {
-        currentFileIndex = index;
-        const file = dataTransfer.files[index];
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-            imageToCrop.src = e.target.result;
-            cropperModal.style.display = 'flex';
-            
-            if(cropper) { cropper.destroy(); }
-            cropper = new Cropper(imageToCrop, {
-                aspectRatio: 1, // Square crop. Set to NaN for free crop.
-                viewMode: 1,
+        function saveCrop() {
+            if (!cropper) return;
+            cropper.getCroppedCanvas().toBlob((blob) => {
+                const originalFile = dataTransfer.files[currentFileIndex];
+                const croppedFile = new File([blob], originalFile.name, {
+                    type: originalFile.type
+                });
+                const newDataTransfer = new DataTransfer();
+                Array.from(dataTransfer.files).forEach((file, i) => {
+                    if (i === currentFileIndex) newDataTransfer.items.add(croppedFile);
+                    else newDataTransfer.items.add(file);
+                });
+                dataTransfer.items.clear();
+                Array.from(newDataTransfer.files).forEach(file => dataTransfer.items.add(file));
+                imageInput.files = dataTransfer.files;
+                renderPreviews();
+                closeCropper();
             });
-        };
-        reader.readAsDataURL(file);
-    }
+        }
 
-    // D. Save the Cropped Image
-    function saveCrop() {
-        if (!cropper) return;
-        cropper.getCroppedCanvas().toBlob((blob) => {
-            const originalFile = dataTransfer.files[currentFileIndex];
-            const croppedFile = new File([blob], originalFile.name, { type: originalFile.type });
-
-            // Rebuild DataTransfer with the new file
+        function removeNewImage(index) {
             const newDataTransfer = new DataTransfer();
             Array.from(dataTransfer.files).forEach((file, i) => {
-                if (i === currentFileIndex) {
-                    newDataTransfer.items.add(croppedFile);
-                } else {
-                    newDataTransfer.items.add(file);
-                }
+                if (i !== index) newDataTransfer.items.add(file);
             });
-
-            // Update globals
             dataTransfer.items.clear();
             Array.from(newDataTransfer.files).forEach(file => dataTransfer.items.add(file));
             imageInput.files = dataTransfer.files;
-
             renderPreviews();
-            closeCropper();
-        });
-    }
-
-    // E. Remove New Image
-    function removeNewImage(index) {
-        const newDataTransfer = new DataTransfer();
-        Array.from(dataTransfer.files).forEach((file, i) => {
-            if (i !== index) newDataTransfer.items.add(file);
-        });
-        
-        dataTransfer.items.clear();
-        Array.from(newDataTransfer.files).forEach(file => dataTransfer.items.add(file));
-        imageInput.files = dataTransfer.files;
-        
-        renderPreviews();
-    }
-
-    function closeCropper() {
-        cropperModal.style.display = 'none';
-        if(cropper) { cropper.destroy(); }
-    }
-
-
-    // ==========================================
-    // 4. VARIANT LOGIC
-    // ==========================================
-    function renderVariants() {
-        const tbody = document.getElementById('variantBody');
-        tbody.innerHTML = '';
-
-        variants.forEach((v, index) => {
-            // Determine image source (Existing or Placeholder)
-            let imgSrc = '/assets/imgs/theme/upload.svg'; // Default placeholder
-        if (v.image) {
-            // If it starts with http, use it as is. Otherwise, add /uploads/
-            imgSrc = v.image.startsWith('http') ? v.image : `/uploads/${v.image}`;
         }
-        
-        const tr = document.createElement('tr');
-            tr.innerHTML = `
+
+        function closeCropper() {
+            cropperModal.style.display = 'none';
+            if (cropper) cropper.destroy();
+        }
+
+        // ==========================================
+        // 4. VARIANT LOGIC (FIXED)
+        // ==========================================
+        function renderVariants() {
+            const tbody = document.getElementById('variantBody');
+            tbody.innerHTML = '';
+
+            // Get current Global Discount
+            const globalDiscount = parseFloat(document.getElementById('discount').value) || 0;
+
+            variants.forEach((v, index) => {
+                let imgSrc = '/assets/imgs/theme/upload.svg';
+                if (v.image) {
+                    imgSrc = v.image.startsWith('http') ? v.image : `/uploads/${v.image}`;
+                }
+
+                // 🟢 PRICE LOGIC START
+                // 1. Get MRP (Regular Price). Handle old data or new input.
+                const regularPrice = parseFloat(v.regularPrice || v.price || 0);
+
+                // 2. Calculate Sale Price dynamically based on the Input Field
+                let salePrice = regularPrice - globalDiscount;
+                if (salePrice < 0) salePrice = 0;
+                // 🟢 PRICE LOGIC END
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                 <td>
                     <strong>${v.ram} / ${v.storage}</strong><br>
                     <small>${v.color}</small>
                 </td>
-                <td>$${v.price}</td>
+                <td>
+                    <span style="text-decoration: line-through; color: #888; margin-right: 5px;">₹${regularPrice}</span>
+                    <br>
+                    <span style="font-weight: bold; color: green;">₹${salePrice}</span>
+                </td>
                 <td>${v.graphics}</td>
                 <td>${v.stock}</td>
                 <td>
                     <div style="display: flex; align-items: center; gap: 5px;">
-                        <img src="${imgSrc}" class="variant-img-preview" id="v-preview-${index}" style="width:40px; height:40px; object-fit:cover; border:1px solid #ddd;">
+                        <img src="${imgSrc}" class="variant-img-preview" style="width:40px; height:40px; object-fit:cover; border:1px solid #ddd;">
+                        ${v._id ? `
                         <label class="btn btn-sm btn-light" style="margin:0; cursor:pointer; padding: 2px 5px; font-size: 12px; border: 1px solid #ccc;">
                             <i class="bi bi-upload"></i> Upload
                             <input type="file" hidden accept="image/*" onchange="uploadVariantImage(event, '${v._id}', ${index})">
-                        </label>
+                        </label>` : '<span style="font-size:10px; color:#666;">Save first</span>'}
                     </div>
                 </td>
                 <td>
                     <button type="button" onclick="removeVariant(${index})" style="color: red; border: none; background: none;">Remove</button>
                 </td>
             `;
-            tbody.appendChild(tr);
-        });
-        updateHiddenInput();
-    }
-
-    function addVariant() {
-        const ram = document.getElementById('v_ram').value;
-        const storage = document.getElementById('v_storage').value;
-        const color = document.getElementById('v_color').value;
-        const price = document.getElementById('v_price').value;
-        const stock = document.getElementById('v_stock').value;
-        const graphics = document.getElementById('v_graphics').value;
-
-        if (!ram || !storage || !price || !stock  || !graphics) return showToast('Fill all fields', 'error');
-
-        // New variants don't have IDs yet
-        variants.push({ ram, storage, color: color || 'Standard', price, graphics ,stock, image: '' });
-        renderVariants();
-        
-        // Clear inputs
-        document.getElementById('v_ram').value = '';
-        document.getElementById('v_storage').value = '';
-        document.getElementById('v_price').value = '';
-        document.getElementById('v_stock').value = '';
-        document.getElementById('v_graphics').value = '';
-    }
-
-    function removeVariant(index) {
-        variants.splice(index, 1);
-        renderVariants();
-    }
-
-    function updateHiddenInput() {
-        document.getElementById('variantsData').value = JSON.stringify(variants);
-    }
-
-    async function uploadVariantImage(event, variantId, index) {
-        const file = event.target.files[0];
-        if(!file) return;
-
-        if(!variantId || variantId === 'undefined' || variantId === '') {
-            showToast("Please update/save the product first to create this variant.", "error");
-            return;
+                tbody.appendChild(tr);
+            });
+            updateHiddenInput();
         }
 
-        const formData = new FormData();
-        formData.append('variantImage', file);
+        function addVariant() {
+            const ram = document.getElementById('v_ram').value;
+            const storage = document.getElementById('v_storage').value;
+            const color = document.getElementById('v_color').value;
+            const price = document.getElementById('v_price').value; // MRP
+            const stock = document.getElementById('v_stock').value;
+            const graphics = document.getElementById('v_graphics').value;
 
-        try {
-            showToast("Uploading...", "success");
-            const res = await axios.post(`/admin/variant/upload-image/${variantId}`, formData);
-            if(res.data.success) {
-                showToast("Image Uploaded", "success");
-                variants[index].image = res.data.image; // Update local data
-                renderVariants(); // Refresh view
+            if (!ram || !storage || !price || !stock || !graphics) return showToast('Fill all fields', 'error');
+
+            // Push object with 'price' (MRP)
+            variants.push({
+                ram,
+                storage,
+                color: color || 'Standard',
+                price: parseFloat(price), // Important: Save as Number
+                graphics,
+                stock: parseInt(stock),
+                image: ''
+            });
+            
+            renderVariants();
+
+            // Clear inputs
+            document.getElementById('v_ram').value = '';
+            document.getElementById('v_storage').value = '';
+            document.getElementById('v_color').value = '';
+            document.getElementById('v_price').value = '';
+            document.getElementById('v_stock').value = '';
+            document.getElementById('v_graphics').value = '';
+        }
+
+        function removeVariant(index) {
+            variants.splice(index, 1);
+            renderVariants();
+        }
+
+        function updateHiddenInput() {
+            document.getElementById('variantsData').value = JSON.stringify(variants);
+        }
+
+        async function uploadVariantImage(event, variantId, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!variantId || variantId === 'undefined' || variantId === '') {
+                showToast("Please update/save the product first to create this variant.", "error");
+                return;
             }
-        } catch (err) {
-            console.error(err);
-            showToast("Upload failed", "error");
+
+            const formData = new FormData();
+            formData.append('variantImage', file);
+
+            try {
+                showToast("Uploading...", "success");
+                const res = await axios.post(`/admin/variant/upload-image/${variantId}`, formData);
+                if (res.data.success) {
+                    showToast("Image Uploaded", "success");
+                    variants[index].image = res.data.image;
+                    renderVariants();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Upload failed", "error");
+            }
         }
-    }
 
+        // ==========================================
+        // 5. SPECIFICATIONS LOGIC
+        // ==========================================
+        const addSpecBtn = document.getElementById('add-spec-btn');
+        const specsContainer = document.getElementById('specs-container');
 
-    // ==========================================
-    // 5. SPECIFICATIONS LOGIC
-    // ==========================================
-    const addSpecBtn = document.getElementById('add-spec-btn');
-    const specsContainer = document.getElementById('specs-container');
-
-    if (addSpecBtn) {
-        addSpecBtn.addEventListener('click', () => {
-            const newRow = document.createElement('div');
-            newRow.classList.add('spec-row');
-            newRow.innerHTML = `
+        if (addSpecBtn) {
+            addSpecBtn.addEventListener('click', () => {
+                const newRow = document.createElement('div');
+                newRow.classList.add('spec-row');
+                newRow.innerHTML = `
                 <div class="spec-group"><input type="text" name="specKeys[]" placeholder="Key"></div>
                 <div class="spec-group"><input type="text" name="specValues[]" placeholder="Value"></div>
                 <button type="button" class="delete-spec" onclick="this.closest('.spec-row').remove()">🗑️</button>
             `;
-            specsContainer.appendChild(newRow);
-        });
-    }
-
-    function removeSpec(btn) {
-        btn.closest('.spec-row').remove();
-    }
-
-
-    // ==========================================
-    // 6. MAIN FORM SUBMISSION
-    // ==========================================
-    document.getElementById('editProductForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector('.btn-save');
-        btn.disabled = true;
-        btn.innerText = "Updating...";
-
-        const formData = new FormData(e.target);
-        
-        // IMPORTANT: Manually append the new cropped files
-        for (let i = 0; i < dataTransfer.files.length; i++) {
-            formData.append('newImages', dataTransfer.files[i]);
+                specsContainer.appendChild(newRow);
+            });
         }
 
-        try {
-            const res = await axios.put(`/admin/edit-product/${productId}`, formData);
-            if(res.data.success) {
-                showToast("Product Updated!", "success");
-                setTimeout(() => window.location.href = '/admin/products', 1000);
-            } else {
-                showToast(res.data.message || "Update failed", "error");
-                btn.disabled = false;
-                btn.innerText = "Update Product";
+        function removeSpec(btn) {
+            btn.closest('.spec-row').remove();
+        }
+
+        // ==========================================
+        // 6. MAIN FORM SUBMISSION
+        // ==========================================
+        document.getElementById('editProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('.btn-save');
+            btn.disabled = true;
+            btn.innerText = "Updating...";
+
+            const formData = new FormData(e.target);
+
+            for (let i = 0; i < dataTransfer.files.length; i++) {
+                formData.append('newImages', dataTransfer.files[i]);
             }
-        } catch (err) {
-            console.error(err);
-            if(err.responce && err.responce.status === 404) {
-                showToast('Product not found! Redirecting...',"error")
-                setTimeout(() => {
-                    window.location.href = '/admin/products'
-                }, 1500)
-            }else {
-            showToast("Server Error", "error");
-            btn.disabled = false;
-            btn.innerText = "Update Product";
-        }
-      }
-    });
 
-    function showToast(msg, type) {
-        if(typeof Toastify === 'function'){
-             Toastify({ text: msg, duration: 3000, style: { background: type === "success" ? "#28a745" : "#dc3545", borderRadius: '10px' } }).showToast();
-        } else {
-            alert(msg);
+            try {
+                const res = await axios.put(`/admin/edit-product/${productId}`, formData);
+                if (res.data.success) {
+                    showToast("Product Updated!", "success");
+                    setTimeout(() => window.location.href = '/admin/products', 1000);
+                } else {
+                    showToast(res.data.message || "Update failed", "error");
+                    btn.disabled = false;
+                    btn.innerText = "Update Product";
+                }
+            } catch (err) {
+                console.error(err);
+                if (err.response && err.response.status === 404) {
+                    showToast('Product not found! Redirecting...', "error")
+                    setTimeout(() => {
+                        window.location.href = '/admin/products'
+                    }, 1500)
+                } else {
+                    showToast("Server Error", "error");
+                    btn.disabled = false;
+                    btn.innerText = "Update Product";
+                }
+            }
+        });
+
+        function showToast(msg, type) {
+            if (typeof Toastify === 'function') {
+                Toastify({
+                    text: msg,
+                    duration: 3000,
+                    style: {
+                        background: type === "success" ? "#28a745" : "#dc3545",
+                        borderRadius: '10px'
+                    }
+                }).showToast();
+            } else {
+                alert(msg);
+            }
         }
-    }
     </script>
+
     </body>
 </html>

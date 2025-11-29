@@ -37,16 +37,24 @@
         const ram = document.getElementById('v_ram').value;
         const storage = document.getElementById('v_storage').value;
         const color = document.getElementById('v_color').value;
-        const price = document.getElementById('v_price').value;
         const stock = document.getElementById('v_stock').value;
          const graphics = document.getElementById('v_graphics').value;
 
-        if (!ram || !storage || !price || !stock || !graphics) {
-            showToast("Please fill all variant fields (RAM, Storage, Price, Stock, graphics)", 'error');
+         const regularPrice = parseFloat(document.getElementById('v_price').value); // MRP
+         const globalDiscount = parseFloat(document.getElementById('discount').value) || 0; // Global Discount
+
+        if (!ram || !storage || !stock || !graphics) {
+            showToast("Please fill all variant fields (RAM, Storage,  Stock, graphics)", 'error');
             return;
         }
 
-        const newVariant = { ram, storage, color: color || 'Standard', price, stock, graphics };
+        if(globalDiscount > regularPrice){
+            return showToast('Discount cannot be greater that or equal to the price','error')
+        }
+
+        const salePrice = regularPrice - globalDiscount;
+
+        const newVariant = { ram, storage, color: color || 'Standard', regularPrice: regularPrice, salePrice: salePrice, stock, graphics };
         variants.push(newVariant);
         renderVariants();
         clearInputs();
@@ -62,7 +70,11 @@
                 <td>${v.ram}</td>
                 <td>${v.storage}</td>
                 <td>${v.color}</td>
-                <td>₹${v.price}</td>
+                <td>
+                <span style="text-decoration: line-through; color: #888; margin-right:5px;">₹${v.regularPrice}</span>
+                <br>
+                <span style="font-weight: bold; color: green;">₹${v.salePrice}</span>
+              </td>
                 <td>${v.stock}</td>
                  <td>${v.graphics}</td>
                 <td><button type="button" onclick="removeVariant(${index})" style="color: red; border: none; background: none;"><i class="bi bi-trash"></i> Remove</button></td>

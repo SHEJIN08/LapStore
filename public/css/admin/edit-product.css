@@ -282,13 +282,24 @@ ul {
 /* Specs Rows */
 .spec-row {
     display: flex;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid #f9f9f9;
+    justify-content: space-between;
     align-items: center;
+    gap: 10px; /* Adds space between inputs */
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
 }
-.spec-group { flex: 1; }
-.spec-group input { margin: 0; }
+
+.spec-group {
+    flex: 1; /* Makes both inputs take equal width */
+}
+
+.spec-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
 
 .delete-spec {
     background: #fff5f5;

@@ -51,7 +51,7 @@ const loadHome = async (req, res) => {
       // STAGE 3: Calculate Min Price
       {
         $addFields: {
-          minPrice: { $min: "$variants.price" }, // Ensure this matches your DB field (price vs salePrice)
+          minPrice: { $min: "$variants.salePrice" }, // Ensure this matches your DB field (price vs salePrice)
         },
       },
 
@@ -142,7 +142,7 @@ const filterByCategory = async (req, res) => {
       // STAGE 3: Calculate Min Price
       {
         $addFields: {
-          minPrice: { $min: "$variants.price" }, 
+          minPrice: { $min: "$variants.salePrice" }, 
         },
       },
 

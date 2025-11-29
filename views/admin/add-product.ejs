@@ -1,7 +1,7 @@
 <%- include('../partials/header') %>
     <link rel="stylesheet" href="/css/admin/product.css">
     <link rel="stylesheet" href="/css/admin/add-product.css">
-     
+
     <body>
         <div class="product-main-content">
             <%- include('../partials/sidebar',{activePage: 'products' }) %>
@@ -24,7 +24,7 @@
                         <div class="add-product-grid">
 
                             <div class="left-col">
-                                 <div class="form-card">
+                                <div class="form-card">
                                     <h3>Basic Information</h3>
                                     <div class="form-group">
                                         <label for="product-name">Product Name</label>
@@ -46,7 +46,8 @@
                                             <span>⬆️</span>
                                             <p>Drag & drop files here</p>
                                             <label for="imageInput" class="upload-link">Browse Files</label>
-                                            <input id="imageInput" type="file" name="images" multiple hidden accept="image/*">
+                                            <input id="imageInput" type="file" name="images" multiple hidden
+                                                accept="image/*">
                                         </div>
 
                                         <div id="image-preview-container" class="image-preview-grid"></div>
@@ -83,6 +84,7 @@
 
                                     <div class="variant-input-grid"
                                         style="display: grid; grid-template-columns: 1fr 1fr 1fr ; gap: 10px; margin-top: 15px;">
+                                    
 
                                         <div>
                                             <label>RAM</label>
@@ -112,7 +114,8 @@
                                         </div>
                                         <div>
                                             <label>Graphics</label>
-                                            <input type="text" id="v_graphics" placeholder="e.g. RTX-4030" class="form-control">
+                                            <input type="text" id="v_graphics" placeholder="e.g. RTX-4030"
+                                                class="form-control">
                                         </div>
 
                                         <div style="display: flex">
@@ -144,14 +147,6 @@
                                     <input type="hidden" name="variantsData" id="variantsData">
                                 </div>
 
-                                <div class="form-card">
-                                    <h3>Key Tech Specs</h3>
-                                    <div class="form-group">
-                                        <label>Processor (CPU)</label>
-                                        <input type="text" name="processor" placeholder="e.g. Intel Core i7 12700H"
-                                            required>
-                                    </div>
-                                </div>
 
                                 <div class="form-card">
                                     <h3>Specifications</h3>
@@ -180,12 +175,16 @@
                             </div>
 
                             <div class="right-col">
-                                   <div class="form-card">
-                                     <div class="form-card">
-                                        <h3>Discount price</h3>
-                                        <input type="text" name="discount" id="discount" placeholder="Enter discount value">
+                                <div class="form-card">
+                                    <h3>Promotional Discount</h3>
+                                    <div class="form-group">
+                                        <label>Discount Price</label>
+                                        <input type="number" name="discountAmount" id="discount"
+                                            placeholder="e.g. 2000" min="0" >
+                                        <p class="text-muted" style="font-size: 12px;">This price will be deducted
+                                            from the MRP of all variants.</p>
                                     </div>
-                                    </div>
+                                </div>
                                 <div class="form-card">
                                     <div class="form-card">
                                         <h3>Organization</h3>

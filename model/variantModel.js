@@ -20,11 +20,13 @@ const variantSchema = new mongoose.Schema({
        default: "Standard"
     },
     graphics: {
-        type: String,
+        type: String, required: true
     },
-    price: {
-        type: Number,
-        required: true
+    regularPrice: { 
+        type: Number, required:true ,default:0
+    },                    
+    salePrice: { 
+        type: Number, required: true ,default:0
     },
     stock: {
         type: Number,

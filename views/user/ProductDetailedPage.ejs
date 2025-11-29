@@ -6,7 +6,6 @@
     <main class="container" style="margin-top: 20px;">
         <nav class="breadcrumbs">
             <a href="/">Home</a> &gt;
-            <a href="/shop">Products</a> &gt;
             <span><%= product.name %></span>
         </nav>
 
@@ -46,7 +45,8 @@
                 <div class="price">
                     <% if(product.variants && product.variants.length > 0) { %>
                         <% const firstVar = product.variants[0]; %>
-                        <span class="sale-price" id="displaySale">₹<%= firstVar.price.toLocaleString('en-IN') %></span>
+                        <span class="original-price" id="displayOriginal">₹<%= firstVar.regularPrice.toLocaleString('en-IN') %></span>
+                        <span class="sale-price" id="displaySale">₹<%= firstVar.salePrice.toLocaleString('en-IN') %></span>
                     <% } else { %>
                         <span class="sale-price">Currently Unavailable</span>
                     <% } %>
@@ -63,12 +63,13 @@
                         
                         <% product.variants.forEach((variant, index) => { %>
                             <label class="config-box <%= index === 0 ? 'selected' : '' %>"
-                                   onclick="selectVariant(this, '<%= variant.price %>')">
+                                data-image="<%= variant.image %>"
+                                   onclick="selectVariant(this, '<%= variant.salePrice %>', '<%= variant.regularPrice  %>')">
                                 
                                 <input type="radio" name="variant" value="<%= variant._id %>" <%= index === 0 ? 'checked' : '' %>>
                                 
                                 <span class="config-details"><%= variant.ram %> / <%= variant.storage %></span>
-                                <span class="config-price">₹<%= variant.price.toLocaleString('en-IN') %></span>
+                                <span class="config-price">₹<%= variant.regularPrice.toLocaleString('en-IN') %></span>
                             </label>
                         <% }) %>
 
@@ -127,7 +128,7 @@
                             <% 
                                 let minPrice = 'N/A';
                                 if(rel.variants && rel.variants.length > 0) {
-                                    minPrice = Math.min(...rel.variants.map(v => v.price));
+                                    minPrice = Math.min(...rel.variants.map(v => v.salePrice));
                                 }
                             %>
                             <span class="card-sale">From ₹<%= minPrice.toLocaleString('en-IN') %></span>
@@ -166,15 +167,48 @@
         }
 
         // 2. Variant Selector
-        function selectVariant(element, price) {
-            document.querySelectorAll('.config-box').forEach(box => box.classList.remove('selected'));
-            element.classList.add('selected');
-            const radio = element.querySelector('input[type="radio"]');
-            radio.checked = true;
-            document.getElementById('displaySale').innerText = '₹' + Number(price).toLocaleString('en-IN');
-        }
+      function selectVariant(element, salePrice, regularPrice) {
+    // --- 1. Update Styling & Inputs ---
+    document.querySelectorAll('.config-box').forEach(box => box.classList.remove('selected'));
+    element.classList.add('selected');
+    element.querySelector('input[type="radio"]').checked = true;
 
-     
+    // --- 2. Update Prices ---
+    document.getElementById('displaySale').innerText = `₹${Number(salePrice).toLocaleString('en-IN')}`;
+    document.getElementById('displayOriginal').innerText = `₹${Number(regularPrice).toLocaleString('en-IN')}`;
+
+    // --- 3. Update Images (The Fix) ---
+    const variantImage = element.getAttribute('data-image');
+
+    if (variantImage) {
+        console.log("Variant selected. New Image:", variantImage);
+
+        // A. Update the Big Main Image
+        document.getElementById('mainImg').src = variantImage;
+
+        // B. Update the First Thumbnail
+        // We look for the FIRST div with class 'thumbnail' inside 'thumbnail-list'
+        const firstThumbnail = document.querySelector('.thumbnail-list .thumbnail');
+        
+        if (firstThumbnail) {
+            console.log("Found first thumbnail, updating it...");
+
+            // 1. Change the image inside the little box
+            const imgTag = firstThumbnail.querySelector('img');
+            imgTag.src = variantImage;
+
+            // 2. Change the click behavior (Important!)
+            // We use setAttribute to force the HTML to update its onclick event
+            firstThumbnail.setAttribute('onclick', `changeImage(this, '${variantImage}')`);
+
+            // 3. Set this thumbnail as active (green border)
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            firstThumbnail.classList.add('active');
+        }
+    }
+}
+
+
     </script>
 
 </body>

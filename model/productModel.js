@@ -30,6 +30,15 @@ const productSchema = new mongoose.Schema(
       ref: "Brand", 
       required: true,
     },
+    productOffer: { 
+      type: Number, default: 0
+    },
+    specifications: [
+      {
+            key: { type: String, required: true },
+            value: { type: String, required: true }
+        }
+      ],
     isPublished: { type: Boolean, default: true }
   },
   {
