@@ -51,7 +51,7 @@
                                     <th>Price</th>
                                     <th>Stock</th>
                                     <th>Status</th>
-                                  
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -66,8 +66,30 @@
                                                 <% if (product.isPublished) { %>
                                                     <span class="status-badge status-active badge" style="background-color: rgb(205, 255, 205);">Active</span>
                                                 <% } else { %>
-                                                    <span class="status-badge status-blocked badge bg-danger">Blocked</span>
+                                                    <span class="status-badge status-blocked badge " style="background-color: rgb(255, 227, 227);">Blocked</span>
                                                 <% } %>
+                                            </td>
+                                            <td>
+                                             <div class="action-buttons">
+                                                    <a href="/admin/edit-product/<%= product._id %>"
+                                                        class="action-btn text-primary">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </a>    
+                                                    <% if(product.isPublished===true) { %>
+                                                        <a href="#" class="action-btn text-danger block-btn"
+                                                            title="Click to Unlist" data-product-id="<%= product._id %>"
+                                                            data-product-name="<%= product.name %>">
+                                                            <i class="bi bi-slash-circle"></i>
+                                                        </a>
+                                                        <% } else { %>
+                                                            <a class="action-btn text-success unblock-btn"
+                                                                data-product-id="<%= product._id %>"
+                                                                data-product-name="<%= product.name %>"
+                                                                title="Click to List">
+                                                                <i class="bi bi-check-circle"></i>
+                                                            </a>
+                                                            <% } %>
+                                                </div>
                                             </td>
                                         </tr>
                                     <% }) %>
@@ -89,14 +111,53 @@
         </main>
     </div>
 
+    <div id="confirmationModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h3><span class="warning-icon">&#9888;</span> <span id="modalTitle">Update Product</span></h3>
+                    <span class="modal-close-btn">&times;</span>
+                </div>
+
+                <div class="modal-body">
+                    <p>
+                        Are you sure you want to <strong id="actionText">update</strong>
+                        <strong id="modalProductName">this product</strong>?
+                    </p>
+                    <p class="modal-subtitle" id="modalSubText">
+                        This action will change the product's visibility.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel">Cancel</button>
+
+                    <button type="button" id="confirmActionBtn" class="btn-confirm-block">
+                        Confirm
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+
     <script src="/js/axios.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('editCategoryForm');
+                    const modal = document.getElementById('confirmationModal'); // Changed ID
+                    const modalProductName = document.getElementById('modalProductName');
+                    const modalTitle = document.getElementById('modalTitle');
+                    const actionText = document.getElementById('actionText');
+                    const modalSubText = document.getElementById('modalSubText');
+                    const confirmBtn = document.getElementById('confirmActionBtn');
+                    const closeBtn = document.querySelector('.modal-close-btn');
+                    const cancelBtn = document.querySelector('.btn-cancel');
             
             // Get the Category ID from the EJS variable embedded in script
             const categoryId = '<%= category._id %>'; 
+            let targetProductId = null;
 
             const showToast = (msg, type) => {
                 Toastify({
@@ -107,6 +168,95 @@
                     style: { background: type === "success" ? "#28a745" : "#dc3545", borderRadius: '10px' }
                 }).showToast();
             };
+
+                 const toggleProductStatus = async (productId) => {
+                        try {
+                            // Using axios.post with empty body {}
+                            const response = await axios.patch(`/admin/products/toggle-block/${productId}`, {});
+
+                            if (response.data.success) {
+                                showToast(response.data.message, "success");
+                                setTimeout(() => window.location.reload(), 1000);
+                            } else {
+                                showToast(response.data.message || 'Action failed', 'error');
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            showToast(err.response?.data?.message || 'Something went wrong', "error");
+                        }
+                    };
+
+                    // 2. Open Modal Logic (Handles BOTH Block and Unblock)
+                    const openModal = (productId, name, actionType) => {
+                        targetProductId = productId;
+                        modalProductName.textContent = name;
+                        modal.style.display = 'flex';
+
+                        if (actionType === 'block') {
+                            // Set UI for Blocking (Red/Warning)
+                            modalTitle.textContent = "Block product";
+                            actionText.textContent = "block";
+                            actionText.style.color = "#dc3545"; // Red
+                            modalSubText.textContent = "This product will effectively be hidden from users.";
+
+                            confirmBtn.textContent = "Block product";
+                            confirmBtn.className = "btn-confirm-block"; // Red style
+                            confirmBtn.style.backgroundColor = "#dc3545"; // Force Red
+                        } else {
+                            // Set UI for Unblocking (Green/Safe)
+                            modalTitle.textContent = "Unblock product";
+                            actionText.textContent = "unblock";
+                            actionText.style.color = "#28a745"; // Green
+                            modalSubText.textContent = "This product will become visible to users again.";
+
+                            confirmBtn.textContent = "Unblock product";
+                            confirmBtn.className = "btn-confirm-unblock"; // Green style
+                            confirmBtn.style.backgroundColor = "#28a745"; // Force Green
+                        }
+                    };
+
+                    // 3. Attach Event Listeners to Buttons
+
+                    // Block Buttons
+                    document.querySelectorAll('.block-btn').forEach(btn => {
+                        btn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const id = this.getAttribute('data-product-id');
+                            const name = this.getAttribute('data-product-name');
+                            openModal(id, name, 'block');
+                        });
+                    });
+
+                    // Unblock Buttons (Now opens modal too!)
+                    document.querySelectorAll('.unblock-btn').forEach(btn => {
+                        btn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const id = this.getAttribute('data-product-id');
+
+
+                            const name = this.getAttribute('data-product-name') || 'this brand';
+                            openModal(id, name, 'unblock');
+                        });
+                    });
+
+                    // 4. Confirm Button Click
+                    if (confirmBtn) {
+                        confirmBtn.addEventListener('click', function () {
+                            if (targetProductId) {
+                                toggleProductStatus(targetProductId);
+                                modal.style.display = 'none';
+                            }
+                        });
+                    }
+
+                    // Close Modal Logic
+                    const hideModal = () => { modal.style.display = 'none'; };
+                    if (closeBtn) closeBtn.addEventListener('click', hideModal);
+                    if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+                    window.addEventListener('click', (e) => {
+                        if (e.target === modal) hideModal();
+                    });
+                
 
             form.addEventListener('submit', async (e) => {
                 e.preventDefault(); // Stop page reload

@@ -220,8 +220,8 @@ ul {
 }
 
 .status-blocked {
-    background-color: #ffdde1;
-    color: red;
+    background-color: #ffd4d6;
+    color: rgb(213, 11, 11);
 }
  /* tostify */
  .my-custom-toast {

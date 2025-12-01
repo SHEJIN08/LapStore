@@ -106,7 +106,7 @@ const getEditCategory = async (req, res) => {
             const variants = await Variant.find({ productId: product._id });
 
             // Calculate "Starts At" Price (Lowest price among variants)
-            const prices = variants.map(v => v.price).filter(p => p !== undefined);
+            const prices = variants.map(v => v.salePrice).filter(p => p !== undefined);
             const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
 
             // Calculate Total Stock (Sum of all variant stocks)

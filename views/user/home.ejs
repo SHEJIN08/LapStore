@@ -81,13 +81,30 @@
                             <% }) %>
                                 <% } %>
                 </div>
+
             </div>
         </nav>
 
         <main class="container main-content" id="products">
             <div class="filter-bar">
                 <h2>Featured Laptops</h2>
-
+                <div class="filter-actions">
+                    <div class="dropdown">
+                        <label for="brandFilter">Brand:</label>
+                        <select id="brandFilter">
+                            <option value="" <%=typeof currentBrand==='undefined' ? 'selected' : '' %>>All Brands
+                            </option>
+                            <% if(typeof brands !==undefined && brands.length> 0){ %>
+                                <% brands.forEach(brand=> { %>
+                                    <option value="<%= brand.brandName %>" <%=typeof currentBrand !=='undefined' &&
+                                        currentBrand===brand.brandName ? 'selected' : '' %>>
+                                        <%= brand.brandName %>
+                                    </option>
+                                    <% }) %>
+                                        <% } %>
+                        </select>
+                    </div>
+                </div>
                 <div class="filter-actions">
                     <div class="dropdown">
                         <label for="sort">Sort by:</label>
@@ -99,7 +116,7 @@
                                 Low</option>
                         </select>
                     </div>
-                    
+
                 </div>
             </div>
 
@@ -142,16 +159,47 @@
             </section>
 
             <nav class="pagination">
-                <a href="#" class="prev"><i class='bx bx-chevron-left'></i> Prev</a>
-                <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#" class="next">Next <i class='bx bx-chevron-right'></i></a>
+                <% if (typeof totalPages !=='undefined' && totalPages> 1) { %>
+
+                    <% if (currentPage> 1) { %>
+                        <a href="#" class="pagination-link prev" data-page="<%= currentPage - 1 %>">
+                            <i class='bx bx-chevron-left'></i> Prev
+                        </a>
+                        <% } %>
+
+                            <% for(let i=1; i <=totalPages; i++) { %>
+                                <a href="#" class="pagination-link <%= currentPage === i ? 'active' : '' %>"
+                                    data-page="<%= i %>">
+                                    <%= i %>
+                                </a>
+                                <% } %>
+
+                                    <% if (currentPage < totalPages) { %>
+                                        <a href="#" class="pagination-link next" data-page="<%= currentPage + 1 %>">
+                                            Next <i class='bx bx-chevron-right'></i>
+                                        </a>
+                                        <% } %>
+
+                                            <% } %>
             </nav>
         </main>
         <script>
+
+            const showToast = (message, type) => {
+                const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: bgColor, borderRadius: '10px' }
+                }).showToast();
+            };
             document.addEventListener('DOMContentLoaded', () => {
                 const sortDropdown = document.getElementById('sort');
+                const brandDropdown = document.getElementById('brandFilter')
+                const paginationLinks = document.querySelectorAll('.pagination-link'); // Select all pagination links   
+
 
                 if (sortDropdown) {
                     sortDropdown.addEventListener('change', (e) => {
@@ -169,6 +217,34 @@
                         }
                     });
                 }
+
+                if (brandDropdown) {
+                    brandDropdown.addEventListener('change', (e) => {
+                        const selectedValue = e.target.value;
+
+                        updateParams('brand', selectedValue);
+                    })
+                }
+
+                const updateParams = (key, value) => {
+                    const currentUrl = new URL(window.location.href);
+
+                    if (value && value !== 'featured') {
+                        currentUrl.searchParams.set(key, value)
+                    } else {
+                        currentUrl.searchParams.delete(key)
+                    }
+
+                    window.location.href = currentUrl.toString();
+                }
+
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault(); 
+                        const page = link.getAttribute('data-page');
+                        updateParams('page', page); 
+                    });
+                });
             });
         </script>
 
