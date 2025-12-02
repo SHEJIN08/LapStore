@@ -1,0 +1,46 @@
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="/css/user/home.css">
+
+<header class="main-header">
+    <div class="container header-wrapper">
+        <a href="/" class="logo">
+            <i class='bx bx-laptop'></i> LapStore
+        </a>
+
+        <form action="<%= typeof user !== 'undefined' ? '/user/home' : '/' %>" method="GET" class="search-bar">
+            <input type="text" name="search" placeholder="Search for laptops..."
+                value="<%= typeof search !== 'undefined' ? search : '' %>">
+            <button type="submit"><i class='bx bx-search'></i></button>
+        </form>
+
+        <nav class="user-nav">
+            <% if (typeof user !=='undefined' && user) { %>
+                <a href="/user/wishlist" class="nav-icon">
+                    <i class='bx bx-heart'></i>
+                    <span class="tooltip">Wishlist</span>
+                </a>
+                <a href="/user/cart" class="nav-icon">
+                    <i class='bx bx-cart'></i>
+                    <span class="tooltip">Cart</span>
+                </a>
+                <a href="/user/profile" class="nav-icon">
+                    <i class='bx bx-user'></i>
+                    <span class="tooltip">Profile</span>
+                </a>
+
+                <a href="/user/logout" class="nav-icon" style="color: #dc3545;"> <i class='bx bx-log-out'></i>
+                    <span class="tooltip">Logout</span>
+                </a>
+
+                <% } else { %>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <a href="/user/login" style="text-decoration: none; color: #333; font-weight: 500;">Log
+                            In</a>
+                        <a href="/user/register"
+                            style="text-decoration: none; background-color: #333; color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: 500; transition: 0.3s;">Sign
+                            Up</a>
+                    </div>
+                    <% } %>
+        </nav>
+    </div>
+</header>

@@ -349,7 +349,7 @@ ul { list-style: none; }
     color: white;
     border-color: var(--primary-color);
 }
-tn-view-options {
+.btn-view-options {
     /* Base Button Style */
     display: inline-flex;
     align-items: center;
@@ -368,9 +368,9 @@ tn-view-options {
 
 .btn-view-options:hover {
     /* Hover Effect */
-    background: var(--primary-dark); 
+    background: rgb(190, 190, 255); 
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 10px rgba(1, 63, 164, 0.3);
 }
 
 /* Ensure the price box and button are properly spaced */

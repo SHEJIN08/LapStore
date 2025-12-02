@@ -107,7 +107,7 @@ const registerUser = async (req, res) => {
     // 5. Set session
     req.session.email = email;
     req.session.otpPurpose = "register";
-    req.session.otpExpiresAt = Date.now() + 2 * 60 * 1000;
+    req.session.otpExpiresAt = Date.now() + 1 * 60 * 1000;
 
     // ✅ FIXED: Return JSON success (Frontend handles redirect)
     return res
@@ -155,7 +155,7 @@ const resendOtp = async (req, res) => {
 
     await UserOtpVerification.deleteMany({ email });
     await sendOtp(email);
-    req.session.otpExpiresAt = Date.now() + 2 * 60 * 1000;
+    req.session.otpExpiresAt = Date.now() + 1 * 60 * 1000;
 
     // ✅ FIXED: Only JSON, no redirect
     return res

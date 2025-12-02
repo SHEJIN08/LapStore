@@ -13,7 +13,6 @@ const loadHome = async (req, res) => {
 
     const userId = req.session.user;
 
-    console.log(req.query)
     const categories = await Category.find({ isListed: true });
     const brands = await Brand.find({ isBlocked: false });
 
@@ -24,6 +23,7 @@ const loadHome = async (req, res) => {
 
     // 2. Define Initial Match Condition (Published + Search)
     let matchCondition = { isPublished: true };
+ 
 
     if (search) {
       matchCondition.$or = [
@@ -138,12 +138,14 @@ const filterByCategory = async (req, res) => {
      const page = parseInt(req.query.page) || 1; 
     const limit = 4; // Adjust this number to change items per page
      const skip = (page - 1) * limit;
-    const categoryId = req.params.id; 
+    const slug = req.params.id; 
     const userId = req.session.user;
+
     
     // 1. Get Sort Option
     const sortOption = req.query.sort || "featured";
     const brandOption = req.query.brand || '';  
+    const search = req.query.search || '';
 
     // 2. Define Sort Stage
     let sortStage = { createdAt: -1 }; // Default
@@ -152,15 +154,20 @@ const filterByCategory = async (req, res) => {
     } else if (sortOption === "price-high") {
       sortStage = { minPrice: -1 };
     }
-   let matchCondition = { 
-        isPublished: true,
-        // You MUST convert the string ID to an ObjectId for aggregation
-        category: new mongoose.Types.ObjectId(String(categoryId)) 
-     };
-
-    const categories = await Category.find({ isListed: true });
-
+    
+    const currentCategory = await Category.findOne({ slug:slug, isListed: true });
+    if (!currentCategory) {
+        console.log("Category not found:", slug);
+        return res.status(StatusCode.NOT_FOUND).json({success: false, message: ResponseMessage.CATEGORY_NOT_FOUND}); // Render 404 page or redirect
+    }
+    
+    let matchCondition = { 
+      isPublished: true,
+      // You MUST convert the string ID to an ObjectId for aggregation
+      category: currentCategory._id
+    };
     const brands = await Brand.find({ isBlocked: false })
+    const categories = await Category.find({isListed: true})
 
    // Build the Aggregation Pipeline
     const pipeline = [
@@ -247,12 +254,13 @@ const filterByCategory = async (req, res) => {
       
       currentPage: page,
       totalPages: totalPages,
-
-      selectedCat: categoryId, 
+     
+      selectedCat: currentCategory.slug, 
       currentSort: sortOption,
       currentBrand: brandOption,
+      search: search,
 
-      baseUrl: `/user/category/${categoryId}`
+      baseUrl: `/user/category/${slug}`
     });
 
   } catch (error) {
@@ -331,7 +339,21 @@ const detailedPage = async (req,res) => {
                     foreignField: "productId",
                     as: "variants"
                 }
+              },
+              {
+                  $addFields: {
+                      minPrice: { $min: "$variants.salePrice" } 
+                  }
+              },
+            {
+                $lookup: {
+                    from: "brands",
+                    localField: "brand",
+                    foreignField: "_id",
+                    as: "brand"
+                }
             },
+            { $unwind: { path: "$brand", preserveNullAndEmptyArrays: true } },
             // Limit to 4 items
             { $limit: 4 }
         ]);
@@ -353,7 +375,7 @@ const detailedPage = async (req,res) => {
 const logout = async (req, res) => {
     try {
        delete req.session.user;
-      return  res.redirect('/user/login'); 
+      return  res.redirect('/'); 
     } catch (error) {
         console.log(error.message);
     }

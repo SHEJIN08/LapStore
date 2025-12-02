@@ -5,7 +5,7 @@ const otpVerificationSchema = new mongoose.Schema({
     email: {type: String, required: true},
     otpCode: {type: String, required:true},
     isUsed: {type: Boolean, default:false},
- createdAt: { type: Date, default: Date.now, expires: 120 } 
+ createdAt: { type: Date, default: Date.now, expires: 60 } 
 })
 
 export default mongoose.model('UserOtpVerification',otpVerificationSchema)  

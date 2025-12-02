@@ -1,214 +1,249 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/user/productDetailedPage.css"> 
+    <link rel="stylesheet" href="/css/user/productDetailedPage.css">
+ 
 
-<body>
-
-    <main class="container" style="margin-top: 20px;">
-        <nav class="breadcrumbs">
-            <a href="/">Home</a> &gt;
-            <span><%= product.name %></span>
-        </nav>
-
-        <section class="product-detail">
-            <div class="product-images">
-                <div class="main-image">
-                    <img id="mainImg" src="<%= product.images[0] %>" alt="<%= product.name %>">
-                </div>
-                <div class="thumbnail-list">
-                    <% product.images.forEach((img, index) => { %>
-                        <div class="thumbnail <%= index === 0 ? 'active' : '' %>" 
-                             onclick="changeImage(this, '<%= img %>')">
-                            <img src="<%= img %>" alt="Thumbnail">
-                        </div>
-                    <% }) %>
-                </div>
-            </div>
-
-            <div class="product-info">
-                <span class="brand">
-                    <%= product.brand?.brandName || 'Brand' %>
+    <body>
+          <%- include('../partials/navbar') %>
+        <main class="container" style="margin-top: 20px;">
+            
+            <nav class="breadcrumbs">
+                <a href="/">Home</a> &gt;
+                <span>
+                    <%= product.name %>
                 </span>
-                
-                <h1 class="product-title"><%= product.name %></h1>
-                
-                <div class="rating">
-                    <div class="stars">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-regular fa-star-half-stroke"></i>
+            </nav>
+
+            <section class="product-detail">
+                <div class="product-images">
+                    <div class="main-image">
+                        <img id="mainImg" src="<%= product.images[0] %>" alt="<%= product.name %>">
                     </div>
-                    <span class="review-count">4.8 (412 reviews)</span>
-                </div>
-
-                <div class="price">
-                    <% if(product.variants && product.variants.length > 0) { %>
-                        <% const firstVar = product.variants[0]; %>
-                        <span class="original-price" id="displayOriginal">₹<%= firstVar.regularPrice.toLocaleString('en-IN') %></span>
-                        <span class="sale-price" id="displaySale">₹<%= firstVar.salePrice.toLocaleString('en-IN') %></span>
-                    <% } else { %>
-                        <span class="sale-price">Currently Unavailable</span>
-                    <% } %>
-                </div>
-
-                <p class="description">
-                    <%= product.description || 'Experience the power and portability of this premium laptop.' %>
-                </p>
-
-                <% if(product.variants && product.variants.length > 0) { %>
-                <div class="product-option">
-                    <h3 class="option-title">Configuration</h3>
-                    <div class="config-options">
-                        
-                        <% product.variants.forEach((variant, index) => { %>
-                            <label class="config-box <%= index === 0 ? 'selected' : '' %>"
-                                data-image="<%= variant.image %>"
-                                   onclick="selectVariant(this, '<%= variant.salePrice %>', '<%= variant.regularPrice  %>')">
-                                
-                                <input type="radio" name="variant" value="<%= variant._id %>" <%= index === 0 ? 'checked' : '' %>>
-                                
-                                <span class="config-details"><%= variant.ram %> / <%= variant.storage %></span>
-                                <span class="config-price">₹<%= variant.regularPrice.toLocaleString('en-IN') %></span>
-                            </label>
-                        <% }) %>
-
+                    <div class="thumbnail-list">
+                        <% product.images.forEach((img, index)=> { %>
+                            <div class="thumbnail <%= index === 0 ? 'active' : '' %>"
+                                onclick="changeImage(this, '<%= img %>')">
+                                <img src="<%= img %>" alt="Thumbnail">
+                            </div>
+                            <% }) %>
                     </div>
                 </div>
+
+                <div class="product-info">
+                    <span class="brand">
+                        <%= product.brand?.brandName || 'Brand' %>
+                    </span>
+
+                    <h1 class="product-title">
+                        <%= product.name %>
+                    </h1>
+
+                    <div class="rating">
+                        <div class="stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star-half-stroke"></i>
+                        </div>
+                        <span class="review-count">4.8 (412 reviews)</span>
+                    </div>
+
+                    <div class="price">
+                        <% if(product.variants && product.variants.length> 0) { %>
+                            <% const firstVar=product.variants[0]; %>
+                                <span class="original-price" id="displayOriginal">₹<%=
+                                        firstVar.regularPrice.toLocaleString('en-IN') %></span>
+                                <span class="sale-price" id="displaySale">₹<%=
+                                        firstVar.salePrice.toLocaleString('en-IN') %></span>
+                                <% } else { %>
+                                    <span class="sale-price">Currently Unavailable</span>
+                                    <% } %>
+                    </div>
+
+                    <p class="description">
+                        <%= product.description || 'Experience the power and portability of this premium laptop.' %>
+                    </p>
+
+                    <% if(product.variants && product.variants.length> 0) { %>
+                        <div class="product-option">
+                            <h3 class="option-title">Configuration</h3>
+                            <div class="config-options">
+
+                                <% product.variants.forEach((variant, index)=> { %>
+                                    <label class="config-box <%= index === 0 ? 'selected' : '' %>"
+                                        data-image="<%= variant.image %>"
+                                        onclick="selectVariant(this, '<%= variant.salePrice %>', '<%= variant.regularPrice  %>')">
+
+                                        <input type="radio" name="variant" value="<%= variant._id %>" <%=index===0
+                                            ? 'checked' : '' %>>
+
+                                        <span class="config-details">
+                                            <%= variant.ram %> / <%= variant.storage %> / <i>
+                                                        <%= variant.graphics %>
+                                                    </i>
+                                        </span>
+                                        <span class="config-price">₹<%= variant.regularPrice.toLocaleString('en-IN') %>
+                                                </span>
+                                    </label>
+                                    <% }) %>
+
+                            </div>
+                        </div>
+                        <% } %>
+
+                            <div class="specs-section">
+                                <h3 class="section-title">Specification</h3>
+                                <ul>
+                                    <% if (product.specifications && product.specifications.length> 0) { %>
+                                        <% product.specifications.forEach(spec => { %>
+                                            <li>
+                                                <span style="font-weight: 600; color: #333;">
+                                                    <%= spec.key %>
+                                                </span>
+                                                <span style="color: #666;">
+                                                    <%= spec.value %>
+                                                </span>
+                                            </li>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <li> <span>No specifications available for this product </span>
+                                                    </li>
+                                                    <% } %>
+                                </ul>
+                            </div>
+                            <div class="product-actions">
+                                <button class="btn-add-to-cart" onclick="addToCart()">
+                                    <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                                </button>
+                                <button class="btn-wishlist">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                            </div>
+
+                            <div class="additional-info">
+                                <div class="info-item">
+                                    <i class="fa-solid fa-truck"></i> Free shipping on orders over ₹10,000
+                                </div>
+                                <div class="info-item">
+                                    <i class="fa-solid fa-shield-halved"></i> Official Warranty
+                                </div>
+                            </div>
+                </div>
+            </section>
+
+            <section class="customer-reviews">
+                <div class="section-header">
+                    <h2 class="section-heading">Customer Reviews</h2>
+                    <button class="btn-add-review">Add a Review</button>
+                </div>
+                <div class="review-list">
+                    <p style="color: #666;">No reviews yet. Be the first to review!</p>
+                </div>
+            </section>
+
+            <% if(relatedProducts && relatedProducts.length> 0) { %>
+                <section class="related-products">
+                    <h2 class="section-heading">Related Products</h2>
+                    <div>
+                    <div class="product-grid">
+
+                        <% relatedProducts.forEach(rel=> { %>
+                            <div class="product-card">
+                                <div class="card-image">
+                                    <a href="/user/product/<%= rel._id %>">
+                                        <img src="<%= rel.images[0] %>" alt="<%= rel.name %>">
+                                    </a>
+                                    <button class="card-wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                                </div>
+                                <div class="card-info">
+                                    <span class="card-brand">
+                                        <%= rel.brand?.brandName || 'Generic' %>
+                                    </span>
+                                    <h3 class="card-title"><a href="/product/<%= rel._id %>">
+                                            <%= rel.name %>
+                                        </a></h3>
+
+                                    <div class="card-price">
+
+                                        <span class="card-sale">From ₹<%= rel.minPrice.toLocaleString('en-IN') %></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+
+                    </div>
+                    </div>
+                </section>
                 <% } %>
 
-                <div class="product-actions">
-                    <button class="btn-add-to-cart" onclick="addToCart()">
-                        <i class="fa-solid fa-cart-plus"></i> Add to Cart
-                    </button>
-                    <button class="btn-wishlist">
-                        <i class="fa-regular fa-heart"></i>
-                    </button>
-                </div>
+        </main>
 
-                <div class="additional-info">
-                    <div class="info-item">
-                        <i class="fa-solid fa-truck"></i> Free shipping on orders over ₹10,000
-                    </div>
-                    <div class="info-item">
-                        <i class="fa-solid fa-shield-halved"></i> Official Warranty
-                    </div>
-                </div>
-            </div>
-        </section>
+        <%- include('../partials/footer') %>
 
-        <section class="customer-reviews">
-            <div class="section-header">
-                <h2 class="section-heading">Customer Reviews</h2>
-                <button class="btn-add-review">Add a Review</button>
-            </div>
-            <div class="review-list">
-                <p style="color: #666;">No reviews yet. Be the first to review!</p>
-            </div>
-        </section>
-
-        <% if(relatedProducts && relatedProducts.length > 0) { %>
-        <section class="related-products">
-            <h2 class="section-heading">Related Products</h2>
-            <div class="product-grid">
-                
-                <% relatedProducts.forEach(rel => { %>
-                <div class="product-card">
-                    <div class="card-image">
-                        <a href="/product/<%= rel._id %>">
-                            <img src="<%= rel.images[0] %>" alt="<%= rel.name %>">
-                        </a>
-                        <button class="card-wishlist-btn"><i class="fa-regular fa-heart"></i></button>
-                    </div>
-                    <div class="card-info">
-                        <span class="card-brand"><%= rel.brand?.brandName || 'Generic' %></span>
-                        <h3 class="card-title"><a href="/product/<%= rel._id %>"><%= rel.name %></a></h3>
-                        
-                        <div class="card-price">
-                            <% 
-                                let minPrice = 'N/A';
-                                if(rel.variants && rel.variants.length > 0) {
-                                    minPrice = Math.min(...rel.variants.map(v => v.salePrice));
-                                }
-                            %>
-                            <span class="card-sale">From ₹<%= minPrice.toLocaleString('en-IN') %></span>
-                        </div>
-                    </div>
-                </div>
-                <% }) %>
-
-            </div>
-        </section>
-        <% } %>
-
-    </main>
-
-    <%- include('../partials/footer') %>
-
-    <script src="/js/axios.min.js"></script>
-   
-    
-    <script>
-         const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "#28a745" : "#dc3545";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top", 
-                position: "right", 
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
-        // 1. Image Switcher
-        function changeImage(element, src) {
-            document.getElementById('mainImg').src = src;
-            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
-        }
-
-        // 2. Variant Selector
-      function selectVariant(element, salePrice, regularPrice) {
-    // --- 1. Update Styling & Inputs ---
-    document.querySelectorAll('.config-box').forEach(box => box.classList.remove('selected'));
-    element.classList.add('selected');
-    element.querySelector('input[type="radio"]').checked = true;
-
-    // --- 2. Update Prices ---
-    document.getElementById('displaySale').innerText = `₹${Number(salePrice).toLocaleString('en-IN')}`;
-    document.getElementById('displayOriginal').innerText = `₹${Number(regularPrice).toLocaleString('en-IN')}`;
-
-    // --- 3. Update Images (The Fix) ---
-    const variantImage = element.getAttribute('data-image');
-
-    if (variantImage) {
-        console.log("Variant selected. New Image:", variantImage);
-
-        // A. Update the Big Main Image
-        document.getElementById('mainImg').src = variantImage;
-
-        // B. Update the First Thumbnail
-        // We look for the FIRST div with class 'thumbnail' inside 'thumbnail-list'
-        const firstThumbnail = document.querySelector('.thumbnail-list .thumbnail');
-        
-        if (firstThumbnail) {
-            console.log("Found first thumbnail, updating it...");
-
-            // 1. Change the image inside the little box
-            const imgTag = firstThumbnail.querySelector('img');
-            imgTag.src = variantImage;
-
-            // 2. Change the click behavior (Important!)
-            // We use setAttribute to force the HTML to update its onclick event
-            firstThumbnail.setAttribute('onclick', `changeImage(this, '${variantImage}')`);
-
-            // 3. Set this thumbnail as active (green border)
-            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-            firstThumbnail.classList.add('active');
-        }
-    }
-}
+            <script src="/js/axios.min.js"></script>
 
 
-    </script>
+            <script>
+                const showToast = (message, type) => {
+                    const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+                    Toastify({
+                        text: message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: bgColor, borderRadius: '10px' }
+                    }).showToast();
+                };
+                // 1. Image Switcher
+                function changeImage(element, src) {
+                    document.getElementById('mainImg').src = src;
+                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                    element.classList.add('active');
+                }
 
-</body>
+                // 2. Variant Selector
+                function selectVariant(element, salePrice, regularPrice) {
+                    // --- 1. Update Styling & Inputs ---
+                    document.querySelectorAll('.config-box').forEach(box => box.classList.remove('selected'));
+                    element.classList.add('selected');
+                    element.querySelector('input[type="radio"]').checked = true;
+
+                    // --- 2. Update Prices ---
+                    document.getElementById('displaySale').innerText = `₹${Number(salePrice).toLocaleString('en-IN')}`;
+                    document.getElementById('displayOriginal').innerText = `₹${Number(regularPrice).toLocaleString('en-IN')}`;
+
+                    // --- 3. Update Images (The Fix) ---
+                    const variantImage = element.getAttribute('data-image');
+
+                    if (variantImage) {
+                        console.log("Variant selected. New Image:", variantImage);
+
+                        // A. Update the Big Main Image
+                        document.getElementById('mainImg').src = variantImage;
+
+                        // B. Update the First Thumbnail
+                        // We look for the FIRST div with class 'thumbnail' inside 'thumbnail-list'
+                        const firstThumbnail = document.querySelector('.thumbnail-list .thumbnail');
+
+                        if (firstThumbnail) {
+                            console.log("Found first thumbnail, updating it...");
+
+                            // 1. Change the image inside the little box
+                            const imgTag = firstThumbnail.querySelector('img');
+                            imgTag.src = variantImage;
+
+                            // 2. Change the click behavior (Important!)
+                            // We use setAttribute to force the HTML to update its onclick event
+                            firstThumbnail.setAttribute('onclick', `changeImage(this, '${variantImage}')`);
+
+                            // 3. Set this thumbnail as active (green border)
+                            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                            firstThumbnail.classList.add('active');
+                        }
+                    }
+                }
+
+
+            </script>
+
+    </body>

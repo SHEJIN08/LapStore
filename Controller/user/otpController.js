@@ -52,11 +52,12 @@ export const verifyOtp = async (req, res) => {
       // Clear specific session flags
       req.session.otpPurpose = null; 
       req.session.email = null;
+      req.session.user = true;
 
       return res.status(StatusCode.OK).json({ 
         success: true, 
         message: ResponseMessage.EMAIL_VER, 
-        redirectUrl: "/user/login" // Frontend will use this
+        redirectUrl: "/user/home" // Frontend will use this
       });
     }
 

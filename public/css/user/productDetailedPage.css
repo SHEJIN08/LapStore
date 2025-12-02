@@ -653,3 +653,33 @@ a {
         width: 100%;
     }
 }   
+.specs-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #111;
+}
+
+.specs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.specs-list li {
+    display: flex;
+    justify-content: space-between; /* Pushes Key to left, Value to right */
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.95rem;
+}
+
+.specs-list li:last-child {
+    border-bottom: none;
+}

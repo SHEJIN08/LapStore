@@ -184,7 +184,7 @@
             if (response.data.success) {
                 showToast("Verification Successful!", "success");
                 setTimeout(() => {
-                    window.location.href = response.data.redirectUrl || '/user/login';
+                    window.location.href = response.data.redirectUrl || '/user/home';
                 }, 1500);
             } else {
                 showToast(response.data.message || "Verification Failed", "error");

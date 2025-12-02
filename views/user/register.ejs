@@ -93,6 +93,11 @@
 
     Formdata.addEventListener('submit',async (e) => {
         e.preventDefault();
+
+        const btn = e.target.querySelector('.btn-submit');
+        btn.disabled = true;
+        btn.innerText = 'Generating otp...';
+
         const name = document.getElementById('full-name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -109,13 +114,17 @@
                     window.location.href = '/user/verify-otp'
                 },1000)
             }else{
-                showToast(response.data.message || 'Register failed','error')
+                showToast(response.data.message || 'Register failed','error');
+                btn.disabled = false;
+                btn.innerText = 'Sing Up';
             }
         } catch (error) {
             console.error(error)
 
                const errMsg = error.response?.data?.message || 'Something went wrong';
                 showToast(errMsg, 'error');
+                 btn.disabled = false;
+                btn.innerText = 'Sing Up';
         }
     })
 </script>

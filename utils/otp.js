@@ -27,7 +27,7 @@ export const sendOtp = async (email) => {
       subject: "OTP Verification",
       html: `
         <h2>Your OTP is: <b>${otp}</b></h2>
-        <p>This OTP is valid for 2 minutes.</p>
+        <p>This OTP is valid for 1 minutes.</p>
       `
     });
 
