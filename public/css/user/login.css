@@ -107,8 +107,17 @@ label {
 }
 
 /* 6. Input Fields */
-input[type="email"],
-input[type="password"] {
+input[type="email"]{
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid #D1D5DB; /* Light gray border */
+    border-radius: 8px;
+    background-color: #F9FAFB; /* Slightly off-white background */
+    color: #1E293B;
+}
+#password {
     width: 100%;
     padding: 14px 16px;
     font-size: 16px;
@@ -124,6 +133,7 @@ input::placeholder {
 }
 
 .password-wrapper {
+
     position: relative;
 }
 

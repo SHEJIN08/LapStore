@@ -10,6 +10,7 @@ import userRoute from './routes/user.js'
 import userAuth from './middleware/userAuth.js';
 import userController from './Controller/user/userController.js';
 import session from 'express-session';
+import bodyParser from 'body-parser';
 import nocache from 'nocache';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,7 +21,6 @@ const app = express();
 // Access .env variables
 const PORT = process.env.PORT || 5000;
 const DB_URL = process.env.DB_URL;
-const JWT_SECRET = process.env.JWT_SECRET;
 app.use(nocache())
 app.use(session({
     secret:'topsecret',
@@ -44,7 +44,10 @@ app.use((req, res, next) => {
 app.use('/user',userRoute)
 app.use('/admin', adminRoute);
 app.get('/',userAuth.isLogin,userController.loadHome);
-    
+app.use((req,res) => {
+    res.status(404).render('user/404')
+})
+
 
 connectDB();
 

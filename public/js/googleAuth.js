@@ -1,18 +1,15 @@
 
 const client = new Appwrite.Client()
-  .setEndpoint("https://nyc.cloud.appwrite.io/v1") //project endpoint
-  .setProject("691181470024b6460a13");        // your Appwrite project ID
+ .setEndpoint(window.APPWRITE_CONFIG.APPWRITE_ENDPOINT) // must be injected by server
+  .setProject(window.APPWRITE_CONFIG.APPWRITE_PROJECT);       // your Appwrite project ID
 
 const account = new Appwrite.Account(client);
 
-document.getElementById("google-btn").addEventListener("click", async () => {
-  try {
-    await account.createOAuth2Session(
+document.getElementById("google-btn").addEventListener("click",  () => {
+
+     account.createOAuth2Session(
       "google",
-      "http://localhost:5000/user/home",  // success redirect
-      "http://localhost:5000/user/login"  // failure redirect
+      window.APPWRITE_CONFIG.GOOGLE_CALLBACK,
+      window.APPWRITE_CONFIG.LOGIN_REDIRECT
     );
-  } catch (error) {
-    console.error("Google login failed:", error);
-  }
-});
+})

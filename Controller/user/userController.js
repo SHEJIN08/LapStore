@@ -1,6 +1,7 @@
 import Product from "../../model/productModel.js";
 import mongoose from "mongoose";
 import Category from "../../model/categoryModel.js";
+import userSchema from "../../model/userModel.js";
 import Brand from "../../model/brandModel.js"
 import Variant from '../../model/variantModel.js'
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
@@ -72,6 +73,8 @@ const loadHome = async (req, res) => {
       },
       { $unwind: { path: '$brandDetails', preserveNullAndEmptyArrays: true } },
 
+      { $match: {'brandDetails.isBlocked': false}},
+
       // STAGE 5: Filter by Brand Name (Dynamic)
       ...(brandOption ? [{
         $match: { "brandDetails.brandName": brandOption }
@@ -87,6 +90,10 @@ const loadHome = async (req, res) => {
         },
       },
       { $unwind: "$categoryDetails" },
+
+      {
+        $match: {"categoryDetails.isListed": true }
+      },
 
       // STAGE 7: Sort
       { $sort: sortStage },
@@ -202,6 +209,8 @@ const filterByCategory = async (req, res) => {
       },
       { $unwind: { path: '$brandDetails', preserveNullAndEmptyArrays: true } },
 
+      { $match: {'brandDetails.isBlocked': false}},
+
       // STAGE 5: Filter by Brand Name (Dynamic)
       ...(brandOption ? [{
         $match: { "brandDetails.brandName": brandOption }
@@ -217,6 +226,9 @@ const filterByCategory = async (req, res) => {
         },
       },
       { $unwind: "$categoryDetails" },
+      {
+        $match: {'categoryDetails.isListed': true}
+      },
 
       // STAGE 7: Sort
       { $sort: sortStage },
@@ -316,13 +328,20 @@ const detailedPage = async (req,res) => {
             { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } }
         ]);
 
+        
         // Check if product exists
         if (!productResult || productResult.length === 0) {
-         return  res.status(StatusCode.NOT_FOUND).json({success: false, message: ResponseMessage.PRODUCT_NOT_FOUND }); 
+          return  res.status(StatusCode.NOT_FOUND).json({success: false, message: ResponseMessage.PRODUCT_NOT_FOUND }); 
         }
-
+        
         const product = productResult[0];
-
+        
+        if(!product.category.isListed){
+          return res.status(StatusCode.NOT_FOUND).render('user/404');
+        }
+        if(product.brand.isBlocked){
+          return res.status(StatusCode.NOT_FOUND).render('user/404');
+        }
         const relatedProducts = await Product.aggregate([
             {
                 $match: {

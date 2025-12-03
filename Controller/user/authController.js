@@ -296,6 +296,59 @@ const login = async (req, res) => {
   }
 };
 
+const googleCallback = async (req, res) => {
+  try {
+    const { email, name, appwriteId } = req.body || {};
+
+    if (!email) {
+      console.log("Email missing from req.body");
+      return res.status(StatusCode.BAD_REQUEST).json({
+        success: false,
+        message: "Email required from Google"
+      });
+    }
+
+    let user = await userSchema.findOne({ email });
+
+    if (!user) {
+      const newUserId = `google_${Date.now()}`;
+      user = new userSchema({
+        userId: newUserId,
+        name: name || 'Google User',
+        email,
+        password: 'oauth_google',
+        isVerified: true,
+        isActive: true
+      });
+      await user.save();
+      console.log("New user created:", user._id);
+    }
+
+    if (!user.isActive) {
+      return res.status(StatusCode.UNAUTHORIZED).json({
+        success: false,
+        message: ResponseMessage.USER_BLOCK
+      });
+    }
+
+    req.session.user = user._id;
+    
+
+    return res.status(StatusCode.OK).json({
+      success: true,
+      message: ResponseMessage.LOGIN_SUCCESS,
+      redirectUrl: '/user/home'
+    });
+
+  } catch (error) {
+    console.error('Google callback error:', error);
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: ResponseMessage.SERVER_ERROR
+    });
+  }
+};
+
 // ==========================================
 // 🚀 RENDER PAGES (GET)
 // ==========================================
@@ -329,4 +382,5 @@ export default {
   resetPasswordPost,
   login,
   loadVerifyOtp,
+  googleCallback
 };

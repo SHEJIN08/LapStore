@@ -90,6 +90,20 @@
                 style: { background: bgColor, borderRadius: '10px' }
             }).showToast();
         };
+         const passwordInput = document.getElementById('password')
+        const eyeIcon = document.querySelector('.eye-icon')
+
+        eyeIcon.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text': 'password'
+        
+         passwordInput.setAttribute('type', type)
+
+         if(type === 'text') {
+            eyeIcon.style.stroke = '#3B82F6'
+         }else{
+            eyeIcon.style.stroke = "currentColor"
+         }
+        })
 
     Formdata.addEventListener('submit',async (e) => {
         e.preventDefault();

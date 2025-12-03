@@ -55,7 +55,7 @@ export const ResponseMessage = {
    USER_STATUS: 'User updated successfully',
    DUP_USER: "User already exist",
    VER_EMAIL: 'Please verify your email first',
-   USER_BLOCK: 'You have been blocked my admin',
+   USER_BLOCK: 'You have been blocked by the admin',
    WRONG_PASS: 'Incorrect password',
 
     // Input/Logic Errors

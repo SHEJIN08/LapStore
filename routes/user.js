@@ -16,10 +16,15 @@ router.get('/reset-password', authController.loadResetPassword)
 router.post('/reset-password',authController.resetPasswordPost)
 router.get('/login',userAuth.isLogin,authController.loadLogin)
 router.post('/login',authController.login)
+router.get('/auth/google/callback', (req, res) => {
+  return res.render('user/googleCallback'); 
+});
 
-router.get('/home',userController.loadHome)
-router.get('/category/:id', userController.filterByCategory);
-router.get('/product/:id', userController.detailedPage)
+router.post('/auth/google/callback', authController.googleCallback); // server handles JSON
+
+router.get('/home',userAuth.isUserBlocked,userController.loadHome)
+router.get('/category/:id',userAuth.isUserBlocked, userController.filterByCategory);
+router.get('/product/:id',userAuth.isUserBlocked, userController.detailedPage)
 
 router.get('/logout', userController.logout);
 

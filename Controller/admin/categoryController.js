@@ -142,9 +142,8 @@ const editCategory = async (req, res) => {
 
         const category = await Category.findById(id);
         if (!category) {
-            return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.CATEGORY_NOT_FOUND });
+           return res.status(StatusCode.NOT_FOUND).render('user/404');
         }
-
         // Check for duplicate name (excluding current category)
         const existingCategory = await Category.findOne({
             categoryName: { $regex: new RegExp(`^${categoryName}$`, 'i') },
@@ -178,7 +177,7 @@ const getListOrUnlist = async (req, res) => {
         const category = await Category.findById(id);
 
         if (!category) {
-            return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.CATEGORY_NOT_FOUND });
+            return res.status(StatusCode.NOT_FOUND).render('user/404');
         }
 
         // Toggle status

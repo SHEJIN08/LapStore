@@ -185,10 +185,8 @@ const loadEditProduct = async (req, res) => {
       return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.PRODUCT_NOT_FOUND })
     }
 
-    // 🔴 FIX: Changed 'const' to 'let' so we can modify it
     let variants = await Variant.find({ productId: id });
 
-    // 🔴 FIX: Handle old data where regularPrice might be 0/undefined
     variants = variants.map(v => {
       const variantObj = v.toObject();
 
