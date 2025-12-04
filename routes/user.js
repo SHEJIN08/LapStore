@@ -25,6 +25,7 @@ router.post('/auth/google/callback', authController.googleCallback); // server h
 router.get('/home',userAuth.isUserBlocked,userController.loadHome)
 router.get('/category/:id',userAuth.isUserBlocked, userController.filterByCategory);
 router.get('/product/:id',userAuth.isUserBlocked, userController.detailedPage)
+router.get('/home/shop', userController.shopPage)
 
 router.get('/logout', userController.logout);
 

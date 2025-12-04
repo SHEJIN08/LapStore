@@ -7,7 +7,7 @@
             <i class='bx bx-laptop'></i> LapStore
         </a>
 
-        <form action="<%= typeof user !== 'undefined' ? '/user/home' : '/' %>" method="GET" class="search-bar">
+        <form action="<%= typeof user !== 'undefined' ? '/user/home/shop' : '/' %>" method="GET" class="search-bar">
             <input type="text" name="search" placeholder="Search for laptops..."
                 value="<%= typeof search !== 'undefined' ? search : '' %>">
             <button type="submit"><i class='bx bx-search'></i></button>

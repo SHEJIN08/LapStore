@@ -9,7 +9,7 @@ import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 const loadHome = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; 
-    const limit = 8; // Adjust this number to change items per page
+    const limit = 8; 
      const skip = (page - 1) * limit;
 
     const userId = req.session.user;
@@ -20,7 +20,7 @@ const loadHome = async (req, res) => {
     // 1. Get Query Params (Adding 'brand' here)
     const search = req.query.search || '';
     const sortOption = req.query.sort || "featured";
-    const brandOption = req.query.brand || ''; // <--- NEW: Capture the brand
+    const brandOption = req.query.brand || ''; 
 
     // 2. Define Initial Match Condition (Published + Search)
     let matchCondition = { isPublished: true };
@@ -165,7 +165,7 @@ const filterByCategory = async (req, res) => {
     const currentCategory = await Category.findOne({ slug:slug, isListed: true });
     if (!currentCategory) {
         console.log("Category not found:", slug);
-        return res.status(StatusCode.NOT_FOUND).json({success: false, message: ResponseMessage.CATEGORY_NOT_FOUND}); // Render 404 page or redirect
+        return res.status(StatusCode.NOT_FOUND).redirect('user/404');
     }
     
     let matchCondition = { 
@@ -271,7 +271,7 @@ const filterByCategory = async (req, res) => {
       currentSort: sortOption,
       currentBrand: brandOption,
       search: search,
-
+      
       baseUrl: `/user/category/${slug}`
     });
 
@@ -286,14 +286,14 @@ const detailedPage = async (req,res) => {
  try {
   
         const userId = req.session.user;
-        const productId = req.params.id;
+        const slug = req.params.id;
 
         // 1. Fetch the specific product using Aggregation
         // We use aggregation to join Variants, Brand, and Category in one go
         const productResult = await Product.aggregate([
             { 
                 $match: { 
-                    _id: new mongoose.Types.ObjectId(String(productId)),
+                    slug:slug,
                     isPublished: true 
                 } 
             },
@@ -391,6 +391,158 @@ const detailedPage = async (req,res) => {
     }
   }
 
+  const shopPage = async (req,res) => {
+ try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 3; // Usually 9 for a 3x3 grid
+    const skip = (page - 1) * limit;
+
+    const userId = req.session.user;
+
+    // 1. Fetch Sidebar Data (Categories & Brands for the filter lists)
+    const categories = await Category.find({ isListed: true });
+    const brands = await Brand.find({ isBlocked: false });
+
+    // 2. Get Query Parameters
+    const search = req.query.search || '';
+    const sortOption = req.query.sort || "newest"; // Default to newest
+    const brandOption = req.query.brand || '';     // Filter by Brand Name
+    const categoryOption = req.query.category || ''; // Filter by Category Slug
+    const minPrice = parseInt(req.query.minPrice) || 0;
+    const maxPrice = parseInt(req.query.maxPrice) || 1000000; // High default max
+
+    // 3. Define Initial Match (Published + Search)
+    let matchCondition = { isPublished: true };
+
+    if (search) {
+      matchCondition.$or = [
+        { name: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // 4. Define Sort Logic
+    let sortStage = { createdAt: -1 }; // Default Newest
+    if (sortOption === "price-low") {
+      sortStage = { minPrice: 1 };
+    } else if (sortOption === "price-high") {
+      sortStage = { minPrice: -1 };
+    } else if (sortOption === "a-z") {
+      sortStage = { name: 1 };
+    }
+
+    // --- AGGREGATION PIPELINE ---
+    const pipeline = [
+      // STAGE 1: Match (Basic Filters)
+      { $match: matchCondition },
+
+      // STAGE 2: Lookup Variants
+      {
+        $lookup: {
+          from: "variants",
+          localField: "_id",
+          foreignField: "productId",
+          as: "variants",
+        },
+      },
+
+      // STAGE 3: Calculate Min Price
+      {
+        $addFields: {
+          minPrice: { $min: "$variants.salePrice" },
+        },
+      },
+
+      // STAGE 4: Filter by Price Range
+      // IMPORTANT: This must be done AFTER calculating minPrice
+      {
+        $match: {
+          minPrice: { $gte: minPrice, $lte: maxPrice }
+        }
+      },
+
+      // STAGE 5: Lookup Brand & Filter Blocked
+      {
+        $lookup: {
+          from: 'brands',
+          localField: 'brand',
+          foreignField: '_id',
+          as: 'brandDetails'
+        }
+      },
+      { $unwind: { path: '$brandDetails', preserveNullAndEmptyArrays: true } },
+      { $match: { 'brandDetails.isBlocked': false } },
+
+      // STAGE 6: Filter by Specific Brand (If selected)
+      ...(brandOption ? [{
+        $match: { "brandDetails.brandName": brandOption }
+      }] : []),
+
+      // STAGE 7: Lookup Category & Filter Unlisted
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      { $unwind: "$categoryDetails" },
+      { $match: { "categoryDetails.isListed": true } },
+
+      // STAGE 8: Filter by Specific Category (If selected)
+      // Assuming 'categoryOption' is the slug from the URL
+      ...(categoryOption ? [{
+        $match: { "categoryDetails.slug": categoryOption }
+      }] : []),
+
+      // STAGE 9: Sort
+      { $sort: sortStage },
+
+      // STAGE 10: Facet (Pagination)
+      {
+        $facet: {
+          data: [
+            { $skip: skip },
+            { $limit: limit }
+          ],
+          metadata: [
+            { $count: "total" }
+          ]
+        }
+      }
+    ];
+
+    // 5. Execute Aggregation
+    const result = await Product.aggregate(pipeline);
+
+    const products = result[0].data;
+    const totalProducts = result[0].metadata[0] ? result[0].metadata[0].total : 0;
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // 6. Render
+    res.render("user/shop", {
+      user: userId,
+      products: products,
+      categories: categories, // For the Sidebar list
+      brands: brands,         // For the Sidebar list
+      
+      // Pass these back to maintain the state of filters in UI
+      currentPage: page,
+      totalPages: totalPages,
+      currentSort: sortOption,
+      currentBrand: brandOption,
+      selectedCat: categoryOption, // Matches the naming in your sidebar logic
+      search: search,
+      minPrice: req.query.minPrice, // For input fields
+      maxPrice: req.query.maxPrice  // For input fields
+    });
+
+  } catch (error) {
+    console.error("Shop Load Error:", error);
+    res.status(500).send("Server Error");
+  }
+  }
+
 const logout = async (req, res) => {
     try {
        delete req.session.user;
@@ -399,4 +551,4 @@ const logout = async (req, res) => {
         console.log(error.message);
     }
 }
-export default { loadHome, logout, filterByCategory, detailedPage };
+export default { loadHome, logout, filterByCategory, detailedPage, shopPage };

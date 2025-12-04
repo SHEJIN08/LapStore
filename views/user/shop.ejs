@@ -1,0 +1,198 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/user/shop.css">
+
+<body>
+    <%- include('../partials/navbar') %>
+
+    <div style="background: #f4f4f4; padding: 20px 0;">
+        <div class="container">
+        <span style="color: #666;"> <a href="/user/home">Home</a> / </span> <b>Shop</b>
+        </div>
+    </div>
+
+    <div class="shop-container">
+
+        <aside class="sidebar">
+            
+            <div class="filter-section">
+                <span class="filter-title">Categories</span>
+                <ul class="filter-list">
+                    <li>
+                        <% const allCatActive = !selectedCat ? 'active' : ''; %>
+                        <a href="/user/home/shop" class="<%= allCatActive %>">All Categories</a>
+                    </li>
+                    
+                    <% if(typeof categories !== 'undefined' && categories.length > 0) { %>
+                        <% categories.forEach(cat => { %>
+                            <li>
+                                <% 
+                                    let isActive = (typeof selectedCat !== 'undefined' && selectedCat === cat.slug) ? 'active' : ''; 
+                                %>
+                                <a href="#" 
+                                   onclick="updateParams('category', '<%= cat.slug %>')"
+                                   class="<%= isActive %>">
+                                    <%= cat.categoryName %>
+                                </a>
+                            </li>
+                        <% }) %>
+                    <% } %>
+                </ul>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-title">Brands</span>
+                <ul class="filter-list">
+                    <li>
+                        <% const allBrandActive = !currentBrand ? 'active' : ''; %>
+                        <a href="#" onclick="updateParams('brand', '')" class="<%= allBrandActive %>">All Brands</a>
+                    </li>
+
+                    <% if(typeof brands !== 'undefined' && brands.length > 0) { %>
+                        <% brands.forEach(brand => { %>
+                            <li>
+                                <% 
+                                    let isBrandActive = (typeof currentBrand !== 'undefined' && currentBrand === brand.brandName) ? 'active' : '';
+                                %>
+                                <a href="#" 
+                                   onclick="updateParams('brand', '<%= brand.brandName %>')"
+                                   class="<%= isBrandActive %>">
+                                    <%= brand.brandName %>
+                                </a>
+                            </li>
+                        <% }) %>
+                    <% } %>
+                </ul>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-title">Filter Price</span>
+                <form id="priceForm" onsubmit="applyPrice(event)">
+                    <div class="price-filter-group">
+                        <input type="number" id="minPrice" placeholder="Min" class="price-input" min="0">
+                        <input type="number" id="maxPrice" placeholder="Max" class="price-input" min="0">
+                    </div>
+                    <button type="submit" class="btn-filter">Apply Filter</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="shop-content">
+            
+            <div class="shop-header-bar">
+                <div class="result-count">
+                    Showing <b><%= products.length %></b> results
+                </div>
+                <div class="sort-dropdown">
+                    <select onchange="updateParams('sort', this.value)">
+                        <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>New Arrivals</option>
+                        <option value="price-low" <%= currentSort === 'price-low' ? 'selected' : '' %>>Price: Low to High</option>
+                        <option value="price-high" <%= currentSort === 'price-high' ? 'selected' : '' %>>Price: High to Low</option>
+                        <option value="a-z" <%= currentSort === 'a-z' ? 'selected' : '' %>>Name: A - Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="product-grid">
+                <% if(products.length > 0) { %>
+                    <% products.forEach(product => { %>
+                        
+                        <div class="product-card">
+                            <div class="product-img-wrap">
+                                <a href="/user/product/<%= product.slug %>">
+                                    <% if(product.images && product.images.length > 0) { %>
+                                        <img src="<%= product.images[0] %>" alt="<%= product.name %>">
+                                    <% } else { %>
+                                        <img src="/images/no-image.png" alt="No image">
+                                    <% } %>
+                                </a>
+                            </div>
+                            <div class="product-info">
+                                <div class="product-brand">
+                                    <%= product.brandDetails ? product.brandDetails.brandName : 'Laptop' %>
+                                </div>
+                                <h4 class="product-title">
+                                    <a href="/user/product/<%= product.slug %>"><%= product.name %></a>
+                                </h4>
+                                <div class="product-price">
+                                    ₹<%= product.minPrice ? product.minPrice.toLocaleString('en-IN') : 'N/A' %>
+                                </div>
+                                <a href="/user/product/<%= product.slug %>" class="btn-view">View Details</a>
+                            </div>
+                        </div>
+
+                    <% }) %>
+                <% } else { %>
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px;">
+                        <h3>No Products Found</h3>
+                        <p>Try clearing your filters.</p>
+                        <a href="/user/home/shop" class="btn-view">Clear All Filters</a>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="pagination-area">
+                <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+                    
+                    <% if (currentPage > 1) { %>
+                        <a href="#" class="pagination-link" onclick="updateParams('page', '<%= currentPage - 1 %>')">Prev</a>
+                    <% } %>
+
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <a href="#" class="pagination-link <%= currentPage === i ? 'active' : '' %>"
+                           onclick="updateParams('page', '<%= i %>')">
+                            <%= i %>
+                        </a>
+                    <% } %>
+
+                    <% if (currentPage < totalPages) { %>
+                        <a href="#" class="pagination-link" onclick="updateParams('page', '<%= currentPage + 1 %>')">Next</a>
+                    <% } %>
+
+                <% } %>
+            </div>
+
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        // 1. Core function to update URL params without deleting existing ones
+        function updateParams(key, value) {
+            const currentUrl = new URL(window.location.href);
+            
+            // If filtering/sorting, reset to page 1
+            if(key !== 'page') {
+                currentUrl.searchParams.set('page', 1);
+            }
+
+            // Set or Delete the param
+            if (value) {
+                currentUrl.searchParams.set(key, value);
+            } else {
+                currentUrl.searchParams.delete(key);
+            }
+
+            // Reload page with new params
+            window.location.href = currentUrl.toString();
+        }
+
+        // 2. Handle Price Form Submission
+        function applyPrice(e) {
+            e.preventDefault(); // Stop default form submit
+            const min = document.getElementById('minPrice').value;
+            const max = document.getElementById('maxPrice').value;
+            
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('page', 1);
+
+            if(min) currentUrl.searchParams.set('minPrice', min);
+            else currentUrl.searchParams.delete('minPrice');
+
+            if(max) currentUrl.searchParams.set('maxPrice', max);
+            else currentUrl.searchParams.delete('maxPrice');
+
+            window.location.href = currentUrl.toString();
+        }
+    </script>
+</body>

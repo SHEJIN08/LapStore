@@ -76,7 +76,7 @@ const addCategory = async (req, res) => {
             categoryName,
             description,
             orders: Number(orders) || 0,
-            isListed: isListed === 'true' || isListed === true, // Handle string 'true' from forms
+            isListed: isListed === 'true' || isListed === true, 
         });
 
         await newCategory.save();
@@ -100,8 +100,6 @@ const getEditCategory = async (req, res) => {
 //  Fetch Products in this Category
         const productDocs = await Product.find({ category: id }).sort({ createdAt: -1 });
 
-        //  Fetch Variants for each product to get Price, Stock, & SKU
-        // We use Promise.all to handle multiple async database calls efficiently
         const products = await Promise.all(productDocs.map(async (product) => {
             const variants = await Variant.find({ productId: product._id });
 

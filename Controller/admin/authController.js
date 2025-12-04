@@ -63,9 +63,6 @@ const login = async (req, res) => {
 
 // 🧩 Load admin dashboard
 const loadDashboard = async (req, res) => {
- 
-
-    // Render the dashboard, passing the one-time message
     res.render("admin/dashboard");
 };
 

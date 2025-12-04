@@ -44,15 +44,16 @@ export const verifyOtp = async (req, res) => {
     if (req.session.otpPurpose === "register") {
       
       // Update user to verified status
-      await userSchema.findOneAndUpdate( 
+      const userData = await userSchema.findOneAndUpdate( 
         { email },
-        { isVerified: true }
+        { isVerified: true },
+        {new: true}
       );
 
       // Clear specific session flags
       req.session.otpPurpose = null; 
       req.session.email = null;
-      req.session.user = true;
+      req.session.user = userData._id;
 
       return res.status(StatusCode.OK).json({ 
         success: true, 

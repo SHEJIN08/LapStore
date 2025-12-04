@@ -8,6 +8,7 @@
 
                 <nav class="breadcrumbs">
                     <a href="/">Home</a> &gt;
+                    <a href="/user/category/<%= product.category.slug %>"><%= product.category.categoryName %></a> &gt;
                     <span>
                         <%= product.name %>
                     </span>
@@ -156,7 +157,7 @@
                                 <% relatedProducts.forEach(rel=> { %>
                                     <div class="product-card">
                                         <div class="card-image">
-                                            <a href="/user/product/<%= rel._id %>">
+                                            <a href="/user/product/<%= rel.slug %>">
                                                 <img src="<%= rel.images[0] %>" alt="<%= rel.name %>">
                                             </a>
                                             <button class="card-wishlist-btn"><i
@@ -166,7 +167,7 @@
                                             <span class="card-brand">
                                                 <%= rel.brand?.brandName || 'Generic' %>
                                             </span>
-                                            <h3 class="card-title"><a href="/product/<%= rel._id %>">
+                                            <h3 class="card-title"><a href="/user/product/<%= rel.slug %>">
                                                     <%= rel.name %>
                                                 </a></h3>
 

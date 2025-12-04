@@ -561,7 +561,7 @@ a {
 .card-image {
     position: relative;
     background-color: var(--bg-light);
-    padding: 2rem;
+    
     border-radius: 1rem;
     margin-bottom: 1rem;
     display: flex;
@@ -571,8 +571,8 @@ a {
 
 .card-image img {
     max-width: 100%;
-    height: auto;
-    object-fit: contain;
+    height: 196px;
+    
 }
 
 .card-wishlist-btn {

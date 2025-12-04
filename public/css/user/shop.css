@@ -1,0 +1,230 @@
+/* --- Layout Container --- */
+.shop-container {
+    display: flex;       /* Puts Sidebar and Content side-by-side */
+    gap: 30px;           /* Space between sidebar and products */
+    padding: 40px 0;
+    align-items: flex-start; /* Aligns them to the top */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* --- Left Sidebar (25% Width) --- */
+.sidebar {
+    width: 25%;
+    flex-shrink: 0;      /* Prevents sidebar from getting squished */
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.filter-section {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+}
+
+.filter-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+    display: block;
+}
+
+/* Filter Lists (Categories/Brands) */
+.filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.filter-list li {
+    margin-bottom: 10px;
+}
+
+.filter-list a {
+    text-decoration: none;
+    color: #555;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    transition: 0.3s;
+}
+
+.filter-list a:hover, .filter-list a.active {
+    color: #0080ff; /* Red accent color */
+    font-weight: bold;
+    transform: translateX(5px); /* Slight move effect */
+}
+
+/* Price Inputs */
+.price-filter-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.price-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.btn-filter {
+    width: 100%;
+    padding: 10px;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-filter:hover {
+    background: #e53637;
+}
+
+/* --- Main Content (75% Width) --- */
+.shop-content {
+    width: 75%;
+}
+
+.shop-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    background: #f9f9f9;
+    padding: 10px 20px;
+    border-radius: 4px;
+}
+
+.sort-dropdown select {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* --- Product Grid Reused Styles --- */
+/* (Assuming you want similar cards to your home page) */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Auto responsive grid */
+    gap: 25px;
+}
+
+.product-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: 0.3s;
+    position: relative;
+}
+
+.product-card:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.product-img-wrap {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9f9f9;
+    padding: 20px;
+}
+
+.product-img-wrap img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.product-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.product-brand {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+}
+
+.product-title a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 5px 0;
+    display: block;
+}
+
+.product-price {
+    color: #e53637;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.btn-view {
+    display: inline-block;
+    padding: 8px 20px;
+    border: 1px solid #333;
+    color: #333;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.btn-view:hover {
+    background: #333;
+    color: #fff;
+}
+
+/* Pagination */
+.pagination-area {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.pagination-link {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 4px;
+    border: 1px solid #ddd;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.pagination-link.active {
+    background: #333;
+    color: #fff;
+    border-color: #333;
+}
+
+/* Responsive Mobile */
+@media (max-width: 768px) {
+    .shop-container {
+        flex-direction: column;
+    }
+    .sidebar, .shop-content {
+        width: 100%;
+    }
+}

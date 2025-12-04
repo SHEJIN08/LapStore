@@ -115,9 +115,8 @@ const getEditBrand = async (req, res) => {
         // 2. Find the brand
         const brand = await Brand.findById(brandId);
 
-        // 3. CHECK FIRST: If brand doesn't exist, redirect and STOP.
         if (!brand) {
-            return res.redirect('/admin/brands'); // 'return' is crucial here!
+            return res.redirect('/admin/brands');
         }
 
         // 4. Render ONLY if the brand exists (and hasn't redirected)
