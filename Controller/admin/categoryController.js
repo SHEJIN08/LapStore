@@ -58,6 +58,7 @@ const loadCategory = async (req, res) => {
 const addCategory = async (req, res) => {
     try {
         const { categoryName, description, isListed, orders } = req.body;
+      
 
         if (!categoryName) {
             return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: ResponseMessage.MISSING_FIELDS });

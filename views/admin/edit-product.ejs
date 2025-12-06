@@ -2,6 +2,8 @@
 <link rel="stylesheet" href="/css/admin/edit-product.css">
 
 <body>
+  
+
     
     <div class="product-main-content">
         <%- include('../partials/sidebar',{activePage: 'products' }) %>
@@ -38,7 +40,7 @@
                         </div>
 
                         <div class="form-card">
-                            <h3>Product Images</h3>
+                            <h3 >Product Images</h3>
                             
                             <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Current Images (Click X to remove)</p>
                             <div class="existing-images-grid" id="existingImagesContainer">
@@ -57,7 +59,7 @@
                                     <span>⬆️</span>
                                     <p>Add New Images</p>
                                     <label for="imageInput" class="upload-link">Browse Files</label>
-                                    <input id="imageInput" type="file" name="newImages" multiple hidden accept="image/*">
+                                    <input id="imageInput" type="file"  multiple hidden accept="image/*">
                                 </div>
                                 <div id="image-preview-container" class="image-preview-grid"></div>
                             </div>
@@ -66,7 +68,7 @@
                         <div class="form-card">
                             <h3>Manage Variants</h3>
                             
-                            <div class="variant-input-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr ; gap: 10px; margin-bottom: 20px;">
+                            <div id="var-id" class="variant-input-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr ; gap: 10px; margin-bottom: 20px;">
                                 <div><label>RAM</label><input type="text" id="v_ram" class="form-control"></div>
                                 <div><label>Storage</label><input type="text" id="v_storage" class="form-control"></div>
                                 <div><label>Color</label><input type="text" id="v_color" class="form-control"></div>
@@ -179,6 +181,8 @@
         let variants = JSON.parse('<%- JSON.stringify(variants || []) %>');
         let deletedImages = [];
         const productId = "<%= product._id %>";
+        const CLOUD_NAME = "<%= cloudinaryCloudName %>";
+        const CLOUDINARY_BASE_URL = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/`;
 
         // Cropper Variables
         let cropper;
@@ -223,6 +227,8 @@
                 renderPreviews();
             });
         }
+
+   
 
         function renderPreviews() {
             previewContainer.innerHTML = '';
@@ -307,7 +313,7 @@
             variants.forEach((v, index) => {
                 let imgSrc = '/assets/imgs/theme/upload.svg';
                 if (v.image) {
-                    imgSrc = v.image.startsWith('http') ? v.image : `/uploads/${v.image}`;
+                    imgSrc = v.image.startsWith('http') ? v.image : `${CLOUDINARY_BASE_URL}${v.image}`;
                 }
 
                 // 🟢 PRICE LOGIC START
@@ -358,8 +364,24 @@
             const price = document.getElementById('v_price').value; // MRP
             const stock = document.getElementById('v_stock').value;
             const graphics = document.getElementById('v_graphics').value;
+            const discount = document.getElementById('discount').value;
+      
+
+         
 
             if (!ram || !storage || !price || !stock || !graphics) return showToast('Fill all fields', 'error');
+            
+            if(price < 1){
+                return showToast('Price cannot be less than or equal 0')
+            }
+            if(stock < 0){
+                return showToast('Stock cannot be negative')
+            }
+            if(discount > price){
+                return showToast('Discount cannot be greater than  to price')
+            }
+            
+            
 
             // Push object with 'price' (MRP)
             variants.push({
@@ -373,6 +395,8 @@
             });
             
             renderVariants();
+            
+           
 
             // Clear inputs
             document.getElementById('v_ram').value = '';
@@ -382,7 +406,6 @@
             document.getElementById('v_stock').value = '';
             document.getElementById('v_graphics').value = '';
         }
-
         function removeVariant(index) {
             variants.splice(index, 1);
             renderVariants();
@@ -444,10 +467,32 @@
         // ==========================================
         // 6. MAIN FORM SUBMISSION
         // ==========================================
+        const eximages = document.querySelector('.existing-image-item')
         document.getElementById('editProductForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Stop the form from submitting
+
+           if (variants.length < 1) {
+               return  showToast('Please add at least one variant', 'error');
+            }
+           // ✅ NEW: Checks (Existing - Deleted) + New files
+// 1. Count existing images that are NOT hidden (not deleted)
+const existingCount = document.querySelectorAll('.existing-image-item:not([style*="display: none"])').length;
+
+// 2. Count new images waiting in the input
+const newCount = imageInput.files.length;
+
+// 3. Validate the sum
+const totalImages = existingCount + newCount;
+
+if (totalImages < 3) {
+    showToast(`You need at least 3 images. You currently have ${totalImages}.`, 'error');
+    btn.disabled = false;
+    btn.innerText = "Update Product";
+    return;
+}
+
             const btn = e.target.querySelector('.btn-save');
-            btn.disabled = true;
+            btn.disabled    = true;
             btn.innerText = "Updating...";
 
             const formData = new FormData(e.target);

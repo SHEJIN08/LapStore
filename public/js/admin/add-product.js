@@ -47,10 +47,17 @@
             showToast("Please fill all variant fields (RAM, Storage,  Stock, graphics)", 'error');
             return;
         }
-
-        if(globalDiscount > regularPrice){
+        if(regularPrice < 1){
+            return showToast('price cannot be negative','error')
+        }
+     
+        if(stock < 1){
+            return showToast('Stock cannot be negative', 'error')
+        }
+        if(globalDiscount > regularPrice || globalDiscount < 1){
             return showToast('Discount cannot be greater that or equal to the price','error')
         }
+        
 
         const salePrice = regularPrice - globalDiscount;
 

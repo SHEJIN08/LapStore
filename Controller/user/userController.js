@@ -8,44 +8,22 @@ import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 const loadHome = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; 
-    const limit = 8; 
-     const skip = (page - 1) * limit;
-
     const userId = req.session.user;
 
-    const categories = await Category.find({ isListed: true });
+    // 1. Fetch Data for "Popular Categories" Section
+    // We limit to 4. If you have a 'popularity' field, you can .sort({ popularity: -1 }) before limiting.
+    const categories = await Category.find({ isListed: true }).limit(4);
+    
+    // 2. Fetch Brands (Keep this if you have a "Our Brands" logo slider on the homepage)
     const brands = await Brand.find({ isBlocked: false });
 
-    // 1. Get Query Params (Adding 'brand' here)
-    const search = req.query.search || '';
-    const sortOption = req.query.sort || "featured";
-    const brandOption = req.query.brand || ''; 
+    // 3. Fetch "New Arrivals" (4 Recent Products)
+    // We still use aggregation to calculate the price and ensure the brand/category is active.
+    const products = await Product.aggregate([
+      // A. Match only published products
+      { $match: { isPublished: true } },
 
-    // 2. Define Initial Match Condition (Published + Search)
-    let matchCondition = { isPublished: true };
- 
-
-    if (search) {
-      matchCondition.$or = [
-        { name: { $regex: search, $options: "i" } }
-      ];
-    }
-
-    // 3. Define Sort Logic
-    let sortStage = { createdAt: -1 };
-    if (sortOption === "price-low") {
-      sortStage = { minPrice: 1 };
-    } else if (sortOption === "price-high") {
-      sortStage = { minPrice: -1 };
-    }
-
-   // Build the Aggregation Pipeline
-    const pipeline = [
-      // STAGE 1: Match
-      { $match: matchCondition },
-
-      // STAGE 2: Lookup Variants
+      // B. Lookup Variants to get Min Price
       {
         $lookup: {
           from: "variants",
@@ -54,15 +32,13 @@ const loadHome = async (req, res) => {
           as: "variants",
         },
       },
-
-      // STAGE 3: Calculate Min Price
       {
         $addFields: {
           minPrice: { $min: "$variants.salePrice" },
         },
       },
 
-      // STAGE 4: Lookup Brand
+      // C. Filter out Blocked Brands
       {
         $lookup: {
           from: 'brands',
@@ -72,15 +48,9 @@ const loadHome = async (req, res) => {
         }
       },
       { $unwind: { path: '$brandDetails', preserveNullAndEmptyArrays: true } },
+      { $match: { 'brandDetails.isBlocked': false } },
 
-      { $match: {'brandDetails.isBlocked': false}},
-
-      // STAGE 5: Filter by Brand Name (Dynamic)
-      ...(brandOption ? [{
-        $match: { "brandDetails.brandName": brandOption }
-      }] : []),
-
-      // STAGE 6: Lookup Category
+      // D. Filter out Unlisted Categories
       {
         $lookup: {
           from: "categories",
@@ -90,195 +60,24 @@ const loadHome = async (req, res) => {
         },
       },
       { $unwind: "$categoryDetails" },
+      { $match: { "categoryDetails.isListed": true } },
 
-      {
-        $match: {"categoryDetails.isListed": true }
-      },
+      // E. Sort by Newest & Limit to 4
+      { $sort: { createdAt: -1 } },
+      { $limit: 4 }
+    ]);
 
-      // STAGE 7: Sort
-      { $sort: sortStage },
-
-      // STAGE 8: FACET (The Pagination Magic)
-      {
-        $facet: {
-          // Sub-pipeline 1: Get the actual data
-          data: [
-            { $skip: skip },
-            { $limit: limit }
-          ],
-          // Sub-pipeline 2: Count the total matches
-          metadata: [
-            { $count: "total" }
-          ]
-        }
-      }
-    ];
-
-    // 6. Execute Aggregation
-    const result = await Product.aggregate(pipeline);
-
-    const products = result[0].data; 
-    const totalProducts = result[0].metadata[0] ? result[0].metadata[0].total : 0;
-    const totalPages = Math.ceil(totalProducts / limit);
-
+    // 4. Render Home
     res.render("user/home", {
       user: userId,
-      products: products,
-      categories: categories,
-      brands: brands,
-
-      currentPage: page,
-      totalPages: totalPages,
-
-      currentSort: sortOption,
-      currentBrand: brandOption, 
-      search: search
+      products: products,     // Just the 4 products
+      categories: categories, // Just the 4 categories
+      brands: brands,         // All brands (for logo slider)
     });
 
   } catch (error) {
     console.error("Home Load Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
-  }
-};
-const filterByCategory = async (req, res) => {
-   try {
-     const page = parseInt(req.query.page) || 1; 
-    const limit = 4; // Adjust this number to change items per page
-     const skip = (page - 1) * limit;
-    const slug = req.params.id; 
-    const userId = req.session.user;
-
-    
-    // 1. Get Sort Option
-    const sortOption = req.query.sort || "featured";
-    const brandOption = req.query.brand || '';  
-    const search = req.query.search || '';
-
-    // 2. Define Sort Stage
-    let sortStage = { createdAt: -1 }; // Default
-    if (sortOption === "price-low") {
-      sortStage = { minPrice: 1 };
-    } else if (sortOption === "price-high") {
-      sortStage = { minPrice: -1 };
-    }
-    
-    const currentCategory = await Category.findOne({ slug:slug, isListed: true });
-    if (!currentCategory) {
-        console.log("Category not found:", slug);
-        return res.status(StatusCode.NOT_FOUND).redirect('user/404');
-    }
-    
-    let matchCondition = { 
-      isPublished: true,
-      // You MUST convert the string ID to an ObjectId for aggregation
-      category: currentCategory._id
-    };
-    const brands = await Brand.find({ isBlocked: false })
-    const categories = await Category.find({isListed: true})
-
-   // Build the Aggregation Pipeline
-    const pipeline = [
-      // STAGE 1: Match
-      { $match: matchCondition },
-
-      // STAGE 2: Lookup Variants
-      {
-        $lookup: {
-          from: "variants",
-          localField: "_id",
-          foreignField: "productId",
-          as: "variants",
-        },
-      },
-
-      // STAGE 3: Calculate Min Price
-      {
-        $addFields: {
-          minPrice: { $min: "$variants.salePrice" },
-        },
-      },
-
-      // STAGE 4: Lookup Brand
-      {
-        $lookup: {
-          from: 'brands',
-          localField: 'brand',
-          foreignField: '_id',
-          as: 'brandDetails'
-        }
-      },
-      { $unwind: { path: '$brandDetails', preserveNullAndEmptyArrays: true } },
-
-      { $match: {'brandDetails.isBlocked': false}},
-
-      // STAGE 5: Filter by Brand Name (Dynamic)
-      ...(brandOption ? [{
-        $match: { "brandDetails.brandName": brandOption }
-      }] : []),
-
-      // STAGE 6: Lookup Category
-      {
-        $lookup: {
-          from: "categories",
-          localField: "category",
-          foreignField: "_id",
-          as: "categoryDetails",
-        },
-      },
-      { $unwind: "$categoryDetails" },
-      {
-        $match: {'categoryDetails.isListed': true}
-      },
-
-      // STAGE 7: Sort
-      { $sort: sortStage },
-
-      // STAGE 8: FACET (The Pagination Magic)
-      {
-        $facet: {
-          // Sub-pipeline 1: Get the actual data
-          data: [
-            { $skip: skip },
-            { $limit: limit }
-          ],
-          // Sub-pipeline 2: Count the total matches
-          metadata: [
-            { $count: "total" }
-          ]
-        }
-      }
-    ];
-
-    // 6. Execute Aggregation
-    const result = await Product.aggregate(pipeline);
-
-    const products = result[0].data; 
-    const totalProducts = result[0].metadata[0] ? result[0].metadata[0].total : 0;
-    const totalPages = Math.ceil(totalProducts / limit);
-
-
-    // 4. Render the Page
-    res.render("user/home", {
-      user: userId,
-      products: products,
-      categories: categories,
-      brands: brands,
-      
-      currentPage: page,
-      totalPages: totalPages,
-     
-      selectedCat: currentCategory.slug, 
-      currentSort: sortOption,
-      currentBrand: brandOption,
-      search: search,
-      
-      baseUrl: `/user/category/${slug}`
-    });
-
-  } catch (error) {
-    console.error("Category Filter Error:", error);
-   return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR
-    });
+    res.status(500).send("Server Error");
   }
 };
 
@@ -394,7 +193,7 @@ const detailedPage = async (req,res) => {
   const shopPage = async (req,res) => {
  try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 3; // Usually 9 for a 3x3 grid
+    const limit = 6; 
     const skip = (page - 1) * limit;
 
     const userId = req.session.user;
@@ -420,6 +219,7 @@ const detailedPage = async (req,res) => {
       ];
     }
 
+
     // 4. Define Sort Logic
     let sortStage = { createdAt: -1 }; // Default Newest
     if (sortOption === "price-low") {
@@ -428,10 +228,14 @@ const detailedPage = async (req,res) => {
       sortStage = { minPrice: -1 };
     } else if (sortOption === "a-z") {
       sortStage = { name: 1 };
+    }else if(sortOption === 'z-a'){
+      sortStage = { name: -1 }
     }
 
+
+
     // --- AGGREGATION PIPELINE ---
-    const pipeline = [
+    const pipeline = [    
       // STAGE 1: Match (Basic Filters)
       { $match: matchCondition },
 
@@ -496,7 +300,7 @@ const detailedPage = async (req,res) => {
       }] : []),
 
       // STAGE 9: Sort
-      { $sort: sortStage },
+      { $sort: sortStage},
 
       // STAGE 10: Facet (Pagination)
       {
@@ -512,6 +316,8 @@ const detailedPage = async (req,res) => {
       }
     ];
 
+    
+
     // 5. Execute Aggregation
     const result = await Product.aggregate(pipeline);
 
@@ -520,23 +326,31 @@ const detailedPage = async (req,res) => {
     const totalPages = Math.ceil(totalProducts / limit);
 
     // 6. Render
-    res.render("user/shop", {
-      user: userId,
-      products: products,
-      categories: categories, // For the Sidebar list
-      brands: brands,         // For the Sidebar list
-      
-      // Pass these back to maintain the state of filters in UI
-      currentPage: page,
-      totalPages: totalPages,
-      currentSort: sortOption,
-      currentBrand: brandOption,
-      selectedCat: categoryOption, // Matches the naming in your sidebar logic
-      search: search,
-      minPrice: req.query.minPrice, // For input fields
-      maxPrice: req.query.maxPrice  // For input fields
-    });
-
+  if (req.xhr) {
+        // AJAX Request -> Send Partial
+        return res.render("partials/shop-grid", {
+            products: products,
+            currentPage: page,
+            totalPages: totalPages,
+            currentSort: sortOption
+        });
+    } else {
+        // Normal Request -> Send Full Page
+        res.render("user/shop", {
+            user: userId,
+            products: products,
+            categories: categories,
+            brands: brands,
+            currentPage: page,
+            totalPages: totalPages,
+            selectedCat: categoryOption,
+            currentBrand: brandOption,
+            currentSort: sortOption,
+            search: search,
+            minPrice: minPrice,
+            maxPrice: maxPrice
+        });
+    }
   } catch (error) {
     console.error("Shop Load Error:", error);
     res.status(500).send("Server Error");
@@ -551,4 +365,4 @@ const logout = async (req, res) => {
         console.log(error.message);
     }
 }
-export default { loadHome, logout, filterByCategory, detailedPage, shopPage };
+export default { loadHome, logout,detailedPage, shopPage };

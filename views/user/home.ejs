@@ -31,7 +31,7 @@
                     <% if(categories && categories.length> 0) { %>
                         <% categories.forEach(cat=> { %>
 
-                            <a href="/user/category/<%= cat.slug %>"
+                            <a href="/user/home/shop?category/<%= cat.slug %>"
                                 class="cat-item <%= (typeof selectedCat !== 'undefined' && selectedCat.toString() === cat.slug.toString()) ? 'active' : '' %>">
                                 <%= cat.categoryName %>
                             </a>
@@ -44,39 +44,7 @@
         </nav>
 
         <main class="container main-content" id="products">
-            <div class="filter-bar">
-                <h2>Featured Laptops</h2>
-                <div class="filter-actions">
-                    <div class="dropdown">
-                        <label for="brandFilter">Brand:</label>
-                        <select id="brandFilter">
-                            <option value="" <%=typeof currentBrand==='undefined' ? 'selected' : '' %>>All Brands
-                            </option>
-                            <% if(typeof brands !==undefined && brands.length> 0){ %>
-                                <% brands.forEach(brand=> { %>
-                                    <option value="<%= brand.brandName %>" <%=typeof currentBrand !=='undefined' &&
-                                        currentBrand===brand.brandName ? 'selected' : '' %>>
-                                        <%= brand.brandName %>
-                                    </option>
-                                    <% }) %>
-                                        <% } %>
-                        </select>
-                    </div>
-                </div>
-                <div class="filter-actions">
-                    <div class="dropdown">
-                        <label for="sort">Sort by:</label>
-                        <select id="sort">
-                            <option value="featured" <%=currentSort==='featured' ? 'selected' : '' %>>Featured</option>
-                            <option value="price-low" <%=currentSort==='price-low' ? 'selected' : '' %>>Price: Low to
-                                High</option>
-                            <option value="price-high" <%=currentSort==='price-high' ? 'selected' : '' %>>Price: High to
-                                Low</option>
-                        </select>
-                    </div>
-
-                </div>
-            </div>
+            
 
             <section class="product-grid">
                 <% if(products.length> 0) { %>
@@ -115,31 +83,6 @@
                             <% } %>
 
             </section>
-
-            <nav class="pagination">
-                <% if (typeof totalPages !=='undefined' && totalPages> 1) { %>
-
-                    <% if (currentPage> 1) { %>
-                        <a href="#" class="pagination-link prev" data-page="<%= currentPage - 1 %>">
-                            <i class='bx bx-chevron-left'></i> Prev
-                        </a>
-                        <% } %>
-
-                            <% for(let i=1; i <=totalPages; i++) { %>
-                                <a href="#" class="pagination-link <%= currentPage === i ? 'active' : '' %>"
-                                    data-page="<%= i %>">
-                                    <%= i %>
-                                </a>
-                                <% } %>
-
-                                    <% if (currentPage < totalPages) { %>
-                                        <a href="#" class="pagination-link next" data-page="<%= currentPage + 1 %>">
-                                            Next <i class='bx bx-chevron-right'></i>
-                                        </a>
-                                        <% } %>
-
-                                            <% } %>
-            </nav>
         </main>
         <script>
 
@@ -153,57 +96,6 @@
                     style: { background: bgColor, borderRadius: '10px' }
                 }).showToast();
             };
-            document.addEventListener('DOMContentLoaded', () => {
-                const sortDropdown = document.getElementById('sort');
-                const brandDropdown = document.getElementById('brandFilter')
-                const paginationLinks = document.querySelectorAll('.pagination-link'); // Select all pagination links   
-
-
-                if (sortDropdown) {
-                    sortDropdown.addEventListener('change', (e) => {
-                        const selectedValue = e.target.value;
-                        let newUrl = window.location.pathname;
-
-                        // 1. Check if the value is 'featured' (default state)
-                        if (selectedValue === 'featured') {
-                            // Redirect without any query parameters
-                            window.location.href = newUrl;
-                        } else {
-                            // 2. Redirect with the new sort parameter
-                            // e.g., /user/home?sort=price-low
-                            window.location.href = newUrl + `?sort=${selectedValue}`;
-                        }
-                    });
-                }
-
-                if (brandDropdown) {
-                    brandDropdown.addEventListener('change', (e) => {
-                        const selectedValue = e.target.value;
-
-                        updateParams('brand', selectedValue);
-                    })
-                }
-
-                const updateParams = (key, value) => {
-                    const currentUrl = new URL(window.location.href);
-
-                    if (value && value !== 'featured') {
-                        currentUrl.searchParams.set(key, value)
-                    } else {
-                        currentUrl.searchParams.delete(key)
-                    }
-
-                    window.location.href = currentUrl.toString();
-                }
-
-                paginationLinks.forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault(); 
-                        const page = link.getAttribute('data-page');
-                        updateParams('page', page); 
-                    });
-                });
-            });
         </script>
 
         <%- include('../partials/footer') %>

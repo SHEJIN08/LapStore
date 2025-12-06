@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import dotenv from 'dotenv';
+dotenv.config();
 import Product from "../../model/productModel.js";
 import Variant from "../../model/variantModel.js";
 import Category from "../../model/categoryModel.js";
@@ -146,6 +148,7 @@ const addProduct = async (req, res) => {
         let salePrice = regularPrice - flatDiscount;
         if (salePrice < 0) salePrice = 0;
 
+        
         const newVariant = new Variant({
           productId: savedProduct._id,
           ram: variant.ram,
@@ -179,10 +182,14 @@ const addProduct = async (req, res) => {
 const loadEditProduct = async (req, res) => {
   try {
     const id = req.params.id;
+    const CLOUD_NAME =  process.env.CLOUDINARY_CLOUD_NAME;
 
     const product = await Product.findById(id);
     if (!product) {
       return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.PRODUCT_NOT_FOUND })
+    }
+    if(!CLOUD_NAME){
+      console.error('CLOUDINARY_CLOUD_NAME is not send')
     }
 
     let variants = await Variant.find({ productId: id });
@@ -212,7 +219,8 @@ const loadEditProduct = async (req, res) => {
       product: product,
       variants: variants,
       categories: categories,
-      brands: brands
+      brands: brands,
+      cloudinaryCloudName : CLOUD_NAME
     })
   } catch (err) {
     console.error("Error while loading edit page", err)

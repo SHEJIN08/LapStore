@@ -7,7 +7,7 @@
             <i class='bx bx-laptop'></i> LapStore
         </a>
 
-        <form action="<%= typeof user !== 'undefined' ? '/user/home/shop' : '/' %>" method="GET" class="search-bar">
+        <form action="/user/home/shop" method="GET" class="search-bar" onsubmit="handleSearch(event)">
             <input type="text" name="search" placeholder="Search for laptops..."
                 value="<%= typeof search !== 'undefined' ? search : '' %>">
             <button type="submit"><i class='bx bx-search'></i></button>
@@ -44,3 +44,23 @@
         </nav>
     </div>
 </header>
+<script>
+    function handleSearch(e) {
+        
+        const isShopPage = window.location.pathname.includes('/user/home/shop');
+
+        // 2. Check if the 'updateParams' function exists (defined in shop.ejs)
+        if (isShopPage && typeof updateParams === 'function') {
+            
+            e.preventDefault(); 
+            
+            // Get the value typed in the search box
+            const searchInput = e.target.querySelector('input[name="search"]');
+            const searchValue = searchInput.value;
+
+            // Use your existing Axios function to search while keeping filters!
+            updateParams('search', searchValue);
+        }
+        
+    }
+</script>
