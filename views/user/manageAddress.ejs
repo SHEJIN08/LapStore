@@ -1,5 +1,6 @@
 <%- include('../partials/header') %>
     <link rel="stylesheet" href="/css/user/manageAddress.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
     <body>
     <%- include('../partials/navbar') %>
@@ -14,53 +15,384 @@
                     </button>
                 </div>
     
-                <div class="address-list">
+               <div class="address-list">
+    <% if (addresses && addresses.length > 0) { %>
+        
+        <% addresses.forEach(addr => { %>
+            
+            <div id="card-<%= addr._id %>" class="address-card <%= addr.isDefault ? 'default-active' : '' %>">
+                <div class="address-header">
+                    <span class="address-type"><%= addr.addressType %></span>
                     
-                    <div class="address-card default-active">
-                        <div class="address-header">
-                            <span class="address-type">Home Address</span>
-                            <div class="address-actions">
-                                <button class="action-btn edit"><i class="fa-solid fa-pencil"></i></button>
-                                <button class="action-btn delete"><i class="fa-regular fa-trash-can"></i></button>
-                            </div>
-                        </div>
-                        <div class="address-body">
-                            <p>123 Market St, San Francisco, CA 94103</p>
-                        </div>
-                        <div class="address-footer">
-                            <label class="checkbox-container">
-                                <input type="checkbox" checked disabled>
-                                <span class="checkmark"></span>
-                                Set as default
-                            </label>
-                            <span class="default-badge">Default</span>
-                        </div>
+                    <div class="address-actions">
+                        <button class="action-btn edit" onclick="editAddress('<%= addr._id %>')">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteAddress('<%= addr._id %>')">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
                     </div>
-    
-                    <div class="address-card">
-                        <div class="address-header">
-                            <span class="address-type">Work Address</span>
-                            <div class="address-actions">
-                                <button class="action-btn edit"><i class="fa-solid fa-pencil"></i></button>
-                                <button class="action-btn delete"><i class="fa-regular fa-trash-can"></i></button>
-                            </div>
-                        </div>
-                        <div class="address-body">
-                            <p>456 Tech Park Ave, Silicon Valley, CA 94043</p>
-                        </div>
-                        <div class="address-footer">
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Set as default
-                            </label>
-                        </div>
-                    </div>
-    
                 </div>
+
+                <div class="address-body">
+                    <p style="font-weight: 600; margin-bottom: 5px;"><%= addr.fullName %> &nbsp; <span style="font-weight: 400; font-size: 0.9em; color: #666;"><%= addr.phone %></span></p>
+                    
+                    <p>
+                        <%= addr.address1 %><%= addr.address2 ? ', ' + addr.address2 : '' %>, <br>
+                        <%= addr.city %>, <%= addr.state %> - <strong><%= addr.pincode %></strong>
+                    </p>
+                </div>
+
+                <div class="address-footer">
+                    <% if (addr.isDefault) { %>
+                        <label class="checkbox-container">
+                            <input type="checkbox" checked disabled>
+                            <span class="checkmark"></span>
+                            Default Address
+                        </label>
+                        <span class="default-badge">Default</span>
+                    <% } else { %>
+                         <button class="set-default-btn" onclick="setAsDefault('<%= addr._id %>')" >
+                            Set as Default
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+
+        <% }) %> <% } else { %>
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <i class="fa-solid fa-map-location-dot" style="font-size: 40px; margin-bottom: 10px; color: #ddd;"></i>
+            <p>No addresses found. Add a new one!</p>
+        </div>
+    <% } %>
+</div>
             </main>
     
         </div>
 
     </div>
+    <div id="addAddressModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Add a new address</h3>
+        
+        <form id="addAddressForm" novalidate>
+            <div class="form-group">
+                <input type="text" name="addressType" placeholder="Address type choose one from this [Home, Work, other]" required>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="name" placeholder="Full Name" required>
+            </div>
+
+            <div class="form-group">
+                <input type="tel" name="phone" placeholder="Phone" required>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="addressLine1" placeholder="Address Line 1" required>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="addressLine2" placeholder="Address Line 2 (Optional)">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half">
+                    <input type="text" name="city" placeholder="City" required>
+                </div>
+                <div class="form-group half">
+                    <input type="text" name="state" placeholder="State" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="pincode" placeholder="Pincode" required>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeAddressModal()">Cancel</button>
+                <button type="submit" class="btn-save">Save Address</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit address -->
+
+<div id="editAddressModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Add a new address</h3>
+        
+        <form id="editAddressForm" novalidate>
+            <div class="form-group">
+                <input type="text" name="addressType" placeholder="Address type choose one from this [Home, Work, other]" required>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="name" placeholder="Full Name" required>
+            </div>
+
+            <div class="form-group">
+                <input type="tel" name="phone" placeholder="Phone" required>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="addressLine1" placeholder="Address Line 1" required>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="addressLine2" placeholder="Address Line 2 (Optional)">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half">
+                    <input type="text" name="city" placeholder="City" required>
+                </div>
+                <div class="form-group half">
+                    <input type="text" name="state" placeholder="State" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="pincode" placeholder="Pincode" required>
+            </div>
+
+            <div class="modal-actions">
+               <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn-save">Save Address</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+  <script src="/js/axios.min.js"></script>
+
+<script>
+     const showToast = (message, type) => {
+        const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: { background: bgColor, borderRadius: '10px' }
+        }).showToast();
+    };
+
+    const addressModal = document.getElementById('addAddressModal');
+    const openBtn = document.querySelector('.add-address-btn');
+
+    openBtn.addEventListener('click', () => {
+        addressModal.classList.add('active');
+    });
+
+    function closeAddressModal() {
+        addressModal.classList.remove('active');
+    }
+
+    // Close if clicked outside the white box
+    window.onclick = function(event) {
+        if (event.target == addressModal) {
+            closeAddressModal();
+        }
+    }
+  document.getElementById('addAddressForm').addEventListener('submit', async function(e) {
+    e.preventDefault(); // 1. Stop the page from reloading
+
+    // 2. Gather the form data automatically
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    // 3. Send using Axios
+    try {
+        const response = await axios.post('/user/home/manageAddress/add', data);
+
+        if (response.data.success) {
+            
+            showToast('Address added successfully!','success');
+            
+            window.location.reload(); 
+        } else {
+            showToast('Failed to add address: ' + response.data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+      const errMsg = error.response?.data?.message || "Something went wrong";
+      showToast(errMsg, "error");
+    }
+});
+
+const editModal = document.getElementById('editAddressModal');
+const editForm = document.getElementById('editAddressForm');
+
+// 1. Function called when clicking the "Pencil" icon
+async function editAddress(addressId) {
+    try {
+        // Reset the form first
+        editForm.reset();
+
+        // Fetch current address data from server
+        const response = await axios.get(`/user/home/manageAddress/get/${addressId}`);
+
+        if (response.data.success) {
+            const addr = response.data.address;
+
+            // Populate the inputs with existing data
+            editForm.addressType.value = addr.addressType;
+            editForm.name.value = addr.fullName;
+            editForm.phone.value = addr.phone;
+            editForm.addressLine1.value = addr.address1;
+            editForm.addressLine2.value = addr.address2 || '';
+            editForm.city.value = addr.city;
+            editForm.state.value = addr.state;
+            editForm.pincode.value = addr.pincode;
+
+            // Store the ID in the form dataset so we know which one to update later
+            editForm.dataset.id = addressId;
+
+            // Open the Modal
+            editModal.classList.add('active');
+        } else {
+            showToast('Could not fetch address details', 'error');
+        }
+    } catch (error) {
+        console.error(error);
+        showToast('Error fetching address data', 'error');
+    }
+}
+
+// 2. Handle "Save Address" click in Edit Modal
+editForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Get the ID we stored earlier
+    const addressId = this.dataset.id;
+    if (!addressId) return;
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await axios.put(`/user/home/manageAddress/edit/${addressId}`, data);
+
+        if (response.data.success) {
+            showToast('Address updated successfully!', 'success');
+            
+            // Reload to show changes
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showToast(response.data.message, 'error');
+        }
+    } catch (error) {
+        console.error(error);
+        showToast('Failed to update address', 'error');
+    }
+});
+
+// 3. Close Edit Modal Logic
+function closeEditModal() {
+    editModal.classList.remove('active');
+}
+
+window.addEventListener('click', (event) => {
+    if (event.target === addressModal) closeAddressModal();
+    if (event.target === editModal) closeEditModal();
+});
+
+
+async function setAsDefault(newAddressId) {
+    try {
+        const response = await axios.put(`/user/home/manageAddress/set-default/${newAddressId}`);
+
+        if (response.data.success) {
+            showToast('Default address updated!', 'success');
+
+            // --- 1. FIND THE OLD DEFAULT CARD ---
+            const oldCard = document.querySelector('.address-card.default-active');
+            if (oldCard) {
+                // Remove the green border class
+                oldCard.classList.remove('default-active');
+                
+                // Get the footer of the old card
+                const oldFooter = oldCard.querySelector('.address-footer');
+                
+                // Get the ID of this old card to restore the button correctly
+                const oldId = oldCard.id.replace('card-', '');
+
+                // Change HTML: Remove "Default" badge, Add "Set as Default" button
+                oldFooter.innerHTML = `
+                    <button class="set-default-btn" onclick="setAsDefault('${oldId}')">
+                        Set as Default
+                    </button>
+                `;
+            }
+
+            // --- 2. UPDATE THE NEW DEFAULT CARD ---
+            const newCard = document.getElementById(`card-${newAddressId}`);
+            if (newCard) {
+                // Add the green border class
+                newCard.classList.add('default-active');
+
+                // Get the footer of the new card
+                const newFooter = newCard.querySelector('.address-footer');
+
+                // Change HTML: Remove Button, Add "Default" badge
+                newFooter.innerHTML = `
+                    <label class="checkbox-container">
+                        <input type="checkbox" checked disabled>
+                        <span class="checkmark"></span>
+                        Default Address
+                    </label>
+                    <span class="default-badge">Default</span>
+                `;
+            }
+
+        } else {
+            showToast(response.data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Something went wrong', 'error');
+    }
+}
+
+async function deleteAddress(addressId) {
+    // 1. Show Confirmation Popup
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6', // Your blue color
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    });
+
+    // 2. If user clicked "Yes"
+    if (result.isConfirmed) {
+        try {
+            const response = await axios.delete(`/user/home/manageAddress/delete/${addressId}`);
+
+            if (response.data.success) {
+                // Show Success Message
+                await Swal.fire(
+                    'Deleted!',
+                    'Your address has been deleted.',
+                    'success'
+                );
+                // Reload Page
+                window.location.reload();
+            } else {
+                showToast(response.data.message, 'error');
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Failed to delete address', 'error');
+        }
+    }
+}
+</script>
 <%- include('../partials/footer') %>

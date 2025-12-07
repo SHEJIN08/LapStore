@@ -30,22 +30,7 @@ const loadProfile = async (req, res) => {
   }
 };
 
-const manageAddress = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const user = await User.findById(userId);
 
-    if (!user) {
-      res.redirect("/user/login");
-    }
-
-    res.render("user/manageAddress", {
-      user: user,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-};
 
 const changePassword = async (req, res) => {
   try {
@@ -112,7 +97,7 @@ const editInfo = async (req, res) => {
     const currentUser = await User.findById(userId);
 
     if (!currentUser) {
-      return res.status(StatusCode.NOT_FOUND).json({ success: false, message: "User not found" });
+      return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.USER_NOT_FOUND });
     }
 
     // --- CASE 1: Email is the SAME (Only updating Name) ---
@@ -138,7 +123,7 @@ const editInfo = async (req, res) => {
     // Check if new email is taken by someone else
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
-      return res.json({ success: false, message: "Email already exists" });
+      return res.json({ success: false, message: ResponseMessage.DUP_EMAIL });
     }
 
     // Generate & Send OTP
@@ -184,4 +169,26 @@ const editInfo = async (req, res) => {
       .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
-export default { loadProfile, manageAddress, changePassword , editInfo};
+
+const updateProfilePic = async (req,res) => {
+  try {
+    if(!req.file){
+      return res.status(StatusCode.NOT_FOUND).json({success: false, message: "No file uploaded or file format not supported."})
+    }
+   
+
+    const imageUrl = req.file.secure_url;
+
+    await User.findByIdAndUpdate(req.session.user, {
+      avatar: imageUrl
+    })
+
+
+    res.redirect('/user/home/profile')
+
+  } catch (error) {
+    console.error(error)
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR})
+  }
+}
+export default { loadProfile, changePassword , editInfo, updateProfilePic};

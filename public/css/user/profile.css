@@ -35,6 +35,7 @@ a {
     display: flex;
     gap: 30px;
     padding: 0 20px;
+    
 }
 
 /* Reusable Card Style */
@@ -49,7 +50,7 @@ a {
 /* --- Main Content Area --- */
 .content {
     flex: 1;
-    padding: 40px;
+    /* padding: 40px; */
 }
 
 .content-header {

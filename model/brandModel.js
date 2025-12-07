@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const brandschema = new mongoose.Schema({
     brandName: {type: String, require: true, unique: true},
     brandImage: {
-        type: [String], // Storing as array to allow flexibility, though we upload 1
+        type: [String], 
         required: true
     },
     description: {type: String, required: true},

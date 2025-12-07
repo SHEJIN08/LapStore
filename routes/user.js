@@ -5,6 +5,8 @@ import authController from '../Controller/user/authController.js'
 import userController from '../Controller/user/userController.js';
 import { verifyOtp } from "../Controller/user/otpController.js";
 import profileController from '../Controller/user/profileController.js';
+import addressController from '../Controller/user/addressController.js';
+import upload from '../middleware/multer.js'
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
 router.post('/register',authController.registerUser)
@@ -28,10 +30,17 @@ router.get('/product/:id',userAuth.isUserBlocked, userController.detailedPage)
 router.get('/home/shop', userController.shopPage)
 
 router.get('/home/profile',userAuth.checkSession ,profileController.loadProfile)
+router.post('/home/profile/upload-profile-pic', upload.single('avatar'), profileController.updateProfilePic)
 router.put('/home/profile/change-password',profileController.changePassword)
 router.put('/home/profile/edit-info', profileController.editInfo)
 router.post('/home/profile/verify-update-otp',verifyOtp)
-router.get('/home/manageAddress',userAuth.checkSession,profileController.manageAddress)
+
+router.get('/home/manageAddress',userAuth.checkSession,addressController.loadAddress)
+router.post('/home/manageAddress/add',addressController.addAddress)
+router.put('/home/manageAddress/set-default/:addressId', addressController.setDefaultAddress);
+router.get("/home/manageAddress/get/:addressId", addressController.getAddressDetails);
+router.put("/home/manageAddress/edit/:addressId", addressController.editAddress);
+router.delete("/home/manageAddress/delete/:addressId", addressController.deleteAddress);
 
 router.get('/logout',userController.logout);
 
