@@ -76,6 +76,40 @@ export const verifyOtp = async (req, res) => {
       });
     }
 
+    // CASE C: Profile Update Verification (NEW ADDITION)
+    if (req.session.otpPurpose === "profile-update") {
+
+        // 1. Retrieve the temp data we stored in the previous step
+        const { newName, newEmail } = req.session.tempUpdateData;
+        
+        const userId = req.session.user._id || req.session.user;
+        // 2. Update the actual User Database
+        // We use the ID from the logged-in session to be safe
+        const updatedUser = await userSchema.findByIdAndUpdate(
+            userId, 
+            { 
+                name: newName, 
+                email: newEmail 
+            },
+            { new: true }
+        );
+
+        // 3. Update the ACTIVE session so the UI updates immediately
+        req.session.user = updatedUser._id;
+
+        // 4. Cleanup session flags
+        req.session.otpPurpose = null;
+        delete req.session.tempUpdateData; // Remove the temp data
+        
+        // Note: We don't nullify req.session.email here because the user is still logged in
+
+        return res.status(StatusCode.OK).json({
+            success: true,
+            message: "Profile updated successfully",
+            // No redirect URL needed if you just want to reload the page or show a toast
+        });
+    }
+
   } catch (err) {
     console.error("OTP Error:", err);
     return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ 

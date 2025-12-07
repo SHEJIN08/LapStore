@@ -1,0 +1,31 @@
+ <link rel="stylesheet" href="/css/user/profileSidebar.css">
+ <aside class="sidebar card">
+            <div class="user-summary">
+                <img src="/images/user/defaultUser.jpg" alt="Profile Picture">
+                <div class="user-details">
+                    <h3><%= user.name %></h3>
+                    <span><%= user.email %></span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu    ">
+                <a href="/user/home/profile" class="menu-item <%= (active === 'personalPage')? 'active' : ''   %>">
+                    <i class="fa-regular fa-user"></i> Personal Information
+                </a>
+                <a href="/user/home/manageAddress" class="menu-item <%= (active === 'addressPage')? 'active' : ''   %>">
+                    <i class="fa-solid fa-location-dot"></i> Manage Address
+                </a>
+                <a href="#" class="menu-item <%= (active === 'ordersPage')? 'active' : ''  %>">
+                    <i class="fa-regular fa-file-lines"></i> My Orders
+                </a>
+                <a href="#" class="menu-item <%= (active === 'walletPage')? 'active' : ''  %>">
+                    <i class="fa-solid fa-wallet"></i> My Wallet
+                </a>
+                <a href="#" class="menu-item <%= (active === 'referPage')? 'active' : ''  %>">
+                    <i class="fa-solid fa-gift"></i> Refer & Earn
+                </a>
+                <a href="#" class="menu-item logout <%= (active === 'logoutPage')? 'active' : ''  %>">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </nav>
+        </aside>

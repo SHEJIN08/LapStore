@@ -4,6 +4,7 @@ import userAuth from '../middleware/userAuth.js';
 import authController from '../Controller/user/authController.js'
 import userController from '../Controller/user/userController.js';
 import { verifyOtp } from "../Controller/user/otpController.js";
+import profileController from '../Controller/user/profileController.js';
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
 router.post('/register',authController.registerUser)
@@ -26,6 +27,12 @@ router.get('/home',userAuth.isUserBlocked,userController.loadHome)
 router.get('/product/:id',userAuth.isUserBlocked, userController.detailedPage)
 router.get('/home/shop', userController.shopPage)
 
-router.get('/logout', userController.logout);
+router.get('/home/profile',userAuth.checkSession ,profileController.loadProfile)
+router.put('/home/profile/change-password',profileController.changePassword)
+router.put('/home/profile/edit-info', profileController.editInfo)
+router.post('/home/profile/verify-update-otp',verifyOtp)
+router.get('/home/manageAddress',userAuth.checkSession,profileController.manageAddress)
+
+router.get('/logout',userController.logout);
 
 export default router;

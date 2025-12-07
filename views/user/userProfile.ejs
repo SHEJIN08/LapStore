@@ -1,0 +1,333 @@
+<%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/user/profile.css">
+
+    <body>
+        <%- include('../partials/navbar') %>
+
+            <div class="main-container">
+                <%- include('../partials/profileSidebar', {active: 'personalPage' }) %>
+
+                    <main class="content card">
+                        <div class="content-header">
+                            <h2>Personal Information</h2>
+                            <button class="edit-btn" id="openEditModalBtn">Edit Info</button>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-row">
+                                <span class="label">Full Name</span>
+                                <span class="value" id="display-name">
+                                    <%= user.name %>
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Email Address</span>
+                                <span class="value" id="display-email">
+                                    <%= user.email %>
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Password</span>
+                                <span class="value" id="display-password">..........</span>
+                                <span><img src="/images/admin/icons/edit-btn.png" alt="" id="editPassword"
+                                        style="margin-left: 5rem; width: 20px; height: 20px;"></span>
+                            </div>
+
+                        </div>
+                    </main>
+            </div>
+
+            <div id="editProfileModal" class="modal-overlay" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Edit Personal Info</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="editForm">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="editName" name="name" value="<%= user.name %>">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="editEmail" name="email" value="<%= user.email %>">
+                            </div>
+                            <button type="submit" class="btn-save" id="updateBtn">Update Changes</button>
+                        </form>
+
+                        <div id="otpSection" style="display: none; margin-top: 20px;">
+                            <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                                Security Check: We sent an OTP to your new contact details.
+                            </p>
+                            <div class="form-group">
+                                <input type="text" id="otpInput" placeholder="Enter 6-digit OTP">
+                            </div>
+                            <button type="button" class="btn-save" id="verifyOtpBtn">Verify & Save</button>
+                            <p id="otpTimer" style="font-size: 12px; margin-top: 10px; color: #888;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="editPasswordModal" class="modal-overlay" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Edit password</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <form id="EditPassword">
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="text" id="password" name="password" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="text" id="newPassword" name="newPassword" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input type="text" id="confirmNewPassword" name="confirmNewPassword" value="">
+                            </div>
+                            <button type="submit" class="btn-save">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <%- include('../partials/footer') %>
+
+                <script src="/js/axios.min.js"></script>
+
+
+             <script>
+    // --- 1. SETUP VARIABLES ---
+
+    // Original Profile Data
+    const originalData = {
+        name: "<%= user.name %>",
+        email: "<%= user.email %>",
+    };
+
+    // Profile Modal Elements
+    const profileModal = document.getElementById('editProfileModal');
+    const openProfileBtn = document.getElementById('openEditModalBtn');
+    const closeProfileBtn = document.querySelector('.close-modal');
+
+    // Password Modal Elements
+    const passModal = document.getElementById('editPasswordModal');
+    const passBtn = document.getElementById('editPassword'); 
+    const passClose = passModal.querySelector('.close-modal');
+    const passForm = document.getElementById('EditPassword');
+
+    // General Elements
+    const editForm = document.getElementById('editForm');
+    const otpSection = document.getElementById('otpSection');
+    const updateBtn = document.getElementById('updateBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const otpTimerDisplay = document.getElementById('otpTimer');
+    let timerInterval; // To handle the countdown
+
+    // --- 2. OPEN/CLOSE LOGIC ---
+
+    // Open Profile Modal
+    openProfileBtn.onclick = () => {
+        document.getElementById('editName').value = originalData.name;
+        document.getElementById('editEmail').value = originalData.email;
+        profileModal.style.display = "flex";
+    };
+
+    // Close Profile Modal (X button)
+    closeProfileBtn.onclick = () => {
+        profileModal.style.display = "none";
+        resetModal();
+    };
+
+    // Open Password Modal
+    passBtn.addEventListener('click', () => {
+        passModal.style.display = "flex";
+    });
+
+    // Close Password Modal (X button)
+    passClose.addEventListener('click', () => {
+        passModal.style.display = "none";
+        passForm.reset();
+    });
+
+    // --- 3. WINDOW CLICK (CLOSE OUTSIDE) ---
+    window.onclick = (e) => {
+        if (e.target === profileModal) {
+            profileModal.style.display = "none";
+            resetModal();
+        }
+        if (e.target === passModal) {
+            passModal.style.display = "none";
+            passForm.reset();
+        }
+    };
+
+    // --- 4. HELPER FUNCTIONS ---
+    function resetModal() {
+        editForm.style.display = "block";
+        otpSection.style.display = "none";
+        clearInterval(timerInterval);
+        otpTimerDisplay.textContent = "";
+        document.getElementById('editName').value = originalData.name;
+        document.getElementById('editEmail').value = originalData.email;
+    }
+
+    function startOtpTimer(duration) {
+        let timer = duration;
+        clearInterval(timerInterval);
+        
+        timerInterval = setInterval(function () {
+            let minutes = parseInt(timer / 60, 10);
+            let seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            otpTimerDisplay.textContent = `Resend OTP in ${minutes}:${seconds}`;
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                otpTimerDisplay.textContent = "OTP Expired. Please try again.";
+            }
+        }, 1000);
+    }
+
+    // --- 5. FORM SUBMISSIONS ---
+
+    // Profile Edit Submission (FILLED IN)
+   editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const newName = document.getElementById('editName').value.trim();
+        const newEmail = document.getElementById('editEmail').value.trim();
+
+        if (!newName || !newEmail) {
+            return showToast("Name and Email are required", "error");
+        }
+        
+        // Disable button
+        updateBtn.disabled = true;
+        updateBtn.innerText = "Processing...";
+
+        try {
+            const res = await axios.put('/user/home/profile/edit-info', {
+                name: newName,
+                email: newEmail
+            });
+
+            if (res.data.success) {
+                // CHECK: Do we need OTP?
+                if (res.data.otpRequired) {
+                    // YES -> Show OTP Modal
+                    showToast(res.data.message, "success");
+                    editForm.style.display = "none";
+                    otpSection.style.display = "block";
+                    startOtpTimer(60); 
+                } else {
+                    // NO -> It was just a name change. Done.
+                    showToast(res.data.message, "success");
+                    setTimeout(() => location.reload(), 1000);
+                }
+            } else {
+                showToast(res.data.message || "Update failed", "error");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast(err.response?.data?.message || "Something went wrong", "error");
+        } finally {
+            updateBtn.disabled = false;
+            updateBtn.innerText = "Update Changes";
+        }
+    });
+
+    // Password Edit Submission
+    passForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const currentPassword = document.getElementById('password').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+        // Validation
+        if (newPassword !== confirmNewPassword) {
+            showToast("New passwords do not match", "error");
+            return;
+        }
+        if (newPassword.length === 0) {
+            showToast('Please fill the form before update', 'error');
+            return;
+        }
+        if (newPassword.length < 6) {
+            showToast("Password must be at least 6 characters", "error");
+            return;
+        }
+
+        try {
+            const res = await axios.put('/user/home/profile/change-password', {
+                currentPassword,
+                newPassword
+            });
+
+            if (res.data.success) {
+                showToast("Password changed successfully!", "success");
+                passModal.style.display = "none";
+                passForm.reset();
+            } else {
+                showToast(res.data.message, "error");
+            }
+        } catch (err) {
+            console.error(err);
+            const errorMsg = err.response?.data?.message || "Failed to update password";
+            showToast(errorMsg, "error");
+        }
+    });
+
+    // OTP Verification Logic
+    verifyOtpBtn.addEventListener('click', async () => {
+        const otp = document.getElementById('otpInput').value;
+        const newName = document.getElementById('editName').value;
+        const newEmail = document.getElementById('editEmail').value;
+        
+        // Removed 'phone' because it is not in your HTML form
+        
+        if(!otp) return showToast("Please enter OTP", "error");
+
+        try {
+            const res = await axios.post('/user/home/profile/verify-update-otp', {
+                otp, 
+                name: newName, 
+                email: newEmail
+            });
+
+            if (res.data.success) {
+                showToast("Profile Updated Successfully!", "success");
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(res.data.message || "Invalid OTP", "error");
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("Verification failed", "error");
+        }
+    });
+
+    // Toast Notification Helper
+    function showToast(msg, type) {
+        Toastify({
+            text: msg,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: { 
+                background: type === "success" ? "#28a745" : "#dc3545", 
+                borderRadius: "10px" 
+            }
+        }).showToast();
+    }
+</script>

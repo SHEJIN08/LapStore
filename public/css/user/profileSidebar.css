@@ -1,0 +1,66 @@
+/* --- Sidebar --- */
+.sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    height: fit-content;
+    padding: 30px 20px;
+}
+
+.user-summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.user-summary img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #FFEDD5; /* Light orange bg from image */
+}
+
+.user-details h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.user-details span {
+    font-size: 12px;
+    color: var(--text-gray);
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: var(--text-gray);
+    font-weight: 500;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.menu-item i {
+    width: 20px;
+}
+
+.menu-item:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-blue);
+}
+
+/* Active State matches the image */
+.menu-item.active {
+    background-color: var(--light-blue-bg);
+    color: var(--primary-blue);
+}

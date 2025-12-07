@@ -12,6 +12,7 @@ export const ResponseMessage = {
     // Success
     SUCCESS: "Operation successful",
     CREATED: "Resource created successfully",
+    NEW_PASS: 'Password updated successfully',
     
     // Auth Errors
      REG_SUCCESS: "Registeration successful",

@@ -1,0 +1,224 @@
+/* --- Global Reset & Variables --- */
+:root {
+    --primary-blue: #3B82F6;       /* Primary Color */
+    --primary-hover: #2563eb;      /* Darker Blue for hover */
+    --light-blue-bg: #E0E7FF;      /* Sidebar active background */
+    --bg-gray: #F9FAFB;            /* Page background */
+    --text-dark: #1F2937;
+    --text-gray: #6B7280;
+    --border-color: #E5E7EB;
+    --white: #ffffff;
+    --danger-red: #EF4444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--bg-gray);
+    color: var(--text-dark);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* --- Layout Container --- */
+.main-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    display: flex;
+    gap: 30px;
+    padding: 0 20px;
+    align-items: flex-start;
+}
+
+.card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    padding: 20px;
+}
+
+
+
+/* --- Main Content Area: Manage Address --- */
+.content {
+    flex: 1;
+    padding: 40px;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.content-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* Add Button */
+.add-address-btn {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.add-address-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Address Grid */
+.address-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Address Card Styles */
+.address-card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px 25px;
+    background-color: var(--white);
+    transition: all 0.2s ease;
+}
+
+/* Active State (Blue Border) */
+.address-card.default-active {
+    border: 1.5px solid var(--primary-blue);
+    background-color: #F8FAFC;
+}
+
+.address-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.address-type {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+.address-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--text-gray);
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.2s;
+    padding: 4px;
+}
+
+.action-btn:hover {
+    color: var(--primary-blue);
+}
+
+.action-btn.delete:hover {
+    color: var(--danger-red);
+}
+
+.address-body p {
+    color: #4B5563;
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.address-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 15px;
+}
+
+/* Checkbox Styling */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #4B5563;
+    cursor: pointer;
+   
+}
+
+.checkbox-container input {
+    accent-color: var(--primary-blue);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Default Badge */
+.default-badge {
+    background-color: #DBEAFE; /* Light Blue */
+    color: #1D4ED8; /* Dark Blue Text */
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 900px) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+    }
+
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .add-address-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .content {
+        padding: 20px;
+    }
+}

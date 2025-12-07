@@ -1,0 +1,66 @@
+<%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/user/manageAddress.css">
+  
+    <body>
+    <%- include('../partials/navbar') %>
+    <div class="main-container">
+        <%- include('../partials/profileSidebar', {active: 'addressPage'}) %>
+        
+        <main class="content card">
+                <div class="content-header">
+                    <h2>Manage Address</h2>
+                    <button class="add-address-btn">
+                        <i class="fa-solid fa-plus"></i> Add New Address
+                    </button>
+                </div>
+    
+                <div class="address-list">
+                    
+                    <div class="address-card default-active">
+                        <div class="address-header">
+                            <span class="address-type">Home Address</span>
+                            <div class="address-actions">
+                                <button class="action-btn edit"><i class="fa-solid fa-pencil"></i></button>
+                                <button class="action-btn delete"><i class="fa-regular fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                        <div class="address-body">
+                            <p>123 Market St, San Francisco, CA 94103</p>
+                        </div>
+                        <div class="address-footer">
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked disabled>
+                                <span class="checkmark"></span>
+                                Set as default
+                            </label>
+                            <span class="default-badge">Default</span>
+                        </div>
+                    </div>
+    
+                    <div class="address-card">
+                        <div class="address-header">
+                            <span class="address-type">Work Address</span>
+                            <div class="address-actions">
+                                <button class="action-btn edit"><i class="fa-solid fa-pencil"></i></button>
+                                <button class="action-btn delete"><i class="fa-regular fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                        <div class="address-body">
+                            <p>456 Tech Park Ave, Silicon Valley, CA 94043</p>
+                        </div>
+                        <div class="address-footer">
+                            <label class="checkbox-container">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Set as default
+                            </label>
+                        </div>
+                    </div>
+    
+                </div>
+            </main>
+    
+        </div>
+
+    </div>
+<%- include('../partials/footer') %>
