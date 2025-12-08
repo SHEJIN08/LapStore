@@ -302,5 +302,64 @@
             }
         }
     }
+
+    const showToast = (message, type = 'success') => {
+        const bgColor = type === 'success' ? "#28a745" : "#dc3545"; 
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top", 
+            position: "right", 
+            style: { background: bgColor, borderRadius: "8px" }
+        }).showToast();
+    };
+
+    // --- ADD TO CART FUNCTION ---
+    async function addToCart() {
+        try {
+            // 1. Get Product ID (Injected by EJS)
+            const productId = '<%= product._id %>'; 
+
+            // 2. Get Selected Variant ID
+            // We look for the radio button that is currently checked
+            const selectedVariant = document.querySelector('input[name="variant"]:checked');
+            
+            if (!selectedVariant) {
+                showToast("Please select a configuration option", "error");
+                return;
+            }
+            
+            const variantId = selectedVariant.value;
+
+            // 3. Send Request to Server
+            // We send quantity: 1 because there is no quantity input on this page
+            const response = await axios.post('/user/home/cart/add', {
+                productId: productId,
+                variantId: variantId,
+                quantity: 1 
+            });
+
+            // 4. Handle Response
+            if (response.data.success) {
+                showToast("Item added to cart successfully!", "success");
+                
+            } else {
+                showToast(response.data.message, "error");
+            }
+
+        } catch (error) {
+            console.error(error);
+           if (error.response && error.response.status === 401) {
+                showToast("Please login to add items to cart", "error");
+                setTimeout(() => {
+                    window.location.href = '/user/login'
+                },2000)
+             
+            } else {
+                // Handle other errors (like 500 Server Error)
+                showToast("Failed to add to cart", "error");
+            }
+        }
+    }
 </script>
     </body>

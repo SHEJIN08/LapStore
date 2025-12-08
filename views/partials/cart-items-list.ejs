@@ -1,0 +1,33 @@
+<% if (!cartItems || cartItems.length === 0) { %>
+    <div style="text-align: center; padding: 50px; background: white; border-radius: 12px;">
+        <i class="fa-solid fa-cart-shopping" style="font-size: 50px; color: #ddd; margin-bottom: 20px;"></i>
+        <h3>Your cart is empty</h3>
+        <a href="/user/home" class="checkout-btn" style="display: inline-block; width: auto; text-decoration: none; margin-top: 20px;">Start Shopping</a>
+    </div>
+<% } else { %>
+    <% cartItems.forEach(item => { %>
+        <div class="cart-card">
+            <div class="card-content">
+                <div class="img-wrapper">
+                    <img src="<%= item.variantId.image %>" alt="Product" onerror="this.src='https://placehold.co/120x120?text=No+Image'">
+                </div>
+                <div class="item-details">
+                    <span class="brand"><%= item.productId.brand?.brandName || 'Generic' %></span>
+                    <h3 class="product-name"><%= item.productId.name %></h3>
+                    <p class="specs">
+                        <%= item.variantId.color %> | <%= item.variantId.ram %> RAM | <%= item.variantId.storage %> SSD
+                    </p>
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="updateQuantity('<%= item._id %>', 'decrement')">-</button>
+                        <span class="qty-val"><%= item.quantity %></span>
+                        <button class="qty-btn" onclick="updateQuantity('<%= item._id %>', 'increment')">+</button>
+                    </div>
+                </div>
+                <div class="item-meta">
+                    <button class="delete-btn" onclick="confirmDelete('<%= item._id %>')"><i class="fa-regular fa-trash-can"></i></button>
+                    <span class="price">₹<%= item.variantId.salePrice.toLocaleString() %></span>
+                </div>
+            </div>
+        </div>
+    <% }) %>
+<% } %>

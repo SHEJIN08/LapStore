@@ -6,6 +6,7 @@ import userController from '../Controller/user/userController.js';
 import { verifyOtp } from "../Controller/user/otpController.js";
 import profileController from '../Controller/user/profileController.js';
 import addressController from '../Controller/user/addressController.js';
+import cartController from '../Controller/user/cartController.js';
 import upload from '../middleware/multer.js'
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
@@ -41,6 +42,11 @@ router.put('/home/manageAddress/set-default/:addressId', addressController.setDe
 router.get("/home/manageAddress/get/:addressId", addressController.getAddressDetails);
 router.put("/home/manageAddress/edit/:addressId", addressController.editAddress);
 router.delete("/home/manageAddress/delete/:addressId", addressController.deleteAddress);
+
+router.get('/home/cart',cartController.loadCart)
+router.post('/home/cart/update-quantity', cartController.updateCartQuantity)
+router.delete('/home/cart/remove', cartController.removeFromCart)
+router.post("/home/cart/add", cartController.addToCart);
 
 router.get('/logout',userController.logout);
 
