@@ -5,7 +5,7 @@
     <body>
     <%- include('../partials/navbar') %>
     <div class="main-container">
-        <%- include('../partials/profileSidebar', {active: 'addressPage'}) %>
+        <%- include('./partials/profileSidebar', {active: 'addressPage'}) %>
         
         <main class="content card">
                 <div class="content-header">
@@ -211,7 +211,10 @@
             
             showToast('Address added successfully!','success');
             
-            window.location.reload(); 
+            setTimeout(() => {
+                window.location.reload(); 
+            }, 1500);
+            
         } else {
             showToast('Failed to add address: ' + response.data.message, 'error');
         }

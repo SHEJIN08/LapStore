@@ -1,0 +1,477 @@
+/* --- Global & Layout --- */
+.main-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #1F2937;
+}
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Left column 2x wider than Right */
+    gap: 30px;
+    align-items: flex-start;
+}
+
+/* --- Left Column Styling --- */
+.checkout-section {
+    margin-bottom: 40px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1F2937;
+    margin: 0;
+}
+
+
+
+/* --- Selection Cards (Address & Payment) --- */
+.selection-card {
+    display: flex;
+    align-items: flex-start; /* Align radio to top */
+    gap: 15px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.selection-card:hover {
+    border-color: #BCCCEF;
+}
+
+/* Selected State (Matches image blue border) */
+.selection-card.selected {
+    border-color: #3B82F6;
+    background-color: #EFF6FF; /* Very light blue tint */
+    box-shadow: 0 0 0 1px #3B82F6; /* Simulates thicker border */
+}
+
+/* Hide default Radio but keep it accessible */
+.selection-card input[type="radio"] {
+    accent-color: #3B82F6;
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+}
+
+.card-content {
+    flex: 1;
+}
+
+/* Address Specifics */
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.addr-name {
+    font-weight: 700;
+    color: #1F2937;
+    font-size: 15px;
+}
+
+.addr-type {
+    font-size: 11px;
+    background: #E5E7EB;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    color: #4B5563;
+}
+
+.addr-text {
+    font-size: 14px;
+    color: #6B7280;
+    margin-bottom: 5px;
+    line-height: 1.5;
+}
+
+.addr-phone {
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.card-actions {
+    color: #9CA3AF;
+}
+
+/* Payment Specifics */
+.payment-name {
+    font-weight: 600;
+    color: #1F2937;
+    display: block;
+}
+
+.wallet-balance {
+    font-size: 12px;
+    color: #6B7280;
+    margin-top: 4px;
+    display: block;
+}
+
+.error-text {
+    color: #EF4444;
+    font-size: 12px;
+}
+
+/* --- Right Column (Summary) --- */
+.summary-card, .coupons-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid #E5E7EB;
+    margin-bottom: 20px;
+}
+
+.summary-card h3, .coupons-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+
+/* Mini Items */
+.mini-cart-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.mini-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.mini-img {
+    width: 50px;
+    height: 50px;
+    background: #F3F4F6;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mini-img img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.mini-details h4 {
+    font-size: 13px;
+    margin: 0 0 4px 0;
+    color: #374151;
+}
+
+.mini-details p {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin: 0 0 4px 0;
+}
+
+.mini-price {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Totals */
+.divider {
+    height: 1px;
+    background: #E5E7EB;
+    margin: 15px 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.green {
+    color: #10B981;
+}
+
+.summary-row.total {
+    color: #111827;
+    font-weight: 700;
+    font-size: 18px;
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
+/* Coupon Box */
+.coupon-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.coupon-box input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.apply-btn {
+    background: #111827; /* Black button like image */
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Place Order Button */
+.place-order-btn {
+    width: 100%;
+    background: #3B82F6;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background 0.2s;
+}
+
+.place-order-btn:hover {
+    background: #2563eb;
+}
+
+.secure-text {
+    font-size: 11px;
+    color: #9CA3AF;
+    text-align: center;
+}
+
+/* Coupons Card */
+.coupon-ticket {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px dashed #D1D5DB;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: #F9FAFB;
+}
+
+.coupon-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.coupon-info .code {
+    font-weight: 700;
+    color: #3B82F6;
+    font-size: 13px;
+}
+
+.coupon-info .desc {
+    font-size: 12px;
+    color: #4B5563;
+}
+
+.coupon-info .min-order {
+    font-size: 10px;
+    color: #9CA3AF;
+}
+
+.copy-btn {
+    background: #3B82F6;
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.add-new-btn:hover {
+    text-decoration: none;
+}
+
+/* --- Empty Coupon State --- */
+.no-coupons {
+    text-align: center;
+    padding: 30px 0;
+    color: #9CA3AF;
+}
+
+.no-coupons i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.no-coupons p {
+    font-size: 13px;
+    margin: 0;
+}
+
+/* --- MODAL STYLES (Matches image_b89b06.jpg) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 30px;
+    width: 450px;
+    max-width: 90%;
+    border-radius: 20px; /* Highly rounded corners like image */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 20px;
+    color: #111827;
+    font-weight: 700;
+}
+
+/* Form Inputs */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #F3F4F6; /* Very subtle border */
+    background-color: #F9FAFB; /* Light gray background like image */
+    border-radius: 12px;
+    font-size: 14px;
+    color: #374151;
+    outline: none;
+    transition: 0.2s;
+    box-sizing: border-box; /* Fix width issues */
+}
+
+.form-group input:focus {
+    background-color: #fff;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #9CA3AF;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.half {
+    flex: 1;
+}
+
+/* Modal Buttons */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 25px;
+    gap: 15px;
+}
+
+.btn-cancel {
+    background: none;
+    border: none;
+    color: #6B7280;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.btn-cancel:hover {
+    color: #111827;
+}
+
+.btn-save {
+    background-color: #3B82F6; /* Bright Blue */
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px; /* Pill shape like image */
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-save:hover {
+    background-color: #2563eb;
+}
+
+.add-new-btn {
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    background: #485aff;
+    width: 7rem;
+    height: 2rem;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+}

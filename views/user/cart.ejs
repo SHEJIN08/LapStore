@@ -1,6 +1,7 @@
 <%- include('../partials/header') %>
 <link rel="stylesheet" href="/css/user/cart.css">
 
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <body>
@@ -13,7 +14,7 @@
         <div class="cart-layout">
             
           <div class="cart-items-container" id="cartItemsList">
-        <%- include('../partials/cart-items-list') %>
+        <%- include('./partials/cart-items-list') %>
        </div>
    
             <% if (cartItems && cartItems.length > 0) { %>
@@ -47,7 +48,7 @@
 
         <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
         
-        <a href="/user/home" class="continue-link">Continue Shopping</a>
+        <a href="/user/home/shop" class="continue-link">Continue Shopping</a>
     </div>
 </div>
             <% } %>
@@ -226,7 +227,7 @@
     }
 
     function proceedToCheckout() {
-        window.location.href = "/user/checkout";
+        window.location.href = "/user/cart/checkout";
     }
 </script>
 </body>

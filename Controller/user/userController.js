@@ -328,7 +328,7 @@ const detailedPage = async (req,res) => {
     // 6. Render
   if (req.xhr) {
         // AJAX Request -> Send Partial
-        return res.render("partials/shop-grid", {
+        return res.render("user/partials/shop-grid", {
             products: products,
             currentPage: page,
             totalPages: totalPages,

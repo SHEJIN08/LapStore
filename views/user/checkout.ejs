@@ -1,0 +1,305 @@
+<%- include('../partials/header') %>
+
+<link rel="stylesheet" href="/css/user/checkout.css">
+
+<body>
+    <%- include('../partials/navbar') %>
+
+    <div class="main-container">
+        
+        <h1 class="page-title">Checkout</h1>
+
+        <form id="checkoutForm" onsubmit="placeOrder(event)">
+            <div class="checkout-layout">
+                
+                <div class="checkout-left">
+                    
+                    <section class="checkout-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Delivery Address</h2>
+                           <button type="button" class="add-new-btn" onclick="openAddressModal()">+ Add New</button>
+                        </div>
+
+                        <div class="address-grid">
+                            <% if (addresses && addresses.length > 0) { %>
+                                <% addresses.forEach((addr, index) => { %>
+                                    <label class="selection-card address-card <%= addr.isDefault ? 'selected' : '' %>">
+                                        <input type="radio" name="addressId" value="<%= addr._id %>" 
+                                               <%= addr.isDefault ? 'checked' : '' %> 
+                                               onchange="selectCard(this)">
+                                        
+                                        <div class="card-content">
+                                            <div class="card-header">
+                                                <span class="addr-name"><%= addr.fullName %></span>
+                                                <span class="addr-type"><%= addr.addressType %></span>
+                                            </div>
+                                            <p class="addr-text">
+                                                <%= addr.address1 %>, <%= addr.city %>, <%= addr.state %> <%= addr.pincode %>
+                                            </p>
+                                            <p class="addr-phone">Phone: <%= addr.phone %></p>
+                                        </div>
+
+                                   
+                                    </label>
+                                <% }) %>
+                            <% } else { %>
+                                <p>No addresses found. Please add one.</p>
+                            <% } %>
+                        </div>
+                    </section>
+
+                    <section class="checkout-section">
+                        <h2 class="section-title">Payment Method</h2>
+                        
+                        <div class="payment-options">
+                            <label class="selection-card payment-card">
+                                <input type="radio" name="paymentMethod" value="COD" onchange="selectCard(this)">
+                                <div class="card-content">
+                                    <span class="payment-name">Cash on Delivery (COD)</span>
+                                </div>
+                            </label>
+
+                            <label class="selection-card payment-card">
+                                <input type="radio" name="paymentMethod" value="Wallet" onchange="selectCard(this)">
+                                <div class="card-content">
+                                    <span class="payment-name">Wallet</span>
+                                    <span class="wallet-balance">Balance: ₹<%= user.walletBalance || 0 %></span>
+                                    <span class="error-text" id="walletError" style="display: none;">Insufficient balance</span>
+                                </div>
+                            </label>
+
+                            <label class="selection-card payment-card selected">
+                                <input type="radio" name="paymentMethod" value="Razorpay" checked onchange="selectCard(this)">
+                                <div class="card-content">
+                                    <span class="payment-name">Razorpay (Online Payment)</span>
+                                </div>
+                            </label>
+                        </div>
+                    </section>
+
+                </div>
+
+               <div class="checkout-right">
+                    <div class="summary-card">
+                        <h3>Order Summary</h3>
+                        
+                        <div class="mini-cart-list">
+                            <% cartItems.forEach(item => { %>
+                                <div class="mini-item">
+                                    <div class="mini-img">
+                                        <img src="<%= item.variantId.image %>" alt="Product">
+                                    </div>
+                                    <div class="mini-details">
+                                        <h4><%= item.productId.name %></h4>
+                                        <p>Qty: <%= item.quantity %></p>
+                                        <span class="mini-price">₹<%= item.variantId.salePrice.toLocaleString() %></span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>₹<%= subtotal.toLocaleString() %></span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <% if(shipping === 0) { %>
+                                <span class="green">Free</span>
+                            <% } else { %>
+                                <span>₹<%= shipping %></span>
+                            <% } %>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax</span>
+                            <span>₹<%= tax.toFixed(2) %></span>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span id="finalTotal">₹<%= total.toFixed(2) %></span>
+                        </div>
+                        <button type="submit" class="place-order-btn">Place Order</button>
+                    </div>
+
+                    <div class="coupons-card">
+                        <h3><i class="fa-solid fa-tag"></i> Available Coupons</h3>
+                        
+                        <% if (coupons && coupons.length > 0) { %>
+                            <% coupons.forEach(coupon => { %>
+                                <div class="coupon-ticket">
+                                    <div class="coupon-info">
+                                        <span class="code"><%= coupon.code %></span>
+                                        <span class="desc"><%= coupon.description %></span>
+                                        <span class="min-order">Min. order: ₹<%= coupon.minPurchase %></span>
+                                    </div>
+                                    <button type="button" class="copy-btn" onclick="useCoupon('<%= coupon.code %>')">Apply</button>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="no-coupons">
+                                <i class="fa-regular fa-face-frown-open"></i>
+                                <p>No coupons available</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <div id="addressModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Add a new address</h3>
+            
+            <form id="addAddressForm">
+                <div class="form-group">
+                    <input type="text" name="addressType" placeholder="Address name (e.g. Home, Work)" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="tel" name="phone" placeholder="Phone" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="addressLine1" placeholder="Address Line 1" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="addressLine2" placeholder="Address Line 2 (Optional)">
+                </div>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <input type="text" name="city" placeholder="City" required>
+                    </div>
+                    <div class="form-group half">
+                        <input type="text" name="state" placeholder="State" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="number" name="pincode" placeholder="Pincode" required>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAddressModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Save Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<%- include('../partials/footer') %>
+
+<script src="/js/axios.min.js"></script>
+
+<script>
+
+    const showToast = (message, type = 'success') => {
+        const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+        
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top", 
+            position: "right", 
+            style: {
+                background: bgColor,
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: "500"
+            },
+        }).showToast();
+    };
+
+    function selectCard(input) {
+        const container = input.closest('.address-grid') || input.closest('.payment-options');
+        container.querySelectorAll('.selection-card').forEach(card => card.classList.remove('selected'));
+        input.closest('.selection-card').classList.add('selected');
+    }
+
+    // --- Modal Logic ---
+    const modal = document.getElementById('addressModal');
+
+    function openAddressModal() {
+        modal.classList.add('active');
+    }
+
+    function closeAddressModal() {
+        modal.classList.remove('active');
+    }
+
+    // Close on outside click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeAddressModal();
+    });
+
+    // --- Save Address via Axios ---
+    document.getElementById('addAddressForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            // Using your existing Add Address Route
+            const response = await axios.post('/user/home/manageAddress/add', data);
+
+            if (response.data.success) {
+                // Success! Reload page to show new address
+                showToast('New address added success', 'success')
+                 
+                setTimeout(() => {
+                window.location.reload(); 
+            }, 1500);
+            } else {
+                alert(response.data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("Failed to add address","error");
+        }
+    });
+
+   async function placeOrder(e) {
+    e.preventDefault();
+
+    // 1. Collect Data
+    const form = document.getElementById('checkoutForm');
+    const formData = new FormData(form);
+    
+    // Convert to simple object manually because radio buttons can be tricky
+    const data = {
+        addressId: form.addressId.value,
+        paymentMethod: form.paymentMethod.value
+    };
+
+    if (!data.addressId) {
+        return showToast("Please select a delivery address","error");
+    }
+
+    try {
+        // 2. Send Data
+        const response = await axios.post('/user/cart/checkout/place-order', data);
+
+        if (response.data.success) {
+            // 3. REDIRECT HERE
+            // The backend gave us success, so we go to the success page
+            window.location.href = `/user/order-success/${response.data.orderId}`;
+        } else {
+            showToast(response.data.message); // e.g., "Out of stock"
+        }
+    } catch (error) {
+        console.error(error);
+        showToast("Something went wrong","error");
+    }
+}
+    function useCoupon(code) {
+        // Logic to apply coupon (if you have an input field for it)
+        console.log("Applying", code);
+    }
+</script>

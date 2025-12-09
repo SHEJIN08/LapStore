@@ -1,0 +1,142 @@
+/* --- Global Reset & Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-color: #F8F9FA;
+    --primary-blue: #2563EB;
+    --text-dark: #111827;
+    --text-gray: #4B5563;
+    --success-green: #10B981;
+    --success-bg: #D1FAE5;
+}
+
+body {
+    background-color: var(--bg-color);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dark);
+}
+
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Centers card vertically on screen */
+    padding: 20px;
+}
+
+/* --- Success Card --- */
+.success-card {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* Soft shadow like image */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- Icon --- */
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background-color: var(--success-bg); /* Light green circle */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.success-icon i {
+    font-size: 32px;
+    color: var(--success-green); /* Dark green checkmark */
+}
+
+/* --- Typography --- */
+.success-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+}
+
+.order-info {
+    font-size: 16px;
+    color: var(--text-gray);
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.order-id {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.email-info {
+    font-size: 15px;
+    color: var(--text-gray);
+    margin-bottom: 30px;
+    line-height: 1.5;
+    max-width: 80%; /* Keeps text wrapped nicely */
+}
+
+.thank-you {
+    font-size: 15px;
+    color: var(--text-gray);
+    margin-bottom: 40px;
+}
+
+/* --- Button --- */
+.continue-btn {
+    background-color: var(--primary-blue);
+    color: white;
+    text-decoration: none;
+    padding: 14px 40px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: background 0.2s;
+    width: 100%; /* Make button wide on mobile */
+    max-width: 300px; /* Limit width on desktop */
+}
+
+.continue-btn:hover {
+    background-color: #1D4ED8;
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+    .success-card {
+        padding: 40px 20px;
+    }
+    
+    .success-title {
+        font-size: 24px;
+    }
+}
+
+/* Add this to public/css/user/orderSuccess.css */
+
+.success-icon {
+    /* ... your existing styles ... */
+    animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    transform: scale(0); /* Start hidden */
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    80% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

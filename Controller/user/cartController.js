@@ -51,7 +51,7 @@ const loadCart = async (req,res) => {
         if (req.query.ajax) {
             
             // We render ONLY the partial (the loop), not the whole page
-            return res.render("partials/cart-items-list", { 
+            return res.render("user/partials/cart-items-list", { 
                 cartItems: cartItems, 
                 layout: false // Do not include header/footer
             }, (err, html) => {

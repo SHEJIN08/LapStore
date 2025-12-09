@@ -7,6 +7,7 @@ import { verifyOtp } from "../Controller/user/otpController.js";
 import profileController from '../Controller/user/profileController.js';
 import addressController from '../Controller/user/addressController.js';
 import cartController from '../Controller/user/cartController.js';
+import checkoutContoller from '../Controller/user/checkoutContoller.js';
 import upload from '../middleware/multer.js'
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
@@ -47,6 +48,12 @@ router.get('/home/cart',cartController.loadCart)
 router.post('/home/cart/update-quantity', cartController.updateCartQuantity)
 router.delete('/home/cart/remove', cartController.removeFromCart)
 router.post("/home/cart/add", cartController.addToCart);
+
+router.get('/cart/checkout', checkoutContoller.loadCheckout)
+router.post('/cart/checkout/place-order', checkoutContoller.placeOrder)
+
+router.get('/order-success/:orderId', checkoutContoller.orderSuccess)
+
 
 router.get('/logout',userController.logout);
 

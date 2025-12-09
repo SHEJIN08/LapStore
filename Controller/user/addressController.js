@@ -78,7 +78,7 @@ const addAddress = async (req,res) => {
 
         await newAddress.save();
 
-      return  res.status(StatusCode.OK).json({success: true, message: 'Address added successfully'})
+        res.status(StatusCode.OK).json({success: true, message: 'Address added successfully'})
 
     } catch (error) {
         console.error(error);
