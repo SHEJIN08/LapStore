@@ -6,6 +6,7 @@ import productController from '../Controller/admin/productController.js'
 import usersController from '../Controller/admin/usersController.js'
 import brandController from '../Controller/admin/brandController.js'
 import categoryController from '../Controller/admin/categoryController.js'
+import orderController from '../Controller/admin/orderContoller.js'
 import upload from '../middleware/multer.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
@@ -35,8 +36,11 @@ router.get('/category',adminAuth.checkSession,categoryController.loadCategory);
 router.post('/category/add-category',adminAuth.checkSession, categoryController.addCategory)
 router.get('/category/edit/:id',adminAuth.checkSession, categoryController.getEditCategory);
 router.patch('/category/edit/:id',adminAuth.checkSession, categoryController.editCategory); 
-
 router.patch('/category/toggle-status/:id',adminAuth.checkSession, categoryController.getListOrUnlist);
+
+router.get('/orders',orderController.getOrder)
+router.get('/orders/details/:orderId', orderController.getOrderDetails);
+router.patch('/orders/update-status', orderController.updateOrderStatus);
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

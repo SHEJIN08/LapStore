@@ -1,0 +1,363 @@
+/* =========================================
+   1. VARIABLES & RESET
+   ========================================= */
+:root {
+    --bg-color: #F8F9FA;
+    --primary-blue: #2563EB;
+    --primary-hover: #1D4ED8;
+    --text-dark: #1F2937;
+    --text-gray: #6B7280;
+    --border-color: #E5E7EB;
+    --white: #FFFFFF;
+    --danger-red: #DC2626;
+    --success-green: #10B981;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+
+/* =========================================
+   2. MAIN LAYOUT
+   ========================================= */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 24px ;
+}   
+
+/* =========================================
+   3. PAGE HEADER
+   ========================================= */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.header-text h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 5px 0;
+}
+
+.header-text p {
+    color: var(--text-gray);
+    font-size: 14px;
+    margin: 0;
+}
+
+.export-btn {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.export-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* =========================================
+   4. SEARCH & FILTER BAR (Matches Figma)
+   ========================================= */
+.search-filter-container {
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.search-bar {
+    flex-grow: 1;
+    position: relative;
+}
+
+
+/* --- Left Side: Search Bar --- */
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    flex: 1;              /* Allows search bar to take available width */
+    max-width: 500px;     /* strict width limit to match image */
+    
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 10px 16px;
+}
+.search-wrapper:focus-within {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-wrapper i {
+    color: #9CA3AF; /* Gray Search Icon */
+}
+
+.search-wrapper input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+    color: #1F2937;
+}
+
+.search-wrapper input::placeholder {
+    color: var(--text-gray);
+}
+
+/* Filter Section (Right Side) */
+.filter-status {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between the dropdowns */
+    margin-top: 21px;
+}
+.dropdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    padding: 10px 16px;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
+    white-space: nowrap; /* Prevents text breaking */
+}
+
+.dropdown:hover {
+    background-color: #F9FAFB;
+}
+
+.dropdown i {
+    color: #6B7280;
+}
+
+/* =========================================
+   5. TABLE STYLES
+   ========================================= */
+.table-container {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-table th {
+    text-align: left;
+    padding: 16px 24px;
+    color: var(--text-gray);
+    font-size: 13px;
+    font-weight: 600;
+    background-color: #F9FAFB;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.order-table td {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-dark);
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.checkbox-col { width: 40px; }
+.order-id { font-weight: 600; color: var(--text-dark); }
+.amount { font-weight: 600; }
+
+.customer-info .name {
+    font-weight: 500;
+    display: block;
+}
+
+/* =========================================
+   6. STATUS BADGES
+   ========================================= */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+/* Colors */
+.status-badge.completed, .status-badge.delivered { background-color: #DCFCE7; color: #166534; }
+.status-badge.pending { background-color: #FEF9C3; color: #854D0E; }
+.status-badge.shipped, .status-badge.out-for-delivery { background-color: #F3E8FF; color: #6B21A8; }
+.status-badge.cancelled { background-color: #FEE2E2; color: #991B1B; }
+.status-badge.processing, .status-badge.confirmed { background-color: #DBEAFE; color: #1E40AF; }
+.status-badge.returned { background-color: #FFEDD5; color: #9A3412; }
+
+/* =========================================
+   7. ACTIONS & PAGINATION
+   ========================================= */
+.view-btn {
+    color: #9CA3AF;
+    font-size: 16px;
+    transition: 0.2s;
+    display: inline-flex;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.view-btn:hover {
+    color: var(--primary-blue);
+    background-color: #EFF6FF;
+}
+
+/* Pagination Container */
+.pagination-controls {
+    display: flex;
+    justify-content: flex-end; /* Align buttons right */
+    align-items: center;
+    padding: 20px 24px;
+    gap: 12px;
+    background: var(--white);
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Prev Button */
+.prev-btn {
+    background: transparent;
+    color: #374151;
+    border: 1px solid var(--border-color); /* Added border to match theme */
+}
+
+.prev-btn:hover {
+    background-color: #F3F4F6;
+    color: var(--text-dark);
+}
+
+.prev-btn.disabled-link, .prev-btn:disabled {
+    color: #9CA3AF;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* Next Button */
+.next-btn {
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+.next-btn:hover {
+    background-color: var(--primary-hover);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.next-btn:disabled {
+    background-color: #93C5FD;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.search-bar .search-icon,
+.filter-status .filter-icon {
+    position: relative;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+    margin-bottom: -83px;
+}
+
+.search-bar input,
+.filter-status select {
+    width: 100%;
+    padding: 12px 15px 12px 50px; /* Left padding for the icon */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+/* Remove default arrow on select */
+.filter-status select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 15px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 1em;
+}
+.filter-sep{
+     position: relative;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+    margin-bottom: -83px;
+}
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0 0 0; /* Top padding only inside the card */
+    margin-top: 10px;
+}
+
+.special {
+    width: 20px;
+    height: 20px;
+    margin-right: -45px;
+    z-index: 1000;
+}

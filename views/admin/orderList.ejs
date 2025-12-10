@@ -1,0 +1,142 @@
+<%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/admin/orderList.css">
+
+    <body>
+        <div class="admin-layout">
+
+            <%- include('../partials/sidebar',{activePage: 'orders' }) %>
+                <main class="main-content">
+
+                    <header class="page-header">
+                        <div class="header-text">
+                            <h1>Users Orders</h1>
+                            <p>View and manage all customer orders.</p>
+                        </div>
+                        <button class="export-btn">
+                            Export Report
+                        </button>
+                    </header>
+
+                    <section class="search-filter-container card">
+
+                        <form action="/admin/orders" method="GET" class="search-form">
+                            <div class="search-bar">
+                                <img src="/images/admin/icons/search.png" alt="" class="search-icon">
+                                <input type="text" name="search"
+                                    placeholder="Search by Order ID, Customer Name, or Email"
+                                    value="<%= typeof currentSearch !== 'undefined' ? currentSearch : '' %>">
+                            </div>
+
+
+                            <div class="filter-status">
+                                <img src="/images/admin/icons/filter.png" alt="" class="special">
+                                <select name="status" style="width: 160px;">
+                                    <option value="all" <%=(typeof currentStatus==='undefined' || currentStatus==='all'
+                                        ) ? 'selected' : '' %>>
+                                        Status: All
+                                    </option>
+                                    <option value="Pending" <%=(typeof currentStatus !=='undefined' &&
+                                        currentStatus==='Pending' ) ? 'selected' : '' %>>
+                                        Pending
+                                    </option>
+                                    <option value="Processing" <%=(typeof currentStatus !=='undefined' &&
+                                        currentStatus==='Processing' ) ? 'selected' : '' %>>
+                                        Processing
+                                    </option>
+                                </select>
+                                <div class="dropdown">
+                                    <span style="font-size:12px;">From:</span>
+                                    <input type="date" name="startDate" value="<%= locals.startDate || '' %>"
+                                        onchange="this.form.submit()" style="padding-left: 8px;">
+                                </div>
+
+                                <div class="dropdown">
+                                    <span style="font-size:12px;">To:</span>
+                                    <input type="date" name="endDate" value="<%= locals.endDate || '' %>"
+                                        onchange="this.form.submit()" style="padding-left: 8px;">
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section class="table-container">
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th class="checkbox-col"><input type="checkbox"></th>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (orders && orders.length> 0) { %>
+                                    <% orders.forEach(order=> { %>
+                                        <tr>
+                                            <td class="checkbox-col"><input type="checkbox"></td>
+
+                                            <td class="order-id">#<%= order.orderId %>
+                                            </td>
+
+                                            <td class="customer-cell">
+                                                <div class="customer-info">
+                                                    <span class="name">
+                                                        <%= order.address.fullName %>
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            <td class="date-cell">
+                                                <%= new Date(order.createdAt).toLocaleDateString('en-US', {
+                                                    month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                            </td>
+
+                                            <td>
+                                                <span
+                                                    class="status-badge <%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
+                                                    <%= order.status %>
+                                                </span>
+                                            </td>
+
+                                            <td class="amount">
+                                                $<%= order.finalAmount.toFixed(2) %>
+                                            </td>
+
+                                            <td class="actions-cell">
+                                                <a href="/admin/orders/details/<%= order._id %>" class="view-btn">
+                                                    <i class="fa-regular fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="7" style="text-align:center; padding: 20px;">No orders
+                                                        found</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+
+                        <div class="pagination-controls">
+                            <% if (currentPage> 1) { %>
+                                <a href="/admin/orders?page=<%= currentPage - 1 %>" class="btn prev-btn">Previous</a>
+                                <% } else { %>
+                                    <button class="btn prev-btn disabled-link" disabled>Previous</button>
+                                    <% } %>
+
+                                        <% if (currentPage < totalPages) { %>
+                                            <a href="/admin/orders?page=<%= currentPage + 1 %>"
+                                                class="btn btn-primary next-btn">Next</a>
+                                            <% } else { %>
+                                                <button class="btn btn-primary next-btn" disabled>Next</button>
+                                                <% } %>
+                        </div>
+                    </section>
+
+                </main>
+        </div>
+    </body>
