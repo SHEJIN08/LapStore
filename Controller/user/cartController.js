@@ -174,11 +174,11 @@ const loadCart = async (req,res) => {
       }
     }
     if (cartItem.quantity >= currentStock) {
-        return res.json({ success: false, message: "Out of stock" });
+        return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: "Out of stock" });
       }
       
       if (cartItem.quantity > 5) {
-        return res.json({ success: false, message: "Max 5 items allowed per user" });
+        return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: "Max 5 items allowed per user" });
       }
     
 
@@ -189,7 +189,7 @@ const loadCart = async (req,res) => {
 
   } catch (error) {
     console.error("Update qty error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessages.SERVER_ERROR});
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR});
   }
 };
 
@@ -204,7 +204,7 @@ const removeFromCart = async (req, res) => {
 
   } catch (error) {
     console.error("Remove item error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessages.SERVER_ERROR});
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR});
   }
 };
 

@@ -7,6 +7,7 @@ const getOrder = async (req,res) => {
       const {startDate,endDate} = req.query;
         const search = req.query.search || '';
         const status = req.query.status || 'all';
+        
 
         const page = Number.parseInt(req.query.page) || 1;
         const limit = 4;
@@ -40,8 +41,15 @@ const getOrder = async (req,res) => {
           query.status = 'Pending';
         }else if (status === 'Processing'){
           query.status = 'Processing';
+        }else if (status === 'Shipped'){
+          query.status = 'Shipped';
+        }else if (status === 'Delivered'){
+          query.status = 'Delivered';
+        }else if (status === 'Cancelled'){
+          query.status = 'Cancelled';
+        }else if (status === 'Returned'){
+          query.status = 'Returned';
         }
-
       if(search) {
         const searchRegex = new RegExp(search, 'i')
 
@@ -63,11 +71,13 @@ const getOrder = async (req,res) => {
 
       res.render('admin/orderList', {
         orders: orderData,
-        currentSearch: search,
-        currentStatus: status,
         currentPage: page,
         totalPages: totalPages,
         totalOrders: totalOrders,
+       currentSearch: search || '', 
+        currentStatus: status || 'All',
+        startDate: startDate || '', 
+        endDate: endDate || '',
       })
 
     } catch (error) {
@@ -79,16 +89,14 @@ const getOrder = async (req,res) => {
 const getOrderDetails = async (req, res) => {
     try {
         const orderId = req.params.orderId;
-
-        const userId = req.session.user;
-
-        const user = await User.findById(userId)
-      
-        const order = await Order.findById(orderId);
+  
+        const order = await Order.findById(orderId).populate('userId');
 
         if (!order) {
             return res.redirect('/admin/orders');
         }
+
+        const user = order.userId;
 
         res.render('admin/orderDetails', { order, user });
     } catch (error) {

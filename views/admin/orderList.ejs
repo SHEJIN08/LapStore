@@ -18,46 +18,47 @@
                     </header>
 
                     <section class="search-filter-container card">
+    <form action="/admin/orders" method="GET" class="search-form" id="filterForm" style="display: flex; width: 100%; justify-content: space-between;">
+        
+        <div class="search-bar">
+            <img src="/images/admin/icons/search.png" alt="" class="search-icon">
+            <input type="text" name="search" placeholder="Search by Order ID, Customer Name, or Email"
+                value="<%= typeof currentSearch !== 'undefined' ? currentSearch : '' %>">
+            <button type="submit" style="display: none;"></button>
+        </div>
 
-                        <form action="/admin/orders" method="GET" class="search-form">
-                            <div class="search-bar">
-                                <img src="/images/admin/icons/search.png" alt="" class="search-icon">
-                                <input type="text" name="search"
-                                    placeholder="Search by Order ID, Customer Name, or Email"
-                                    value="<%= typeof currentSearch !== 'undefined' ? currentSearch : '' %>">
-                            </div>
+        <div class="filter-status">
+            
+            <div class="dropdown">
+                <i class="fa-solid fa-filter" style="color: #6B7280; margin-right: 5px;"></i>
+                <select name="status" onchange="document.getElementById('filterForm').submit()" 
+                        style="border:none; outline:none; background:transparent; font-weight:500; color:#374151; cursor:pointer;">
+                    <option value="All" <%= (!locals.currentStatus || currentStatus === 'All') ? 'selected' : '' %>>Status: All</option>
+                    <option value="Pending" <%= (locals.currentStatus === 'Pending') ? 'selected' : '' %>>Status: Pending</option>
+                    <option value="Processing" <%= (locals.currentStatus === 'Processing') ? 'selected' : '' %>>Status: Processing</option>
+                    <option value="Shipped" <%= (locals.currentStatus === 'Shipped') ? 'selected' : '' %>>Status: Shipped</option>
+                    <option value="Delivered" <%= (locals.currentStatus === 'Delivered') ? 'selected' : '' %>>Status: Delivered</option>
+                    <option value="Cancelled" <%= (locals.currentStatus === 'Cancelled') ? 'selected' : '' %>>Status: Cancelled</option>
+                    <option value="Returned" <%= (locals.currentStatus === 'Returned') ? 'selected' : '' %>>Status: Returned</option>
+                </select>
+                <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+            </div>
 
+            <div class="dropdown">
+                <span style="font-size:12px;">From:</span>
+                <input type="date" name="startDate" value="<%= locals.startDate || '' %>" 
+                       onchange="document.getElementById('filterForm').submit()" style="padding-left: 8px;">
+            </div>
 
-                            <div class="filter-status">
-                                <img src="/images/admin/icons/filter.png" alt="" class="special">
-                                <select name="status" style="width: 160px;">
-                                    <option value="all" <%=(typeof currentStatus==='undefined' || currentStatus==='all'
-                                        ) ? 'selected' : '' %>>
-                                        Status: All
-                                    </option>
-                                    <option value="Pending" <%=(typeof currentStatus !=='undefined' &&
-                                        currentStatus==='Pending' ) ? 'selected' : '' %>>
-                                        Pending
-                                    </option>
-                                    <option value="Processing" <%=(typeof currentStatus !=='undefined' &&
-                                        currentStatus==='Processing' ) ? 'selected' : '' %>>
-                                        Processing
-                                    </option>
-                                </select>
-                                <div class="dropdown">
-                                    <span style="font-size:12px;">From:</span>
-                                    <input type="date" name="startDate" value="<%= locals.startDate || '' %>"
-                                        onchange="this.form.submit()" style="padding-left: 8px;">
-                                </div>
+            <div class="dropdown">
+                <span style="font-size:12px;">To:</span>
+                <input type="date" name="endDate" value="<%= locals.endDate || '' %>" 
+                       onchange="document.getElementById('filterForm').submit()" style="padding-left: 8px;">
+            </div>
 
-                                <div class="dropdown">
-                                    <span style="font-size:12px;">To:</span>
-                                    <input type="date" name="endDate" value="<%= locals.endDate || '' %>"
-                                        onchange="this.form.submit()" style="padding-left: 8px;">
-                                </div>
-                            </div>
-                        </form>
-                    </section>
+        </div>
+    </form>
+</section>
 
                     <section class="table-container">
                         <table class="order-table">

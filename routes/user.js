@@ -8,6 +8,7 @@ import profileController from '../Controller/user/profileController.js';
 import addressController from '../Controller/user/addressController.js';
 import cartController from '../Controller/user/cartController.js';
 import checkoutContoller from '../Controller/user/checkoutContoller.js';
+import orderContoller from '../Controller/user/orderContoller.js';
 import upload from '../middleware/multer.js'
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
@@ -51,8 +52,9 @@ router.post("/home/cart/add", cartController.addToCart);
 
 router.get('/cart/checkout', checkoutContoller.loadCheckout)
 router.post('/cart/checkout/place-order', checkoutContoller.placeOrder)
-
 router.get('/order-success/:orderId', checkoutContoller.orderSuccess)
+
+router.get('/home/orders', orderContoller.loadOrders);
 
 
 router.get('/logout',userController.logout);

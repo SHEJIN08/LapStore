@@ -1,182 +1,236 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/admin/orderDetails.css">
+    <link rel="stylesheet" href="/css/admin/orderDetails.css">
 
 
-<body>
-    <div class="admin-layout">
-        
-        <%- include('../partials/sidebar', {activePage: 'orders'}) %>
+    <body>
+        <div class="admin-layout">
 
-        <main class="main-content">
-            
-            <header class="details-header">
-                <div class="header-left">
-                    <a href="/admin/orders" class="back-link">
-                        <i class="fa-solid fa-arrow-left"></i> Back to Orders
-                    </a>
-                    <h1>Order Details</h1>
-                    <div class="order-meta">
-                        <span class="order-id">#<%= order.orderId %></span>
-                        <span class="order-date"><i class="fa-regular fa-calendar"></i> <%= new Date(order.createdAt).toLocaleDateString() %></span>
-                        <span class="payment-badge <%= order.paymentStatus.toLowerCase() %>">
-                            <%= order.paymentStatus %>
-                        </span>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <button class="btn-print" onclick="window.print()">
-                        <i class="fa-solid fa-print"></i> Print
-                    </button>
-                </div>
-            </header>
+            <%- include('../partials/sidebar', {activePage: 'orders' }) %>
 
-            <div class="details-grid">
-                
-                <div class="details-left">
-                    <section class="card items-card">
-                        <h3>Order Items</h3>
-                        <table class="items-table">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th class="text-right">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% order.orderedItems.forEach(item => { %>
-                                    <tr>
-                                        <td>
-                                            <div class="item-info">
-                                                <div class="img-wrapper">
-                                                    <img src="<%= item.image %>" alt="Product">
-                                                </div>
-                                                <div class="info-text">
-                                                    <span class="product-name"><%= item.productName %></span>
+                <main class="main-content">
+
+                    <header class="details-header">
+                        <div class="header-left">
+                            <a href="/admin/orders" class="back-link">
+                                <i class="fa-solid fa-arrow-left"></i> Back to Orders
+                            </a>
+                            <h1>Order Details</h1>
+                            <div class="order-meta">
+                                <span class="order-id">#<%= order.orderId %></span>
+                                <span class="order-date"><i class="fa-regular fa-calendar"></i>
+                                    <%= new Date(order.createdAt).toLocaleDateString() %>
+                                </span>
+                                <span class="payment-badge <%= order.paymentStatus.toLowerCase() %>">
+                                    <%= order.paymentStatus %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="header-right">
+                            <button class="btn-print" onclick="window.print()">
+                                <i class="fa-solid fa-print"></i> Print
+                            </button>
+                        </div>
+                    </header>
+
+                    <div class="details-grid">
+
+                        <div class="details-left">
+                            <section class="card items-card">
+                                <h3>Order Items</h3>
+                                <table class="items-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th class="text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% order.orderedItems.forEach(item=> { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="item-info">
+                                                        <div class="img-wrapper">
+                                                            <img src="<%= item.image %>" alt="Product">
+                                                        </div>
+                                                        <div class="info-text">
+                                                            <span class="product-name">
+                                                                <%= item.productName %>
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                            </div>
-                                        </td>
-                                        <td>$<%= item.price.toLocaleString() %></td>
-                                        <td>x<%= item.quantity %></td>
-                                        <td class="text-right font-bold">$<%= (item.price * item.quantity).toLocaleString() %></td>
-                                    </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
+                                                </td>
+                                                <td>$<%= item.price.toLocaleString() %>
+                                                </td>
+                                                <td>x<%= item.quantity %>
+                                                </td>
+                                                <td class="text-right font-bold">$<%= (item.price *
+                                                        item.quantity).toLocaleString() %>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                    </tbody>
+                                </table>
 
-                        <div class="order-summary">
-                            <div class="summary-row">
-                                <span>Subtotal</span>
-                                <span>$<%= order.totalPrice.toLocaleString() %></span>
-                            </div>
-                            <div class="summary-row">
-                                <span>Shipping</span>
-                                <span>$<%= (order.finalAmount - order.totalPrice + order.discount).toFixed(2) %></span> </div>
-                            <div class="summary-row">
-                                <span>Discount</span>
-                                <span class="text-danger">-$<%= order.discount %></span>
-                            </div>
-                            <div class="summary-row total">
-                                <span>Total Amount</span>
-                                <span>$<%= order.finalAmount.toLocaleString() %></span>
-                            </div>
+                                <div class="order-summary">
+                                    <div class="summary-row">
+                                        <span>Subtotal</span>
+                                        <span>$<%= order.totalPrice.toLocaleString() %></span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span>Shipping</span>
+                                        <span>$<%= (order.finalAmount - order.totalPrice + order.discount).toFixed(2) %>
+                                        </span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span>Discount</span>
+                                        <span class="text-danger">-$<%= order.discount %></span>
+                                    </div>
+                                    <div class="summary-row total">
+                                        <span>Total Amount</span>
+                                        <span>$<%= order.finalAmount.toLocaleString() %></span>
+                                    </div>
+                                </div>
+                            </section>
                         </div>
-                    </section>
-                </div>
 
-                <div class="details-right">
-                    
-                    <section class="card actions-card">
-                        <h3>Order Status</h3>
-                        <p class="status-desc">Update the current status of this order.</p>
-                        
-                        <form id="statusForm" onsubmit="updateStatus(event, '<%= order._id %>')">
-                            <div class="status-selector">
-                                <select name="status" id="statusSelect">
-                                    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                    <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                    <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                    <option value="Out for Delivery" <%= order.status === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
-                                    <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                    <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                    <option value="Returned" <%= order.status === 'Returned' ? 'selected' : '' %>>Returned</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn-update">Update Status</button>
-                        </form>
-                    </section>
+                        <div class="details-right">
 
-                    <section class="card customer-card">
-                        <h3>Customer Details</h3>
-                        <div class="customer-row">
-                            <div class="avatar-circle">
-                            <img src="/images/Logo.png" alt="" class="avatar-circle" style="width: 40px; height: 40px;">
-                             
-                            </div>
-                            <div class="info">
-                                <span class="label">Name</span>
-                                <span class="value"><%= order.address.fullName %></span>
-                            </div>
+                            <section class="card actions-card">
+                                <h3>Order Status</h3>
+                                <p class="status-desc">Update the current status of this order.</p>
+
+                                <form id="statusForm" onsubmit="updateStatus(event, '<%= order._id %>')">
+                                    <div class="status-selector">
+                                        <select name="status" id="statusSelect">
+
+                                            <option value="<%= order.status %>" selected disabled>
+                                                <%= order.status %> (Current)
+                                            </option>
+
+                                            <% if (order.status==='Pending' ) { %>
+                                                <option value="Processing">Processing</option>
+                                                <option value="Cancelled">Cancelled</option>
+                                                <% } %>
+
+                                                    <% if (order.status==='Processing' ) { %>
+                                                        <option value="Shipped">Shipped</option>
+                                                        <% } %>
+
+                                                            <% if (order.status==='Shipped' ) { %>
+                                                                <option value="Out for Delivery">Out for Delivery
+                                                                </option>
+                                                                <% } %>
+
+                                                                    <% if (order.status==='Out for Delivery' ) { %>
+                                                                        <option value="Delivered">Delivered</option>
+                                                                        <% } %>
+                                                                            <% if (order.status==='Cancelled' ) { %>
+                                                                                <option value="Pending">Revert to
+                                                                                    Pending</option>
+                                                                                <% } %>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn-update">Update Status</button>
+                                </form>
+                            </section>
+
+                            <section class="card customer-card">
+                                <h3>Customer Details</h3>
+                                <div class="customer-row">
+                                    <div class="avatar-circle" style="overflow:hidden;">
+                                        <% if (user && user.avatar) { %>
+                                            <img src="<%= user.avatar %>" alt="User Avatar"
+                                                style="width:100%; height:100%; object-fit:cover;">
+                                            <% } else { %>
+                                                <span style="font-size:18px; font-weight:bold; color:#2563EB;">
+                                                    <%= order.address.fullName.charAt(0).toUpperCase() %>
+                                                </span>
+                                                <% } %>
+                                    </div>
+                                    <div class="info">
+                                        <span class="label">Name</span>
+                                        <span class="value">
+                                            <%= order.address.fullName %>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="info-group">
+                                    <span class="label">Phone</span>
+                                    <span class="value"><a href="tel:<%= order.address.phone %>">
+                                            <%= order.address.phone %>
+                                        </a></span>
+                                </div>
+                                <div class="info-group">
+                                    <span class="label">Payment Method</span>
+                                    <span class="value">
+                                        <%= order.paymentMethod %>
+                                    </span>
+                                </div>
+                            </section>
+
+                            <section class="card address-card">
+                                <h3>Shipping Address</h3>
+                                <div class="address-box">
+                                    <p><strong>
+                                            <%= order.address.addressType %>
+                                        </strong></p>
+                                    <p>
+                                        <%= order.address.fullName %>
+                                    </p>
+                                    <p>
+                                        <%= order.address.address1 %>
+                                    </p>
+                                    <% if(order.address.address2) { %>
+                                        <p>
+                                            <%= order.address.address2 %>
+                                        </p>
+                                        <% } %>
+                                            <p>
+                                                <%= order.address.city %>, <%= order.address.state %>
+                                                        <%= order.address.pincode %>
+                                            </p>
+                                </div>
+                            </section>
+
                         </div>
-                        <div class="info-group">
-                            <span class="label">Phone</span>
-                            <span class="value"><a href="tel:<%= order.address.phone %>"><%= order.address.phone %></a></span>
-                        </div>
-                        <div class="info-group">
-                            <span class="label">Payment Method</span>
-                            <span class="value"><%= order.paymentMethod %></span>
-                        </div>
-                    </section>
+                    </div>
 
-                    <section class="card address-card">
-                        <h3>Shipping Address</h3>
-                        <div class="address-box">
-                            <p><strong><%= order.address.addressType %></strong></p>
-                            <p><%= order.address.fullName %></p>
-                            <p><%= order.address.address1 %></p>
-                            <% if(order.address.address2) { %><p><%= order.address.address2 %></p><% } %>
-                            <p><%= order.address.city %>, <%= order.address.state %> <%= order.address.pincode %></p>
-                        </div>
-                    </section>
+                </main>
+        </div>
+        <script src="/js/axios.min.js"></script>
+        <script>
+            async function updateStatus(e, orderId) {
+                e.preventDefault();
+                const newStatus = document.getElementById('statusSelect').value;
 
-                </div>
-            </div>
+                try {
+                    const response = await axios.patch('/admin/orders/update-status', {
+                        orderId: orderId,
+                        status: newStatus
+                    });
 
-        </main>
-    </div>
-    <script src="/js/axios.min.js"></script>
-    <script>
-        async function updateStatus(e, orderId) {
-            e.preventDefault();
-            const newStatus = document.getElementById('statusSelect').value;
+                    if (response.data.success) {
+                        Toastify({
+                            text: "Status Updated Successfully",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: "#10B981", borderRadius: "8px" }
+                        }).showToast();
 
-            try {
-                const response = await axios.patch('/admin/orders/update-status', {
-                    orderId: orderId,
-                    status: newStatus
-                });
-
-                if (response.data.success) {
+                        // Optional: Reload to reflect changes in UI badges
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                } catch (error) {
+                    console.error(error);
                     Toastify({
-                        text: "Status Updated Successfully",
+                        text: error.response?.data?.message || "Failed to update status",
                         duration: 3000,
-                        gravity: "top", 
-                        position: "right", 
-                        style: { background: "#10B981", borderRadius: "8px" }
+                        style: { background: "#EF4444", borderRadius: "8px" }
                     }).showToast();
-                    
-                    // Optional: Reload to reflect changes in UI badges
-                    setTimeout(() => location.reload(), 1000);
                 }
-            } catch (error) {
-                console.error(error);
-                Toastify({
-                    text: error.response?.data?.message || "Failed to update status",
-                    duration: 3000,
-                    style: { background: "#EF4444", borderRadius: "8px" }
-                }).showToast();
             }
-        }
-    </script>
-</body>
+        </script>
+    </body>
