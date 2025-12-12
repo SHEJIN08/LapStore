@@ -1,173 +1,175 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/user/ordersPage.css">
+    <link rel="stylesheet" href="/css/user/ordersPage.css">
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <div class="main-container">
+            <div class="main-container">
+
+                <%- include('./partials/profileSidebar', {active: 'ordersPage' }) %>
+
+                    <main class="content">
+
+                        <div class="page-header">
+                            <h1>My Orders</h1>
+                            <p>View and manage your past and current orders.</p>
+                        </div>
+
+                        <div class="order-tabs">
+                            <a href="/user/home/orders"
+                                class="tab-link <%= currentStatus === 'All' ? 'active' : '' %>">All Orders</a>
+
+                            <a href="/user/home/orders?status=Pending"
+                                class="tab-link <%= currentStatus === 'Pending' ? 'active' : '' %>">Pending</a>
+
+                            <a href="/user/home/orders?status=Shipped"
+                                class="tab-link <%= currentStatus === 'Shipped' ? 'active' : '' %>">Shipped</a>
+
+                            <a href="/user/home/orders?status=Delivered"
+                                class="tab-link <%= currentStatus === 'Delivered' ? 'active' : '' %>">Delivered</a>
+
+                            <a href="/user/home/orders?status=Cancelled"
+                                class="tab-link <%= currentStatus === 'Cancelled' ? 'active' : '' %>">Cancelled</a>
+                        </div>
+
+                        <div class="orders-list">
+                            <% if (orders && orders.length> 0) { %>
+                                <% orders.forEach(order=> { %>
+                                    <div class="order-card">
+                                        <div class="card-top">
+                                            <span class="order-id">Order ID: #<%= order.orderId %></span>
+                                            <span
+                                                class="status-badge <%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
+                                                <span class="dot"></span>
+                                                <%= order.status %>
+                                            </span>
+                                        </div>
+
+                                        <div class="card-body">
+                                            <table class="order-table-layout">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="col-info">
+                                                            <h3>
+                                                                <%= order.orderedItems[0].productName %>
+                                                            </h3>
+                                                            <% if(order.orderedItems.length> 1) { %>
+                                                                <span class="more-items">+ <%= order.orderedItems.length
+                                                                        - 1 %> other item(s)</span>
+                                                                <% } %>
+                                                        </td>
+
+                                                        <td class="col-meta">
+                                                            <span class="label">Qty</span>
+                                                            <span class="val">
+                                                                <%= order.orderedItems[0].quantity %>
+                                                            </span>
+                                                        </td>
+
+                                                        <td class="col-meta">
+                                                            <span class="label">Date</span>
+                                                            <span class="val">
+                                                                <%= new Date(order.createdAt).toLocaleDateString() %>
+                                                            </span>
+                                                        </td>
+
+                                                        <td class="col-meta">
+                                                            <span class="label">Total</span>
+                                                            <span class="val total-price">$<%=
+                                                                    order.finalAmount.toLocaleString() %></span>
+                                                        </td>
+
+                                                        <td class="col-actions">
+                                                            <a href="/user/home/orders/details/<%= order._id %>"
+                                                                class="btn-secondary">View</a>
+
+                                                            <% if(order.status==='Pending' ||
+                                                                order.status==='Processing' ) { %>
+                                                                <button class="btn-cancel  unq-cnl"
+                                                                    onclick="cancelOrder('<%= order._id %>')"> Cancel
+                                                                </button>
+                                                                <% } %>
+
+                                                        </td>
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <p>No orders found.</p>
+                                            <% } %>
+                        </div>
+
+                        <div class="pagination-container">
+                            <a href="#" class="nav-link prev disabled">Previous</a>
+                            <div class="page-numbers">
+                                <a href="#" class="page-num active">1</a>
+                                <a href="#" class="page-num">2</a>
+                                <a href="#" class="page-num">3</a>
+                            </div>
+                            <a href="#" class="nav-link next">Next →</a>
+                        </div>
+
+                    </main>
+            </div>
+
+            <%- include('../partials/footer') %>
+    </body>
+
+    <script src="/js/axios.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+       const showToast = (msg, type) => {
+                Toastify({
+                    text: msg,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    className: "my-custom-toast",
+                    backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",borderRadius: '10px'
+                }).showToast();
+            };
         
-        <%- include('./partials/profileSidebar', {active: 'ordersPage'}) %>
+        async function cancelOrder(orderId) {
+            // 1. Confirm with the user
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to cancel this order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            });
 
-        <main class="content">
-            
-            <div class="page-header">
-                <h1>My Orders</h1>
-                <p>View and manage your past and current orders.</p>
-            </div>
+            if (!result.isConfirmed) return;
 
-            <div class="order-tabs">
-                <a href="/user/home/orders" class="tab-link active">All Orders</a>
-                <a href="/user/home/orders?status=Pending" class="tab-link">Pending</a>
-                <a href="/user/home/orders?status=Shipped" class="tab-link">Shipped</a>
-                <a href="/user/home/orders?status=Delivered" class="tab-link">Delivered</a>
-                <a href="/user/home/orders?status=Cancelled" class="tab-link">Cancelled</a>
-            </div>
+            try {
+                // 2. Send Request to Backend
+                const response = await axios.patch('/user/home/orders/cancel', { orderId });
 
-            <div class="orders-list">
-                
-                <div class="order-card">
-                    <div class="card-top">
-                        <span class="order-id">Order ID: MY-836491-23</span>
-                        <span class="status-badge delivered">
-                            <span class="dot"></span> Delivered
-                        </span>
-                    </div>
-                    
-                    <div class="card-body">
-                        <div class="product-visual">
-                            <img src="/images/products/macbook.png" alt="Product" onerror="this.src='https://placehold.co/100x100?text=Laptop'">
-                        </div>
-                        
-                        <div class="product-info">
-                            <h3>MacBook Pro 16"</h3>
-                            <div class="specs">
-                                <span>Color: <br> <b>Space Gray</b></span>
-                                <span>Specs: <br> <b>M3 Max, 36GB RAM</b></span>
-                            </div>
-                        </div>
+                if (response.data.success) {
+                    // 3. Success! Show message and reload
+                    await Swal.fire(
+                        'Cancelled!',
+                        'Your order has been cancelled.',
+                        'success'
+                    );
+                    window.location.reload();
+                } else {
+                    showToast(response.data.message, 'error');
+                }
 
-                        <div class="order-meta">
-                            <div class="meta-item">
-                                <span>Qty:</span>
-                                <b>1</b>
-                            </div>
-                            <div class="meta-item">
-                                <span>Date:</span>
-                                <b>Oct 26, 2023</b>
-                            </div>
-                            <div class="meta-item total">
-                                <span>Total:</span>
-                                <b>$3,499.00</b>
-                            </div>
-                        </div>
-
-                        <div class="card-actions">
-                            <a href="/user/home/orders/details/123" class="btn-secondary">View Details</a>
-                            <button class="btn-primary">Write a Review</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="order-card">
-                    <div class="card-top">
-                        <span class="order-id">Order ID: MY-36488-23</span>
-                        <span class="status-badge shipped">
-                            <span class="dot"></span> Shipped
-                        </span>
-                    </div>
-                    
-                    <div class="card-body">
-                        <div class="product-visual">
-                            <img src="/images/products/dell.png" alt="Product" onerror="this.src='https://placehold.co/100x100?text=Laptop'">
-                        </div>
-                        
-                        <div class="product-info">
-                            <h3>Dell XPS 15</h3>
-                            <div class="specs">
-                                <span>Color: <br> <b>Platinum Silver</b></span>
-                                <span>Specs: <br> <b>Intel i7, 32GB RAM</b></span>
-                            </div>
-                        </div>
-
-                        <div class="order-meta">
-                            <div class="meta-item">
-                                <span>Qty:</span>
-                                <b>1</b>
-                            </div>
-                            <div class="meta-item">
-                                <span>Date:</span>
-                                <b>Oct 24, 2023</b>
-                            </div>
-                            <div class="meta-item total">
-                                <span>Total:</span>
-                                <b>$2,299.00</b>
-                            </div>
-                        </div>
-
-                        <div class="card-actions">
-                            <a href="#" class="btn-secondary">View Details</a>
-                            <button class="btn-primary">Track Order</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="order-card">
-                    <div class="card-top">
-                        <span class="order-id">Order ID: MY-836502-23</span>
-                        <span class="status-badge processing">
-                            <span class="dot"></span> Processing
-                        </span>
-                    </div>
-                    
-                    <div class="card-body">
-                        <div class="product-visual">
-                            <img src="/images/products/hp.png" alt="Product" onerror="this.src='https://placehold.co/100x100?text=Laptop'">
-                        </div>
-                        
-                        <div class="product-info">
-                            <h3>HP Spectre x360</h3>
-                            <div class="specs">
-                                <span>Color: <br> <b>Nightfall Black</b></span>
-                                <span>Specs: <br> <b>Intel i7, 16GB</b></span>
-                            </div>
-                        </div>
-
-                        <div class="order-meta">
-                            <div class="meta-item">
-                                <span>Qty:</span>
-                                <b>1</b>
-                            </div>
-                            <div class="meta-item">
-                                <span>Date:</span>
-                                <b>Oct 28, 2023</b>
-                            </div>
-                            <div class="meta-item total">
-                                <span>Total:</span>
-                                <b>$1,599.00</b>
-                            </div>
-                        </div>
-
-                        <div class="card-actions">
-                            <a href="#" class="btn-secondary">View Details</a>
-                            <button class="btn-danger">Cancel Order</button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="pagination-container">
-                <a href="#" class="nav-link prev disabled">Previous</a>
-                <div class="page-numbers">
-                    <a href="#" class="page-num active">1</a>
-                    <a href="#" class="page-num">2</a>
-                    <a href="#" class="page-num">3</a>
-                </div>
-                <a href="#" class="nav-link next">Next →</a>
-            </div>
-
-        </main>
-    </div>
-
-<%- include('../partials/footer') %>
-</body>
+            } catch (error) {
+                console.error(error);
+                 const errMsg = error.response?.data?.message || "Something went wrong";
+                    showToast(errMsg, "error");
+            }
+        }
+    </script>

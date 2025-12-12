@@ -158,11 +158,12 @@ const placeOrder = async (req,res) => {
 const orderSuccess = async (req, res) => {
     try {
         const { orderId } = req.params; // Get ID from URL
-        
+        const userId = req.session.user;
+        const user = await User.findById(userId)
         // Optional: Fetch order details to show "Thank you for Order #12345"
          const order = await Order.findOne({ orderId });
 
-        res.render("user/orderSuccess", { orderId, order });
+        res.render("user/orderSuccess", { orderId, order , user });
     } catch (error) {
         res.render("user/404");
     }

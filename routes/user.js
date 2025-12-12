@@ -55,6 +55,8 @@ router.post('/cart/checkout/place-order', checkoutContoller.placeOrder)
 router.get('/order-success/:orderId', checkoutContoller.orderSuccess)
 
 router.get('/home/orders', orderContoller.loadOrders);
+router.patch('/home/orders/cancel', orderContoller.cancelOrder)
+router.get('/home/orders/details/:orderId', orderContoller.orderDetailedPage)
 
 
 router.get('/logout',userController.logout);

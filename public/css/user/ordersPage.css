@@ -307,3 +307,142 @@
         text-align: center;
     }
 }
+/* --- Order Card Basic --- */
+.order-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden; /* Keeps border radius clean */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.card-top {
+    background-color: #F9FAFB; /* Light gray header */
+    padding: 12px 24px;
+    border-bottom: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-id {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4B5563;
+}
+
+/* --- THE NEW TABLE LAYOUT --- */
+.card-body {
+    padding: 0; /* Remove padding so table fills width */
+}
+
+.order-table-layout {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-table-layout td {
+    padding: 20px 24px;
+    vertical-align: middle;
+}
+
+/* Column 1: Product Info (Takes most space) */
+.col-info {
+    width: 40%; 
+}
+
+.col-info h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.more-items {
+    font-size: 12px;
+    color: #6B7280;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Middle Columns: Meta (Qty, Date, Total) */
+.col-meta {
+    text-align: left;
+    width: 15%;
+}
+
+.col-meta .label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #9CA3AF;
+    margin-bottom: 4px;
+}
+
+.col-meta .val {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.col-meta .total-price {
+    font-weight: 700;
+    color: #1F2937;
+}
+
+/* Last Column: Actions (Right Aligned) */
+.col-actions {
+    text-align: right;
+    width: 15%;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #F3F4F6;
+    color: #374151;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #E5E7EB;
+    color: #111827;
+}
+
+.btn-cancel {
+    background: none;
+    border: none;
+    color: #EF4444;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btn-cancel:hover {
+    text-decoration: underline;
+}
+.unq-cnl {
+    padding: 4px 14px;
+    margin-top: 5px;
+    background: #fff0f0;
+    border-radius: 8px;
+   
+}
+
+/* --- Responsive Mobile --- */
+@media (max-width: 768px) {
+    .order-table-layout thead { display: none; }
+    .order-table-layout tr { display: flex; flex-direction: column; padding: 15px; }
+    .order-table-layout td { padding: 5px 0; width: 100%; display: flex; justify-content: space-between; }
+    
+    .col-info { margin-bottom: 10px; }
+    .col-meta .label { display: inline-block; margin-right: 10px; margin-bottom: 0; }
+    .col-actions { text-align: left; margin-top: 15px; }
+}

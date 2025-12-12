@@ -1,0 +1,223 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/user/orderDetails.css">
+
+<body>
+    <%- include('../partials/navbar') %>
+
+    <div class="main-container">
+        
+        <%- include('./partials/profileSidebar', {active: 'ordersPage'}) %>
+
+        <main class="content">
+            
+            <div class="details-header">
+                <div class="header-left">
+                    <a href="/user/home/orders" class="back-link">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </a>
+                    <div class="title-group">
+                        <h1>Order Details</h1>
+                        <span class="order-id">#<%= order.orderId %></span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <a href="/user/orders/invoice/<%= order._id %>" class="btn-invoice">
+                        <i class="fa-solid fa-file-invoice"></i> Download Invoice
+                    </a>
+                </div>
+            </div>
+
+            <section class="card timeline-card">
+                <div class="steps-container">
+                    <% 
+                        // Logic to determine active steps
+                        const steps = ['Pending', 'Processing', 'Shipped', 'Delivered'];
+                        const currentStepIndex = steps.indexOf(order.status);
+                        // Handle Cancelled/Returned separately or map them to specific visual states
+                        const isCancelled = order.status === 'Cancelled';
+                    %>
+
+                    <div class="step <%= (currentStepIndex >= 0 && !isCancelled) ? 'active' : '' %>">
+                        <div class="step-icon"><i class="fa-solid fa-box"></i></div>
+                        <div class="step-text">
+                            <span class="step-title">Order Placed</span>
+                            <span class="step-date"><%= new Date(order.createdAt).toLocaleDateString() %></span>
+                        </div>
+                    </div>
+                    <div class="step-line <%= (currentStepIndex >= 1 && !isCancelled) ? 'active' : '' %>"></div>
+
+                    <div class="step <%= (currentStepIndex >= 2 && !isCancelled) ? 'active' : '' %>">
+                        <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                        <div class="step-text">
+                            <span class="step-title">Shipped</span>
+                            <span class="step-date">
+                                <%= order.orderHistory.find(h => h.status === 'Shipped')?.date.toLocaleDateString() || '--' %>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="step-line <%= (currentStepIndex >= 3 && !isCancelled) ? 'active' : '' %>"></div>
+
+                    <div class="step <%= (currentStepIndex >= 3 && !isCancelled) ? 'active' : '' %>">
+                        <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+                        <div class="step-text">
+                            <span class="step-title">Delivered</span>
+                            <span class="step-date">
+                                <%= order.orderHistory.find(h => h.status === 'Delivered')?.date.toLocaleDateString() || '--' %>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <% if (isCancelled) { %>
+                    <div class="alert-banner error">
+                        This order has been Cancelled.
+                    </div>
+                <% } else if (order.status === 'Delivered') { %>
+                    <div class="alert-banner success">
+                        Your order has been delivered successfully!
+                    </div>
+                <% } %>
+            </section>
+
+            <section class="card items-card">
+                <h3>Items Ordered</h3>
+                <div class="items-list">
+                    <% order.orderedItems.forEach(item => { %>
+                        <div class="item-row">
+                            <div class="item-image">
+                                <img src="<%= item.image %>" alt="<%= item.productName %>" onerror="this.src='https://placehold.co/80'">
+                            </div>
+                            <div class="item-details">
+                                <h4><%= item.productName %></h4>
+                                <p class="specs">Qty: <%= item.quantity %></p>
+                            </div>
+                            <div class="item-price">
+                                $<%= item.price.toLocaleString() %>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+
+            <div class="info-grid">
+                <section class="card info-card">
+                    <h3>Shipping Address</h3>
+                    <div class="info-content">
+                        <p class="name"><%= order.address.fullName %></p>
+                        <p><%= order.address.address1 %></p>
+                        <% if(order.address.address2){ %><p><%= order.address.address2 %></p><% } %>
+                        <p><%= order.address.city %>, <%= order.address.state %> <%= order.address.pincode %></p>
+                        <p class="phone"><%= order.address.phone %></p>
+                    </div>
+                </section>
+
+                <section class="card info-card">
+                    <h3>Payment Method</h3>
+                    <div class="info-content">
+                        <p class="payment-type">
+                            <i class="fa-regular fa-credit-card"></i> 
+                            <%= order.paymentMethod %>
+                        </p>
+                        <p class="status <%= order.paymentStatus.toLowerCase() %>">
+                            Status: <b><%= order.paymentStatus %></b>
+                        </p>
+                    </div>
+                </section>
+            </div>
+
+            <section class="card summary-card">
+                <h3>Order Summary</h3>
+                <div class="summary-rows">
+                    <div class="row">
+                        <span>Subtotal</span>
+                        <span>$<%= order.totalPrice.toLocaleString() %></span>
+                    </div>
+                    <div class="row">
+                        <span>Shipping</span>
+                        <span class="<%= order.finalAmount - order.totalPrice <= 0 ? 'free' : '' %>">
+                            <%= order.finalAmount - order.totalPrice <= 0 ? 'Free' : '$' + (order.finalAmount - order.totalPrice).toFixed(2) %>
+                        </span>
+                    </div>
+                    <% if(order.discount > 0) { %>
+                        <div class="row">
+                            <span>Discount</span>
+                            <span class="discount">-$<%= order.discount %></span>
+                        </div>
+                    <% } %>
+                    <div class="row total">
+                        <span>Total Paid</span>
+                        <span>$<%= order.finalAmount.toLocaleString() %></span>
+                    </div>
+                </div>
+            </section>
+
+            <% if (order.status === 'Delivered') { %>
+                <div class="action-bar">
+                    <button class="btn-return">Request Replacement/Refund</button>
+                </div>
+            <% } else if (order.status === 'Pending' || order.status === 'Processing') { %>
+                <div class="action-bar">
+                    <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>')">Cancel Order</button>
+                </div>
+            <% } %>
+
+        </main>
+    </div>
+
+<%- include('../partials/footer') %>
+</body>
+
+ <script src="/js/axios.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+       const showToast = (msg, type) => {
+                Toastify({
+                    text: msg,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    className: "my-custom-toast",
+                    backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",borderRadius: '10px'
+                }).showToast();
+            };
+        
+        async function cancelOrder(orderId) {
+            // 1. Confirm with the user
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to cancel this order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+                // 2. Send Request to Backend
+                const response = await axios.patch('/user/home/orders/cancel', { orderId });
+
+                if (response.data.success) {
+                    // 3. Success! Show message and reload
+                    await Swal.fire(
+                        'Cancelled!',
+                        'Your order has been cancelled.',
+                        'success'
+                    );
+                    window.location.reload();
+                } else {
+                    showToast(response.data.message, 'error');
+                }
+
+            } catch (error) {
+                console.error(error);
+                 const errMsg = error.response?.data?.message || "Something went wrong";
+                    showToast(errMsg, "error");
+            }
+        }
+    </script>
