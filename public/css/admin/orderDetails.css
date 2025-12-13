@@ -271,3 +271,100 @@ ul { list-style: none; }
     line-height: 1.5;
 }
 .address-box strong { color: var(--text-dark); }
+
+.return-alert-card {
+    background-color: #FFF7ED; /* Very light orange */
+    border: 1px solid #FED7AA; /* Light orange border */
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px; /* Space before main details */
+}
+
+.alert-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.alert-header .icon-wrap {
+    color: #EA580C; /* Dark Orange */
+    font-size: 20px;
+}
+
+.alert-header h3 {
+    margin: 0;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.alert-body .label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4B5563;
+    margin-bottom: 6px;
+}
+
+.alert-body .value {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.alert-body .sub-value {
+    color: #6B7280;
+    font-style: italic;
+}
+
+/* File Chips */
+.attachments-list {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.file-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1px solid #FED7AA;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #2563EB; /* Link blue */
+    font-weight: 500;
+}
+
+/* Action Buttons - Full Width Grid */
+.alert-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-approve, .btn-reject {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: white;
+}
+
+.btn-approve {
+    background-color: #10B981; /* Green */
+}
+.btn-approve:hover { background-color: #059669; }
+
+.btn-reject {
+    background-color: #DC2626; /* Red */
+}
+.btn-reject:hover { background-color: #B91C1C; }

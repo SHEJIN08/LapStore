@@ -75,6 +75,12 @@ const placeOrder = async (req,res) => {
              return res.status(StatusCode.BAD_REQUEST).json({success: false, message: 'Address not found'})
         }
 
+        for(let item of cartItems){
+            await Variant.findByIdAndUpdate(item.variantId, {
+                $inc: {stock: -item.quantity}
+            })
+        }
+
         let subtotal = 0;
         const orderedItems = [];
 

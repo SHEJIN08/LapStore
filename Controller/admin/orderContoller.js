@@ -1,5 +1,6 @@
 import Order from "../../model/orderModel.js";
-import User from "../../model/userModel.js"
+import User from "../../model/userModel.js";
+import Variant from "../../model/variantModel.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 const getOrder = async (req,res) => {
@@ -139,4 +140,51 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-export default {getOrder, getOrderDetails, updateOrderStatus}
+const handleReturnRequest = async (req, res) => {
+    try {
+        const { orderId, action } = req.body; // action = 'approve' or 'reject'
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+              return res.status(StatusCode.NOT_FOUND).json({ success: false, message: 'Order not found' });
+        }
+
+        if (action === 'approve') {
+            // --- APPROVE LOGIC ---
+            for(const item of order.orderedItems){
+                await Variant.findByIdAndUpdate(item.variantId, {
+                 $inc: {stock: item.quantity }
+                 })
+                }
+            order.status = 'Returned';
+            order.returnRequest.status = 'Approved';
+            
+            order.orderHistory.push({
+                status: 'Returned',
+                date: new Date(),
+                comment: 'Return Request Approved by Admin'
+            });
+
+        } else if (action === 'reject') {
+            // --- REJECT LOGIC ---
+            // Revert status back to 'Delivered' so the flow is closed
+            order.status = 'Delivered'; 
+            order.returnRequest.status = 'Rejected';
+
+            order.orderHistory.push({
+                status: 'Delivered', // Status goes back to Delivered
+                date: new Date(),
+                comment: 'Return Request Rejected by Admin'
+            });
+        }
+
+        await order.save();
+        res.status(StatusCode.OK).json({ success: true, message: `Request ${action}ed successfully` });
+
+    } catch (error) {
+        console.error(error);
+         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+    }
+};
+
+export default {getOrder, getOrderDetails, updateOrderStatus, handleReturnRequest}

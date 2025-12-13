@@ -19,11 +19,18 @@
                             <a href="/user/home/orders"
                                 class="tab-link <%= currentStatus === 'All' ? 'active' : '' %>">All Orders</a>
 
-                            <a href="/user/home/orders?status=Pending"
-                                class="tab-link <%= currentStatus === 'Pending' ? 'active' : '' %>">Pending</a>
+                                <a href="/user/home/orders?status=Pending"
+                                    class="tab-link <%= currentStatus === 'Pending' ? 'active' : '' %>">Pending</a>
+
+                                  <a href="/user/home/orders?status=Processing"
+                                class="tab-link <%= currentStatus === 'Processing' ? 'active' : '' %>">Processing</a>
+
 
                             <a href="/user/home/orders?status=Shipped"
                                 class="tab-link <%= currentStatus === 'Shipped' ? 'active' : '' %>">Shipped</a>
+
+                                <a href="/user/home/orders?status=Out for Delivery"
+                                class="tab-link <%= currentStatus === 'Out of Delivery' ? 'active' : '' %>">Out of Delivery</a>
 
                             <a href="/user/home/orders?status=Delivered"
                                 class="tab-link <%= currentStatus === 'Delivered' ? 'active' : '' %>">Delivered</a>
@@ -83,13 +90,13 @@
                                                             <a href="/user/home/orders/details/<%= order._id %>"
                                                                 class="btn-secondary">View</a>
 
-                                                            <% if(order.status==='Pending' ||
+                                                            <% if (order.status==='Pending' ||
                                                                 order.status==='Processing' ) { %>
-                                                                <button class="btn-cancel  unq-cnl"
-                                                                    onclick="cancelOrder('<%= order._id %>')"> Cancel
+                                                                <button class="btn-cancel  cnl-unq"
+                                                                    onclick="openCancelModal('<%= order._id %>')">
+                                                                    Cancel Order
                                                                 </button>
                                                                 <% } %>
-
                                                         </td>
                                                     </tr>
 
@@ -103,73 +110,198 @@
                                             <% } %>
                         </div>
 
-                        <div class="pagination-container">
-                            <a href="#" class="nav-link prev disabled">Previous</a>
-                            <div class="page-numbers">
-                                <a href="#" class="page-num active">1</a>
-                                <a href="#" class="page-num">2</a>
-                                <a href="#" class="page-num">3</a>
-                            </div>
-                            <a href="#" class="nav-link next">Next →</a>
-                        </div>
+                       <div class="pagination-container">
+    <% if (totalPages > 1) { %>
+        
+        <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>&status=<%= currentStatus %>" class="nav-link prev">Previous</a>
+        <% } else { %>
+            <span class="nav-link prev disabled">Previous</span>
+        <% } %>
+
+        <div class="page-numbers">
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>&status=<%= currentStatus %>" 
+                   class="page-num <%= currentPage === i ? 'active' : '' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+        </div>
+
+        <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>&status=<%= currentStatus %>" class="nav-link next">Next →</a>
+        <% } else { %>
+            <span class="nav-link next disabled">Next →</span>
+        <% } %>
+
+    <% } %>
+</div>
 
                     </main>
             </div>
 
+            <div id="cancelModal" class="modal-overlay hidden">
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Confirm Order Cancellation</h2>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+
+                    <p class="modal-subtitle">
+                        Are you sure you want to cancel this order? This action cannot be undone.
+                    </p>
+
+                    <div class="reasons-form">
+                        <label class="reason-group">
+                            Reason for cancellation
+                        </label>
+
+                        <div class="reasons-grid">
+                            <label class="reason-card">
+                                <input type="radio" name="cancelReason" value="Changed mind"
+                                    onclick="toggleOther(false)">
+                                <span class="reason-text">Changed mind</span>
+                            </label>
+
+                            <label class="reason-card">
+                                <input type="radio" name="cancelReason" value="Found a better deal"
+                                    onclick="toggleOther(false)">
+                                <span class="reason-text">Found a better deal</span>
+                            </label>
+
+                            <label class="reason-card">
+                                <input type="radio" name="cancelReason" value="Long delivery time"
+                                    onclick="toggleOther(false)">
+                                <span class="reason-text">Long delivery time</span>
+                            </label>
+
+                            <label class="reason-card">
+                                <input type="radio" name="cancelReason" value="Ordered by mistake"
+                                    onclick="toggleOther(false)">
+                                <span class="reason-text">Ordered by mistake</span>
+                            </label>
+
+                            <label class="reason-card full-width">
+                                <input type="radio" name="cancelReason" value="Other" onclick="toggleOther(true)">
+                                <span class="reason-text">Other reason (optional)</span>
+                            </label>
+                        </div>
+
+                        <div id="otherReasonContainer" class="other-input-container hidden">
+                            <textarea id="otherReasonText" placeholder="Please specify your reason..."
+                                rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="btn-keep" onclick="closeModal()">Keep Order</button>
+                        <button class="btn-confirm-cancel" onclick="submitCancellation()">Confirm Cancel</button>
+                    </div>
+                </div>
+            </div>
+
             <%- include('../partials/footer') %>
-    </body>
 
-    <script src="/js/axios.min.js"></script>
+                <script src="/js/axios.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
+                <script>
 
-       const showToast = (msg, type) => {
-                Toastify({
-                    text: msg,
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    className: "my-custom-toast",
-                    backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",borderRadius: '10px'
-                }).showToast();
-            };
-        
-        async function cancelOrder(orderId) {
-            // 1. Confirm with the user
-            const result = await Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you really want to cancel this order?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
-            });
+                    const showToast = (msg, type) => {
+                        Toastify({
+                            text: msg,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            className: "my-custom-toast",
+                            backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)", 
+                            borderRadius: '10px'
+                        }).showToast();
+                    };
 
-            if (!result.isConfirmed) return;
+                    let currentOrderId = null;
 
-            try {
-                // 2. Send Request to Backend
-                const response = await axios.patch('/user/home/orders/cancel', { orderId });
+                    // 1. Open the Modal
+                    function openCancelModal(orderId) {
+                        currentOrderId = orderId;
+                        document.getElementById('cancelModal').classList.remove('hidden');
 
-                if (response.data.success) {
-                    // 3. Success! Show message and reload
-                    await Swal.fire(
-                        'Cancelled!',
-                        'Your order has been cancelled.',
-                        'success'
-                    );
-                    window.location.reload();
-                } else {
-                    showToast(response.data.message, 'error');
-                }
+                        // Reset form
+                        const radios = document.getElementsByName('cancelReason');
+                        radios.forEach(r => r.checked = false);
+                        document.getElementById('otherReasonContainer').classList.add('hidden');
+                        document.getElementById('otherReasonText').value = '';
+                    }
 
-            } catch (error) {
-                console.error(error);
-                 const errMsg = error.response?.data?.message || "Something went wrong";
-                    showToast(errMsg, "error");
-            }
-        }
-    </script>
+                    // 2. Close the Modal
+                    function closeModal() {
+                        currentOrderId = null;
+                        document.getElementById('cancelModal').classList.add('hidden');
+                    }
+
+                    // 3. Toggle "Other" Textarea
+                    function toggleOther(show) {
+                        const container = document.getElementById('otherReasonContainer');
+                        if (show) {
+                            container.classList.remove('hidden');
+                        } else {
+                            container.classList.add('hidden');
+                        }
+                    }
+
+                    // 4. Submit Logic
+                    async function submitCancellation() {
+                        if (!currentOrderId) return;
+
+                        // Get selected reason
+                        const radios = document.getElementsByName('cancelReason');
+                        let selectedReason = null;
+                        for (const radio of radios) {
+                            if (radio.checked) {
+                                selectedReason = radio.value;
+                                break;
+                            }
+                        }
+
+                        if (!selectedReason) {
+                            showToast('Please select a reason for cancellation', 'error');
+                            return;
+                        }
+
+                        // If 'Other' is selected, capture the text input
+                        if (selectedReason === 'Other') {
+                            const otherText = document.getElementById('otherReasonText').value.trim();
+                            if (!otherText) {
+                                showToast('Please specify your reason', 'error');
+                                return;
+                            }
+                            selectedReason = otherText;
+                        }
+
+                        // Send to Backend
+                        try {
+                            const response = await axios.patch('/user/home/orders/cancel', {
+                                orderId: currentOrderId,
+                                reason: selectedReason
+                            });
+
+                            if (response.data.success) {
+                                closeModal();
+                                await Swal.fire({
+                                    icon: 'success',
+                                    title: 'Order Cancelled',
+                                    text: 'Your order has been cancelled successfully.',
+                                    confirmButtonColor: '#10B981'
+                                });
+                                window.location.reload();
+                            } else {
+                                showToast(response.data.message || 'Failed to cancel', 'error');
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            showToast('Something went wrong', 'error');
+                        }
+                    }
+
+                </script>

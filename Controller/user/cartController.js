@@ -159,7 +159,7 @@ const loadCart = async (req,res) => {
       return res.status(StatusCode.NOT_FOUND).json({ success: false, message: "Item not found" });
     }
 
-    const currentStock = cartItem.variantId.stock; // Assuming variant has 'quantity' field
+    const currentStock = cartItem.variantId.stock;
 
     // Logic
     if (action === "increment") {

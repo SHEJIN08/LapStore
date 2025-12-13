@@ -104,17 +104,37 @@
 }
 .status-badge.delivered .dot { background-color: #059669; }
 
-.status-badge.shipped {
-    background-color: #EFF6FF;
-    color: #2563EB;
+.status-badge.out-for-delivery {
+    background-color: #EEF2FF;
+    color: #4F46E5;
 }
-.status-badge.shipped .dot { background-color: #2563EB; }
+.status-badge.out-for-delivery .dot { 
+    background-color:#6366F1; 
+}
+.status-badge.shipped {
+    background-color: #EEF2FF;
+    color: #4F46E5;
+}
+.status-badge.shipped .dot { background-color:#6366F1; }
+
+
+.status-badge.pending {
+    background-color:#FFFBEB;
+    color:#D97706;
+}
+.status-badge.return-request .dot {background-color:#F59E0B}
+
+.status-badge.return-request {
+    background-color:#FFFBEB;
+    color:#D97706;
+}
+.status-badge.pending .dot {background-color:#F59E0B}
 
 .status-badge.processing {
-    background-color: #FFFBEB;
-    color: #D97706;
+    background-color:#EFF6FF;
+    color:#2563EB;
 }
-.status-badge.processing .dot { background-color: #D97706; }
+.status-badge.processing .dot { background-color:#3B82F6 }
 
 .status-badge.cancelled {
     background-color: #FEF2F2;
@@ -267,6 +287,18 @@
     font-size: 14px;
     color: #4B5563;
     text-decoration: none;
+}
+ .nav-link.disabled {
+    color: #D1D5DB; /* Light gray */
+    pointer-events: none; /* Prevents clicking */
+    cursor: default;
+}
+
+
+
+.page-num:hover:not(.active) {
+    background-color: #F3F4F6;
+    color: #111827;
 }
 
 .page-num.active {
@@ -425,16 +457,177 @@
     margin-left: 10px;
 }
 
-.btn-cancel:hover {
-    text-decoration: underline;
+
+.cnl-unq {
+ background: #ffebeb;
+    margin-top: 15px;
+    border-radius: 8px
 }
-.unq-cnl {
-    padding: 4px 14px;
-    margin-top: 5px;
-    background: #fff0f0;
+/* --- Modal Overlay --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    display: none;
+    opacity: 0;
+}
+
+/* --- Modal Container --- */
+.modal-container {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 10px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #9CA3AF;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+.modal-subtitle {
+    text-align: center;
+    color: #6B7280;
+    font-size: 14px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+/* --- Reasons Grid --- */
+.reason-group {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.reasons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 Columns */
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.reason-card {
+    border: 1px solid #E5E7EB;
     border-radius: 8px;
-   
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
+
+.reason-card:hover {
+    border-color: #D1D5DB;
+    background: #F9FAFB;
+}
+
+/* Style when radio is checked (Optional: needs JS or :has selector) */
+.reason-card:has(input:checked) {
+    border-color: #2563EB;
+    background-color: #EFF6FF;
+}
+
+.reason-card.full-width {
+    grid-column: span 2; /* Make 'Other' take full width */
+}
+
+.reason-text {
+    font-size: 13px;
+    color: #374151;
+}
+
+/* --- Other Input --- */
+.other-input-container.hidden {
+    display: none;
+}
+
+.other-input-container textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    background: #F9FAFB;
+}
+.other-input-container textarea:focus {
+    border-color: #2563EB;
+    background: white;
+}
+
+/* --- Action Buttons --- */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-keep {
+    flex: 1;
+    padding: 12px;
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    color: #374151;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-keep:hover { background: #F3F4F6; }
+
+.btn-confirm-cancel {
+    flex: 1;
+    padding: 12px;
+    background: #DC2626; /* Red */
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-confirm-cancel:hover { background: #B91C1C; }
 
 /* --- Responsive Mobile --- */
 @media (max-width: 768px) {

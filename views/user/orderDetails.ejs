@@ -1,223 +1,418 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/user/orderDetails.css">
+    <link rel="stylesheet" href="/css/user/orderDetails.css">
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <div class="main-container">
-        
-        <%- include('./partials/profileSidebar', {active: 'ordersPage'}) %>
+            <div class="main-container">
 
-        <main class="content">
-            
-            <div class="details-header">
-                <div class="header-left">
-                    <a href="/user/home/orders" class="back-link">
-                        <i class="fa-solid fa-arrow-left"></i> Back
-                    </a>
-                    <div class="title-group">
-                        <h1>Order Details</h1>
-                        <span class="order-id">#<%= order.orderId %></span>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <a href="/user/orders/invoice/<%= order._id %>" class="btn-invoice">
-                        <i class="fa-solid fa-file-invoice"></i> Download Invoice
-                    </a>
-                </div>
+                <%- include('./partials/profileSidebar', {active: 'ordersPage' }) %>
+
+                    <main class="content">
+
+                        <div class="details-header">
+                            <div class="header-left">
+                                <a href="/user/home/orders" class="back-link">
+                                    <i class="fa-solid fa-arrow-left"></i> Back
+                                </a>
+                                <div class="title-group">
+                                    <h1>Order Details</h1>
+                                    <span class="order-id">#<%= order.orderId %></span>
+                                </div>
+                            </div>
+                            <% if( order.status==='Delivered' ){ %>
+                                <div class="header-right">
+                                    <a href="/user/orders/invoice/<%= order._id %>" class="btn-invoice">
+                                        <i class="fa-solid fa-file-invoice"></i> Download Invoice
+                                    </a>
+                                </div>
+                                <% } %>
+
+                        </div>
+
+                        <section class="card timeline-card">
+                            <div class="steps-container">
+                                <% steps=['Pending', 'Processing' , 'Shipped' , 'Out for Delivery' , 'Delivered' ];
+                                    const currentStepIndex=steps.indexOf(order.status); const
+                                    isCancelled=order.status==='Cancelled' ; const history=order.orderHistory || []; %>
+
+                                    <div class="step <%= (currentStepIndex >= 0 && !isCancelled) ? 'active' : '' %>">
+                                        <div class="step-icon"><i class="fa-solid fa-box"></i></div>
+                                        <div class="step-text">
+                                            <span class="step-title">Order Placed</span>
+                                            <span class="step-date">
+                                                <%= new Date(order.createdAt).toLocaleDateString() %>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="step-line <%= (currentStepIndex >= 2 && !isCancelled) ? 'active' : '' %>">
+                                    </div>
+
+                                    <div class="step <%= (currentStepIndex >= 2 && !isCancelled) ? 'active' : '' %>">
+                                        <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                                        <div class="step-text">
+                                            <span class="step-title">
+                                                <%= (order.status==='Out for Delivery' ) ? 'Out for Delivery'
+                                                    : 'Shipped' %>
+                                            </span>
+
+                                            <span class="step-date">
+                                                <% const shippedEvent=history.find(h=>
+                                                    h.status === 'Out for Delivery') ||
+                                                    history.find(h => h.status === 'Shipped');
+                                                    %>
+                                                    <%= shippedEvent ? new Date(shippedEvent.date).toLocaleDateString()
+                                                        : '--' %>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="step-line <%= (currentStepIndex >= 4 && !isCancelled) ? 'active' : '' %>">
+                                    </div>
+
+                                    <div class="step <%= (currentStepIndex >= 4 && !isCancelled) ? 'active' : '' %>">
+                                        <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+                                        <div class="step-text">
+                                            <span class="step-title">Delivered</span>
+                                            <span class="step-date">
+                                                <%= history.find(h=> h.status ===
+                                                    'Delivered')?.date.toLocaleDateString() || '--' %>
+                                            </span>
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <% if (isCancelled) { %>
+                                <div class="alert-banner error">
+                                    This order has been Cancelled.
+                                </div>
+                                <% } else if (order.status==='Delivered' ) { %>
+                                    <div class="alert-banner success">
+                                        Your order has been delivered successfully!
+                                    </div>
+                                    <% } %>
+                        </section>
+
+                        <section class="card items-card">
+                            <h3>Items Ordered</h3>
+                            <div class="items-list">
+                                <% order.orderedItems.forEach(item=> { %>
+                                    <div class="item-row">
+                                        <div class="item-image">
+                                            <img src="<%= item.image %>" alt="<%= item.productName %>"
+                                                onerror="this.src='https://placehold.co/80'">
+                                        </div>
+                                        <div class="item-details">
+                                            <h4>
+                                                <%= item.productName %>
+                                            </h4>
+                                            <p class="specs">Qty: <%= item.quantity %>
+                                            </p>
+                                        </div>
+                                        <div class="item-price">
+                                            $<%= item.price.toLocaleString() %>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                            </div>
+                        </section>
+
+                        <div class="info-grid">
+                            <section class="card info-card">
+                                <h3>Shipping Address</h3>
+                                <div class="info-content">
+                                    <p class="name">
+                                        <%= order.address.fullName %>
+                                    </p>
+                                    <p>
+                                        <%= order.address.address1 %>
+                                    </p>
+                                    <% if(order.address.address2){ %>
+                                        <p>
+                                            <%= order.address.address2 %>
+                                        </p>
+                                        <% } %>
+                                            <p>
+                                                <%= order.address.city %>, <%= order.address.state %>
+                                                        <%= order.address.pincode %>
+                                            </p>
+                                            <p class="phone">
+                                                <%= order.address.phone %>
+                                            </p>
+                                </div>
+                            </section>
+
+                            <section class="card info-card">
+                                <h3>Payment Method</h3>
+                                <div class="info-content">
+                                    <p class="payment-type">
+                                        <i class="fa-regular fa-credit-card"></i>
+                                        <%= order.paymentMethod %>
+                                    </p>
+                                    <p class="status <%= order.paymentStatus.toLowerCase() %>">
+                                        Status: <b>
+                                            <%= order.paymentStatus %>
+                                        </b>
+                                    </p>
+                                </div>
+                            </section>
+                        </div>
+
+                        <section class="card summary-card">
+                            <h3>Order Summary</h3>
+                            <div class="summary-rows">
+                                <div class="row">
+                                    <span>Subtotal</span>
+                                    <span>$<%= order.totalPrice.toLocaleString() %></span>
+                                </div>
+                                <div class="row">
+                                    <span>Shipping</span>
+                                    <span class="<%= order.finalAmount - order.totalPrice <= 0 ? 'free' : '' %>">
+                                        <%= order.finalAmount - order.totalPrice <=0 ? 'Free' : '$' + (order.finalAmount
+                                            - order.totalPrice).toFixed(2) %>
+                                    </span>
+                                </div>
+                                <% if(order.discount> 0) { %>
+                                    <div class="row">
+                                        <span>Discount</span>
+                                        <span class="discount">-$<%= order.discount %></span>
+                                    </div>
+                                    <% } %>
+                                        <div class="row total">
+                                            <span>Total Paid</span>
+                                            <span>$<%= order.finalAmount.toLocaleString() %></span>
+                                        </div>
+                            </div>
+                        </section>
+
+                        <% if (order.status==='Delivered' ) { %>
+                            <div class="action-bar">
+                                <button class="btn-return" onclick="openReturnModal('<%= order._id %>')">
+                                    Request Replacement/Refund
+                                </button>
+                            </div>
+                            <% } else if (order.status==='Pending' || order.status==='Processing' ) { %>
+                                <div class="action-bar">
+                                    <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>')">Cancel
+                                        Order</button>
+                                </div>
+                                <% } %>
+
+                    </main>
             </div>
 
-            <section class="card timeline-card">
-                <div class="steps-container">
-                    <% 
-                        // Logic to determine active steps
-                        const steps = ['Pending', 'Processing', 'Shipped', 'Delivered'];
-                        const currentStepIndex = steps.indexOf(order.status);
-                        // Handle Cancelled/Returned separately or map them to specific visual states
-                        const isCancelled = order.status === 'Cancelled';
-                    %>
+            <%- include('../partials/footer') %>
 
-                    <div class="step <%= (currentStepIndex >= 0 && !isCancelled) ? 'active' : '' %>">
-                        <div class="step-icon"><i class="fa-solid fa-box"></i></div>
-                        <div class="step-text">
-                            <span class="step-title">Order Placed</span>
-                            <span class="step-date"><%= new Date(order.createdAt).toLocaleDateString() %></span>
+                <div id="returnModal" class="modal-overlay hidden">
+                    <div class="modal-container" style="max-width: 600px;">
+                        <div class="modal-header" style="border:none; padding-bottom: 0;">
+                            <h2 class="modal-title" style="text-align: left;">Request Refund or Replacement</h2>
+                            <button class="close-btn" onclick="closeReturnModal()">&times;</button>
                         </div>
-                    </div>
-                    <div class="step-line <%= (currentStepIndex >= 1 && !isCancelled) ? 'active' : '' %>"></div>
 
-                    <div class="step <%= (currentStepIndex >= 2 && !isCancelled) ? 'active' : '' %>">
-                        <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
-                        <div class="step-text">
-                            <span class="step-title">Shipped</span>
-                            <span class="step-date">
-                                <%= order.orderHistory.find(h => h.status === 'Shipped')?.date.toLocaleDateString() || '--' %>
-                            </span>
+                        <div class="request-type-toggle">
+                            <button type="button" class="type-btn active" onclick="setReturnType('Refund', this)">
+                                Request Refund
+                            </button>
+                            <button type="button" class="type-btn" onclick="setReturnType('Replacement', this)">
+                                Request Replacement
+                            </button>
+                            <input type="hidden" id="returnType" value="Refund">
                         </div>
-                    </div>
-                    <div class="step-line <%= (currentStepIndex >= 3 && !isCancelled) ? 'active' : '' %>"></div>
 
-                    <div class="step <%= (currentStepIndex >= 3 && !isCancelled) ? 'active' : '' %>">
-                        <div class="step-icon"><i class="fa-solid fa-check"></i></div>
-                        <div class="step-text">
-                            <span class="step-title">Delivered</span>
-                            <span class="step-date">
-                                <%= order.orderHistory.find(h => h.status === 'Delivered')?.date.toLocaleDateString() || '--' %>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <% if (isCancelled) { %>
-                    <div class="alert-banner error">
-                        This order has been Cancelled.
-                    </div>
-                <% } else if (order.status === 'Delivered') { %>
-                    <div class="alert-banner success">
-                        Your order has been delivered successfully!
-                    </div>
-                <% } %>
-            </section>
-
-            <section class="card items-card">
-                <h3>Items Ordered</h3>
-                <div class="items-list">
-                    <% order.orderedItems.forEach(item => { %>
-                        <div class="item-row">
-                            <div class="item-image">
-                                <img src="<%= item.image %>" alt="<%= item.productName %>" onerror="this.src='https://placehold.co/80'">
-                            </div>
-                            <div class="item-details">
-                                <h4><%= item.productName %></h4>
-                                <p class="specs">Qty: <%= item.quantity %></p>
-                            </div>
-                            <div class="item-price">
-                                $<%= item.price.toLocaleString() %>
+                        <div class="product-summary-box">
+                            <div class="p-info">
+                                <span style="font-weight: 600; display: block;">Item from Order</span>
+                                <span style="font-size: 13px; color: #6B7280;">Order #<%= order.orderId %></span>
                             </div>
                         </div>
-                    <% }) %>
-                </div>
-            </section>
 
-            <div class="info-grid">
-                <section class="card info-card">
-                    <h3>Shipping Address</h3>
-                    <div class="info-content">
-                        <p class="name"><%= order.address.fullName %></p>
-                        <p><%= order.address.address1 %></p>
-                        <% if(order.address.address2){ %><p><%= order.address.address2 %></p><% } %>
-                        <p><%= order.address.city %>, <%= order.address.state %> <%= order.address.pincode %></p>
-                        <p class="phone"><%= order.address.phone %></p>
-                    </div>
-                </section>
+                        <div class="modal-form">
+                            <label class="input-label">Reason for Request</label>
+                            <select id="returnReason" class="form-select">
+                                <option value="" disabled selected>Select a reason</option>
+                                <option value="Damaged Product">Damaged Product</option>
+                                <option value="Wrong Item Sent">Wrong Item Sent</option>
+                                <option value="Defective">Defective / Not Working</option>
+                                <option value="Quality Not as Expected">Quality Not as Expected</option>
+                            </select>
 
-                <section class="card info-card">
-                    <h3>Payment Method</h3>
-                    <div class="info-content">
-                        <p class="payment-type">
-                            <i class="fa-regular fa-credit-card"></i> 
-                            <%= order.paymentMethod %>
-                        </p>
-                        <p class="status <%= order.paymentStatus.toLowerCase() %>">
-                            Status: <b><%= order.paymentStatus %></b>
-                        </p>
-                    </div>
-                </section>
-            </div>
+                            <label class="input-label">Additional Comments (optional)</label>
+                            <textarea id="returnComment" class="form-textarea"
+                                placeholder="Please describe the issue in detail..."></textarea>
 
-            <section class="card summary-card">
-                <h3>Order Summary</h3>
-                <div class="summary-rows">
-                    <div class="row">
-                        <span>Subtotal</span>
-                        <span>$<%= order.totalPrice.toLocaleString() %></span>
-                    </div>
-                    <div class="row">
-                        <span>Shipping</span>
-                        <span class="<%= order.finalAmount - order.totalPrice <= 0 ? 'free' : '' %>">
-                            <%= order.finalAmount - order.totalPrice <= 0 ? 'Free' : '$' + (order.finalAmount - order.totalPrice).toFixed(2) %>
-                        </span>
-                    </div>
-                    <% if(order.discount > 0) { %>
-                        <div class="row">
-                            <span>Discount</span>
-                            <span class="discount">-$<%= order.discount %></span>
+                            <div class="upload-area" onclick="document.getElementById('returnFile').click()">
+                                <i class="fa-solid fa-cloud-arrow-up"
+                                    style="font-size: 24px; color: #9CA3AF; margin-bottom: 8px;"></i>
+
+                                <span style="font-weight: 600; font-size: 14px; color: #374151;">Upload Proof
+                                    (optional)</span>
+
+                                <span id="fileNameDisplay"
+                                    style="font-size: 12px; color: #9CA3AF; margin-bottom: 12px;">
+                                    Drag & drop or click to upload
+                                </span>
+
+                                <button class="btn-choose-file" type="button">Choose File</button>
+
+                                <input type="file" id="returnFile" hidden onchange="handleFileSelect(this)">
+                            </div>
                         </div>
-                    <% } %>
-                    <div class="row total">
-                        <span>Total Paid</span>
-                        <span>$<%= order.finalAmount.toLocaleString() %></span>
+
+                        <div class="modal-actions" style="justify-content: flex-end; padding-top: 20px;">
+                            <button class="btn-text" onclick="closeReturnModal()">Cancel</button>
+                            <button class="btn-blue-submit" id="sub-unq" onclick="submitReturnRequest()">Submit
+                                Request</button>
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            <% if (order.status === 'Delivered') { %>
-                <div class="action-bar">
-                    <button class="btn-return">Request Replacement/Refund</button>
-                </div>
-            <% } else if (order.status === 'Pending' || order.status === 'Processing') { %>
-                <div class="action-bar">
-                    <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>')">Cancel Order</button>
-                </div>
-            <% } %>
+                <script src="/js/axios.min.js"></script>
 
-        </main>
-    </div>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<%- include('../partials/footer') %>
-</body>
+                <script>
 
- <script src="/js/axios.min.js"></script>
+                    const showToast = (msg, type) => {
+                        Toastify({
+                            text: msg,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            className: "my-custom-toast",
+                            backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)", borderRadius: '10px'
+                        }).showToast();
+                    };
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                    async function cancelOrder(orderId) {
+                        // 1. Confirm with the user
+                        const result = await Swal.fire({
+                            title: 'Are you sure?',
+                            text: "Do you really want to cancel this order?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Yes, cancel it!'
+                        });
 
-    <script>
+                        if (!result.isConfirmed) return;
 
-       const showToast = (msg, type) => {
-                Toastify({
-                    text: msg,
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    className: "my-custom-toast",
-                    backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",borderRadius: '10px'
-                }).showToast();
-            };
-        
-        async function cancelOrder(orderId) {
-            // 1. Confirm with the user
-            const result = await Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you really want to cancel this order?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
-            });
+                        try {
+                            // 2. Send Request to Backend
+                            const response = await axios.patch('/user/home/orders/cancel', { orderId });
 
-            if (!result.isConfirmed) return;
+                            if (response.data.success) {
+                                // 3. Success! Show message and reload
+                                await Swal.fire(
+                                    'Cancelled!',
+                                    'Your order has been cancelled.',
+                                    'success'
+                                );
+                                window.location.reload();
+                            } else {
+                                showToast(response.data.message, 'error');
+                            }
 
-            try {
-                // 2. Send Request to Backend
-                const response = await axios.patch('/user/home/orders/cancel', { orderId });
+                        } catch (error) {
+                            console.error(error);
+                            const errMsg = error.response?.data?.message || "Something went wrong";
+                            showToast(errMsg, "error");
+                        }
+                    }
 
-                if (response.data.success) {
-                    // 3. Success! Show message and reload
-                    await Swal.fire(
-                        'Cancelled!',
-                        'Your order has been cancelled.',
-                        'success'
-                    );
-                    window.location.reload();
-                } else {
-                    showToast(response.data.message, 'error');
-                }
+                    function openReturnModal(orderId) {
+                        // You can set currentOrderId here globally if needed
+                        window.currentReturnOrderId = orderId;
+                        document.getElementById('returnModal').classList.remove('hidden');
+                    }
 
-            } catch (error) {
-                console.error(error);
-                 const errMsg = error.response?.data?.message || "Something went wrong";
-                    showToast(errMsg, "error");
-            }
-        }
-    </script>
+                    function closeReturnModal() {
+                        document.getElementById('returnModal').classList.add('hidden');
+                    }
+
+                    // Toggle Refund/Replacement Button UI
+                    function setReturnType(type, btnElement) {
+                        document.getElementById('returnType').value = type;
+
+                        // Reset classes
+                        document.querySelectorAll('.type-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+
+                        // Set active
+                        btnElement.classList.add('active');
+                    }
+
+                    function handleFileSelect(input) {
+                        const fileNameSpan = document.getElementById('fileNameDisplay');
+                        if (input.files && input.files[0]) {
+                            fileNameSpan.innerText = "Selected: " + input.files[0].name;
+                            fileNameSpan.style.color = "#2563EB"; // Blue color
+                            fileNameSpan.style.fontWeight = "600";
+                        } else {
+                            fileNameSpan.innerText = "Drag & drop or click to upload";
+                            fileNameSpan.style.color = "#9CA3AF";
+                        }
+                    }
+
+                    // 2. Submit Logic (UPDATED FOR FILES)
+                    async function submitReturnRequest() {
+
+                        const sub_btn = document.getElementById('sub-unq')
+                        const type = document.getElementById('returnType').value;
+                        const reason = document.getElementById('returnReason').value;
+                        const comment = document.getElementById('returnComment').value;
+                        const fileInput = document.getElementById('returnFile');
+
+                        const originalText = sub_btn.innerText; // Save original text
+                        if (!reason) {
+                            showToast("Please select a reason", "error");
+                            return;
+                        }
+
+                        // --- CHANGE: Use FormData instead of JSON object ---
+                        const formData = new FormData();
+                        formData.append('orderId', window.currentReturnOrderId || '<%= order._id %>');
+                        formData.append('returnType', type);
+                        formData.append('reason', reason);
+                        formData.append('comment', comment);
+
+                        // Check if file is selected
+                        if (fileInput.files.length > 0) {
+                            formData.append('returnImage', fileInput.files[0]);
+                        }
+
+                        try {
+                            // Header is crucial for files
+                            const config = {
+                                headers: {
+                                    'Content-Type': 'multipart/form-data'
+                                }
+                            };
+
+                            sub_btn.innerText = 'Uploading...';
+                            sub_btn.disabled = true;           // Disable button
+                            sub_btn.style.opacity = '0.7';
+
+                            const response = await axios.post('/user/orders/return', formData, config);
+
+
+                            if (response.data.success) {
+                                closeReturnModal();
+                                Swal.fire('Success', 'Return request submitted', 'success')
+                                    .then(() => window.location.reload());
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            showToast("Failed to submit request", "error");
+
+                            sub_btn.innerText = originalText;
+                            sub_btn.disabled = false;
+                            sub_btn.style.opacity = '1';
+                        }
+                    }
+                </script>

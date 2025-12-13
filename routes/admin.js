@@ -41,6 +41,7 @@ router.patch('/category/toggle-status/:id',adminAuth.checkSession, categoryContr
 router.get('/orders',orderController.getOrder)
 router.get('/orders/details/:orderId', orderController.getOrderDetails);
 router.patch('/orders/update-status', orderController.updateOrderStatus);
+router.patch('/orders/handle-return', orderController.handleReturnRequest);
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

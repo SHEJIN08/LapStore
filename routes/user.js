@@ -8,7 +8,7 @@ import profileController from '../Controller/user/profileController.js';
 import addressController from '../Controller/user/addressController.js';
 import cartController from '../Controller/user/cartController.js';
 import checkoutContoller from '../Controller/user/checkoutContoller.js';
-import orderContoller from '../Controller/user/orderContoller.js';
+import orderController from '../Controller/user/orderContoller.js';
 import upload from '../middleware/multer.js'
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
@@ -32,31 +32,33 @@ router.get('/home',userAuth.isUserBlocked,userController.loadHome)
 router.get('/product/:id',userAuth.isUserBlocked, userController.detailedPage)
 router.get('/home/shop', userController.shopPage)
 
-router.get('/home/profile',userAuth.checkSession ,profileController.loadProfile)
+router.get('/home/profile',userAuth.isUserBlocked,userAuth.checkSession ,profileController.loadProfile)
 router.post('/home/profile/upload-profile-pic', upload.single('avatar'), profileController.updateProfilePic)
 router.put('/home/profile/change-password',profileController.changePassword)
 router.put('/home/profile/edit-info', profileController.editInfo)
 router.post('/home/profile/verify-update-otp',verifyOtp)
 
-router.get('/home/manageAddress',userAuth.checkSession,addressController.loadAddress)
+router.get('/home/manageAddress', userAuth.isUserBlocked, userAuth.checkSession,addressController.loadAddress)
 router.post('/home/manageAddress/add',addressController.addAddress)
 router.put('/home/manageAddress/set-default/:addressId', addressController.setDefaultAddress);
 router.get("/home/manageAddress/get/:addressId", addressController.getAddressDetails);
 router.put("/home/manageAddress/edit/:addressId", addressController.editAddress);
 router.delete("/home/manageAddress/delete/:addressId", addressController.deleteAddress);
 
-router.get('/home/cart',cartController.loadCart)
+router.get('/home/cart',userAuth.isUserBlocked,cartController.loadCart)
 router.post('/home/cart/update-quantity', cartController.updateCartQuantity)
 router.delete('/home/cart/remove', cartController.removeFromCart)
 router.post("/home/cart/add", cartController.addToCart);
 
-router.get('/cart/checkout', checkoutContoller.loadCheckout)
+router.get('/cart/checkout',userAuth.isUserBlocked, checkoutContoller.loadCheckout)
 router.post('/cart/checkout/place-order', checkoutContoller.placeOrder)
 router.get('/order-success/:orderId', checkoutContoller.orderSuccess)
 
-router.get('/home/orders', orderContoller.loadOrders);
-router.patch('/home/orders/cancel', orderContoller.cancelOrder)
-router.get('/home/orders/details/:orderId', orderContoller.orderDetailedPage)
+router.get('/home/orders',userAuth.isUserBlocked, orderController.loadOrders);
+router.patch('/home/orders/cancel',userAuth.checkSession, orderController.cancelOrder)
+router.get('/home/orders/details/:orderId',userAuth.checkSession, orderController.orderDetailedPage)
+router.post('/orders/return', upload.single('returnImage'), orderController.returnOrder);
+router.get('/orders/invoice/:orderId', orderController.downloadInvoice);
 
 
 router.get('/logout',userController.logout);

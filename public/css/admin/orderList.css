@@ -181,10 +181,11 @@ ul { list-style: none; }
 
 /* Colors */
 .status-badge.completed, .status-badge.delivered { background-color: #DCFCE7; color: #166534; }
-.status-badge.pending { background-color: #FEF9C3; color: #854D0E; }
-.status-badge.shipped, .status-badge.out-for-delivery { background-color: #F3E8FF; color: #6B21A8; }
+.status-badge.pending {   background-color:#FFFBEB; color:#D97706;}
+.status-badge.shipped, .status-badge.out-for-delivery {  background-color: #e0e7fe; color: #4F46E5; }
 .status-badge.cancelled { background-color: #FEE2E2; color: #991B1B; }
-.status-badge.processing, .status-badge.confirmed { background-color: #DBEAFE; color: #1E40AF; }
+.status-badge.processing, .status-badge.confirmed {  background-color:#e6f1ff; color:#2563EB; }
+.status-badge.return-request { background-color:#FFFBEB; color:#D97706;}
 .status-badge.returned { background-color: #FFEDD5; color: #9A3412; }
 
 /* =========================================
