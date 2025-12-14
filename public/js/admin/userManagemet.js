@@ -13,20 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let targetUserId = null; // Store ID to operate on
 
     // --- HELPER: Toast Function ---
-    const showToast = (msg, type) => {
-        if (typeof Toastify === 'function') {
+      const showToast = (message, type) => {
+            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
             Toastify({
-                text: msg,
+                text: message,
                 duration: 3000,
-                gravity: "top",
-                position: "right",
-                // Fixed: Use style.background instead of backgroundColor
-                style: { background: type === "success" ? "#28a745" : "#dc3545", borderRadius: '10px' }
+                gravity: "top", 
+                position: "right", 
+                style: { background: bgColor, borderRadius: '10px' }
             }).showToast();
-        } else {
-            alert(msg);
-        }
-    };
+        };
+
 
     // --- HELPER: Axios Request ---
     const toggleUserStatus = async (userId) => {

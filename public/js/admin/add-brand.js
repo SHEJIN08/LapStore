@@ -10,17 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitBtn = document.getElementById('submitBtn');
 
             // Toast Helper
-            const showToast = (msg, type) => {
-                Toastify({
-                    text: msg,
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    className: "my-custom-toast",
-                    backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",
-                    borderRadius: '10px'
-                }).showToast();
-            };
+             const showToast = (message, type) => {
+            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top", 
+                position: "right", 
+                style: { background: bgColor, borderRadius: '10px' }
+            }).showToast();
+        };
 
             // --- CROPPER SETUP ---
             let cropper; // Variable to hold the cropper instance

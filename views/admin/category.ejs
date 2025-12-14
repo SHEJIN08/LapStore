@@ -67,7 +67,7 @@
                                                     <%= category.categoryName %>
                                                 </td>
                                                 <td>
-                                                    <%= category.orders || 0 %>
+                                                    <%= category.count || 0 %>
                                                 </td>
                                                 <td>
                                                     <% if (category.isListed) { %>
@@ -163,8 +163,8 @@
     </div>
     <div class="row mb-4">
         <div class="col-md-6">
-            <label class="form-label">Display Order</label>
-            <input type="number" class="form-control" name="orders" value="0" disabled>
+            <label class="form-label">Display Count</label>
+            <input type="number" class="form-control" name="count" value="0" disabled>
         </div>
         <div class="col-md-6">
             <label class="form-label">Status</label>

@@ -133,14 +133,14 @@
             let cropper = null;
 
             // --- Helper: Toast Notification ---
-            const showToast = (msg, type) => {
+            const showToast = (message, type) => {
+                const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
                 Toastify({
-                    text: msg,
+                    text: message,
                     duration: 3000,
                     gravity: "top",
                     position: "right",
-                    className: "my-custom-toast",
-                    backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)",borderRadius: '10px'
+                    style: { background: bgColor, borderRadius: '10px' }
                 }).showToast();
             };
 
@@ -259,6 +259,7 @@
             });
         </script>
 
-            <script src="/js/axios.min.js"></script>
-            </body>
-</html>
+        <script src="/js/axios.min.js"></script>
+    </body>
+
+    </html>

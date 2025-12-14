@@ -31,69 +31,163 @@
                         </div>
 
                         <section class="card timeline-card">
-                            <div class="steps-container">
-                                <% steps=['Pending', 'Processing' , 'Shipped' , 'Out for Delivery' , 'Delivered' ];
-                                    const currentStepIndex=steps.indexOf(order.status); const
-                                    isCancelled=order.status==='Cancelled' ; const history=order.orderHistory || []; %>
+                            <% const isReturnActive=['Return Request', 'Returned' ].includes(order.status); const
+                                history=order.orderHistory || []; const getDate=(status)=> {
+                                const entry = history.find(h => h.status === status);
+                                return entry ? new Date(entry.date).toLocaleDateString() : '--';
+                                };
+                                %>
 
-                                    <div class="step <%= (currentStepIndex >= 0 && !isCancelled) ? 'active' : '' %>">
-                                        <div class="step-icon"><i class="fa-solid fa-box"></i></div>
-                                        <div class="step-text">
-                                            <span class="step-title">Order Placed</span>
-                                            <span class="step-date">
-                                                <%= new Date(order.createdAt).toLocaleDateString() %>
-                                            </span>
+                                <% if (!isReturnActive) { %>
+
+                                    <div class="steps-container">
+                                        <% const steps=['Pending', 'Processing' , 'Shipped' , 'Out for Delivery'
+                                            , 'Delivered' ]; const currentStepIndex=steps.indexOf(order.status); const
+                                            isCancelled=order.status==='Cancelled' ; %>
+
+                                            <div
+                                                class="step <%= (currentStepIndex >= 0 && !isCancelled) ? 'active' : '' %>">
+                                                <div class="step-icon"><i class="fa-solid fa-box"></i></div>
+                                                <div class="step-text">
+                                                    <span class="step-title">Order Placed</span>
+                                                    <span class="step-date">
+                                                        <%= new Date(order.createdAt).toLocaleDateString() %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="step-line <%= (currentStepIndex >= 2 && !isCancelled) ? 'active' : '' %>">
+                                            </div>
+
+                                            <div
+                                                class="step <%= (currentStepIndex >= 2 && !isCancelled) ? 'active' : '' %>">
+                                                <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                                                <div class="step-text">
+                                                    <span class="step-title">Shipped</span>
+                                                    <span class="step-date">
+                                                        <%= getDate('Shipped') %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="step-line <%= (currentStepIndex >= 3 && !isCancelled) ? 'active' : '' %>">
+                                            </div>
+
+                                            <div
+                                                class="step <%= (currentStepIndex >= 3 && !isCancelled) ? 'active' : '' %>">
+                                                <div class="step-icon"><i class="fa-solid fa-motorcycle"></i></div>
+                                                <div class="step-text">
+                                                    <span class="step-title">Out for Delivery</span>
+                                                    <span class="step-date">
+                                                        <%= getDate('Out for Delivery') %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="step-line <%= (currentStepIndex >= 4 && !isCancelled) ? 'active' : '' %>">
+                                            </div>
+
+                                            <div
+                                                class="step <%= (currentStepIndex >= 4 && !isCancelled) ? 'active' : '' %>">
+                                                <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+                                                <div class="step-text">
+                                                    <span class="step-title">Delivered</span>
+                                                    <span class="step-date">
+                                                        <%= getDate('Delivered') %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                    </div>
+
+                                    <% if (isCancelled) { %>
+                                        <div class="alert-banner error" style="margin-top: 20px;">
+                                            <i class="fa-solid fa-circle-xmark"></i> This order has been Cancelled.
                                         </div>
-                                    </div>
+                                        <% } %>
 
-                                    <div
-                                        class="step-line <%= (currentStepIndex >= 2 && !isCancelled) ? 'active' : '' %>">
-                                    </div>
+                                            <% } else { %>
 
-                                    <div class="step <%= (currentStepIndex >= 2 && !isCancelled) ? 'active' : '' %>">
-                                        <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
-                                        <div class="step-text">
-                                            <span class="step-title">
-                                                <%= (order.status==='Out for Delivery' ) ? 'Out for Delivery'
-                                                    : 'Shipped' %>
-                                            </span>
+                                                <% const returnStatus=order.returnRequest.status; const
+                                                    isApproved=returnStatus==='Approved' ; const
+                                                    isRejected=returnStatus==='Rejected' ; const
+                                                    isCompleted=order.status==='Returned' ; %>
 
-                                            <span class="step-date">
-                                                <% const shippedEvent=history.find(h=>
-                                                    h.status === 'Out for Delivery') ||
-                                                    history.find(h => h.status === 'Shipped');
-                                                    %>
-                                                    <%= shippedEvent ? new Date(shippedEvent.date).toLocaleDateString()
-                                                        : '--' %>
-                                            </span>
-                                        </div>
-                                    </div>
+                                                    <div class="steps-container return-mode">
 
-                                    <div
-                                        class="step-line <%= (currentStepIndex >= 4 && !isCancelled) ? 'active' : '' %>">
-                                    </div>
+                                                        <div class="step active">
+                                                            <div class="step-icon return-icon"><i
+                                                                    class="fa-solid fa-rotate-left"></i></div>
+                                                            <div class="step-text">
+                                                                <span class="step-title">Return Requested</span>
+                                                                <span class="step-date">
+                                                                    <%= new
+                                                                        Date(order.returnRequest.requestDate).toLocaleDateString()
+                                                                        %>
+                                                                </span>
+                                                            </div>
+                                                        </div>
 
-                                    <div class="step <%= (currentStepIndex >= 4 && !isCancelled) ? 'active' : '' %>">
-                                        <div class="step-icon"><i class="fa-solid fa-check"></i></div>
-                                        <div class="step-text">
-                                            <span class="step-title">Delivered</span>
-                                            <span class="step-date">
-                                                <%= history.find(h=> h.status ===
-                                                    'Delivered')?.date.toLocaleDateString() || '--' %>
-                                            </span>
-                                        </div>
-                                    </div>
-                            </div>
+                                                        <div
+                                                            class="step-line <%= (isApproved || isRejected) ? 'active' : '' %>">
+                                                        </div>
 
-                            <% if (isCancelled) { %>
-                                <div class="alert-banner error">
-                                    This order has been Cancelled.
-                                </div>
-                                <% } else if (order.status==='Delivered' ) { %>
-                                    <div class="alert-banner success">
-                                        Your order has been delivered successfully!
-                                    </div>
-                                    <% } %>
+                                                        <div
+                                                            class="step <%= (isApproved || isRejected) ? 'active' : '' %>">
+                                                            <div class="step-icon return-icon">
+                                                                <% if(isRejected) { %>
+                                                                    <i class="fa-solid fa-circle-xmark"
+                                                                        style="color: #EF4444;"></i>
+                                                                    <% } else { %>
+                                                                        <i class="fa-solid fa-user-shield"></i>
+                                                                        <% } %>
+                                                            </div>
+                                                            <div class="step-text">
+                                                                <span class="step-title">Admin Review</span>
+                                                                <span class="step-date">
+                                                                    <%= (isApproved || isRejected) ? getDate('Returned')
+                                                                        || 'Reviewed' : 'Pending' %>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div
+                                                            class="step-line <%= (isCompleted && isApproved) ? 'active' : '' %>">
+                                                        </div>
+
+                                                        <div
+                                                            class="step <%= (isCompleted && isApproved) ? 'active' : '' %>">
+                                                            <div class="step-icon return-icon"><i
+                                                                    class="fa-solid fa-hand-holding-dollar"></i></div>
+                                                            <div class="step-text">
+                                                                <span class="step-title">Approved & Refunded</span>
+                                                                <span class="step-date">
+                                                                    <%= isCompleted ? getDate('Returned') : '--' %>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <% if (isRejected) { %>
+                                                        <div class="alert-banner error" style="margin-top: 20px;">
+                                                            <i class="fa-solid fa-circle-exclamation"></i> Return
+                                                            Request Rejected. Please contact support.
+                                                        </div>
+                                                        <% } else if (isApproved) { %>
+                                                            <div class="alert-banner success"
+                                                                style="margin-top: 20px; background-color: #EFF6FF; color: #1E40AF;">
+                                                                <i class="fa-solid fa-circle-check"></i> Return
+                                                                Approved. Refund has been initiated.
+                                                            </div>
+                                                            <% } else { %>
+                                                                <div class="alert-banner"
+                                                                    style="margin-top: 20px; background-color: #FFF7ED; color: #9A3412;">
+                                                                    <i class="fa-regular fa-clock"></i> Return Request
+                                                                    is under review.
+                                                                </div>
+                                                                <% } %>
+
+                                                                    <% } %>
                         </section>
 
                         <section class="card items-card">
@@ -182,7 +276,7 @@
                                     </div>
                                     <% } %>
                                         <div class="row total">
-                                            <span>Total Paid</span>
+                                            <span>Total</span>
                                             <span>$<%= order.finalAmount.toLocaleString() %></span>
                                         </div>
                             </div>
@@ -276,16 +370,17 @@
 
                 <script>
 
-                    const showToast = (msg, type) => {
+                    const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
                         Toastify({
-                            text: msg,
+                            text: message,
                             duration: 3000,
                             gravity: "top",
                             position: "right",
-                            className: "my-custom-toast",
-                            backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)", borderRadius: '10px'
+                            style: { background: bgColor, borderRadius: '10px' }
                         }).showToast();
                     };
+
 
                     async function cancelOrder(orderId) {
                         // 1. Confirm with the user

@@ -13,19 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let targetId = null;
 
     // Toast Helper
-    const showToast = (msg, type) => {
-        if (typeof Toastify === 'function') {
+     const showToast = (message, type) => {
+            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
             Toastify({
-                text: msg,
+                text: message,
                 duration: 3000,
-                gravity: "top",
-                position: "right",
-                style: { background: type === "success" ? "#28a745" : "#dc3545", borderRadius: '10px' }
+                gravity: "top", 
+                position: "right", 
+                style: { background: bgColor, borderRadius: '10px' }
             }).showToast();
-        } else {
-            alert(msg);
-        }
-    };
+        };
+
 
     // 2. Function to Open Modal
     const openModal = (id, name, action) => {
@@ -130,13 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.data.success) {
                     // 4. Success: Show Toast & Reload
-                    Toastify({
-                        text: response.data.message,
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        style: { background: "#28a745" } // Green
-                    }).showToast();
+                   showToast(response.data.message, 'success');
 
                     // Close modal and reload page after 1 second
                     setTimeout(() => {
@@ -144,26 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1000);
                 } else {
                     // Logic failure (e.g. name already exists)
-                    Toastify({
-                        text: response.data.message,
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        style: { background: "#dc3545" } // Red
-                    }).showToast();
+                    showToast(response.data.message, 'error');
                 }
 
             } catch (error) {
                 console.error("Error adding category:", error);
                 // 5. Network/Server Error
                 const errMsg = error.response?.data?.message || "Something went wrong";
-                Toastify({
-                    text: errMsg,
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    style: { background: "#dc3545" }
-                }).showToast();
+               showToast(errMsg, 'error')
             }
         });
     }

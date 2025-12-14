@@ -57,7 +57,7 @@ const loadCategory = async (req, res) => {
 // 2. POST: Add New Category
 const addCategory = async (req, res) => {
     try {
-        const { categoryName, description, isListed, orders } = req.body;
+        const { categoryName, description, isListed, count } = req.body;
       
 
         if (!categoryName) {
@@ -76,7 +76,7 @@ const addCategory = async (req, res) => {
         const newCategory = new Category({
             categoryName,
             description,
-            orders: Number(orders) || 0,
+            count: Number(count) || 0,
             isListed: isListed === 'true' || isListed === true, 
         });
 
@@ -96,7 +96,7 @@ const getEditCategory = async (req, res) => {
         const category = await Category.findById(id);
 
         if (!category) {
-            return res.redirect('/admin/category');
+            return res.render('user/404');
         }
 //  Fetch Products in this Category
         const productDocs = await Product.find({ category: id }).sort({ createdAt: -1 });

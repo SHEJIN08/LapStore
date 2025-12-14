@@ -80,8 +80,8 @@
 <script>
     const Formdata = document.getElementById('Formdata');
 
-     const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+       const showToast = (message, type) => {
+            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
             Toastify({
                 text: message,
                 duration: 3000,
@@ -90,6 +90,7 @@
                 style: { background: bgColor, borderRadius: '10px' }
             }).showToast();
         };
+
          const passwordInput = document.getElementById('password')
         const eyeIcon = document.querySelector('.eye-icon')
 

@@ -428,6 +428,48 @@ h3 {
 }
 .close-btn:hover { color: #111827; }
 
+/* --- Return Mode Specifics --- */
+
+/* Change the active line color for returns to indicate a different process */
+.steps-container.return-mode .step-line.active {
+    background: #F59E0B; /* Amber/Orange color */
+}
+
+/* Return Icons Styling */
+.steps-container.return-mode .step.active .step-icon {
+    background: #FEF3C7; /* Light Amber bg */
+    color: #D97706;       /* Dark Amber icon */
+    border: 1px solid #FCD34D;
+}
+
+/* Specific icons size adjustment if needed */
+.return-icon i {
+    font-size: 16px;
+}
+
+/* Alert Banners */
+.alert-banner {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-banner.error {
+    background-color: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #FECACA;
+}
+
+.alert-banner.success {
+    background-color: #ECFDF5;
+    color: #059669;
+    border: 1px solid #A7F3D0;
+}
+
 /* --- Responsive --- */
 @media (max-width: 768px) {
     .info-grid { grid-template-columns: 1fr; }

@@ -135,7 +135,7 @@ const addProduct = async (req, res) => {
     });
 
     const savedProduct = await newProduct.save();
-    await Category.updateOne({ _id: category }, { $inc: { orders: 1 } });
+    await Category.updateOne({ _id: category }, { $inc: { count: 1 } });
 
     if (variantsData) {
       const parsedVariants = JSON.parse(variantsData);
@@ -285,8 +285,8 @@ const editProduct = async (req, res) => {
     const newCategoryId = category;
 
     if (oldCategoryId !== newCategoryId) {
-      await Category.updateOne({ _id: oldCategoryId }, { $inc: { orders: -1 } });
-      await Category.updateOne({ _id: newCategoryId }, { $inc: { orders: 1 } });
+      await Category.updateOne({ _id: oldCategoryId }, { $inc: { count: -1 } });
+      await Category.updateOne({ _id: newCategoryId }, { $inc: { count: 1 } });
     }
 
     product.name = name;

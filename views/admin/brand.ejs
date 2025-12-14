@@ -189,127 +189,126 @@
 
 
 
-        
 
-            <script src="/js/axios.min.js"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    // 1. Select Elements
-                    const modal = document.getElementById('confirmationModal'); // Changed ID
-                    const modalBrandName = document.getElementById('modalBrandName');
-                    const modalTitle = document.getElementById('modalTitle');
-                    const actionText = document.getElementById('actionText');
-                    const modalSubText = document.getElementById('modalSubText');
-                    const confirmBtn = document.getElementById('confirmActionBtn');
-                    const closeBtn = document.querySelector('.modal-close-btn');
-                    const cancelBtn = document.querySelector('.btn-cancel');
 
-                    let targetBrandId = null;
+        <script src="/js/axios.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // 1. Select Elements
+                const modal = document.getElementById('confirmationModal'); // Changed ID
+                const modalBrandName = document.getElementById('modalBrandName');
+                const modalTitle = document.getElementById('modalTitle');
+                const actionText = document.getElementById('actionText');
+                const modalSubText = document.getElementById('modalSubText');
+                const confirmBtn = document.getElementById('confirmActionBtn');
+                const closeBtn = document.querySelector('.modal-close-btn');
+                const cancelBtn = document.querySelector('.btn-cancel');
 
-                    // Toast Helper
-                    const showToast = (msg, type) => {
-                        if (typeof Toastify === 'function') {
-                            Toastify({
-                                text: msg,
-                                duration: 3000,
-                                gravity: "top",
-                                position: "right",
-                                style: { background: type === "success" ? "#28a745" : "#dc3545",borderRadius: '10px' }
-                            }).showToast();
+                let targetBrandId = null;
+
+                // Toast Helper
+                const showToast = (message, type) => {
+                    const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                    Toastify({
+                        text: message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: bgColor, borderRadius: '10px' }
+                    }).showToast();
+                };
+
+
+                // API Call
+                const toggleBrandStatus = async (brandId) => {
+                    try {
+                        // Using axios.post with empty body {}
+                        const response = await axios.patch(`/admin/brands/toggle-block/${brandId}`, {});
+
+                        if (response.data.success) {
+                            showToast(response.data.message, "success");
+                            setTimeout(() => window.location.reload(), 1000);
                         } else {
-                            alert(msg);
+                            showToast(response.data.message || 'Action failed', 'error');
                         }
-                    };
-
-                    // API Call
-                    const toggleBrandStatus = async (brandId) => {
-                        try {
-                            // Using axios.post with empty body {}
-                            const response = await axios.patch(`/admin/brands/toggle-block/${brandId}`, {});
-
-                            if (response.data.success) {
-                                showToast(response.data.message, "success");
-                                setTimeout(() => window.location.reload(), 1000);
-                            } else {
-                                showToast(response.data.message || 'Action failed', 'error');
-                            }
-                        } catch (err) {
-                            console.error(err);
-                            showToast(err.response?.data?.message || 'Something went wrong', "error");
-                        }
-                    };
-
-                    // 2. Open Modal Logic (Handles BOTH Block and Unblock)
-                    const openModal = (brandId, brandName, actionType) => {
-                        targetBrandId = brandId;
-                        modalBrandName.textContent = brandName;
-                        modal.style.display = 'flex';
-
-                        if (actionType === 'block') {
-                            // Set UI for Blocking (Red/Warning)
-                            modalTitle.textContent = "Block Brand";
-                            actionText.textContent = "block";
-                            actionText.style.color = "#dc3545"; // Red
-                            modalSubText.textContent = "This brand will effectively be hidden from users.";
-
-                            confirmBtn.textContent = "Block Brand";
-                            confirmBtn.className = "btn-confirm-block"; // Red style
-                            confirmBtn.style.backgroundColor = "#dc3545"; // Force Red
-                        } else {
-                            // Set UI for Unblocking (Green/Safe)
-                            modalTitle.textContent = "Unblock Brand";
-                            actionText.textContent = "unblock";
-                            actionText.style.color = "#28a745"; // Green
-                            modalSubText.textContent = "This brand will become visible to users again.";
-
-                            confirmBtn.textContent = "Unblock Brand";
-                            confirmBtn.className = "btn-confirm-unblock"; // Green style
-                            confirmBtn.style.backgroundColor = "#28a745"; // Force Green
-                        }
-                    };
-
-                    // 3. Attach Event Listeners to Buttons
-
-                    // Block Buttons
-                    document.querySelectorAll('.block-btn').forEach(btn => {
-                        btn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            const id = this.getAttribute('data-brand-id');
-                            const name = this.getAttribute('data-brand-name');
-                            openModal(id, name, 'block');
-                        });
-                    });
-
-                    // Unblock Buttons (Now opens modal too!)
-                    document.querySelectorAll('.unblock-btn').forEach(btn => {
-                        btn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            const id = this.getAttribute('data-brand-id');
-                            
-                           
-                            const name = this.getAttribute('data-brand-name') || 'this brand';
-                            openModal(id, name, 'unblock');
-                        });
-                    });
-
-                    // 4. Confirm Button Click
-                    if (confirmBtn) {
-                        confirmBtn.addEventListener('click', function () {
-                            if (targetBrandId) {
-                                toggleBrandStatus(targetBrandId);
-                                modal.style.display = 'none';
-                            }
-                        });
+                    } catch (err) {
+                        console.error(err);
+                        showToast(err.response?.data?.message || 'Something went wrong', "error");
                     }
+                };
 
-                    // Close Modal Logic
-                    const hideModal = () => { modal.style.display = 'none'; };
-                    if (closeBtn) closeBtn.addEventListener('click', hideModal);
-                    if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
-                    window.addEventListener('click', (e) => {
-                        if (e.target === modal) hideModal();
+                // 2. Open Modal Logic (Handles BOTH Block and Unblock)
+                const openModal = (brandId, brandName, actionType) => {
+                    targetBrandId = brandId;
+                    modalBrandName.textContent = brandName;
+                    modal.style.display = 'flex';
+
+                    if (actionType === 'block') {
+                        // Set UI for Blocking (Red/Warning)
+                        modalTitle.textContent = "Block Brand";
+                        actionText.textContent = "block";
+                        actionText.style.color = "#dc3545"; // Red
+                        modalSubText.textContent = "This brand will effectively be hidden from users.";
+
+                        confirmBtn.textContent = "Block Brand";
+                        confirmBtn.className = "btn-confirm-block"; // Red style
+                        confirmBtn.style.backgroundColor = "#dc3545"; // Force Red
+                    } else {
+                        // Set UI for Unblocking (Green/Safe)
+                        modalTitle.textContent = "Unblock Brand";
+                        actionText.textContent = "unblock";
+                        actionText.style.color = "#28a745"; // Green
+                        modalSubText.textContent = "This brand will become visible to users again.";
+
+                        confirmBtn.textContent = "Unblock Brand";
+                        confirmBtn.className = "btn-confirm-unblock"; // Green style
+                        confirmBtn.style.backgroundColor = "#28a745"; // Force Green
+                    }
+                };
+
+                // 3. Attach Event Listeners to Buttons
+
+                // Block Buttons
+                document.querySelectorAll('.block-btn').forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const id = this.getAttribute('data-brand-id');
+                        const name = this.getAttribute('data-brand-name');
+                        openModal(id, name, 'block');
                     });
                 });
-            </script>
-            </body>
-</html>
+
+                // Unblock Buttons (Now opens modal too!)
+                document.querySelectorAll('.unblock-btn').forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const id = this.getAttribute('data-brand-id');
+
+
+                        const name = this.getAttribute('data-brand-name') || 'this brand';
+                        openModal(id, name, 'unblock');
+                    });
+                });
+
+                // 4. Confirm Button Click
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function () {
+                        if (targetBrandId) {
+                            toggleBrandStatus(targetBrandId);
+                            modal.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Close Modal Logic
+                const hideModal = () => { modal.style.display = 'none'; };
+                if (closeBtn) closeBtn.addEventListener('click', hideModal);
+                if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+                window.addEventListener('click', (e) => {
+                    if (e.target === modal) hideModal();
+                });
+            });
+        </script>
+    </body>
+
+    </html>

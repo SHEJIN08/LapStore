@@ -5,7 +5,7 @@ const categorySchema = new mongoose.Schema({
   categoryName: { type: String, required: true, unique: true },
   slug: { type: String, unique: true, index: true},
   description: { type: String},
-  orders: { type: Number, default: 0 },
+  count: { type: Number, default: 0 },
   isListed: { type: Boolean, default: true },
   showInNav: {type: Boolean, default: true},
  isFeatured: {type: Boolean, default: true}

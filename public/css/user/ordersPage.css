@@ -102,6 +102,12 @@
     background-color: #ECFDF5;
     color: #059669;
 }
+.status-badge.returned .dot { background-color: #059669; }
+
+.status-badge.returned {
+    background-color: #ECFDF5;
+    color: #059669;
+}
 .status-badge.delivered .dot { background-color: #059669; }
 
 .status-badge.out-for-delivery {

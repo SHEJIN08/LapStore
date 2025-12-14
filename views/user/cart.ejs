@@ -93,22 +93,17 @@
 
 <script>
     // --- Helper: Toastify Configuration ---
-    const showToast = (message, type = 'success') => {
-        const bgColor = type === 'success' ? "#28a745" : "#dc3545";
-        
-        Toastify({
-            text: message,
-            duration: 3000,
-            gravity: "top", 
-            position: "right", 
-            style: {
-                background: bgColor,
-                borderRadius: "8px",
-                fontSize: "14px",
-                fontWeight: "500"
-            },
-        }).showToast();
-    };
+     const showToast = (message, type) => {
+            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top", 
+                position: "right", 
+                style: { background: bgColor, borderRadius: '10px' }
+            }).showToast();
+        };
+
 
    async function fetchCartPage(page) {
         try {

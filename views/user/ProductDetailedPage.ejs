@@ -9,7 +9,9 @@
                 <nav class="breadcrumbs">
                     <a href="/">Home</a> &gt;
                     <a href="/user/home/shop">Shop</a> &gt;
-                    <a href="/user/home/shop?page=1&category=<%= product.category.slug %>"><%= product.category.categoryName %></a> &gt;
+                    <a href="/user/home/shop?page=1&category=<%= product.category.slug %>">
+                        <%= product.category.categoryName %>
+                    </a> &gt;
                     <span>
                         <%= product.name %>
                     </span>
@@ -193,173 +195,174 @@
                 <script src="/js/axios.min.js"></script>
 
 
-              <script>
-    // --- ELEMENTS ---
-    const container = document.getElementById("img-container");
-    const mainImg = document.getElementById("mainImg");
-    const lens = document.getElementById("zoom-lens");
-    const result = document.getElementById("zoom-result");
+                <script>
+                    // --- ELEMENTS ---
+                    const container = document.getElementById("img-container");
+                    const mainImg = document.getElementById("mainImg");
+                    const lens = document.getElementById("zoom-lens");
+                    const result = document.getElementById("zoom-result");
 
-    // --- ZOOM CONFIGURATION ---
-    // Calculate ratio: Result Window Width / Lens Width
-    const cx = result.offsetWidth / lens.offsetWidth; 
-    const cy = result.offsetHeight / lens.offsetHeight;
+                    // --- ZOOM CONFIGURATION ---
+                    // Calculate ratio: Result Window Width / Lens Width
+                    const cx = result.offsetWidth / lens.offsetWidth;
+                    const cy = result.offsetHeight / lens.offsetHeight;
 
-    // --- EVENT LISTENERS ---
-    container.addEventListener("mouseenter", () => {
-        lens.style.visibility = "visible";
-        result.style.visibility = "visible";
-        
-        // Load the image into the background of the result div
-        result.style.backgroundImage = `url('${mainImg.src}')`;
-        result.style.backgroundSize = (mainImg.width * cx) + "px " + (mainImg.height * cy) + "px";
-    });
+                    // --- EVENT LISTENERS ---
+                    container.addEventListener("mouseenter", () => {
+                        lens.style.visibility = "visible";
+                        result.style.visibility = "visible";
 
-    container.addEventListener("mouseleave", () => {
-        lens.style.visibility = "hidden";
-        result.style.visibility = "hidden";
-    });
+                        // Load the image into the background of the result div
+                        result.style.backgroundImage = `url('${mainImg.src}')`;
+                        result.style.backgroundSize = (mainImg.width * cx) + "px " + (mainImg.height * cy) + "px";
+                    });
 
-    container.addEventListener("mousemove", moveLens);
-    container.addEventListener("touchmove", moveLens); // For touch screens
+                    container.addEventListener("mouseleave", () => {
+                        lens.style.visibility = "hidden";
+                        result.style.visibility = "hidden";
+                    });
 
-    // --- ZOOM LOGIC (THE MATH) ---
-    function moveLens(e) {
-        e.preventDefault();
+                    container.addEventListener("mousemove", moveLens);
+                    container.addEventListener("touchmove", moveLens); // For touch screens
 
-        // 1. Get cursor position
-        const pos = getCursorPos(e);
-        let x = pos.x - (lens.offsetWidth / 2);
-        let y = pos.y - (lens.offsetHeight / 2);
+                    // --- ZOOM LOGIC (THE MATH) ---
+                    function moveLens(e) {
+                        e.preventDefault();
 
-        // 2. Boundary Checks (Don't let lens go outside image)
-        if (x > mainImg.width - lens.offsetWidth) { x = mainImg.width - lens.offsetWidth; }
-        if (x < 0) { x = 0; }
-        if (y > mainImg.height - lens.offsetHeight) { y = mainImg.height - lens.offsetHeight; }
-        if (y < 0) { y = 0; }
+                        // 1. Get cursor position
+                        const pos = getCursorPos(e);
+                        let x = pos.x - (lens.offsetWidth / 2);
+                        let y = pos.y - (lens.offsetHeight / 2);
 
-        // 3. Move the lens
-        lens.style.left = x + "px";
-        lens.style.top = y + "px";
+                        // 2. Boundary Checks (Don't let lens go outside image)
+                        if (x > mainImg.width - lens.offsetWidth) { x = mainImg.width - lens.offsetWidth; }
+                        if (x < 0) { x = 0; }
+                        if (y > mainImg.height - lens.offsetHeight) { y = mainImg.height - lens.offsetHeight; }
+                        if (y < 0) { y = 0; }
 
-        // 4. Move the result background
-        // We move the background in the OPPOSITE direction (-) times the ratio
-        result.style.backgroundPosition = "-" + (x * cx) + "px -" + (y * cy) + "px";
-    }
+                        // 3. Move the lens
+                        lens.style.left = x + "px";
+                        lens.style.top = y + "px";
 
-    function getCursorPos(e) {
-        let a, x = 0, y = 0;
-        e = e || window.event;
-        a = mainImg.getBoundingClientRect();
-        x = e.pageX - a.left;
-        y = e.pageY - a.top;
-        x = x - window.pageXOffset;
-        y = y - window.pageYOffset;
-        return {x : x, y : y};
-    }
+                        // 4. Move the result background
+                        // We move the background in the OPPOSITE direction (-) times the ratio
+                        result.style.backgroundPosition = "-" + (x * cx) + "px -" + (y * cy) + "px";
+                    }
 
-    // --- IMAGE SWITCHER (THUMBNAILS) ---
-    function changeImage(element, src) {
-        // 1. Update Main Image
-        mainImg.src = src;
-        
-        // 2. Update Zoom Background immediately
-        result.style.backgroundImage = `url('${src}')`;
-        
-        // 3. Update Thumbnail Styling
-        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-        element.classList.add('active');
-    }
+                    function getCursorPos(e) {
+                        let a, x = 0, y = 0;
+                        e = e || window.event;
+                        a = mainImg.getBoundingClientRect();
+                        x = e.pageX - a.left;
+                        y = e.pageY - a.top;
+                        x = x - window.pageXOffset;
+                        y = y - window.pageYOffset;
+                        return { x: x, y: y };
+                    }
 
-    // --- VARIANT SELECTOR ---
-    function selectVariant(element, salePrice, regularPrice) {
-        // 1. UI Updates (Styling & Radio Buttons)
-        document.querySelectorAll('.config-box').forEach(box => box.classList.remove('selected'));
-        element.classList.add('selected');
-        element.querySelector('input[type="radio"]').checked = true;
+                    // --- IMAGE SWITCHER (THUMBNAILS) ---
+                    function changeImage(element, src) {
+                        // 1. Update Main Image
+                        mainImg.src = src;
 
-        // 2. Price Updates
-        document.getElementById('displaySale').innerText = `₹${Number(salePrice).toLocaleString('en-IN')}`;
-        document.getElementById('displayOriginal').innerText = `₹${Number(regularPrice).toLocaleString('en-IN')}`;
+                        // 2. Update Zoom Background immediately
+                        result.style.backgroundImage = `url('${src}')`;
 
-        // 3. Image Updates
-        const variantImage = element.getAttribute('data-image');
-        if (variantImage) {
-            // Update Main Image
-            mainImg.src = variantImage;
-            
-            // Update Zoom Background
-            result.style.backgroundImage = `url('${variantImage}')`; 
+                        // 3. Update Thumbnail Styling
+                        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                        element.classList.add('active');
+                    }
 
-            // Update Thumbnails if match found
-            const firstThumbnail = document.querySelector('.thumbnail-list .thumbnail');
-            if (firstThumbnail) {
-                firstThumbnail.querySelector('img').src = variantImage;
-                firstThumbnail.setAttribute('onclick', `changeImage(this, '${variantImage}')`);
-                
-                document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-                firstThumbnail.classList.add('active');
-            }
-        }
-    }
+                    // --- VARIANT SELECTOR ---
+                    function selectVariant(element, salePrice, regularPrice) {
+                        // 1. UI Updates (Styling & Radio Buttons)
+                        document.querySelectorAll('.config-box').forEach(box => box.classList.remove('selected'));
+                        element.classList.add('selected');
+                        element.querySelector('input[type="radio"]').checked = true;
 
-    const showToast = (message, type = 'success') => {
-        const bgColor = type === 'success' ? "#28a745" : "#dc3545"; 
-        Toastify({
-            text: message,
-            duration: 3000,
-            gravity: "top", 
-            position: "right", 
-            style: { background: bgColor, borderRadius: "8px" }
-        }).showToast();
-    };
+                        // 2. Price Updates
+                        document.getElementById('displaySale').innerText = `₹${Number(salePrice).toLocaleString('en-IN')}`;
+                        document.getElementById('displayOriginal').innerText = `₹${Number(regularPrice).toLocaleString('en-IN')}`;
 
-    // --- ADD TO CART FUNCTION ---
-    async function addToCart() {
-        try {
-            // 1. Get Product ID (Injected by EJS)
-            const productId = '<%= product._id %>'; 
+                        // 3. Image Updates
+                        const variantImage = element.getAttribute('data-image');
+                        if (variantImage) {
+                            // Update Main Image
+                            mainImg.src = variantImage;
 
-            // 2. Get Selected Variant ID
-            // We look for the radio button that is currently checked
-            const selectedVariant = document.querySelector('input[name="variant"]:checked');
-            
-            if (!selectedVariant) {
-                showToast("Please select a configuration option", "error");
-                return;
-            }
-            
-            const variantId = selectedVariant.value;
+                            // Update Zoom Background
+                            result.style.backgroundImage = `url('${variantImage}')`;
 
-            // 3. Send Request to Server
-            // We send quantity: 1 because there is no quantity input on this page
-            const response = await axios.post('/user/home/cart/add', {
-                productId: productId,
-                variantId: variantId,
-                quantity: 1 
-            });
+                            // Update Thumbnails if match found
+                            const firstThumbnail = document.querySelector('.thumbnail-list .thumbnail');
+                            if (firstThumbnail) {
+                                firstThumbnail.querySelector('img').src = variantImage;
+                                firstThumbnail.setAttribute('onclick', `changeImage(this, '${variantImage}')`);
 
-            // 4. Handle Response
-            if (response.data.success) {
-                showToast("Item added to cart successfully!", "success");
-                
-            } else {
-                showToast(response.data.message, "error");
-            }
+                                document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                                firstThumbnail.classList.add('active');
+                            }
+                        }
+                    }
 
-        } catch (error) {
-            console.error(error);
-           if (error.response && error.response.status === 401) {
-                showToast("Please login to add items to cart", "error");
-                setTimeout(() => {
-                    window.location.href = '/user/login'
-                },2000)
-             
-            } else {
-                // Handle other errors (like 500 Server Error)
-                showToast("Failed to add to cart", "error");
-            }
-        }
-    }
-</script>
+                    const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                        Toastify({
+                            text: message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: bgColor, borderRadius: '10px' }
+                        }).showToast();
+                    };
+
+
+                    // --- ADD TO CART FUNCTION ---
+                    async function addToCart() {
+                        try {
+                            // 1. Get Product ID (Injected by EJS)
+                            const productId = '<%= product._id %>';
+
+                            // 2. Get Selected Variant ID
+                            // We look for the radio button that is currently checked
+                            const selectedVariant = document.querySelector('input[name="variant"]:checked');
+
+                            if (!selectedVariant) {
+                                showToast("Please select a configuration option", "error");
+                                return;
+                            }
+
+                            const variantId = selectedVariant.value;
+
+                            // 3. Send Request to Server
+                            // We send quantity: 1 because there is no quantity input on this page
+                            const response = await axios.post('/user/home/cart/add', {
+                                productId: productId,
+                                variantId: variantId,
+                                quantity: 1
+                            });
+
+                            // 4. Handle Response
+                            if (response.data.success) {
+                                showToast("Item added to cart successfully!", "success");
+
+                            } else {
+                                showToast(response.data.message, "error");
+                            }
+
+                        } catch (error) {
+                            console.error(error);
+                            if (error.response && error.response.status === 401) {
+                                showToast("Please login to add items to cart", "error");
+                                setTimeout(() => {
+                                    window.location.href = '/user/login'
+                                }, 2000)
+
+                            } else {
+                                // Handle other errors (like 500 Server Error)
+                                showToast("Failed to add to cart", "error");
+                            }
+                        }
+                    }
+                </script>
     </body>

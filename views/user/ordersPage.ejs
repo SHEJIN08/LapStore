@@ -19,18 +19,19 @@
                             <a href="/user/home/orders"
                                 class="tab-link <%= currentStatus === 'All' ? 'active' : '' %>">All Orders</a>
 
-                                <a href="/user/home/orders?status=Pending"
-                                    class="tab-link <%= currentStatus === 'Pending' ? 'active' : '' %>">Pending</a>
+                            <a href="/user/home/orders?status=Pending"
+                                class="tab-link <%= currentStatus === 'Pending' ? 'active' : '' %>">Pending</a>
 
-                                  <a href="/user/home/orders?status=Processing"
+                            <a href="/user/home/orders?status=Processing"
                                 class="tab-link <%= currentStatus === 'Processing' ? 'active' : '' %>">Processing</a>
 
 
                             <a href="/user/home/orders?status=Shipped"
                                 class="tab-link <%= currentStatus === 'Shipped' ? 'active' : '' %>">Shipped</a>
 
-                                <a href="/user/home/orders?status=Out for Delivery"
-                                class="tab-link <%= currentStatus === 'Out of Delivery' ? 'active' : '' %>">Out of Delivery</a>
+                            <a href="/user/home/orders?status=Out for Delivery"
+                                class="tab-link <%= currentStatus === 'Out of Delivery' ? 'active' : '' %>">Out of
+                                Delivery</a>
 
                             <a href="/user/home/orders?status=Delivered"
                                 class="tab-link <%= currentStatus === 'Delivered' ? 'active' : '' %>">Delivered</a>
@@ -110,32 +111,34 @@
                                             <% } %>
                         </div>
 
-                       <div class="pagination-container">
-    <% if (totalPages > 1) { %>
-        
-        <% if (currentPage > 1) { %>
-            <a href="?page=<%= currentPage - 1 %>&status=<%= currentStatus %>" class="nav-link prev">Previous</a>
-        <% } else { %>
-            <span class="nav-link prev disabled">Previous</span>
-        <% } %>
+                        <div class="pagination-container">
+                            <% if (totalPages> 1) { %>
 
-        <div class="page-numbers">
-            <% for(let i = 1; i <= totalPages; i++) { %>
-                <a href="?page=<%= i %>&status=<%= currentStatus %>" 
-                   class="page-num <%= currentPage === i ? 'active' : '' %>">
-                    <%= i %>
-                </a>
-            <% } %>
-        </div>
+                                <% if (currentPage> 1) { %>
+                                    <a href="?page=<%= currentPage - 1 %>&status=<%= currentStatus %>"
+                                        class="nav-link prev">Previous</a>
+                                    <% } else { %>
+                                        <span class="nav-link prev disabled">Previous</span>
+                                        <% } %>
 
-        <% if (currentPage < totalPages) { %>
-            <a href="?page=<%= currentPage + 1 %>&status=<%= currentStatus %>" class="nav-link next">Next →</a>
-        <% } else { %>
-            <span class="nav-link next disabled">Next →</span>
-        <% } %>
+                                            <div class="page-numbers">
+                                                <% for(let i=1; i <=totalPages; i++) { %>
+                                                    <a href="?page=<%= i %>&status=<%= currentStatus %>"
+                                                        class="page-num <%= currentPage === i ? 'active' : '' %>">
+                                                        <%= i %>
+                                                    </a>
+                                                    <% } %>
+                                            </div>
 
-    <% } %>
-</div>
+                                            <% if (currentPage < totalPages) { %>
+                                                <a href="?page=<%= currentPage + 1 %>&status=<%= currentStatus %>"
+                                                    class="nav-link next">Next →</a>
+                                                <% } else { %>
+                                                    <span class="nav-link next disabled">Next →</span>
+                                                    <% } %>
+
+                                                        <% } %>
+                        </div>
 
                     </main>
             </div>
@@ -208,17 +211,17 @@
 
                 <script>
 
-                    const showToast = (msg, type) => {
+                    const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
                         Toastify({
-                            text: msg,
+                            text: message,
                             duration: 3000,
                             gravity: "top",
                             position: "right",
-                            className: "my-custom-toast",
-                            backgroundColor: type === "success" ? "#28a745" : "linear-gradient(to right, #e52d27, #b31217)", 
-                            borderRadius: '10px'
+                            style: { background: bgColor, borderRadius: '10px' }
                         }).showToast();
                     };
+
 
                     let currentOrderId = null;
 

@@ -264,16 +264,13 @@
         btn.innerText = "Save Changes";
     }
 
-    function showToast(msg, type) {
-        if(typeof Toastify === 'function'){
-             Toastify({
-                text: msg,
+      const showToast = (message, type) => {
+            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+            Toastify({
+                text: message,
                 duration: 3000,
-                gravity: "top",
-                position: "right",
-                style: { background: type === "success" ? "#28a745" : "#dc3545", borderRadius: '10px' }
+                gravity: "top", 
+                position: "right", 
+                style: { background: bgColor, borderRadius: '10px' }
             }).showToast();
-        } else {
-            alert(msg);
-        }
-    }
+        };
