@@ -30,7 +30,7 @@ router.post('/auth/google/callback', authController.googleCallback); // server h
 
 router.get('/home',userAuth.isUserBlocked,userController.loadHome)
 router.get('/product/:id',userAuth.isUserBlocked, userController.detailedPage)
-router.get('/home/shop', userController.shopPage)
+router.get('/home/shop',userAuth.isUserBlocked, userController.shopPage)
 
 router.get('/home/profile',userAuth.isUserBlocked,userAuth.checkSession ,profileController.loadProfile)
 router.post('/home/profile/upload-profile-pic', upload.single('avatar'), profileController.updateProfilePic)
@@ -52,11 +52,12 @@ router.post("/home/cart/add", cartController.addToCart);
 
 router.get('/cart/checkout',userAuth.isUserBlocked, checkoutContoller.loadCheckout)
 router.post('/cart/checkout/place-order', checkoutContoller.placeOrder)
-router.get('/order-success/:orderId', checkoutContoller.orderSuccess)
+router.get('/order-success/:orderId',userAuth.isUserBlocked, checkoutContoller.orderSuccess)
 
 router.get('/home/orders',userAuth.isUserBlocked, orderController.loadOrders);
 router.patch('/home/orders/cancel',userAuth.checkSession, orderController.cancelOrder)
-router.get('/home/orders/details/:orderId',userAuth.checkSession, orderController.orderDetailedPage)
+router.patch('/orders/cancel-item', orderController.cancelItem)
+router.get('/home/orders/details/:orderId',userAuth.isUserBlocked, userAuth.checkSession, orderController.orderDetailedPage)
 router.post('/orders/return', upload.single('returnImage'), orderController.returnOrder);
 router.get('/orders/invoice/:orderId', orderController.downloadInvoice);
 

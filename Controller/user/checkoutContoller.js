@@ -15,12 +15,16 @@ const loadCheckout = async (req,res) => {
 
         const addresses = await Address.find({userId: userId}).sort({ createdAt: -1 })
 
-        const cartItems = await Cart.find({userId: userId})
+        let cartItems = await Cart.find({userId: userId})
         .populate({
             path: 'productId',
+             match: { isPublished: true},
             populate: { path: 'brand'}
         })
         .populate('variantId')
+
+        cartItems = cartItems.filter(item => item.productId !== null)
+
 
         if(!cartItems || cartItems.length === 0){
             return res.redirect('/user/home/shop')

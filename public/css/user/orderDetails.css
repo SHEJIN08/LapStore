@@ -470,6 +470,51 @@ h3 {
     border: 1px solid #A7F3D0;
 }
 
+.btn-sm {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-cancel-item {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+.btn-cancel-item:hover { background-color: #fecaca; }
+
+.btn-return-item {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+.btn-return-item:hover { background-color: #fde68a; }
+
+.badge-sm {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #eee;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.status-badge {
+    font-size: 12px;
+    font-weight: bold;
+}
+.status-cancelled {
+    color: #ef4444; /* Red */
+}
+.status-active {
+    color: #2563eb; /* Blue */
+}
+
 /* --- Responsive --- */
 @media (max-width: 768px) {
     .info-grid { grid-template-columns: 1fr; }

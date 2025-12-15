@@ -103,7 +103,7 @@
                                             </td>
 
                                             <td class="amount">
-                                                $<%= order.finalAmount.toFixed(2) %>
+                                                ₹<%= Math.round(order.finalAmount).toLocaleString('en-IN') %>   
                                             </td>
 
                                             <td class="actions-cell">

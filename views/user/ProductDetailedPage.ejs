@@ -196,23 +196,22 @@
 
 
                 <script>
-                    // --- ELEMENTS ---
+                 
                     const container = document.getElementById("img-container");
                     const mainImg = document.getElementById("mainImg");
                     const lens = document.getElementById("zoom-lens");
                     const result = document.getElementById("zoom-result");
 
-                    // --- ZOOM CONFIGURATION ---
-                    // Calculate ratio: Result Window Width / Lens Width
+                  
                     const cx = result.offsetWidth / lens.offsetWidth;
                     const cy = result.offsetHeight / lens.offsetHeight;
 
-                    // --- EVENT LISTENERS ---
+                  
                     container.addEventListener("mouseenter", () => {
                         lens.style.visibility = "visible";
                         result.style.visibility = "visible";
 
-                        // Load the image into the background of the result div
+                     
                         result.style.backgroundImage = `url('${mainImg.src}')`;
                         result.style.backgroundSize = (mainImg.width * cx) + "px " + (mainImg.height * cy) + "px";
                     });
@@ -223,9 +222,9 @@
                     });
 
                     container.addEventListener("mousemove", moveLens);
-                    container.addEventListener("touchmove", moveLens); // For touch screens
+                    container.addEventListener("touchmove", moveLens); 
 
-                    // --- ZOOM LOGIC (THE MATH) ---
+                  
                     function moveLens(e) {
                         e.preventDefault();
 
@@ -260,7 +259,7 @@
                         return { x: x, y: y };
                     }
 
-                    // --- IMAGE SWITCHER (THUMBNAILS) ---
+                  
                     function changeImage(element, src) {
                         // 1. Update Main Image
                         mainImg.src = src;
@@ -320,11 +319,9 @@
                     // --- ADD TO CART FUNCTION ---
                     async function addToCart() {
                         try {
-                            // 1. Get Product ID (Injected by EJS)
+                         
                             const productId = '<%= product._id %>';
 
-                            // 2. Get Selected Variant ID
-                            // We look for the radio button that is currently checked
                             const selectedVariant = document.querySelector('input[name="variant"]:checked');
 
                             if (!selectedVariant) {
@@ -334,17 +331,18 @@
 
                             const variantId = selectedVariant.value;
 
-                            // 3. Send Request to Server
-                            // We send quantity: 1 because there is no quantity input on this page
+                          
                             const response = await axios.post('/user/home/cart/add', {
                                 productId: productId,
                                 variantId: variantId,
                                 quantity: 1
                             });
 
-                            // 4. Handle Response
+                          
                             if (response.data.success) {
                                 showToast("Item added to cart successfully!", "success");
+
+                            
 
                             } else {
                                 showToast(response.data.message, "error");
@@ -359,7 +357,7 @@
                                 }, 2000)
 
                             } else {
-                                // Handle other errors (like 500 Server Error)
+                             
                                 showToast("Failed to add to cart", "error");
                             }
                         }

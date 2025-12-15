@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const addressSchema = new mongoose.Schema({
-  addressType: { type: String, enum: ["Home", "Work", "other"] },
+  addressType: { type: String, enum: ["Home", "Work", "Other"] },
    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

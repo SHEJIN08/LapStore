@@ -83,7 +83,7 @@
 
                                                         <td class="col-meta">
                                                             <span class="label">Total</span>
-                                                            <span class="val total-price">$<%=
+                                                            <span class="val total-price">₹<%=
                                                                     order.finalAmount.toLocaleString() %></span>
                                                         </td>
 
@@ -225,25 +225,25 @@
 
                     let currentOrderId = null;
 
-                    // 1. Open the Modal
+         
                     function openCancelModal(orderId) {
                         currentOrderId = orderId;
                         document.getElementById('cancelModal').classList.remove('hidden');
 
-                        // Reset form
+       
                         const radios = document.getElementsByName('cancelReason');
                         radios.forEach(r => r.checked = false);
                         document.getElementById('otherReasonContainer').classList.add('hidden');
                         document.getElementById('otherReasonText').value = '';
                     }
 
-                    // 2. Close the Modal
+                   
                     function closeModal() {
                         currentOrderId = null;
                         document.getElementById('cancelModal').classList.add('hidden');
                     }
 
-                    // 3. Toggle "Other" Textarea
+                    
                     function toggleOther(show) {
                         const container = document.getElementById('otherReasonContainer');
                         if (show) {
@@ -253,11 +253,11 @@
                         }
                     }
 
-                    // 4. Submit Logic
+            
                     async function submitCancellation() {
                         if (!currentOrderId) return;
 
-                        // Get selected reason
+                       
                         const radios = document.getElementsByName('cancelReason');
                         let selectedReason = null;
                         for (const radio of radios) {
@@ -272,7 +272,7 @@
                             return;
                         }
 
-                        // If 'Other' is selected, capture the text input
+                  
                         if (selectedReason === 'Other') {
                             const otherText = document.getElementById('otherReasonText').value.trim();
                             if (!otherText) {
@@ -282,7 +282,7 @@
                             selectedReason = otherText;
                         }
 
-                        // Send to Backend
+                
                         try {
                             const response = await axios.patch('/user/home/orders/cancel', {
                                 orderId: currentOrderId,

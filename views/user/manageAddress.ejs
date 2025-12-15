@@ -77,7 +77,12 @@
         
         <form id="addAddressForm" novalidate>
             <div class="form-group">
-                <input type="text" name="addressType" placeholder="Address type choose one from this [Home, Work, other]" required>
+                <select name="addressType" required>
+        
+              <option value="Home">Home</option>
+                <option value="Work">Work</option>
+                   <option value="Other">Other</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -124,10 +129,15 @@
         <h3>Add a new address</h3>
         
         <form id="editAddressForm" novalidate>
-            <div class="form-group">
-                <input type="text" name="addressType" placeholder="Address type choose one from this [Home, Work, other]" required>
+             <div class="form-group">
+                <select name="addressType" required>
+        
+              <option value="Home">Home</option>
+                <option value="Work">Work</option>
+                   <option value="Other">Other</option>
+                </select>
             </div>
-
+            
             <div class="form-group">
                 <input type="text" name="name" placeholder="Full Name" required>
             </div>

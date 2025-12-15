@@ -32,15 +32,18 @@ const loadCart = async (req,res) => {
 
         // --- 3. FETCH DISPLAY ITEMS (Paginated) ---
         // This query fetches only the 5 items we need to show right now
-        const cartItems = await Cart.find({ userId: userId })
+        let cartItems = await Cart.find({ userId: userId })
             .populate({
                 path: 'productId',
+                match: { isPublished: true},
                 populate: { path: 'brand' } 
             })
             .populate('variantId')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
+
+             cartItems = cartItems.filter(item => item.productId !== null)
 
         const totalItems = allCartItems.length; // Count from the first query
         const totalPages = Math.ceil(totalItems / limit);

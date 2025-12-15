@@ -27,9 +27,13 @@ const orderSchema = new mongoose.Schema({
         image: { type: String, required: true },
         productStatus: {
             type: String,
-            enum: [ "Placed", "Cancelled", "Return Request", "Returned"],
+            enum: [ "Placed", "Cancelled", "Return Request", "Returned", "Return Rejected"],
             default: "Placed"
         },
+        
+        returnReason: { type: String, default: null },
+        returnComment: { type: String, default: null },
+
         quantity: { type: Number, required: true },
         price: { type: Number, required: true } // Price at time of purchase
     }],

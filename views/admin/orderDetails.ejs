@@ -90,13 +90,15 @@
                         <div class="details-left">
                             <section class="card items-card">
                                 <h3>Order Items</h3>
-                                <table class="items-table">
+                               <table class="items-table">
                                     <thead>
                                         <tr>
                                             <th>Product</th>
                                             <th>Price</th>
                                             <th>Quantity</th>
-                                            <th class="text-right">Total</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th class="text-right">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -114,35 +116,73 @@
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>$<%= item.price.toLocaleString() %>
+                                                <td>₹<%= item.price.toLocaleString() %></td>
+                                                <td>x<%= item.quantity %></td>
+                                                <td class="font-bold">₹<%= (item.price * item.quantity).toLocaleString() %></td>
+
+                                                <td>
+                                                    <% if (item.productStatus === 'Return Request') { %>
+                                                        <span style="background:#fff7ed; color:#c2410c; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">
+                                                            Return Requested
+                                                        </span>
+                                                    <% } else if (item.productStatus === 'Returned') { %>
+                                                        <span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">
+                                                            Returned
+                                                        </span>
+                                                    <% } else if (item.productStatus === 'Cancelled') { %>
+                                                        <span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">
+                                                            Cancelled
+                                                        </span>
+                                                    <% } else { %>
+                                                        <span style="color:#6b7280; font-size:12px;">
+                                                            <%= item.productStatus || 'Ordered' %>
+                                                        </span>
+                                                    <% } %>
                                                 </td>
-                                                <td>x<%= item.quantity %>
-                                                </td>
-                                                <td class="text-right font-bold">$<%= (item.price *
-                                                        item.quantity).toLocaleString() %>
+
+                                                <td class="text-right">
+                                                    <% if (item.productStatus === 'Return Request') { %>
+                                                        <div style="display:flex; gap:5px; justify-content:flex-end;">
+                                                            <button onclick="approveItemReturn('<%= order._id %>', '<%= item._id %>')" 
+                                                                    style="background:#22c55e; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">
+                                                                <i class="fa-solid fa-check"></i>
+                                                            </button>
+                                                            <button onclick="rejectItemReturn('<%= order._id %>', '<%= item._id %>')" 
+                                                                    style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">
+                                                                <i class="fa-solid fa-xmark"></i>
+                                                            </button>
+                                                        </div>
+                                                        <% if(item.returnReason) { %>
+                                                            <div style="font-size:10px; color:#ef4444; margin-top:2px;">
+                                                                Reason: <%= item.returnReason %>
+                                                            </div>
+                                                        <% } %>
+                                                    <% } else { %>
+                                                       <%= item.productStatus %>
+                                                    <% } %>
                                                 </td>
                                             </tr>
-                                            <% }) %>
+                                        <% }) %>
                                     </tbody>
                                 </table>
 
                                 <div class="order-summary">
                                     <div class="summary-row">
                                         <span>Subtotal</span>
-                                        <span>$<%= order.totalPrice.toLocaleString() %></span>
+                                        <span>₹<%= order.totalPrice.toLocaleString() %></span>
                                     </div>
                                     <div class="summary-row">
                                         <span>Shipping</span>
-                                        <span>$<%= (order.finalAmount - order.totalPrice + order.discount).toFixed(2) %>
+                                        <span>₹<%= (order.finalAmount - order.totalPrice + order.discount).toFixed(2) %>
                                         </span>
                                     </div>
                                     <div class="summary-row">
                                         <span>Discount</span>
-                                        <span class="text-danger">-$<%= order.discount %></span>
+                                        <span class="text-danger">-₹<%= order.discount %></span>
                                     </div>
                                     <div class="summary-row total">
                                         <span>Total Amount</span>
-                                        <span>$<%= order.finalAmount.toLocaleString() %></span>
+                                        <span>₹<%= order.finalAmount.toLocaleString() %></span>
                                     </div>
                                 </div>
                             </section>
@@ -261,6 +301,7 @@
                 </main>
         </div>
         <script src="/js/axios.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             // 1. Reusable Toast Function
              const showToast = (message, type) => {
@@ -326,4 +367,115 @@
                     showToast("Something went wrong", 'error');
                 }
             }
+
+            // --- NEW FUNCTIONS FOR ITEM-LEVEL RETURNS ---
+
+async function approveItemReturn(orderId, itemId) {
+    // 1. Confirmation
+    const result = await Swal.fire({
+        title: 'Approve Item Return?',
+        text: "Only this specific item will be refunded and restocked.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#22c55e',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Approve Item'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // 2. Call Backend
+    sendItemReturnAction(orderId, itemId, 'approve');
+}
+
+async function rejectItemReturn(orderId, itemId) {
+    const result = await Swal.fire({
+        title: 'Reject Item Return?',
+        text: "This item request will be rejected.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, Reject Item'
+    });
+
+    if (!result.isConfirmed) return;
+
+    sendItemReturnAction(orderId, itemId, 'reject');
+}
+
+async function sendItemReturnAction(orderId, itemId, action) {
+    try {
+        // Reuse your existing route, but pass itemId now!
+        const response = await axios.patch('/admin/orders/handle-return', {
+            orderId: orderId,
+            itemId: itemId, // <--- THIS IS THE KEY CHANGE
+            action: action
+        });
+
+        if (response.data.success) {
+            await Swal.fire('Success', response.data.message, 'success');
+            location.reload();
+        } else {
+            showToast(response.data.message, 'error');
+        }
+    } catch (error) {
+        console.error(error);
+        const msg = error.response?.data?.message || "Operation failed";
+        showToast(msg, 'error');
+    }
+}
+
+    // 1. Approve Specific Item
+    async function approveItemReturn(orderId, itemId) {
+        const result = await Swal.fire({
+            title: 'Approve Item?',
+            text: "This will approve the return for this single item.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            confirmButtonText: 'Yes, Approve'
+        });
+
+        if (result.isConfirmed) {
+            sendReturnRequest(orderId, itemId, 'approve');
+        }
+    }
+
+    // 2. Reject Specific Item
+    async function rejectItemReturn(orderId, itemId) {
+        const result = await Swal.fire({
+            title: 'Reject Item?',
+            text: "This will reject the return request.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, Reject'
+        });
+
+        if (result.isConfirmed) {
+            sendReturnRequest(orderId, itemId, 'reject');
+        }
+    }
+
+    // 3. Send to Backend
+    async function sendReturnRequest(orderId, itemId, action) {
+        try {
+            const response = await axios.patch('/admin/orders/handle-return', {
+                orderId: orderId,
+                itemId: itemId,  // Sending the ID is critical
+                action: action
+            });
+
+            if (response.data.success) {
+                Swal.fire('Success', response.data.message, 'success')
+                    .then(() => location.reload());
+            } else {
+                Swal.fire('Error', response.data.message, 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'Failed to process request', 'error');
+        }
+    }
         </script>

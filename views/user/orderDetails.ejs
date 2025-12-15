@@ -194,26 +194,89 @@
                             <h3>Items Ordered</h3>
                             <div class="items-list">
                                 <% order.orderedItems.forEach(item=> { %>
-                                    <div class="item-row">
-                                        <div class="item-image">
-                                            <img src="<%= item.image %>" alt="<%= item.productName %>"
-                                                onerror="this.src='https://placehold.co/80'">
+                                    <div class="item-row" style="align-items: center; justify-content: space-between;">
+                                        <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
+                                            <div class="item-image">
+                                                <img src="<%= item.image %>" alt="<%= item.productName %>"
+                                                    onerror="this.src='https://placehold.co/80'">
+                                            </div>
+                                            <div class="item-details">
+                                                <h4><%= item.productName %></h4>
+                                                <p class="specs">Qty: <%= item.quantity %></p>
+
+                                                <% 
+                                                    // --- LOGIC TO DETERMINE STATUS DISPLAY ---
+                                                    let displayStatus = item.productStatus;
+                                                    let badgeClass = '';
+
+                                                    // 1. If item has a specific status, use it
+                                                    if (displayStatus === 'Cancelled') {
+                                                        badgeClass = 'status-cancelled';
+                                                    } 
+                                                    else if (displayStatus === 'Returned') {
+                                                        badgeClass = 'status-returned'; // You might need to add CSS for this
+                                                    } 
+                                                    else if (displayStatus === 'Return Request') {
+                                                        badgeClass = 'status-pending';
+                                                    }
+                                                    // 2. If item status is generic ('Ordered'), inherit the main Order Status
+                                                    else {
+                                                        // If the main order is Delivered, this item is Delivered
+                                                        if (order.status === 'Delivered' || order.status === 'Return Request') {
+                                                            displayStatus = 'Delivered';
+                                                            badgeClass = 'status-active'; // Green
+                                                        } 
+                                                        // Fallback for Shipped, Processing, etc.
+                                                        else {
+                                                            displayStatus = order.status;
+                                                            badgeClass = 'status-active';
+                                                        }
+                                                    }
+                                                %>
+
+                                                <span class="status-badge <%= badgeClass %>">
+                                                    <%= displayStatus %>
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div class="item-details">
-                                            <h4>
-                                                <%= item.productName %>
-                                            </h4>
-                                            <p class="specs">Qty: <%= item.quantity %>
-                                            </p>
+                                         %>
+                                        <div class="item-price" style="margin-right: 20px;">
+                                            ₹<%= item.price.toLocaleString() %>
                                         </div>
-                                        <div class="item-price">
-                                            $<%= item.price.toLocaleString() %>
+
+                                        <div class="item-actions">
+
+                                            <% if (item.status==='Cancelled' ) { %>
+                                                <button disabled
+                                                    style="opacity: 0.5; cursor: not-allowed; background: #eee; color: #333; padding: 5px 10px; border: none; border-radius: 5px;">Cancelled</button>
+
+                                                <% } else if (item.status==='Returned' ) { %>
+                                                    <button disabled
+                                                        style="opacity: 0.5; cursor: not-allowed; background: #eee; color: #333; padding: 5px 10px; border: none; border-radius: 5px;">Returned</button>
+
+                                                    <% } else { %>
+
+                                                        <% if (['Pending', 'Processing' ].includes(order.status)) { %>
+                                                            <button class="btn-cancel"
+                                                                style="padding: 6px 12px; font-size: 12px;"
+                                                                onclick="cancelItem('<%= order._id %>', '<%= item._id %>')">
+                                                                Cancel Item
+                                                            </button>
+                                                            <% } else if (order.status==='Delivered' ) { %>
+                                                                <button class="btn-return"
+                                                                    style="padding: 6px 12px; font-size: 12px;"
+                                                                    onclick="openReturnModal('<%= order._id %>', '<%= item._id %>')">
+                                                                    Return Item
+                                                                </button>
+                                                                <% } %>
+
+                                                                    <% } %>
                                         </div>
+
                                     </div>
                                     <% }) %>
                             </div>
                         </section>
-
                         <div class="info-grid">
                             <section class="card info-card">
                                 <h3>Shipping Address</h3>
@@ -260,24 +323,24 @@
                             <div class="summary-rows">
                                 <div class="row">
                                     <span>Subtotal</span>
-                                    <span>$<%= order.totalPrice.toLocaleString() %></span>
+                                    <span>₹<%= order.totalPrice.toLocaleString() %></span>
                                 </div>
                                 <div class="row">
                                     <span>Shipping</span>
                                     <span class="<%= order.finalAmount - order.totalPrice <= 0 ? 'free' : '' %>">
-                                        <%= order.finalAmount - order.totalPrice <=0 ? 'Free' : '$' + (order.finalAmount
+                                        <%= order.finalAmount - order.totalPrice <=0 ? 'Free' : '₹' + (order.finalAmount
                                             - order.totalPrice).toFixed(2) %>
                                     </span>
                                 </div>
                                 <% if(order.discount> 0) { %>
                                     <div class="row">
                                         <span>Discount</span>
-                                        <span class="discount">-$<%= order.discount %></span>
+                                        <span class="discount">-₹<%= order.discount %></span>
                                     </div>
                                     <% } %>
                                         <div class="row total">
                                             <span>Total</span>
-                                            <span>$<%= order.finalAmount.toLocaleString() %></span>
+                                            <span>₹<%= order.finalAmount.toLocaleString() %></span>
                                         </div>
                             </div>
                         </section>
@@ -315,6 +378,7 @@
                                 Request Replacement
                             </button>
                             <input type="hidden" id="returnType" value="Refund">
+                            <input type="hidden" id="returnItemId" value="">
                         </div>
 
                         <div class="product-summary-box">
@@ -368,146 +432,163 @@
 
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                <script>
+          <script>
+    // 1. Toast Notification Helper
+    const showToast = (message, type) => {
+        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: bgColor,
+                borderRadius: '10px'
+            }
+        }).showToast();
+    };
 
-                    const showToast = (message, type) => {
-                        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-                        Toastify({
-                            text: message,
-                            duration: 3000,
-                            gravity: "top",
-                            position: "right",
-                            style: { background: bgColor, borderRadius: '10px' }
-                        }).showToast();
-                    };
+    // 2. Open Modal & Set IDs
+    function openReturnModal(orderId, itemId) {
+        // Reset Form
+        document.getElementById('returnReason').value = "";
+        document.getElementById('returnComment').value = "";
+        document.getElementById('returnFile').value = "";
+        document.getElementById('fileNameDisplay').innerText = "Drag & drop or click to upload";
 
+        // Set Global Order ID
+        window.currentReturnOrderId = orderId;
 
-                    async function cancelOrder(orderId) {
-                        // 1. Confirm with the user
-                        const result = await Swal.fire({
-                            title: 'Are you sure?',
-                            text: "Do you really want to cancel this order?",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#d33',
-                            cancelButtonColor: '#3085d6',
-                            confirmButtonText: 'Yes, cancel it!'
-                        });
+        // Set Item ID to Hidden Input
+        const itemInput = document.getElementById('returnItemId');
 
-                        if (!result.isConfirmed) return;
+        if (itemId && itemId !== 'null' && itemId !== 'undefined') {
+            console.log("Opening Return for SINGLE ITEM:", itemId);
+            itemInput.value = itemId; // Set the specific ID
+        } else {
+            console.log("Opening Return for WHOLE ORDER");
+            itemInput.value = ""; // Clear it
+        }
 
-                        try {
-                            // 2. Send Request to Backend
-                            const response = await axios.patch('/user/home/orders/cancel', { orderId });
+        document.getElementById('returnModal').classList.remove('hidden');
+    }
 
-                            if (response.data.success) {
-                                // 3. Success! Show message and reload
-                                await Swal.fire(
-                                    'Cancelled!',
-                                    'Your order has been cancelled.',
-                                    'success'
-                                );
-                                window.location.reload();
-                            } else {
-                                showToast(response.data.message, 'error');
-                            }
+    function closeReturnModal() {
+        document.getElementById('returnModal').classList.add('hidden');
+    }
 
-                        } catch (error) {
-                            console.error(error);
-                            const errMsg = error.response?.data?.message || "Something went wrong";
-                            showToast(errMsg, "error");
-                        }
-                    }
+    // 3. Submit Request
+    async function submitReturnRequest() {
+        const sub_btn = document.getElementById('sub-unq');
+        const originalText = sub_btn.innerText;
 
-                    function openReturnModal(orderId) {
-                        // You can set currentOrderId here globally if needed
-                        window.currentReturnOrderId = orderId;
-                        document.getElementById('returnModal').classList.remove('hidden');
-                    }
+        // Get Form Values
+        const type = document.getElementById('returnType').value;
+        const reason = document.getElementById('returnReason').value;
+        const comment = document.getElementById('returnComment').value;
+        const fileInput = document.getElementById('returnFile');
+        
+        // CRITICAL: Get the Item ID from the hidden input
+        const itemId = document.getElementById('returnItemId').value;
 
-                    function closeReturnModal() {
-                        document.getElementById('returnModal').classList.add('hidden');
-                    }
+        // Debug Log to Console (Check this if it fails!)
+        console.log("Submitting Request -> Order:", window.currentReturnOrderId, "Item:", itemId);
 
-                    // Toggle Refund/Replacement Button UI
-                    function setReturnType(type, btnElement) {
-                        document.getElementById('returnType').value = type;
+        if (!reason) {
+            showToast("Please select a reason", "error");
+            return;
+        }
 
-                        // Reset classes
-                        document.querySelectorAll('.type-btn').forEach(btn => {
-                            btn.classList.remove('active');
-                        });
+        const formData = new FormData();
+        formData.append('orderId', window.currentReturnOrderId);
+        formData.append('returnType', type);
+        formData.append('reason', reason);
+        formData.append('comment', comment);
 
-                        // Set active
-                        btnElement.classList.add('active');
-                    }
+        // Only append itemId if it is not empty
+        if (itemId && itemId.trim() !== "") {
+            formData.append('itemId', itemId);
+        }
 
-                    function handleFileSelect(input) {
-                        const fileNameSpan = document.getElementById('fileNameDisplay');
-                        if (input.files && input.files[0]) {
-                            fileNameSpan.innerText = "Selected: " + input.files[0].name;
-                            fileNameSpan.style.color = "#2563EB"; // Blue color
-                            fileNameSpan.style.fontWeight = "600";
-                        } else {
-                            fileNameSpan.innerText = "Drag & drop or click to upload";
-                            fileNameSpan.style.color = "#9CA3AF";
-                        }
-                    }
+        if (fileInput.files.length > 0) {
+            formData.append('returnImage', fileInput.files[0]);
+        }
 
-                    // 2. Submit Logic (UPDATED FOR FILES)
-                    async function submitReturnRequest() {
+        try {
+            sub_btn.innerText = 'Uploading...';
+            sub_btn.disabled = true;
+            sub_btn.style.opacity = '0.7';
 
-                        const sub_btn = document.getElementById('sub-unq')
-                        const type = document.getElementById('returnType').value;
-                        const reason = document.getElementById('returnReason').value;
-                        const comment = document.getElementById('returnComment').value;
-                        const fileInput = document.getElementById('returnFile');
+            const response = await axios.post('/user/orders/return', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
 
-                        const originalText = sub_btn.innerText; // Save original text
-                        if (!reason) {
-                            showToast("Please select a reason", "error");
-                            return;
-                        }
+            if (response.data.success) {
+                closeReturnModal();
+                Swal.fire('Success', 'Return request submitted', 'success')
+                    .then(() => window.location.reload());
+            }
+        } catch (err) {
+            console.error(err);
+            const msg = err.response?.data?.message || "Failed to submit request";
+            showToast(msg, "error");
 
-                        // --- CHANGE: Use FormData instead of JSON object ---
-                        const formData = new FormData();
-                        formData.append('orderId', window.currentReturnOrderId || '<%= order._id %>');
-                        formData.append('returnType', type);
-                        formData.append('reason', reason);
-                        formData.append('comment', comment);
+            sub_btn.innerText = originalText;
+            sub_btn.disabled = false;
+            sub_btn.style.opacity = '1';
+        }
+    }
 
-                        // Check if file is selected
-                        if (fileInput.files.length > 0) {
-                            formData.append('returnImage', fileInput.files[0]);
-                        }
+    // 4. Cancel Order Item (Existing logic)
+    async function cancelItem(orderId, itemId) {
+        const result = await Swal.fire({
+            title: 'Cancel this item?',
+            text: "This will remove this specific item from your order.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel item!'
+        });
 
-                        try {
-                            // Header is crucial for files
-                            const config = {
-                                headers: {
-                                    'Content-Type': 'multipart/form-data'
-                                }
-                            };
+        if (!result.isConfirmed) return;
 
-                            sub_btn.innerText = 'Uploading...';
-                            sub_btn.disabled = true;           // Disable button
-                            sub_btn.style.opacity = '0.7';
+        try {
+            const response = await axios.patch('/user/orders/cancel-item', {
+                orderId: orderId,
+                itemId: itemId
+            });
 
-                            const response = await axios.post('/user/orders/return', formData, config);
+            if (response.data.success) {
+                await Swal.fire('Cancelled!', 'Item has been cancelled.', 'success');
+                window.location.reload();
+            } else {
+                showToast(response.data.message, 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast(error.response?.data?.message || "Something went wrong", "error");
+        }
+    }
 
+    // 5. Helpers
+    function setReturnType(type, btnElement) {
+        document.getElementById('returnType').value = type;
+        document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+    }
 
-                            if (response.data.success) {
-                                closeReturnModal();
-                                Swal.fire('Success', 'Return request submitted', 'success')
-                                    .then(() => window.location.reload());
-                            }
-                        } catch (err) {
-                            console.error(err);
-                            showToast("Failed to submit request", "error");
-
-                            sub_btn.innerText = originalText;
-                            sub_btn.disabled = false;
-                            sub_btn.style.opacity = '1';
-                        }
-                    }
-                </script>
+    function handleFileSelect(input) {
+        const fileNameSpan = document.getElementById('fileNameDisplay');
+        if (input.files && input.files[0]) {
+            fileNameSpan.innerText = "Selected: " + input.files[0].name;
+            fileNameSpan.style.color = "#2563EB";
+            fileNameSpan.style.fontWeight = "600";
+        } else {
+            fileNameSpan.innerText = "Drag & drop or click to upload";
+            fileNameSpan.style.color = "#9CA3AF";
+        }
+    }
+</script>

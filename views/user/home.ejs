@@ -1,5 +1,4 @@
-
-        <%- include('../partials/header') %>
+<%- include('../partials/header') %>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="/css/user/home.css">
 
@@ -31,33 +30,45 @@
                     <p>Find the perfect device for your needs</p>
                 </div>
                 
-                <div class="category-grid">
-                    <% 
-                    // Map categories to static images (You should replace with actual images)
-                    const catImages = {
-                        'Gaming': '/images/user/gaming.jpg',
-                        'Business': 'https://placehold.co/300x200/png?text=Business+Ultrabook',
-                        'Student': 'https://placehold.co/300x200/png?text=Student+Laptop',
-                        'Creative': 'https://placehold.co/300x200/png?text=Creative+Workstation'
-                    };
-                    %>
+              <div class="category-grid">
 
-                    <% if(categories && categories.length > 0) { %>
-                        <% categories.slice(0, 4).forEach(cat => { %>
-                            <a href="/user/home/shop?category=<%= cat.slug %>" class="category-card">
-                                <div class="cat-img-wrapper">
-                                    <img src="<%= catImages[cat.categoryName] || 'https://placehold.co/300x200/png?text=' + cat.categoryName %>" alt="<%= cat.categoryName %>">
-                                </div>
-                                <div class="cat-content">
-                                    <h3><%= cat.categoryName %></h3>
-                                    <span class="btn-explore">Explore <i class='bx bx-right-arrow-alt'></i></span>
-                                </div>
-                            </a>
-                        <% }) %>
-                    <% } else { %>
-                        <p>No categories found.</p>
-                    <% } %>
+    <% if(categories && categories.length > 0) { %>
+        <% categories.slice(0, 4).forEach(cat => { %>
+            
+            <%  let myImage = 'https://placehold.co/300x200/png?text=' + cat.categoryName; 
+                
+              
+                let name = cat.categoryName.toLowerCase().trim();
+
+                if (name.includes('gaming')) {
+                    myImage = '/images/user/gaming.jpg'; 
+                } 
+                else if (name.includes('business')) {
+                    myImage = '/images/user/business.jpg';
+                }
+                else if (name.includes('2-in-1')) {
+                    myImage = '/images/user/2-in-1.jpg';
+                }
+                else if (name.includes('60000')) {
+                    myImage = '/images/user/under60k.jpg';
+                }
+            %>
+
+            <a href="/user/home/shop?category=<%= cat.slug %>" class="category-card">
+                <div class="cat-img-wrapper">
+                    <img src="<%= myImage %>" alt="<%= cat.categoryName %>">
                 </div>
+                <div class="cat-content">
+                    <h3><%= cat.categoryName %></h3>
+                    <span class="btn-explore">Explore <i class='bx bx-right-arrow-alt'></i></span>
+                </div>
+            </a>
+
+        <% }) %>
+    <% } else { %>
+        <p>No categories found.</p>
+    <% } %>
+</div>
             </div>
         </section>
 
@@ -96,7 +107,7 @@
                                             <% } %>
                                         </div>
                                         <div class="product-links">
-                                            <a href="/user/product/<%= product.slug %>"><i class='bx bx-cart'></i></a>
+                                            <a href="/user/product/<%= product.slug %>"><i class='bx bx-heart'></i></a>
                                         </div>
                                     </div>
                                 </div>

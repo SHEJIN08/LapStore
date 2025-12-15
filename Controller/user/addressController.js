@@ -36,7 +36,7 @@ const addAddress = async (req,res) => {
         if(!addressType){
             return res.status(StatusCode.BAD_REQUEST).json({success: false, message: 'Please select a address type'})
         }
-        if(addressType !== 'Home' && addressType !== 'Work' && addressType !== 'other'){
+        if(addressType !== 'Home' && addressType !== 'Work' && addressType !== 'Other'){
             return res.status(StatusCode.BAD_REQUEST).json({success: false, message: 'Please choose address from the given option'})
         }
         if(!name){

@@ -22,14 +22,11 @@ const getOrder = async (req,res) => {
             query.createdAt = {};
 
             if (startDate) {
-                // $gte = Greater Than or Equal to (Start of the day 00:00:00)
                 query.createdAt.$gte = new Date(startDate);
             }
+            
 
             if (endDate) {
-                // $lte = Less Than or Equal to
-                // PROBLEM: new Date("2025-12-10") gives 00:00:00. 
-                // We need to set it to the END of that day (23:59:59) so we include orders from that day.
                 
                 const end = new Date(endDate);
                 end.setHours(23, 59, 59, 999);
@@ -60,7 +57,7 @@ const getOrder = async (req,res) => {
         
         ]
       }
-      //orderId,cusotmerName,email
+      
 
       const orderData = await Order.find(query)
       .sort({ createdAt: -1 })
@@ -115,15 +112,13 @@ const updateOrderStatus = async (req, res) => {
             return res.status(StatusCode.NOT_FOUND).json({ success: false, message: 'Order not found' });
         }
 
-        // Update status
+   
         order.status = status;
-        
-        // Update Payment status automatically if Delivered
+
         if (status === 'Delivered' && order.paymentMethod === 'COD') {
             order.paymentStatus = 'Paid';
         }
 
-        // Add to History
         order.orderHistory.push({
             status: status,
             date: new Date(),
@@ -142,48 +137,55 @@ const updateOrderStatus = async (req, res) => {
 
 const handleReturnRequest = async (req, res) => {
     try {
-        const { orderId, action } = req.body; // action = 'approve' or 'reject'
+       const { orderId, itemId, action } = req.body;
+
         const order = await Order.findById(orderId);
+        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-        if (!order) {
-              return res.status(StatusCode.NOT_FOUND).json({ success: false, message: 'Order not found' });
-        }
+        // --- OPTION 1: Handle Specific Item Return ---
+        if (itemId) {
+            const item = order.orderedItems.id(itemId);
+            if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
-        if (action === 'approve') {
-            // --- APPROVE LOGIC ---
-            for(const item of order.orderedItems){
-                await Variant.findByIdAndUpdate(item.variantId, {
-                 $inc: {stock: item.quantity }
-                 })
-                }
-            order.status = 'Returned';
-            order.returnRequest.status = 'Approved';
-            
-            order.orderHistory.push({
-                status: 'Returned',
-                date: new Date(),
-                comment: 'Return Request Approved by Admin'
-            });
+            if (action === 'approve') {
+                item.productStatus = 'Returned';
+                
+                // Refund Logic Calculation (Refund ONLY this item's price)
+                const refundAmount = item.price * item.quantity;
+                
+                // TODO: Add your Wallet/Refund logic here:
+                // await Wallet.addMoney(order.userId, refundAmount);
+                // await Product.incrementStock(item.productId, item.quantity);
 
-        } else if (action === 'reject') {
-            // --- REJECT LOGIC ---
-            // Revert status back to 'Delivered' so the flow is closed
-            order.status = 'Delivered'; 
-            order.returnRequest.status = 'Rejected';
-
-            order.orderHistory.push({
-                status: 'Delivered', // Status goes back to Delivered
-                date: new Date(),
-                comment: 'Return Request Rejected by Admin'
-            });
+            } else if (action === 'reject') {
+                item.productStatus = 'Return Rejected';
+            }
+        } 
+        
+        // --- OPTION 2: Handle Whole Order Return (Legacy support) ---
+        else {
+            if (action === 'approve') {
+                order.status = 'Returned';
+                order.returnRequest.status = 'Approved';
+                // Loop through all items to mark them returned
+                order.orderedItems.forEach(p => p.productStatus = 'Returned');
+                
+                // TODO: Refund Total Amount
+            } else if (action === 'reject') {
+                order.returnRequest.status = 'Rejected';
+                // Reset items to Delivered if rejected
+                order.orderedItems.forEach(p => {
+                    if(p.productStatus === 'Return Request') p.productStatus = 'Delivered';
+                });
+            }
         }
 
         await order.save();
-        res.status(StatusCode.OK).json({ success: true, message: `Request ${action}ed successfully` });
+        return res.json({ success: true, message: "Return processed successfully" });
 
     } catch (error) {
-        console.error(error);
-         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+        console.error("Admin Return Error:", error);
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
