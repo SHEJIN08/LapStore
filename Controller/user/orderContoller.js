@@ -11,16 +11,28 @@ import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
 const loadOrders = async (req, res) => {
   try {
+    const { status, page, search } = req.query;
     const userId = req.session.user;
 
-    const { status, page } = req.query;
-
     let query = { userId: userId };
+
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+
+      query.$and = [
+        {
+          $or: [
+            { orderId: searchRegex },
+            { "orderedItems.productName": searchRegex }, 
+            ],
+           },
+         ];
+      }
 
     if (status && status !== "All") {
       query.status = status;
     }
-    
+
     const limit = 3;
     const currentPage = parseInt(page) || 1;
     const totalOrders = await Order.countDocuments(query);
@@ -38,6 +50,7 @@ const loadOrders = async (req, res) => {
       orders,
       currentPage,
       totalPages,
+      currentSearch: search || "",
       currentStatus: status || "All",
       totalOrders,
     });
@@ -49,123 +62,166 @@ const loadOrders = async (req, res) => {
   }
 };
 
-//cancel specific product
-const cancelItem = async (req, res) => {
+const cancelOrder = async (req, res) => {
   try {
-    const { orderId, itemId } = req.body;
+    const { orderId, itemId, reason } = req.body;
 
-   
-    const TAX_RATE = 0.05;         
-    const SHIPPING_THRESHOLD = 100000; 
-    const SHIPPING_FEE = 1000;        
-    
-
-    const order = await Order.findOne({ _id: orderId });
-    if (!order) return res.status(404).json({ message: "Order not found" });
-
-    // 1. Find the item to get its value
-    const item = order.orderedItems.find(i => i._id.toString() === itemId);
-    if (!item) return res.status(404).json({ message: "Item not found" });
-
-    // 2. Calculate New Subtotal (Total Price)
-    const itemTotal = item.price * item.quantity;
-    let newTotalPrice = order.totalPrice - itemTotal;
-    if (newTotalPrice < 0) newTotalPrice = 0;
-
-    const newTax = Math.round(newTotalPrice * TAX_RATE);
-
-    // 4. Calculate New Shipping
-    let newShippingFee = 0;
-    if (newTotalPrice > 0 && newTotalPrice < SHIPPING_THRESHOLD) {
-        newShippingFee = SHIPPING_FEE;
+    // 1. Fetch Order
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res
+        .status(StatusCode.NOT_FOUND)
+        .json({ success: false, message: "Order not found" });
     }
 
-    // 5. Calculate New Final Amount
+    // Constants for Recalculation (if needed)
+    const TAX_RATE = 0.05;
+    const SHIPPING_THRESHOLD = 100000;
+    const SHIPPING_FEE = 100;
 
-    let newFinalAmount = newTotalPrice + newTax + newShippingFee - (order.discount || 0);
-    if (newFinalAmount < 0) newFinalAmount = 0;
+    // ====================================================
+    // SCENARIO A: CANCEL SPECIFIC ITEM (Partial Cancel)
+    // ====================================================
+    if (itemId) {
+      const item = order.orderedItems.id(itemId);
+      if (!item)
+        return res
+          .status(StatusCode.NOT_FOUND)
+          .json({ success: false, message: "Item not found" });
 
-    console.log(`Subtotal: ${newTotalPrice} | Tax: ${newTax} | Shipping: ${newShippingFee} | Final: ${newFinalAmount}`);
+      // Validation
+      if (
+        item.productStatus === "Cancelled" ||
+        item.productStatus === "Delivered"
+      ) {
+        return res
+          .status(StatusCode.BAD_REQUEST)
+          .json({ success: false, message: "Item cannot be cancelled" });
+      }
 
-    // 6. Update Database
-    await Order.updateOne(
-      { _id: orderId }, 
-      {
-        $pull: { orderedItems: { _id: itemId } }, 
-        $set: { 
-            totalPrice: newTotalPrice,
-            finalAmount: newFinalAmount
-           
+      // A1. Restock Variant
+      await Variant.findByIdAndUpdate(item.variantId, {
+        $inc: { stock: item.quantity },
+      });
+
+      // A2. Calculate Refund Amount for this Item
+      const itemBasePrice = item.price * item.quantity;
+      const priceAfterTax = itemBasePrice + itemBasePrice * TAX_RATE;
+      const shippingRefund = priceAfterTax > 100000 ? 0 : 100;
+
+      const refundAmount = priceAfterTax + shippingRefund;
+      // A3. Handle Financials based on Payment Method
+      if (order.paymentStatus === "Paid") {
+        // For PAID orders: Refund to Wallet, DO NOT change order total
+        // await Wallet.addMoney(order.userId, refundAmount, `Refund for ${item.productName}`);
+
+        console.log(`Refunded ₹${refundAmount} to Wallet`);
+      } else if (order.paymentMethod === "COD") {
+        // For COD: Reduce the amount the user has to pay
+        let newTotalPrice = Math.max(0, order.totalPrice - refundAmount);
+        let newTax = Math.round(newTotalPrice * TAX_RATE);
+
+        // Recalculate Shipping
+        let newShippingFee = 0;
+        if (newTotalPrice > 0 && newTotalPrice < SHIPPING_THRESHOLD) {
+          newShippingFee = SHIPPING_FEE;
+        }
+
+        // Update Order Totals
+        order.totalPrice = newTotalPrice;
+        order.finalAmount =
+          newTotalPrice + newTax + newShippingFee - (order.discount || 0);
+        if (order.finalAmount < 0) order.finalAmount = 0;
+      }
+
+      // A4. Mark Item as Cancelled
+      item.productStatus = "Cancelled";
+
+      // A5. Check if *ALL* items are now cancelled
+      const allCancelled = order.orderedItems.every(
+        (i) => i.productStatus === "Cancelled"
+      );
+      if (allCancelled) {
+        order.status = "Cancelled";
+        order.cancellationReason = "All items cancelled individually";
+        if (order.paymentMethod === "COD") order.finalAmount = 0;
+      } else {
+        // Add history log for single item
+        order.orderHistory.push({
+          status: "Item Cancelled",
+          date: new Date(),
+          comment: `Item ${item.productName} cancelled. Reason: ${
+            reason || "User Request"
+          }`,
+        });
+      }
+    }
+
+    // ====================================================
+    // SCENARIO B: CANCEL ENTIRE ORDER
+    // ====================================================
+    else {
+      if (order.status !== "Pending" && order.status !== "Processing") {
+        return res
+          .status(StatusCode.BAD_REQUEST)
+          .json({
+            success: false,
+            message: "Cannot cancel this order at this stage",
+          });
+      }
+
+      // B1. Loop through items to Restock & Cancel
+      for (const item of order.orderedItems) {
+        if (item.productStatus !== "Cancelled") {
+          // Restock
+          await Variant.findByIdAndUpdate(item.variantId, {
+            $inc: { stock: item.quantity },
+          });
+          // Update Status
+          item.productStatus = "Cancelled";
         }
       }
-    );
 
-    // 7. Restock Stock
-    await Variant.findByIdAndUpdate(item.variantId, {
-      $inc: { stock: item.quantity }
+      // B2. Handle Full Refund (If Paid)
+      if (order.paymentStatus === "Paid") {
+        // Refund the entire finalAmount
+        // await Wallet.addMoney(order.userId, order.finalAmount, `Refund for Order #${order.orderId}`);
+        const refundAmount = order.finalAmount;
+        console.log(`Refunded Full Amount ₹${order.finalAmount} to Wallet`);
+        order.paymentStatus = "Refunded";
+      }
+
+      // B3. Update Order Status
+      order.status = "Cancelled";
+      order.cancellationReason = reason;
+
+      // For COD, final amount becomes 0 as nothing is delivered
+      if (order.paymentMethod === "COD") {
+        order.finalAmount = 0;
+      }
+
+      order.orderHistory.push({
+        status: "Cancelled",
+        date: new Date(),
+        comment: `Order Cancelled. Reason: ${reason}`,
+      });
+    }
+
+    // 3. Save Changes
+    await order.save();
+
+    res.status(StatusCode.OK).json({
+      success: true,
+      message: itemId
+        ? "Item cancelled successfully"
+        : "Order cancelled successfully",
     });
-    
-    // 8. Handle Empty Order Case
-    const updatedOrder = await Order.findById(orderId);
-    if (updatedOrder.orderedItems.length === 0) {
-        updatedOrder.status = "Cancelled";
-        updatedOrder.finalAmount = 0;
-        updatedOrder.totalPrice = 0;
-        await updatedOrder.save();
-    }
-
-    res.json({ success: true, message: "Item removed and totals updated" });
-
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Cancel Error:", error);
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "Server Error" });
   }
-};   
-//cancel entire order
-const cancelOrder = async (req, res) => {
-    try {
-        const { orderId, reason } = req.body;
-        const order = await Order.findById(orderId);
-
-        if (!order) {
-            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: "Order not found" });
-        }
-
-        if (order.status !== "Pending" && order.status !== "Processing") {
-            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: "Cannot cancel this order" });
-        }
-
-        // Only restore stock for items that are NOT already cancelled
-        for (const item of order.orderedItems) {
-            if (item.status !== 'Cancelled') { 
-                await Variant.findByIdAndUpdate(item.variantId, {
-                    $inc: { stock: item.quantity },
-                });
-                item.status = 'Cancelled'; // Mark item as cancelled too
-            }
-        }
-
-        // Refund Full Amount Logic (If Paid)
-        if (order.paymentStatus === 'Paid') {
-            // Add wallet refund logic here...
-        }
-
-        order.status = "Cancelled";
-        order.cancellationReason = reason;
-
-        order.orderHistory.push({
-            status: "Cancelled",
-            date: new Date(),
-            comment: `Cancelled by User. Reason: ${reason}`,
-        });
-
-        await order.save();
-
-        res.status(StatusCode.OK).json({ success: true, message: "Order cancelled successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
-    }
 };
 
 const orderDetailedPage = async (req, res) => {
@@ -189,88 +245,86 @@ const orderDetailedPage = async (req, res) => {
   }
 };
 
-
 const returnOrder = async (req, res) => {
-    try {
+  try {
+    const { orderId, itemId, returnType, reason, comment } = req.body;
 
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = req.file.secure_url;
+    }
 
-        const { orderId, itemId, returnType, reason, comment } = req.body; 
+    const order = await Order.findById(orderId);
 
-        let imageUrl = null;
-        if (req.file) {
-            imageUrl = req.file.secure_url;
-        }
+    if (!order) {
+      return res
+        .status(StatusCode.NOT_FOUND)
+        .json({ success: false, message: "Order not found" });
+    }
 
-        const order = await Order.findById(orderId);
+    // --- CASE A: SINGLE ITEM RETURN ---
+    if (itemId && itemId !== "null" && itemId !== "") {
+      const item = order.orderedItems.id(itemId);
 
-        if (!order) {
-            return res.status(StatusCode.NOT_FOUND).json({ success: false, message: "Order not found" });
-        }
+      if (!item) {
+        return res
+          .status(StatusCode.NOT_FOUND)
+          .json({ success: false, message: "Item not found in order" });
+      }
 
-        // --- CASE A: SINGLE ITEM RETURN ---
-        // This runs if itemId is present and valid
-        if (itemId && itemId !== "null" && itemId !== "") {
-            
-            const item = order.orderedItems.id(itemId);
-            
-            if (!item) {
-                return res.status(StatusCode.NOT_FOUND).json({ success: false, message: "Item not found in order" });
-            }
+      // Update the specific ITEM status
+      item.productStatus = "Return Request";
+      item.returnReason = reason;
+      item.returnComment = comment;
 
-            // Update the specific ITEM status
-            item.productStatus = 'Return Request';
-            item.returnReason = reason; // Important: Save reason to the item so Admin sees it
-            item.returnComment = comment;
-            
-            // Add to history
-            order.orderHistory.push({
-                status: "Return Request",
-                date: new Date(),
-                comment: `Item Return: ${item.productName} - ${reason}`
-            });
-        } 
-        
-        // --- CASE B: WHOLE ORDER RETURN ---
-        // This runs if no itemId was provided (User clicked main return button)
-        else {
-    // CASE B: Whole Order Return
-    order.status = "Return Request";
-    order.returnRequest = {
+      order.orderHistory.push({
+        status: "Return Request",
+        date: new Date(),
+        comment: `Item Return: ${item.productName} - ${reason}`,
+      });
+    }
+
+    // --- CASE B: WHOLE ORDER RETURN ---
+    else {
+      // CASE B: Whole Order Return
+      order.status = "Return Request";
+      order.returnRequest = {
         type: returnType,
         reason: reason,
         comment: comment,
         image: imageUrl,
         status: "Pending",
         requestDate: new Date(),
-    };
+      };
 
-    // FIX: Update items even if they are just "Placed" or "Delivered"
-    order.orderedItems.forEach(item => {
+      // FIX: Update items even if they are just "Placed" or "Delivered"
+      order.orderedItems.forEach((item) => {
         // Check for both 'Delivered' AND 'Placed'
-        if (['Delivered', 'Placed', 'Shipped'].includes(item.productStatus)) {
-            item.productStatus = 'Return Request';
-            item.returnReason = reason;
-            item.returnComment = comment;
+        if (["Delivered", "Placed", "Shipped"].includes(item.productStatus)) {
+          item.productStatus = "Return Request";
+          item.returnReason = reason;
+          item.returnComment = comment;
         }
-    });
-            order.orderHistory.push({
-                status: "Return Request",
-                date: new Date(),
-                comment: `Order Return: ${reason}`
-            });
-        }
-
-        await order.save();
-        
-        res.status(StatusCode.OK).json({
-            success: true,
-            message: "Return request submitted successfully",
-        });
-
-    } catch (error) {
-        console.error("Return Error:", error);
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+      });
+      order.orderHistory.push({
+        status: "Return Request",
+        date: new Date(),
+        comment: `Order Return: ${reason}`,
+      });
     }
+
+    await order.save();
+
+    res.status(StatusCode.OK).json({
+      success: true,
+      message: "Return request submitted successfully",
+    });
+  } catch (error) {
+    console.error("Return Error:", error);
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
+  }
 };
 
 const downloadInvoice = async (req, res) => {
@@ -320,7 +374,10 @@ const downloadInvoice = async (req, res) => {
     doc.text("Item", 50, tableTop);
     doc.text("Quantity", 300, tableTop, { width: 90, align: "right" });
     doc.text("Price", 400, tableTop, { width: 90, align: "right" });
-    doc.text("Total", StatusCode.INTERNAL_SERVER_ERROR, tableTop, { width: 90, align: "right" });
+    doc.text("Total", StatusCode.INTERNAL_SERVER_ERROR, tableTop, {
+      width: 90,
+      align: "right",
+    });
 
     doc
       .moveTo(50, tableTop + 15)
@@ -342,10 +399,15 @@ const downloadInvoice = async (req, res) => {
         width: 90,
         align: "right",
       });
-      doc.text(`$${totalPrice.toLocaleString()}`, StatusCode.INTERNAL_SERVER_ERROR, yPosition, {
-        width: 90,
-        align: "right",
-      });
+      doc.text(
+        `$${totalPrice.toLocaleString()}`,
+        StatusCode.INTERNAL_SERVER_ERROR,
+        yPosition,
+        {
+          width: 90,
+          align: "right",
+        }
+      );
 
       yPosition += 20;
     });
@@ -359,39 +421,50 @@ const downloadInvoice = async (req, res) => {
     doc.font("Helvetica-Bold");
 
     doc.text("Subtotal:", 400, summaryTop, { width: 90, align: "right" });
-    doc.text(`$${order.totalPrice.toLocaleString()}`, StatusCode.INTERNAL_SERVER_ERROR, summaryTop, {
-      width: 90,
-      align: "right",
-    });
+    doc.text(
+      `$${order.totalPrice.toLocaleString()}`,
+      StatusCode.INTERNAL_SERVER_ERROR,
+      summaryTop,
+      {
+        width: 90,
+        align: "right",
+      }
+    );
 
     if (order.discount > 0) {
       doc.text("Discount:", 400, summaryTop + 15, {
         width: 90,
         align: "right",
       });
-      doc.text(`-$${order.discount.toLocaleString()}`, StatusCode.INTERNAL_SERVER_ERROR, summaryTop + 15, {
-        width: 90,
-        align: "right",
-      });
+      doc.text(
+        `-$${order.discount.toLocaleString()}`,
+        StatusCode.INTERNAL_SERVER_ERROR,
+        summaryTop + 15,
+        {
+          width: 90,
+          align: "right",
+        }
+      );
     }
 
-    doc
-      .fontSize(12)
-      .text("Grand Total:", 400, summaryTop + 35, {
-        width: 90,
-        align: "right",
-      });
-    doc.text(`$${order.finalAmount.toLocaleString()}`, StatusCode.INTERNAL_SERVER_ERROR, summaryTop + 35, {
+    doc.fontSize(12).text("Grand Total:", 400, summaryTop + 35, {
       width: 90,
       align: "right",
     });
+    doc.text(
+      `$${order.finalAmount.toLocaleString()}`,
+      StatusCode.INTERNAL_SERVER_ERROR,
+      summaryTop + 35,
+      {
+        width: 90,
+        align: "right",
+      }
+    );
 
-    doc
-      .fontSize(10)
-      .text("Thank you for your business!", 50, 700, {
-        align: "center",
-        width: StatusCode.INTERNAL_SERVER_ERROR,
-      });
+    doc.fontSize(10).text("Thank you for your business!", 50, 700, {
+      align: "center",
+      width: StatusCode.INTERNAL_SERVER_ERROR,
+    });
 
     doc.end();
   } catch (error) {
@@ -406,7 +479,6 @@ export default {
   loadOrders,
   cancelOrder,
   orderDetailedPage,
-  cancelItem,
   returnOrder,
   downloadInvoice,
 };

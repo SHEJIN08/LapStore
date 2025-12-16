@@ -55,8 +55,7 @@ router.post('/cart/checkout/place-order', checkoutContoller.placeOrder)
 router.get('/order-success/:orderId',userAuth.isUserBlocked, checkoutContoller.orderSuccess)
 
 router.get('/home/orders',userAuth.isUserBlocked, orderController.loadOrders);
-router.patch('/home/orders/cancel',userAuth.checkSession, orderController.cancelOrder)
-router.patch('/orders/cancel-item', orderController.cancelItem)
+router.patch('/orders/cancel', orderController.cancelOrder)
 router.get('/home/orders/details/:orderId',userAuth.isUserBlocked, userAuth.checkSession, orderController.orderDetailedPage)
 router.post('/orders/return', upload.single('returnImage'), orderController.returnOrder);
 router.get('/orders/invoice/:orderId', orderController.downloadInvoice);

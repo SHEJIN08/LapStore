@@ -27,7 +27,7 @@ const orderSchema = new mongoose.Schema({
         image: { type: String, required: true },
         productStatus: {
             type: String,
-            enum: [ "Placed", "Cancelled", "Return Request", "Returned", "Return Rejected"],
+            enum: [ "Placed", "Cancelled", "Delivered" ,"Return Request", "Returned", "Return Rejected"],
             default: "Placed"
         },
         
@@ -65,7 +65,7 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Processing', 'Shipped', 'Out for Delivery' ,'Delivered', 'Cancelled', 'Return Request', 'Returned'],
+        enum: ['Pending', 'Processing', 'Shipped', 'Out for Delivery' ,'Delivered', 'Cancelled', 'Return Request', 'Returned','Return Rejected'],
         default: 'Pending'
     },
    

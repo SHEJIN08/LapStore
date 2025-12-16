@@ -262,7 +262,7 @@
                                                                 onclick="cancelItem('<%= order._id %>', '<%= item._id %>')">
                                                                 Cancel Item
                                                             </button>
-                                                            <% } else if (order.status==='Delivered' ) { %>
+                                                            <% } else if (order.status==='Delivered' && item.productStatus !== 'Cancelled' && item.productStatus !== 'Returned'  ) { %>
                                                                 <button class="btn-return"
                                                                     style="padding: 6px 12px; font-size: 12px;"
                                                                     onclick="openReturnModal('<%= order._id %>', '<%= item._id %>')">
@@ -329,7 +329,7 @@
                                     <span>Shipping</span>
                                     <span class="<%= order.finalAmount - order.totalPrice <= 0 ? 'free' : '' %>">
                                         <%= order.finalAmount - order.totalPrice <=0 ? 'Free' : '₹' + (order.finalAmount
-                                            - order.totalPrice).toFixed(2) %>
+                                            - order.totalPrice).toFixed(0)%>
                                     </span>
                                 </div>
                                 <% if(order.discount> 0) { %>
@@ -340,7 +340,7 @@
                                     <% } %>
                                         <div class="row total">
                                             <span>Total</span>
-                                            <span>₹<%= order.finalAmount.toLocaleString() %></span>
+                                            <span>₹<%= Math.round(order.finalAmount).toLocaleString() %></span>
                                         </div>
                             </div>
                         </section>
@@ -541,6 +541,49 @@
         }
     }
 
+    async function cancelOrder(orderId) {
+        // Updated Swal to ask for a REASON
+        const result = await Swal.fire({
+            title: 'Cancel Order?',
+            text: "Please provide a reason for cancellation:",
+            input: 'text', // <--- Adds text input
+            inputPlaceholder: 'Changed my mind, Found better price, etc.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel order!',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'You need to write a reason!'
+                }
+            }
+        });
+
+        if (!result.isConfirmed) return;
+        
+        const reason = result.value; // Get the text input
+
+        try {
+            // Point to the NEW unified route
+            const response = await axios.patch('/user/orders/cancel', { 
+                orderId: orderId,
+                reason: reason // Send the reason
+            });
+
+            if (response.data.success) {
+                await Swal.fire('Cancelled!', 'Your order has been cancelled.', 'success');
+                window.location.reload();
+            } else {
+                showToast(response.data.message, 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            const errMsg = error.response?.data?.message || "Something went wrong";
+            showToast(errMsg, "error");
+        }
+    }
+
     // 4. Cancel Order Item (Existing logic)
     async function cancelItem(orderId, itemId) {
         const result = await Swal.fire({
@@ -556,9 +599,10 @@
         if (!result.isConfirmed) return;
 
         try {
-            const response = await axios.patch('/user/orders/cancel-item', {
+            const response = await axios.patch('/user/orders/cancel', {
                 orderId: orderId,
-                itemId: itemId
+                itemId: itemId,
+                reason: "User cancelled specific item"
             });
 
             if (response.data.success) {

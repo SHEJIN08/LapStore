@@ -15,467 +15,425 @@
                                 <i class="fa-solid fa-arrow-left"></i> Back to Orders
                             </a>
 
-                                    <h1>Order Details</h1>
-                                    <div class="order-meta">
-                                        <span class="order-id">#<%= order.orderId %></span>
-                                        <span class="order-date"><i class="fa-regular fa-calendar"></i>
-                                            <%= new Date(order.createdAt).toLocaleDateString() %>
-                                        </span>
-                                        <span class="payment-badge <%= order.paymentStatus.toLowerCase() %>">
-                                            <%= order.paymentStatus %>
-                                        </span>
-                                    </div>
+                            <h1>Order Details</h1>
+                            <div class="order-meta">
+                                <span class="order-id">#<%= order.orderId %></span>
+                                <span class="order-date"><i class="fa-regular fa-calendar"></i>
+                                    <%= new Date(order.createdAt).toLocaleDateString() %>
+                                </span>
+                                <span class="payment-badge <%= order.paymentStatus.toLowerCase() %>">
+                                    <%= order.paymentStatus %>
+                                </span>
+                            </div>
                         </div>
                         <div class="header-right">
-                           
+
                         </div>
                     </header>
 
-                          <% if (order.status==='Return Request' ) { %>
+                    <% if (order.status==='Return Request' ) { %>
 
-                                <div class="return-alert-card">
-                                    <div class="alert-header">
-                                        <div class="icon-wrap">
-                                            <i class="fa-solid fa-circle-exclamation"></i>
+                        <div class="return-alert-card">
+                            <div class="alert-header">
+                                <div class="icon-wrap">
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                </div>
+                                <h3>User Request: <%= order.returnRequest.type %>
+                                </h3>
+                            </div>
+
+                            <div class="alert-body">
+                                <p class="label">Reason for Request:</p>
+                                <p class="value">"<%= order.returnRequest.reason %>"</p>
+
+                                <% if(order.returnRequest.comment) { %>
+                                    <p class="value sub-value">
+                                        <%= order.returnRequest.comment %>
+                                    </p>
+                                    <% } %>
+
+                                        <p class="label" style="margin-top: 15px;">Attachments:</p>
+                                        <div class="attachments-list">
+
+                                            <% if (order.returnRequest.image) { %>
+                                                <a href="<%= order.returnRequest.image %>" target="_blank"
+                                                    class="file-chip" style="text-decoration: none;">
+                                                    <i class="fa-regular fa-image"></i>
+                                                    <span>View Attached Proof</span>
+                                                    <i class="fa-solid fa-arrow-up-right-from-square"
+                                                        style="font-size: 10px; margin-left: 5px;"></i>
+                                                </a>
+                                                <% } else { %>
+                                                    <span style="font-size: 13px; color: #9CA3AF; font-style: italic;">
+                                                        No proof attached by user.
+                                                    </span>
+                                                    <% } %>
+
                                         </div>
-                                        <h3>User Request: <%= order.returnRequest.type %>
-                                        </h3>
-                                    </div>
+                            </div>
 
-                                    <div class="alert-body">
-                                        <p class="label">Reason for Request:</p>
-                                        <p class="value">"<%= order.returnRequest.reason %>"</p>
-
-                                        <% if(order.returnRequest.comment) { %>
-                                            <p class="value sub-value">
-                                                <%= order.returnRequest.comment %>
-                                            </p>
-                                            <% } %>
-
-                                                <p class="label" style="margin-top: 15px;">Attachments:</p>
-                                                <div class="attachments-list">
-
-                                                    <% if (order.returnRequest.image) { %>
-                                                        <a href="<%= order.returnRequest.image %>" target="_blank"
-                                                            class="file-chip" style="text-decoration: none;">
-                                                            <i class="fa-regular fa-image"></i>
-                                                            <span>View Attached Proof</span>
-                                                            <i class="fa-solid fa-arrow-up-right-from-square"
-                                                                style="font-size: 10px; margin-left: 5px;"></i>
-                                                        </a>
-                                                        <% } else { %>
-                                                            <span
-                                                                style="font-size: 13px; color: #9CA3AF; font-style: italic;">
-                                                                No proof attached by user.
-                                                            </span>
-                                                            <% } %>
-
-                                                </div>
-                                    </div>
-
-                                    <div class="alert-actions">
-                                        <button class="btn-approve" onclick="approveReturn('<%= order._id %>')">
-                                            <i class="fa-regular fa-circle-check"></i> Approve Request
-                                        </button>
-                                        <button class="btn-reject" onclick="rejectReturn('<%= order._id %>')">
-                                            <i class="fa-regular fa-circle-xmark"></i> Reject Request
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <% } %>
-
-                    <div class="details-grid">
-
-                        <div class="details-left">
-                            <section class="card items-card">
-                                <h3>Order Items</h3>
-                               <table class="items-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
-                                            <th>Total</th>
-                                            <th>Status</th>
-                                            <th class="text-right">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% order.orderedItems.forEach(item=> { %>
-                                            <tr>
-                                                <td>
-                                                    <div class="item-info">
-                                                        <div class="img-wrapper">
-                                                            <img src="<%= item.image %>" alt="Product">
-                                                        </div>
-                                                        <div class="info-text">
-                                                            <span class="product-name">
-                                                                <%= item.productName %>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>₹<%= item.price.toLocaleString() %></td>
-                                                <td>x<%= item.quantity %></td>
-                                                <td class="font-bold">₹<%= (item.price * item.quantity).toLocaleString() %></td>
-
-                                                <td>
-                                                    <% if (item.productStatus === 'Return Request') { %>
-                                                        <span style="background:#fff7ed; color:#c2410c; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">
-                                                            Return Requested
-                                                        </span>
-                                                    <% } else if (item.productStatus === 'Returned') { %>
-                                                        <span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">
-                                                            Returned
-                                                        </span>
-                                                    <% } else if (item.productStatus === 'Cancelled') { %>
-                                                        <span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">
-                                                            Cancelled
-                                                        </span>
-                                                    <% } else { %>
-                                                        <span style="color:#6b7280; font-size:12px;">
-                                                            <%= item.productStatus || 'Ordered' %>
-                                                        </span>
-                                                    <% } %>
-                                                </td>
-
-                                                <td class="text-right">
-                                                    <% if (item.productStatus === 'Return Request') { %>
-                                                        <div style="display:flex; gap:5px; justify-content:flex-end;">
-                                                            <button onclick="approveItemReturn('<%= order._id %>', '<%= item._id %>')" 
-                                                                    style="background:#22c55e; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">
-                                                                <i class="fa-solid fa-check"></i>
-                                                            </button>
-                                                            <button onclick="rejectItemReturn('<%= order._id %>', '<%= item._id %>')" 
-                                                                    style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">
-                                                                <i class="fa-solid fa-xmark"></i>
-                                                            </button>
-                                                        </div>
-                                                        <% if(item.returnReason) { %>
-                                                            <div style="font-size:10px; color:#ef4444; margin-top:2px;">
-                                                                Reason: <%= item.returnReason %>
-                                                            </div>
-                                                        <% } %>
-                                                    <% } else { %>
-                                                       <%= item.productStatus %>
-                                                    <% } %>
-                                                </td>
-                                            </tr>
-                                        <% }) %>
-                                    </tbody>
-                                </table>
-
-                                <div class="order-summary">
-                                    <div class="summary-row">
-                                        <span>Subtotal</span>
-                                        <span>₹<%= order.totalPrice.toLocaleString() %></span>
-                                    </div>
-                                    <div class="summary-row">
-                                        <span>Shipping</span>
-                                        <span>₹<%= (order.finalAmount - order.totalPrice + order.discount).toFixed(2) %>
-                                        </span>
-                                    </div>
-                                    <div class="summary-row">
-                                        <span>Discount</span>
-                                        <span class="text-danger">-₹<%= order.discount %></span>
-                                    </div>
-                                    <div class="summary-row total">
-                                        <span>Total Amount</span>
-                                        <span>₹<%= order.finalAmount.toLocaleString() %></span>
-                                    </div>
-                                </div>
-                            </section>
+                            <div class="alert-actions">
+                                <button class="btn-approve" onclick="approveReturn('<%= order._id %>')">
+                                    <i class="fa-regular fa-circle-check"></i> Approve Request
+                                </button>
+                                <button class="btn-reject" onclick="rejectReturn('<%= order._id %>')">
+                                    <i class="fa-regular fa-circle-xmark"></i> Reject Request
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="details-right">
+                        <% } %>
 
-                            <section class="card actions-card">
-                                <h3>Order Status</h3>
-                                <p class="status-desc">Update the current status of this order.</p>
+                            <div class="details-grid">
 
-                                <form id="statusForm" onsubmit="updateStatus(event, '<%= order._id %>')">
-                                    <div class="status-selector">
-                                        <select name="status" id="statusSelect">
+                                <div class="details-left">
+                                    <section class="card items-card">
+                                        <h3>Order Items</h3>
+                                        <table class="items-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Price</th>
+                                                    <th>Quantity</th>
+                                                    <th>Total</th>
+                                                    <th>Status</th>
+                                                    <th class="text-right">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% order.orderedItems.forEach(item=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                                <img src="<%= item.image %>" alt="Product"
+                                                                    style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #eee;"
+                                                                    onerror="this.src='https://placehold.co/50'">
+                                                                <div>
+                                                                    <span style="font-weight: 500; display: block;">
+                                                                        <%= item.productName %>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
 
-                                            <option value="<%= order.status %>" selected disabled>
-                                                <%= order.status %> (Current)
-                                            </option>
+                                                        <td>₹<%= item.price.toLocaleString() %>
+                                                        </td>
 
-                                            <% if (order.status==='Pending' ) { %>
-                                                <option value="Processing">Processing</option>
-                                                <% } %>
+                                                        <td>
+                                                            <%= item.quantity %>
+                                                        </td>
 
-                                                    <% if (order.status==='Processing' ) { %>
-                                                        <option value="Shipped">Shipped</option>
+                                                        <td>₹<%= (item.price * item.quantity).toLocaleString() %>
+                                                        </td>
+
+                                                        <td>
+                                                            <% let displayStatus=item.productStatus; let
+                                                                statusColor='text-warning' ; if
+                                                                (item.productStatus==='Placed' &&
+                                                                order.status==='Delivered' ) { displayStatus='Delivered'
+                                                                ; statusColor='text-success' ; } else if
+                                                                (item.productStatus==='Cancelled' ||
+                                                                item.productStatus==='Return Rejected' ) {
+                                                                statusColor='text-danger' ; } else if
+                                                                (item.productStatus==='Delivered' ) {
+                                                                statusColor='text-success' ; } else if
+                                                                (item.productStatus==='Returned' ) {
+                                                                statusColor='text-primary' ; } %>
+                                                                <span class="<%= statusColor %>"
+                                                                    style="font-weight: 600;">
+                                                                    <%= displayStatus %>
+                                                                </span>
+                                                        </td>
+
+                                                        <td>
+                                                            <% if (order.orderedItems.length> 1) { %>
+
+                                                                <% if (item.productStatus==='Return Request' ) { %>
+                                                                    <div style="display: flex; gap: 10px;">
+                                                                        <button
+                                                                            onclick="approveItemReturn('<%= order._id %>', '<%= item._id %>')"
+                                                                            class="btn btn-sm btn-success"
+                                                                            title="Approve">
+                                                                            <i class="fa-solid fa-check"></i>
+                                                                        </button>   
+                                                                        <button
+                                                                            onclick="rejectItemReturn('<%= order._id %>', '<%= item._id %>')"
+                                                                            class="btn btn-sm btn-danger"
+                                                                            title="Reject">
+                                                                            <i class="fa-solid fa-xmark"></i>
+                                                                        </button>
+                                                                    </div>
+
+                                                                    <% } else if (item.productStatus==='Cancelled' ) {
+                                                                        %>
+                                                                        <span class="badge bg-danger">Cancelled</span>
+
+                                                                        <% } else if (item.productStatus==='Returned' )
+                                                                            { %>
+                                                                            <span
+                                                                                class="badge bg-primary">Refunded</span>
+
+                                                                            <% } else { %>
+                                                                                <span class="text-muted">-</span>
+                                                                                <% } %>
+
+                                                                                    <% } else { %>
+                                                                                        <span
+                                                                                            class="text-muted">-</span>
+                                                                                        <% } %>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                            </tbody>
+                                        </table>
+
+                                        <div class="order-summary">
+                                            <div class="summary-row">
+                                                <span>Subtotal</span>
+                                                <span>₹<%= order.totalPrice.toLocaleString() %></span>
+                                            </div>
+                                            <div class="summary-row">
+                                                <span>Shipping</span>
+                                                <span>₹<%= (order.finalAmount - order.totalPrice +
+                                                        order.discount).toFixed(0) %>
+                                                </span>
+                                            </div>
+                                            <div class="summary-row">
+                                                <span>Discount</span>
+                                                <span class="text-danger">-₹<%= order.discount %></span>
+                                            </div>
+                                            <div class="summary-row total">
+                                                <span>Total Amount</span>
+                                                <span>₹<%= Math.round(order.finalAmount).toLocaleString() %></span>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+
+                                <div class="details-right">
+
+                                    <section class="card actions-card">
+                                        <h3>Order Status</h3>
+                                        <p class="status-desc">Update the current status of this order.</p>
+
+                                        <form id="statusForm" onsubmit="updateStatus(event, '<%= order._id %>')">
+                                            <div class="status-selector">
+                                                <select name="status" id="statusSelect">
+
+                                                    <option value="<%= order.status %>" selected disabled>
+                                                        <%= order.status %> (Current)
+                                                    </option>
+
+                                                    <% if (order.status==='Pending' ) { %>
+                                                        <option value="Processing">Processing</option>
                                                         <% } %>
 
-                                                            <% if (order.status==='Shipped' ) { %>
-                                                                <option value="Out for Delivery">Out for Delivery
-                                                                </option>
+                                                            <% if (order.status==='Processing' ) { %>
+                                                                <option value="Shipped">Shipped</option>
                                                                 <% } %>
 
-                                                                    <% if (order.status==='Out for Delivery' ) { %>
-                                                                        <option value="Delivered">Delivered</option>
+                                                                    <% if (order.status==='Shipped' ) { %>
+                                                                        <option value="Out for Delivery">Out for
+                                                                            Delivery
+                                                                        </option>
                                                                         <% } %>
 
-                                        </select>
-                                    </div>
-                                    <% if (order.status==='Cancelled' && order.cancellationReason) { %>
-                                        <div
-                                            style="margin-top: 15px; padding: 12px; background-color: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; color: #991B1B;">
-                                            <p style="margin: 0; font-size: 13px; font-weight: 600;">Order is cancelled
-                                                Reason:</p>
-                                            <p style="margin: 4px 0 0 0; font-size: 14px;">
-                                                "<%= order.cancellationReason %>"
-                                            </p>
-                                        </div>
-                                        <% } %>
-                                            <button type="submit" class="btn-update" style="margin-top: 18px;">Update
-                                                Status</button>
-                                </form>
+                                                                            <% if (order.status==='Out for Delivery' ) {
+                                                                                %>
+                                                                                <option value="Delivered">Delivered
+                                                                                </option>
+                                                                                <% } %>
 
-                            </section>
-
-                            <section class="card customer-card">
-                                <h3>Customer Details</h3>
-                                <div class="customer-row">
-                                    <div class="avatar-circle" style="overflow:hidden;">
-                                        <% if (user && user.avatar) { %>
-                                            <img src="<%= user.avatar %>" alt="User Avatar"
-                                                style="width:100%; height:100%; object-fit:cover;">
-                                            <% } else { %>
-                                                <span style="font-size:18px; font-weight:bold; color:#2563EB;">
-                                                    <%= order.address.fullName.charAt(0).toUpperCase() %>
-                                                </span>
+                                                </select>
+                                            </div>
+                                            <% if (order.status==='Cancelled' && order.cancellationReason) { %>
+                                                <div
+                                                    style="margin-top: 15px; padding: 12px; background-color: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; color: #991B1B;">
+                                                    <p style="margin: 0; font-size: 13px; font-weight: 600;">Order is
+                                                        cancelled
+                                                        Reason:</p>
+                                                    <p style="margin: 4px 0 0 0; font-size: 14px;">
+                                                        "<%= order.cancellationReason %>"
+                                                    </p>
+                                                </div>
                                                 <% } %>
-                                    </div>
-                                    <div class="info">
-                                        <span class="label">Name</span>
-                                        <span class="value">
-                                            <%= order.address.fullName %>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="info-group">
-                                    <span class="label">Phone</span>
-                                    <span class="value"><a href="tel:<%= order.address.phone %>">
-                                            <%= order.address.phone %>
-                                        </a></span>
-                                </div>
-                                <div class="info-group">
-                                    <span class="label">Payment Method</span>
-                                    <span class="value">
-                                        <%= order.paymentMethod %>
-                                    </span>
-                                </div>
-                            </section>
+                                                    <button type="submit" class="btn-update"
+                                                        style="margin-top: 18px;">Update
+                                                        Status</button>
+                                        </form>
 
-                            <section class="card address-card">
-                                <h3>Shipping Address</h3>
-                                <div class="address-box">
-                                    <p><strong>
-                                            <%= order.address.addressType %>
-                                        </strong></p>
-                                    <p>
-                                        <%= order.address.fullName %>
-                                    </p>
-                                    <p>
-                                        <%= order.address.address1 %>
-                                    </p>
-                                    <% if(order.address.address2) { %>
-                                        <p>
-                                            <%= order.address.address2 %>
-                                        </p>
-                                        <% } %>
+                                    </section>
+
+                                    <section class="card customer-card">
+                                        <h3>Customer Details</h3>
+                                        <div class="customer-row">
+                                            <div class="avatar-circle" style="overflow:hidden;">
+                                                <% if (user && user.avatar) { %>
+                                                    <img src="<%= user.avatar %>" alt="User Avatar"
+                                                        style="width:100%; height:100%; object-fit:cover;">
+                                                    <% } else { %>
+                                                        <span style="font-size:18px; font-weight:bold; color:#2563EB;">
+                                                            <%= order.address.fullName.charAt(0).toUpperCase() %>
+                                                        </span>
+                                                        <% } %>
+                                            </div>
+                                            <div class="info">
+                                                <span class="label">Name</span>
+                                                <span class="value">
+                                                    <%= order.address.fullName %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="info-group">
+                                            <span class="label">Phone</span>
+                                            <span class="value"><a href="tel:<%= order.address.phone %>">
+                                                    <%= order.address.phone %>
+                                                </a></span>
+                                        </div>
+                                        <div class="info-group">
+                                            <span class="label">Payment Method</span>
+                                            <span class="value">
+                                                <%= order.paymentMethod %>
+                                            </span>
+                                        </div>
+                                    </section>
+
+                                    <section class="card address-card">
+                                        <h3>Shipping Address</h3>
+                                        <div class="address-box">
+                                            <p><strong>
+                                                    <%= order.address.addressType %>
+                                                </strong></p>
                                             <p>
-                                                <%= order.address.city %>, <%= order.address.state %>
-                                                        <%= order.address.pincode %>
+                                                <%= order.address.fullName %>
                                             </p>
-                                </div>
-                            </section>
+                                            <p>
+                                                <%= order.address.address1 %>
+                                            </p>
+                                            <% if(order.address.address2) { %>
+                                                <p>
+                                                    <%= order.address.address2 %>
+                                                </p>
+                                                <% } %>
+                                                    <p>
+                                                        <%= order.address.city %>, <%= order.address.state %>
+                                                                <%= order.address.pincode %>
+                                                    </p>
+                                        </div>
+                                    </section>
 
-                        </div>
-                    </div>
+                                </div>
+                            </div>
 
                 </main>
         </div>
         <script src="/js/axios.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             // 1. Reusable Toast Function
-             const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top", 
-                position: "right", 
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
+            const showToast = (message, type) => {
+                const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: bgColor, borderRadius: '10px' }
+                }).showToast();
+            };
 
+// 2. Update Global Order Status (Dropdown)
+    async function updateStatus(e, orderId) {
+        e.preventDefault();
+        const newStatus = document.getElementById('statusSelect').value;
 
-            // 2. Update Status Function
-            async function updateStatus(e, orderId) {
-                e.preventDefault();
-                const newStatus = document.getElementById('statusSelect').value;
-
-                try {
-                    const response = await axios.patch('/admin/orders/update-status', {
-                        orderId: orderId,
-                        status: newStatus
-                    });
-
-                    if (response.data.success) {
-                        showToast("Status Updated Successfully", "success");
-                        setTimeout(() => location.reload(), 1000);
-                    }
-                } catch (error) {
-                    console.error(error);
-                    const msg = error.response?.data?.message || "Failed to update status";
-                    showToast(msg, "error");
-                }
-            }
-
-            // 3. Return Action Functions
-            async function approveReturn(orderId) {
-                if (!confirm("Are you sure you want to APPROVE this return?")) return;
-                sendReturnAction(orderId, 'approve');
-            }
-
-            async function rejectReturn(orderId) {
-                if (!confirm("Are you sure you want to REJECT this return?")) return;
-                sendReturnAction(orderId, 'reject');
-            }
-
-            async function sendReturnAction(orderId, action) {
-                try {
-                    const response = await axios.patch('/admin/orders/handle-return', {
-                        orderId,
-                        action
-                    });
-
-                    if (response.data.success) {
-                        showToast(response.data.message, 'success');
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        showToast(response.data.message, 'error');
-                    }
-                } catch (error) {
-                    console.error(error);
-                    showToast("Something went wrong", 'error');
-                }
-            }
-
-            // --- NEW FUNCTIONS FOR ITEM-LEVEL RETURNS ---
-
-async function approveItemReturn(orderId, itemId) {
-    // 1. Confirmation
-    const result = await Swal.fire({
-        title: 'Approve Item Return?',
-        text: "Only this specific item will be refunded and restocked.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#22c55e',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, Approve Item'
-    });
-
-    if (!result.isConfirmed) return;
-
-    // 2. Call Backend
-    sendItemReturnAction(orderId, itemId, 'approve');
-}
-
-async function rejectItemReturn(orderId, itemId) {
-    const result = await Swal.fire({
-        title: 'Reject Item Return?',
-        text: "This item request will be rejected.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, Reject Item'
-    });
-
-    if (!result.isConfirmed) return;
-
-    sendItemReturnAction(orderId, itemId, 'reject');
-}
-
-async function sendItemReturnAction(orderId, itemId, action) {
-    try {
-        // Reuse your existing route, but pass itemId now!
-        const response = await axios.patch('/admin/orders/handle-return', {
-            orderId: orderId,
-            itemId: itemId, // <--- THIS IS THE KEY CHANGE
-            action: action
-        });
-
-        if (response.data.success) {
-            await Swal.fire('Success', response.data.message, 'success');
-            location.reload();
-        } else {
-            showToast(response.data.message, 'error');
-        }
-    } catch (error) {
-        console.error(error);
-        const msg = error.response?.data?.message || "Operation failed";
-        showToast(msg, 'error');
-    }
-}
-
-    // 1. Approve Specific Item
-    async function approveItemReturn(orderId, itemId) {
-        const result = await Swal.fire({
-            title: 'Approve Item?',
-            text: "This will approve the return for this single item.",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#22c55e',
-            confirmButtonText: 'Yes, Approve'
-        });
-
-        if (result.isConfirmed) {
-            sendReturnRequest(orderId, itemId, 'approve');
-        }
-    }
-
-    // 2. Reject Specific Item
-    async function rejectItemReturn(orderId, itemId) {
-        const result = await Swal.fire({
-            title: 'Reject Item?',
-            text: "This will reject the return request.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Yes, Reject'
-        });
-
-        if (result.isConfirmed) {
-            sendReturnRequest(orderId, itemId, 'reject');
-        }
-    }
-
-    // 3. Send to Backend
-    async function sendReturnRequest(orderId, itemId, action) {
         try {
-            const response = await axios.patch('/admin/orders/handle-return', {
+            const response = await axios.patch('/admin/orders/update-status', {
                 orderId: orderId,
-                itemId: itemId,  // Sending the ID is critical
-                action: action
+                status: newStatus
             });
 
             if (response.data.success) {
-                Swal.fire('Success', response.data.message, 'success')
-                    .then(() => location.reload());
+                showToast("Status Updated Successfully", "success");
+                setTimeout(() => location.reload(), 1000);
+            }
+        } catch (error) {
+            console.error(error);
+            showToast(error.response?.data?.message || "Failed to update status", "error");
+        }
+    }
+
+    // 3. GLOBAL Return Actions (Big Buttons at Top)
+    async function approveReturn(orderId) {
+        if (!confirm("Are you sure you want to APPROVE the entire order return?")) return;
+        // Send without itemId implies Global Action
+        sendReturnAction(orderId, null, 'approve');
+    }
+
+    async function rejectReturn(orderId) {
+        if (!confirm("Are you sure you want to REJECT the entire order return?")) return;
+        // Send without itemId implies Global Action
+        sendReturnAction(orderId, null, 'reject');
+    }
+
+    // 4. ITEM SPECIFIC Return Actions (Table Buttons)
+    async function approveItemReturn(orderId, itemId) {
+        const result = await Swal.fire({
+            title: 'Approve Item Return?',
+            text: "Only this specific item will be refunded.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Approve Item'
+        });
+
+        if (result.isConfirmed) {
+            sendReturnAction(orderId, itemId, 'approve');
+        }
+    }
+
+    async function rejectItemReturn(orderId, itemId) {
+        const result = await Swal.fire({
+            title: 'Reject Item Return?',
+            text: "This item request will be rejected.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Reject Item'
+        });
+
+        if (result.isConfirmed) {
+            sendReturnAction(orderId, itemId, 'reject');
+        }
+    }
+
+    // 5. Unified Backend Call
+    async function sendReturnAction(orderId, itemId, action) {
+        try {
+            const payload = {
+                orderId: orderId,
+                action: action
+            };
+
+            // Only add itemId if it exists (distinguishes Global vs Item action)
+            if (itemId) {
+                payload.itemId = itemId;
+            }
+
+            const response = await axios.patch('/admin/orders/handle-return', payload);
+
+            if (response.data.success) {
+                await Swal.fire('Success', response.data.message, 'success');
+                location.reload();
             } else {
                 Swal.fire('Error', response.data.message, 'error');
             }
         } catch (error) {
             console.error(error);
-            Swal.fire('Error', 'Failed to process request', 'error');
+            const msg = error.response?.data?.message || "Operation failed";
+            showToast(msg, 'error');
         }
     }
         </script>

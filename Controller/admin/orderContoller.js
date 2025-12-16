@@ -119,6 +119,8 @@ const updateOrderStatus = async (req, res) => {
             order.paymentStatus = 'Paid';
         }
 
+     
+
         order.orderHistory.push({
             status: status,
             date: new Date(),
@@ -140,18 +142,36 @@ const handleReturnRequest = async (req, res) => {
        const { orderId, itemId, action } = req.body;
 
         const order = await Order.findById(orderId);
-        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+        if (!order) return res.status(StatusCode.NOT_FOUND).json({ success: false, message: "Order not found" });
+
+        const TAX_RATE = 0.05;
+        const CONVENIENCE_FEE = 30;
 
         // --- OPTION 1: Handle Specific Item Return ---
         if (itemId) {
             const item = order.orderedItems.id(itemId);
-            if (!item) return res.status(404).json({ success: false, message: "Item not found" });
+            if (!item) return res.status(StatusCode.NOT_FOUND).json({ success: false, message: "Item not found" });
+
+               if (order.status === 'Delivered') {
+             if (item.productStatus !== 'Cancelled' && 
+           item.productStatus !== 'Returned' && 
+             item.productStatus !== 'Return Request' &&
+           item.productStatus !== 'Return Rejected') {
+        
+        item.productStatus = 'Delivered';
+    }
+}
 
             if (action === 'approve') {
                 item.productStatus = 'Returned';
-                
-                // Refund Logic Calculation (Refund ONLY this item's price)
-                const refundAmount = item.price * item.quantity;
+
+                const itemBasePrice = item.price * item.quantity;
+                const priceAfterTax = itemBasePrice + (itemBasePrice * TAX_RATE);
+                const shippingRefund = (priceAfterTax > 100000) ? 0 : 1000;
+
+               const refundAmount = Math.max(0, (priceAfterTax + shippingRefund) - CONVENIENCE_FEE);
+
+               item.productStatus = 'Returned';
                 
                 // TODO: Add your Wallet/Refund logic here:
                 // await Wallet.addMoney(order.userId, refundAmount);
@@ -169,6 +189,11 @@ const handleReturnRequest = async (req, res) => {
                 order.returnRequest.status = 'Approved';
                 // Loop through all items to mark them returned
                 order.orderedItems.forEach(p => p.productStatus = 'Returned');
+
+                const totalPaid = order.finalAmount;
+
+           
+                const refundAmount = totalPaid - CONVENIENCE_FEE;
                 
                 // TODO: Refund Total Amount
             } else if (action === 'reject') {
@@ -180,12 +205,13 @@ const handleReturnRequest = async (req, res) => {
             }
         }
 
+
         await order.save();
-        return res.json({ success: true, message: "Return processed successfully" });
+        return res.status(StatusCode.OK).json({ success: true, message: "Return processed successfully" });
 
     } catch (error) {
         console.error("Admin Return Error:", error);
-        return res.status(500).json({ success: false, message: "Server error" });
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
     }
 };
 

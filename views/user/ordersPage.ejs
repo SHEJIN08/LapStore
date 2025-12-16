@@ -40,6 +40,38 @@
                                 class="tab-link <%= currentStatus === 'Cancelled' ? 'active' : '' %>">Cancelled</a>
                         </div>
 
+                        <div class="orders-toolbar">
+
+                            <div class="toolbar-left">
+                     
+                            </div>
+
+                            <div class="search-container">
+                                <form action="/user/home/orders" method="GET" class="search-form">
+
+                                    <% if (currentStatus && currentStatus !=='All' ) { %>
+                                        <input type="hidden" name="status" value="<%= currentStatus %>">
+                                        <% } %>
+
+                                            <div class="input-group">
+                                                <span class="search-icon">
+                                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                                </span>
+                                                <input type="text" name="search"
+                                                    placeholder="Search by Order ID or Product..."
+                                                    value="<%= currentSearch %>" autocomplete="off">
+                                                <% if (currentSearch) { %>
+                                                    <a href="/user/home/orders?status=<%= currentStatus %>"
+                                                        class="clear-search">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </a>
+                                                    <% } %>
+                                            </div>
+                                            <button type="submit" class="btn-search">Search</button>
+                                </form>
+                            </div>
+                        </div>
+
                         <div class="orders-list">
                             <% if (orders && orders.length> 0) { %>
                                 <% orders.forEach(order=> { %>
@@ -225,25 +257,25 @@
 
                     let currentOrderId = null;
 
-         
+
                     function openCancelModal(orderId) {
                         currentOrderId = orderId;
                         document.getElementById('cancelModal').classList.remove('hidden');
 
-       
+
                         const radios = document.getElementsByName('cancelReason');
                         radios.forEach(r => r.checked = false);
                         document.getElementById('otherReasonContainer').classList.add('hidden');
                         document.getElementById('otherReasonText').value = '';
                     }
 
-                   
+
                     function closeModal() {
                         currentOrderId = null;
                         document.getElementById('cancelModal').classList.add('hidden');
                     }
 
-                    
+
                     function toggleOther(show) {
                         const container = document.getElementById('otherReasonContainer');
                         if (show) {
@@ -253,11 +285,11 @@
                         }
                     }
 
-            
+
                     async function submitCancellation() {
                         if (!currentOrderId) return;
 
-                       
+
                         const radios = document.getElementsByName('cancelReason');
                         let selectedReason = null;
                         for (const radio of radios) {
@@ -272,7 +304,7 @@
                             return;
                         }
 
-                  
+
                         if (selectedReason === 'Other') {
                             const otherText = document.getElementById('otherReasonText').value.trim();
                             if (!otherText) {
@@ -282,9 +314,9 @@
                             selectedReason = otherText;
                         }
 
-                
+
                         try {
-                            const response = await axios.patch('/user/home/orders/cancel', {
+                            const response = await axios.patch('/user/orders/cancel', {
                                 orderId: currentOrderId,
                                 reason: selectedReason
                             });
