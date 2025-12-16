@@ -60,10 +60,11 @@ const getAddBrandPage = (req, res) => {
 const addBrand = async (req, res) => {
     try {
         const { brandName, country, foundedYear, website, description } = req.body;
+        console.log(req.file)
         if(!req.file){
            return res.status(StatusCode.BAD_REQUEST).json({success: false, message: ResponseMessage.BRAND});
         }
-        const image = req.file.url; //path contains full url of cloudinary
+        const image = req.file.secure_url; //path contains full url of cloudinary
 
         // Check if brand already exists (Case insensitive)
         const findBrand = await Brand.findOne({ brandName: { $regex: new RegExp("^" + brandName + "$", "i") }});

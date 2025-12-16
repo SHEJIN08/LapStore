@@ -1,10 +1,7 @@
 import Joi from "joi";
-import bcrypt from "bcrypt";
-import userSchema from "../../model/userModel.js";
-import { sendOtp } from "../../utils/otp.js";
-import UserOtpVerification from "../../model/otpModel.js";
+import authService from "../../services/user/authService.js"; 
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
-const saltround = 10;
+
 
 // ... (Your Joi Schemas remain the same) ...
 const registerSchema = Joi.object({
@@ -65,322 +62,178 @@ const resetPasswordSchema = Joi.object({
 // 🚀 REGISTER USER
 // ==========================================
 const registerUser = async (req, res) => {
-  try {
-    // 1. Joi validation
-    const { error } = registerSchema.validate(req.body, {
-      abortEarly: false,
-      allowUnknown: true,
-    });
-    if (error) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: error.details[0].message });
+    try {
+        // 1. Validation
+        const { error } = registerSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
+        if (error) return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.details[0].message });
+
+        const { name, email, password } = req.body;
+
+        // 2. Call Service
+        await authService.registerUserService({ name, email, password });
+
+        // 3. Set Session
+        req.session.email = email;
+        req.session.otpPurpose = "register";
+        req.session.otpExpiresAt = Date.now() + 1 * 60 * 1000;
+
+        return res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.REG_SUCCESS });
+
+    } catch (err) {
+        // Handle Service Errors (like Duplicate User)
+        if (err.message === ResponseMessage.DUP_USER) {
+            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: err.message });
+        }
+        console.error(err);
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
     }
+};
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-    const { name, email, password } = req.body;
+        // 1. Call Service
+        const user = await authService.loginUserService({ email, password });
 
-    // 2. Check user exists
-    const existingUser = await userSchema.findOne({ email });
-    if (existingUser) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: ResponseMessage.DUP_USER});
+        // 2. Set Session
+        req.session.user = user._id;
+
+        return res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.LOGIN_SUCCESS });
+
+    } catch (err) {
+        const expectedErrors = [ResponseMessage.USER_NOT_FOUND, ResponseMessage.VER_EMAIL, ResponseMessage.USER_BLOCK, ResponseMessage.WRONG_PASS];
+        
+        if (expectedErrors.includes(err.message)) {
+            const status = err.message === ResponseMessage.VER_EMAIL || err.message === ResponseMessage.USER_BLOCK ? StatusCode.UNAUTHORIZED : StatusCode.BAD_REQUEST;
+            return res.status(status).json({ success: false, message: err.message });
+        }
+        
+        console.error(err);
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
     }
-
-    // 3. Save user (unverified)
-    const hashedPassword = await bcrypt.hash(password, saltround);
-    const userId = `user_${Date.now()}`;
-
-    const newUser = new userSchema({
-      userId,
-      name,
-      email,
-      password: hashedPassword,
-      isVerified: false,
-    });
-
-    await newUser.save();
-
-    // 4. Send OTP
-    await sendOtp(email);
-
-    // 5. Set session
-    req.session.email = email;
-    req.session.otpPurpose = "register";
-    req.session.otpExpiresAt = Date.now() + 1 * 60 * 1000;
-
-    // ✅ FIXED: Return JSON success (Frontend handles redirect)
-    return res
-      .status(StatusCode.OK)
-      .json({ success: true, message: ResponseMessage.REG_SUCCESS });
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(StatusCode.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message:ResponseMessage.SERVER_ERROR });
-  }
 };
 
 // ==========================================
-// 🚀 LOAD VERIFY OTP PAGE
+// 🚀 FORGOT PASSWORD
 // ==========================================
-const loadVerifyOtp = (req, res) => {
-  if (!req.session.email) {
-    return res.redirect("/user/register"); // Redirect if no session
-  }
+const forgotPasswordPost = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const { error } = forgotPasswordSchema.validate({ email });
+        if (error) return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.details[0].message });
 
-  const otpExpiresAt = req.session.otpExpiresAt || 0;
+        // Call Service
+        await authService.forgotPasswordService(email);
 
-  // ✅ FIXED: Removed undefined 'message' and 'type' variables
-  return res.render("user/verifyOtp", {
-    otpExpiresAt: otpExpiresAt,
-  });
+        req.session.email = email;
+        req.session.otpPurpose = "password-reset";
+
+        return res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.OTP });
+    } catch (err) {
+        if (err.message === ResponseMessage.BAD_REQUEST) {
+            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: err.message });
+        }
+        console.error(err);
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+    }
+};
+
+// ==========================================
+// 🚀 RESET PASSWORD
+// ==========================================
+const resetPasswordPost = async (req, res) => {
+    try {
+        if (!req.session.allowReset || !req.session.email) {
+            return res.status(StatusCode.UNAUTHORIZED).json({ success: false, message: ResponseMessage.UNAUTHORIZED });
+        }
+
+        const { error } = resetPasswordSchema.validate(req.body);
+        if (error) return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.details[0].message });
+
+        await authService.resetPasswordService(req.session.email, req.body.password);
+
+        req.session.allowReset = false;
+        req.session.email = null;
+
+        return res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.PASS_RES });
+    } catch (err) {
+        console.error(err);
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+    }
 };
 
 // ==========================================
 // 🚀 RESEND OTP
 // ==========================================
 const resendOtp = async (req, res) => {
-  try {
-    const email = req.session.email;
-
-    if (!email) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({
-          success: false,
-          message: ResponseMessage.OTP_EXP
-        });
+    try {
+        await authService.resendOtpService(req.session.email);
+        req.session.otpExpiresAt = Date.now() + 1 * 60 * 1000;
+        
+        return res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.OTP_SUC });
+    } catch (err) {
+        if (err.message === ResponseMessage.OTP_EXP) {
+             return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: err.message });
+        }
+        console.error(err);
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.OTP_REJ });
     }
-
-    await UserOtpVerification.deleteMany({ email });
-    await sendOtp(email);
-    req.session.otpExpiresAt = Date.now() + 1 * 60 * 1000;
-
-    // ✅ FIXED: Only JSON, no redirect
-    return res
-      .status(StatusCode.OK)
-      .json({ success: true, message: ResponseMessage.OTP_SUC});
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(StatusCode.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: ResponseMessage.OTP_REJ });
-  }
 };
 
 // ==========================================
-// 🚀 FORGOT PASSWORD (POST)
+// 🚀 GOOGLE CALLBACK
 // ==========================================
-const forgotPasswordPost = async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    const { error } = forgotPasswordSchema.validate({ email });
-    if (error) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: error.details[0].message });
-    }
-
-    const user = await userSchema.findOne({ email });
-    if (!user) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: ResponseMessage.BAD_REQUEST });
-    }
-
-    req.session.email = email;
-    req.session.otpPurpose = "password-reset";
-
-    await sendOtp(email);
-
-    // ✅ FIXED: Return JSON
-    return res
-      .status(StatusCode.OK)
-      .json({ success: true, message: ResponseMessage.OTP });
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(StatusCode.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
-  }
-};
-
-// ==========================================
-// 🚀 RESET PASSWORD (POST)
-// ==========================================
-const resetPasswordPost = async (req, res) => {
-  try {
-    if (!req.session.allowReset || !req.session.email) {
-      return res
-        .status(StatusCode.UNAUTHORIZED)
-        .json({ success: false, message: ResponseMessage.UNAUTHORIZED });
-    }
-
-    const { error } = resetPasswordSchema.validate(req.body);
-    if (error) {
-      // ✅ FIXED: Typo error.details.message[0] -> error.details[0].message
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: error.details[0].message });
-    }
-
-    const { password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await userSchema.updateOne(
-      { email: req.session.email },
-      { password: hashedPassword }
-    );
-
-    req.session.allowReset = false;
-    req.session.email = null;
-
-    // ✅ FIXED: Removed unreachable redirect
-    return res
-      .status(StatusCode.OK)
-      .json({ success: true, message: ResponseMessage.PASS_RES });
-  } catch (err) {
-    console.log(err);
-    return res
-      .status(StatusCode.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
-  }
-};
-
-// ==========================================
-// 🚀 LOGIN
-// ==========================================
-const login = async (req, res) => {
- 
-  try {
-    const { email, password } = req.body;
-  
-    const user = await userSchema.findOne({ email });
-
-    // ✅ FIXED: Added 'return' to stop execution if user not found
-    if (!user) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: ResponseMessage.USER_NOT_FOUND});
-    }
-
-    
-    if (!user.isVerified) {
-       return res.status(StatusCode.UNAUTHORIZED).json({success: false, message: ResponseMessage.VER_EMAIL});
-    }
-     
-    if(!user.isActive) {
-      return res.status(StatusCode.UNAUTHORIZED).json({success: false, message: ResponseMessage.USER_BLOCK})
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    // ✅ FIXED: Added 'return'
-    if (!isMatch) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: ResponseMessage.WRONG_PASS });
-    }
-
-    // ✅ FIXED: Actually create the session!
-    req.session.user = user._id;
-
-    return res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.LOGIN_SUCCESS});
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(StatusCode.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
-  }
-};
-
 const googleCallback = async (req, res) => {
-  try {
-    const { email, name, appwriteId } = req.body || {};
+    try {
+        const { email, name } = req.body || {};
+        if (!email) return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: "Email required" });
 
-    if (!email) {
-      console.log("Email missing from req.body");
-      return res.status(StatusCode.BAD_REQUEST).json({
-        success: false,
-        message: "Email required from Google"
-      });
+        const user = await authService.googleAuthService({ email, name });
+
+        req.session.user = user._id;
+
+        return res.status(StatusCode.OK).json({
+            success: true,
+            message: ResponseMessage.LOGIN_SUCCESS,
+            redirectUrl: '/user/home'
+        });
+    } catch (err) {
+        if (err.message === ResponseMessage.USER_BLOCK) {
+            return res.status(StatusCode.UNAUTHORIZED).json({ success: false, message: err.message });
+        }
+        console.error('Google callback error:', err);
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
     }
-
-    let user = await userSchema.findOne({ email });
-
-    if (!user) {
-      const newUserId = `google_${Date.now()}`;
-      user = new userSchema({
-        userId: newUserId,
-        name: name || 'Google User',
-        email,
-        password: 'oauth_google',
-        isVerified: true,
-        isActive: true
-      });
-      await user.save();
-      console.log("New user created:", user._id);
-    }
-
-    if (!user.isActive) {
-      return res.status(StatusCode.UNAUTHORIZED).json({
-        success: false,
-        message: ResponseMessage.USER_BLOCK
-      });
-    }
-
-    req.session.user = user._id;
-    
-
-    return res.status(StatusCode.OK).json({
-      success: true,
-      message: ResponseMessage.LOGIN_SUCCESS,
-      redirectUrl: '/user/home'
-    });
-
-  } catch (error) {
-    console.error('Google callback error:', error);
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: ResponseMessage.SERVER_ERROR
-    });
-  }
 };
 
 // ==========================================
-// 🚀 RENDER PAGES (GET)
+// 🚀 PAGE RENDERS (Keep these in Controller)
 // ==========================================
-const loadRegister = (req, res) => {
-  res.render("user/register");
+// These are view logic, so they stay in the controller
+const loadRegister = (req, res) => res.render("user/register");
+const loadLogin = (req, res) => res.render("user/login");
+const forgotPassword = (req, res) => res.render("user/forgotPassword");
+
+const loadVerifyOtp = (req, res) => {
+    if (!req.session.email) return res.redirect("/user/register");
+    res.render("user/verifyOtp", { otpExpiresAt: req.session.otpExpiresAt || 0 });
 };
 
 const loadResetPassword = (req, res) => {
-  if (!req.session.allowReset) {
-    return res.redirect("/user/login"); // Redirect for GET request if unauthorized
-  }
-  res.render("user/resetPassword");
-};
-
-const forgotPassword = (req, res) => {
-  res.render("user/forgotPassword");
-};
-
-const loadLogin = (req, res) => {
-  res.render("user/login");
+    if (!req.session.allowReset) return res.redirect("/user/login");
+    res.render("user/resetPassword");
 };
 
 export default {
-  registerUser,
-  loadRegister,
-  loadLogin,
-  resendOtp,
-  forgotPassword,
-  forgotPasswordPost,
-  loadResetPassword,
-  resetPasswordPost,
-  login,
-  loadVerifyOtp,
-  googleCallback
+    registerUser,
+    loadRegister,
+    loadLogin,
+    resendOtp,
+    forgotPassword,
+    forgotPasswordPost,
+    loadResetPassword,
+    resetPasswordPost,
+    login,
+    loadVerifyOtp,
+    googleCallback
 };

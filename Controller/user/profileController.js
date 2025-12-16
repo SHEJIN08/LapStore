@@ -1,116 +1,74 @@
-import User from "../../model/userModel.js";
-import bcrypt from "bcrypt";
-import UserOtpVerification from "../../model/otpModel.js";
+import profileService from "../../services/user/profileService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
-import emailService from '../../utils/nodeMailer.js'
-const transporter = emailService.transporter;
-const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
 
+// --- LOAD PROFILE PAGE ---
 const loadProfile = async (req, res) => {
   try {
     const userId = req.session.user;
-
-    const user = await User.findById(userId);
+    
+    // Call Service
+    const user = await profileService.getUserProfileService(userId);
 
     if (!user) {
-      res.redirect("/user/login");
+      return res.redirect("/user/login");
     }
 
-    res.render("user/userProfile", {
-      user: user,
-    });
+    res.render("user/userProfile", { user: user });
 
   } catch (error) {
     console.error(error);
-    res
-      .status(StatusCode.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
-
-
+// --- CHANGE PASSWORD ---
 const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const userId = req.session.user || req.session.user?._id;
+    const userId = req.session.user?._id || req.session.user;
 
     if (!userId) {
-      return res
-        .status(StatusCode.UNAUTHORIZED)
-        .json({ success: false, message: ResponseMessage.UNAUTHORIZED });
+      return res.status(StatusCode.UNAUTHORIZED).json({ success: false, message: ResponseMessage.UNAUTHORIZED });
     }
 
-    const user = await User.findById(userId);
+    // Validation
+    if(newPassword.length === 0) return res.status(StatusCode.BAD_REQUEST).json({success: false, message: 'Please fill the form'});
+    if (newPassword.length < 6) return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: "Password must be atleast 6 characters" });
 
-    if (!user) {
-      return res
-        .status(StatusCode.NOT_FOUND)
-        .json({ success: false, message: ResponseMessage.NOT_FOUND });
-    }
+    // Call Service
+    await profileService.changePasswordService(userId, currentPassword, newPassword);
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.NEW_PASS });
 
-    if (!isMatch) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: "Incorrect current password" });
-    }
-    if(newPassword.length === 0){
-        return res.status(StatusCode.BAD_REQUEST).json({success: false, message: 'Please fill the form'})
-    }
-
-    if (newPassword.length < 6) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({
-          success: false,
-          message: "Password must be atleast 6 characters",
-        });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    user.password = hashedPassword;
-    await user.save();
-
-    res
-      .status(StatusCode.OK)
-      .json({ success: true, message: ResponseMessage.NEW_PASS });
   } catch (error) {
+    // Handle specific errors
+    if (error.message === "Incorrect current password" || error.message === ResponseMessage.NOT_FOUND) {
+        return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.message });
+    }
     console.error(error);
-    return res
-      .status(StatusCode.SERVER_ERROR)
-      .json({ success: false, message: SERVER_ERROR });
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
+// --- EDIT INFO (Name/Email) ---
 const editInfo = async (req, res) => {
   try {
     const { name, email } = req.body;
     const userId = req.session.user?._id || req.session.user;
-
-    // Fetch the current user to compare data
-    const currentUser = await User.findById(userId);
-
+    
+    // 1. Fetch current user to compare
+    const currentUser = await profileService.getUserProfileService(userId);
     if (!currentUser) {
-      return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.USER_NOT_FOUND });
+        return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.USER_NOT_FOUND });
     }
 
-    // --- CASE 1: Email is the SAME (Only updating Name) ---
+    // --- CASE 1: Only Name Changed (Direct Update) ---
     if (email === currentUser.email) {
+      const updatedUser = await profileService.updateNameService(userId, name);
       
-      // Update name directly
-      currentUser.name = name;
-      await currentUser.save();
-
       // Update Session
-      req.session.user = currentUser;
+      req.session.user = updatedUser;
 
-      // Return success with a specific flag 'otpRequired: false'
       return res.json({ 
         success: true, 
         otpRequired: false, 
@@ -118,36 +76,10 @@ const editInfo = async (req, res) => {
       });
     }
 
-    // --- CASE 2: Email is DIFFERENT (Security Check Needed) ---
-    
-    // Check if new email is taken by someone else
-    const existingUser = await User.findOne({ email: email });
-    if (existingUser) {
-      return res.json({ success: false, message: ResponseMessage.DUP_EMAIL });
-    }
+    // --- CASE 2: Email Changed (OTP Required) ---
+    await profileService.initiateEmailChangeService(userId, email);
 
-    // Generate & Send OTP
-    const otp = generateOTP();
-    console.log("Generated OTP:", otp);
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email, 
-      subject: "Profile Update Verification",
-      text: `Your OTP for updating your profile is: ${otp}`,
-    };
-    await transporter.sendMail(mailOptions);
-
-    // Save OTP to DB
-    await UserOtpVerification.deleteMany({ email: email });
-    const newOtpVerification = new UserOtpVerification({
-      userId: userId,
-      email: email,
-      otpCode: otp,
-    });
-    await newOtpVerification.save();
-
-    // Setup Session for Verify Step
+    // Setup Session for OTP Verify Step
     req.session.otpPurpose = "profile-update"; 
     req.session.email = email; 
     req.session.tempUpdateData = {
@@ -155,7 +87,6 @@ const editInfo = async (req, res) => {
       newEmail: email
     };
 
-    // Return success with 'otpRequired: true'
     res.json({ 
       success: true, 
       otpRequired: true, 
@@ -163,32 +94,32 @@ const editInfo = async (req, res) => {
     });
 
   } catch (error) {
+    if (error.message === ResponseMessage.DUP_EMAIL) {
+        return res.json({ success: false, message: ResponseMessage.DUP_EMAIL });
+    }
     console.error("Error in editInfo:", error);
-    res
-      .status(StatusCode.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
-const updateProfilePic = async (req,res) => {
+// --- UPDATE PROFILE PIC ---
+const updateProfilePic = async (req, res) => {
   try {
     if(!req.file){
-      return res.status(StatusCode.NOT_FOUND).json({success: false, message: "No file uploaded or file format not supported."})
+      return res.status(StatusCode.NOT_FOUND).json({success: false, message: "No file uploaded."});
     }
-   
 
     const imageUrl = req.file.secure_url;
+    const userId = req.session.user?._id || req.session.user; // Ensure we get the ID string/object correctly
 
-    await User.findByIdAndUpdate(req.session.user, {
-      avatar: imageUrl
-    })
+    await profileService.updateAvatarService(userId, imageUrl);
 
-
-    res.redirect('/user/home/profile')
+    res.redirect('/user/home/profile');
 
   } catch (error) {
-    console.error(error)
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR})
+    console.error(error);
+    return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR});
   }
-}
-export default { loadProfile, changePassword , editInfo, updateProfilePic};
+};
+
+export default { loadProfile, changePassword, editInfo, updateProfilePic };

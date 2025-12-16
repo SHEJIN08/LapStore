@@ -1,56 +1,32 @@
-import UserOtpVerification from "../../model/otpModel.js";
-import userSchema from "../../model/userModel.js";
+import otpService from "../../services/user/otpService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
-export const verifyOtp = async (req, res) => {
+const verifyOtp = async (req, res) => {
   try {
     const email = req.session.email;
     const { otp } = req.body;
+    const purpose = req.session.otpPurpose;
 
-    // 1. Check if session exists
-    if (!email || !req.session.otpPurpose) {
+    // 1. Check Session
+    if (!email || !purpose) {
       return res.status(StatusCode.BAD_REQUEST).json({ 
         success: false, 
         message: ResponseMessage.OTP_EXP 
       });
     }
 
-    // 2. Find OTP record in DB
-    const record = await UserOtpVerification.findOne({ email });
-
-    if (!record) {
-      return res.status(StatusCode.BAD_REQUEST).json({ 
-        success: false, 
-        message: ResponseMessage.OTP_EXP
-      });
-    }
-
-    // 3. Verify OTP Match
-    if (record.otpCode !== otp) {
-      return res.status(StatusCode.BAD_REQUEST).json({ 
-        success: false, 
-        message: ResponseMessage.INV_OTP
-      });
-    }
+    // 2. Verify OTP via Service (Throws error if invalid)
+    await otpService.verifyAndClearOtp(email, otp);
 
     // -----------------------------------------
-    // ✅ SUCCESS: OTP IS VALID
+    // ✅ HANDLE PURPOSES (Session Logic)
     // -----------------------------------------
-    
-    // Clean up OTP from DB (prevent reuse)
-    await UserOtpVerification.deleteMany({ email });
 
-    // CASE A: Registration Verification
-    if (req.session.otpPurpose === "register") {
-      
-      // Update user to verified status
-      const userData = await userSchema.findOneAndUpdate( 
-        { email },
-        { isVerified: true },
-        {new: true}
-      );
+    // CASE A: Registration
+    if (purpose === "register") {
+      const userData = await otpService.markUserVerified(email);
 
-      // Clear specific session flags
+      // Session Updates
       req.session.otpPurpose = null; 
       req.session.email = null;
       req.session.user = userData._id;
@@ -58,14 +34,12 @@ export const verifyOtp = async (req, res) => {
       return res.status(StatusCode.OK).json({ 
         success: true, 
         message: ResponseMessage.EMAIL_VER, 
-        redirectUrl: "/user/home" // Frontend will use this
+        redirectUrl: "/user/home" 
       });
     }
 
-    // CASE B: Forgot Password Verification
-    if (req.session.otpPurpose === "password-reset") {
-      
-      // Mark session as allowed to reset password
+    // CASE B: Forgot Password
+    if (purpose === "password-reset") {
       req.session.allowReset = true;
       req.session.otpPurpose = null;
 
@@ -76,41 +50,35 @@ export const verifyOtp = async (req, res) => {
       });
     }
 
-    // CASE C: Profile Update Verification (NEW ADDITION)
-    if (req.session.otpPurpose === "profile-update") {
+    // CASE C: Profile Update
+    if (purpose === "profile-update") {
+      const { newName, newEmail } = req.session.tempUpdateData;
+      
+      // Ensure we get the raw ID string
+      const userId = req.session.user._id || req.session.user;
 
-        // 1. Retrieve the temp data we stored in the previous step
-        const { newName, newEmail } = req.session.tempUpdateData;
-        
-        const userId = req.session.user._id || req.session.user;
-        // 2. Update the actual User Database
-        // We use the ID from the logged-in session to be safe
-        const updatedUser = await userSchema.findByIdAndUpdate(
-            userId, 
-            { 
-                name: newName, 
-                email: newEmail 
-            },
-            { new: true }
-        );
+      const updatedUser = await otpService.updateUserProfile(userId, newName, newEmail);
 
-        // 3. Update the ACTIVE session so the UI updates immediately
-        req.session.user = updatedUser._id;
+      // Session Updates
+      req.session.user = updatedUser._id;
+      req.session.otpPurpose = null;
+      delete req.session.tempUpdateData;
 
-        // 4. Cleanup session flags
-        req.session.otpPurpose = null;
-        delete req.session.tempUpdateData; // Remove the temp data
-        
-        // Note: We don't nullify req.session.email here because the user is still logged in
-
-        return res.status(StatusCode.OK).json({
-            success: true,
-            message: "Profile updated successfully",
-            // No redirect URL needed if you just want to reload the page or show a toast
-        });
+      return res.status(StatusCode.OK).json({
+        success: true,
+        message: "Profile updated successfully",
+      });
     }
 
   } catch (err) {
+    // Handle Known Logic Errors (Invalid OTP / Expired)
+    if (err.message === ResponseMessage.OTP_EXP || err.message === ResponseMessage.INV_OTP) {
+        return res.status(StatusCode.BAD_REQUEST).json({ 
+            success: false, 
+            message: err.message 
+        });
+    }
+
     console.error("OTP Error:", err);
     return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ 
       success: false, 
@@ -118,3 +86,5 @@ export const verifyOtp = async (req, res) => {
     });
   }
 };
+
+export default { verifyOtp };

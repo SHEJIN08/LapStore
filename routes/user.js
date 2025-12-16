@@ -3,7 +3,7 @@ const router = express.Router();
 import userAuth from '../middleware/userAuth.js';
 import authController from '../Controller/user/authController.js'
 import userController from '../Controller/user/userController.js';
-import { verifyOtp } from "../Controller/user/otpController.js";
+import otpController from "../Controller/user/otpController.js";
 import profileController from '../Controller/user/profileController.js';
 import addressController from '../Controller/user/addressController.js';
 import cartController from '../Controller/user/cartController.js';
@@ -14,7 +14,7 @@ import upload from '../middleware/multer.js'
 router.get('/register',userAuth.isLogin,authController.loadRegister)
 router.post('/register',authController.registerUser)
 router.get("/verify-otp",authController.loadVerifyOtp);
-router.post('/verify-otp',verifyOtp)
+router.post('/verify-otp',otpController.verifyOtp)
 router.get("/resend-otp",authController.resendOtp);
 router.get('/forgot-password',authController.forgotPassword)
 router.post('/forgot-password',authController.forgotPasswordPost)
@@ -36,7 +36,7 @@ router.get('/home/profile',userAuth.isUserBlocked,userAuth.checkSession ,profile
 router.post('/home/profile/upload-profile-pic', upload.single('avatar'), profileController.updateProfilePic)
 router.put('/home/profile/change-password',profileController.changePassword)
 router.put('/home/profile/edit-info', profileController.editInfo)
-router.post('/home/profile/verify-update-otp',verifyOtp)
+router.post('/home/profile/verify-update-otp',otpController.verifyOtp)
 
 router.get('/home/manageAddress', userAuth.isUserBlocked, userAuth.checkSession,addressController.loadAddress)
 router.post('/home/manageAddress/add',addressController.addAddress)
