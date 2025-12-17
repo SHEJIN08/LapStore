@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<link rel="stylesheet" href="/css/user/orderFailure.css"> 
+
+<body>
+    <%- include('../partials/navbar') %>
+
+    <div class="main-container">
+        
+        <div class="failure-card">
+            <div class="failure-icon">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+
+            <h1 class="failure-title">Payment Failed</h1>
+            
+            <p class="error-message">
+                Unfortunately, we could not process your order.
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <br><span class="server-msg"><%= error %></span>
+                <% } %>
+            </p>
+            <div class="transaction-details">
+                <% if (typeof razorpayPaymentId !== 'undefined' && razorpayPaymentId) { %>
+                    <p class="detail-row">Payment ID: <span><%= razorpayPaymentId %></span></p>
+                <% } %>
+                
+                <% if (typeof razorpayOrderId !== 'undefined' && razorpayOrderId) { %>
+                    <p class="detail-row">Razorpay Order ID: <span><%= razorpayOrderId %></span></p>
+                <% } %>
+
+                <% if (typeof orderId !== 'undefined' && orderId) { %>
+                    <p class="detail-row">Order Reference: <span><%= orderId %></span></p>
+                <% } %>
+            </div>
+
+            <p class="advice-text">
+                Your account has not been charged. If money was deducted, it will be refunded automatically within 3-5 business days.
+            </p>
+
+            <% if (typeof orderId !== 'undefined' && orderId) { %>
+                <p class="order-ref">Order Reference: <span><%= orderId %></span></p>
+            <% } %>
+
+            <div class="action-buttons">
+                <a href="/user/cart/checkout" class="retry-btn">Try Again</a>
+
+                <a href="/user/cart" class="cart-btn">Go to Cart</a>
+            </div>
+            
+            <a href="/user/home/shop" class="continue-link">Continue Shopping</a>
+        </div>
+
+    </div>
+
+<%- include('../partials/footer') %>
+</body>

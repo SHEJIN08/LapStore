@@ -9,7 +9,7 @@
         
         <h1 class="page-title">Checkout</h1>
 
-        <form id="checkoutForm" onsubmit="placeOrder(event)">
+        <form id="checkoutForm">
             <div class="checkout-layout">
                 
                 <div class="checkout-left">
@@ -121,7 +121,7 @@
 
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span id="finalTotal">₹<%= total.toFixed(2) %></span>
+                            <span id="totalAmount">₹<%= total.toFixed(2) %></span>
                         </div>
                         <button type="submit" class="place-order-btn">Place Order</button>
                     </div>
@@ -196,104 +196,199 @@
 <%- include('../partials/footer') %>
 
 <script src="/js/axios.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
-
+    // --- Toast Helper ---
     const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top", 
-                position: "right", 
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
+        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: { background: bgColor, borderRadius: '10px' }
+        }).showToast();
+    };
 
-    function selectCard(input) {
+   function selectCard(input) {
         const container = input.closest('.address-grid') || input.closest('.payment-options');
         container.querySelectorAll('.selection-card').forEach(card => card.classList.remove('selected'));
         input.closest('.selection-card').classList.add('selected');
     }
 
-    // --- Modal Logic ---
+    // --- MAIN FORM SUBMIT LISTENER ---
+    document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+
+        // 1. Get Selected Address (Directly from DOM)
+        const selectedAddressInput = document.querySelector('input[name="addressId"]:checked');
+        const selectedPaymentInput = document.querySelector('input[name="paymentMethod"]:checked');
+
+        // 2. Validate
+        if (!selectedAddressInput) {
+            return showToast("Please select a delivery address", "error");
+        }
+        if (!selectedPaymentInput) {
+            return showToast("Please select a payment method", "error");
+        }
+
+        const addressId = selectedAddressInput.value;
+        const paymentMethod = selectedPaymentInput.value;
+        const rawAmount = document.getElementById('totalAmount').innerText;
+        const totalAmount = parseFloat(rawAmount.replace(/[₹,]/g, '').trim());
+
+
+
+        // 3. Route to Handler
+        if (paymentMethod === 'Razorpay') {
+            await handleRazorpay(totalAmount, addressId);
+        } else {
+            await handleCodOrWallet(paymentMethod, addressId);
+        }
+    });
+
+    // --- A. RAZORPAY HANDLER ---
+    async function handleRazorpay(amount, addressId) {
+        
+    
+
+        if (!addressId) {
+            return showToast("Address ID missing. Refresh page.", "error");
+        }
+
+        try {
+            // 1. Create Order on Backend
+            const response = await axios.post('/user/create-payment', { amount: amount });
+            const orderData = response.data;
+
+            if (!orderData.success) {
+                return showToast('Error initiating payment', 'error');
+            }
+
+            // 2. Configure Options
+            const options = {
+                "key": orderData.key_id,
+                "amount": orderData.amount,
+                "currency": "INR",
+                "name": "LapStore",
+                "description": "Purchase Payment",
+                "order_id": orderData.id,
+                
+                // --- SUCCESS HANDLER ---
+                "handler": async function (response) {
+                    try {
+                     
+
+                        const verifyResponse = await axios.post('/user/verify-payment', {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            addressId: addressId // <--- Sending it here
+                        });
+
+                        if (verifyResponse.data.success) {
+                            window.location.href = `/user/order-success/${verifyResponse.data.orderId}`;
+                        } else {
+                            showToast('Payment verification failed!', 'error');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showToast("Verification error: " + (err.response?.data?.message || err.message), 'error');
+                    }
+                },
+                "theme": { "color": "#3399cc" },
+                "modal": {
+                    "ondismiss": function() {
+                        showToast('Payment Cancelled', 'error');
+                    }
+                }
+            };
+
+            // 3. Initialize & Open
+            const rzp1 = new Razorpay(options);
+
+            rzp1.on('payment.failed', async function (response){
+                const errorDesc = response.error.description;
+                const rzpOrderId = response.error.metadata.order_id;
+                const rzpPaymentId = response.error.metadata.payment_id;
+
+                try {
+                    // 1. Save Failed Order to DB
+                    await axios.post('/user/payment-failed', {
+                        razorpay_order_id: rzpOrderId,
+                        razorpay_payment_id: rzpPaymentId,
+                        razorpay_error: errorDesc,
+                        addressId: addressId
+                    });
+                } catch (err) {
+                    console.error("Could not save failed order", err);
+                }
+
+                let failureUrl = `/user/order-failure?error=${encodeURIComponent(errorDesc)}`;
+                if(rzpOrderId) failureUrl += `&razorpayOrderId=${rzpOrderId}`;
+                if(rzpPaymentId) failureUrl += `&razorpayPaymentId=${rzpPaymentId}`;
+
+                window.location.href = failureUrl;
+            });
+
+            rzp1.open();
+
+        } catch (error) {
+            console.error("Razorpay Error:", error);
+            showToast("Something went wrong with payment", 'error');
+        }
+    }
+
+    // --- B. COD / WALLET HANDLER ---
+    async function handleCodOrWallet(paymentMethod, addressId) {
+        try {
+            const response = await axios.post('/user/cart/checkout/place-order', {
+                addressId: addressId,
+                paymentMethod: paymentMethod
+            });
+
+            if (response.data.success) {
+                window.location.href = `/user/order-success/${response.data.orderId}`;
+            } else {
+                showToast(response.data.message || "Failed to place order", "error");
+            }
+        } catch (error) {
+            console.error(error);
+            showToast(error.response?.data?.message || "Something went wrong", "error");
+        }
+    }
+    // --- C. ADDRESS MODAL LOGIC ---
     const modal = document.getElementById('addressModal');
 
-    function openAddressModal() {
-        modal.classList.add('active');
-    }
-
-    function closeAddressModal() {
-        modal.classList.remove('active');
-    }
-
-    // Close on outside click
+    function openAddressModal() { modal.classList.add('active'); }
+    function closeAddressModal() { modal.classList.remove('active'); }
+    
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeAddressModal();
     });
 
-    // --- Save Address via Axios ---
     document.getElementById('addAddressForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
 
         try {
-            // Using your existing Add Address Route
             const response = await axios.post('/user/home/manageAddress/add', data);
-
             if (response.data.success) {
-                // Success! Reload page to show new address
-                showToast('New address added success', 'success')
-                 
-                setTimeout(() => {
-                window.location.reload(); 
-            }, 1500);
+                showToast('New address added success', 'success');
+                setTimeout(() => window.location.reload(), 1500);
             } else {
-                alert(response.data.message);
+                showToast(response.data.message, 'error');
             }
         } catch (error) {
             console.error(error);
-            showToast("Failed to add address","error");
+            showToast("Failed to add address", "error");
         }
     });
 
-   async function placeOrder(e) {
-    e.preventDefault();
-
-    // 1. Collect Data
-    const form = document.getElementById('checkoutForm');
-    const formData = new FormData(form);
-    
-    // Convert to simple object manually because radio buttons can be tricky
-    const data = {
-        addressId: form.addressId.value,
-        paymentMethod: form.paymentMethod.value
-    };
-
-    if (!data.addressId) {
-        return showToast("Please select a delivery address","error");
-    }
-
-    try {
-        // 2. Send Data
-        const response = await axios.post('/user/cart/checkout/place-order', data);
-
-        if (response.data.success) {
-            // 3. REDIRECT HERE
-            // The backend gave us success, so we go to the success page
-            window.location.href = `/user/order-success/${response.data.orderId}`;
-        } else {
-            showToast(response.data.message); // e.g., "Out of stock"
-        }
-    } catch (error) {
-        console.error(error);
-        showToast("Something went wrong","error");
-    }
-}
+    // --- D. COUPON LOGIC (Placeholder) ---
     function useCoupon(code) {
-        // Logic to apply coupon (if you have an input field for it)
-        console.log("Applying", code);
+        showToast("Coupon functionality coming soon!", "success");
     }
 </script>

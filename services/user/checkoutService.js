@@ -45,8 +45,9 @@ const getCheckoutData = async (userId) => {
 };
 
 // --- PLACE ORDER ---
-const placeOrderService = async (userId, addressId, paymentMethod) => {
-    // 1. Fetch Cart & Validate
+const placeOrderService = async (userId, addressId, paymentMethod, paymentDetails = {}) => {
+    
+
     const cartItems = await Cart.find({ userId }).populate('productId').populate('variantId');
     if (!cartItems.length) throw new Error("Cart is empty");
 
@@ -60,7 +61,10 @@ const placeOrderService = async (userId, addressId, paymentMethod) => {
 
     for (const item of cartItems) {
         // Stock Check (Ensure variant exists and has stock)
-        if (!item.variantId || item.variantId.stock < item.quantity) {
+       if (!item.variantId) {
+            continue; // Skip invalid items
+        }
+        if (item.variantId.stock < item.quantity) {
              throw new Error(`Out of stock: ${item.productId.name}`);
         }
 
@@ -71,7 +75,7 @@ const placeOrderService = async (userId, addressId, paymentMethod) => {
             productId: item.productId._id,
             variantId: item.variantId._id,
             productName: item.productId.name,
-            image: item.variantId.image,
+            image: item.variantId.image[0],
             productStatus: 'Placed',
             quantity: item.quantity,
             price: price
@@ -103,6 +107,9 @@ const placeOrderService = async (userId, addressId, paymentMethod) => {
         },
         paymentMethod,
         paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Paid',
+        razorpayStatus: paymentMethod === 'Razorpay' ? 'Paid' : 'Pending', 
+        razorpayOrderId: paymentDetails.razorpayOrderId || null,
+        razorpayPaymentId: paymentDetails.razorpayPaymentId || null,
         status: 'Pending',
         orderHistory: [{
             status: 'Pending',
@@ -126,6 +133,78 @@ const placeOrderService = async (userId, addressId, paymentMethod) => {
     return newOrder;
 };
 
+const saveFailedOrderService = async (userId, addressId, paymentDetails) => {
+    
+    // 1. Fetch Cart
+    const cartItems = await Cart.find({ userId }).populate('productId').populate('variantId');
+    if (!cartItems || cartItems.length === 0) return null; // Nothing to save
+
+    // 2. Fetch Address
+    const addressDoc = await Address.findOne({ _id: addressId });
+    if (!addressDoc) throw new Error("Address not found");
+
+    // 3. Calculate Totals (Same logic as placeOrder)
+    let subtotal = 0;
+    const orderedItems = [];
+
+    for (const item of cartItems) {
+        if (!item.variantId) continue;
+        
+        const price = item.variantId.salePrice;
+        subtotal += price * item.quantity;
+
+        orderedItems.push({
+            productId: item.productId._id,
+            variantId: item.variantId._id,
+            productName: item.productId.name,
+            image: item.variantId.image,
+            productStatus: 'Failed', // Set individual item status
+            quantity: item.quantity,
+            price: price
+        });
+    }
+
+    const tax = subtotal * 0.05;
+    const shipping = subtotal > 100000 ? 0 : 100;
+    const finalAmount = subtotal + tax + shipping;
+
+    // 4. Create Order Document with 'Failed' Status
+    const failedOrder = new Order({
+        userId,
+        orderedItems,
+        totalPrice: subtotal,
+        finalAmount,
+        address: {
+            fullName: addressDoc.fullName,
+            phone: addressDoc.phone,
+            addressType: addressDoc.addressType,
+            address1: addressDoc.address1,
+            address2: addressDoc.address2,
+            city: addressDoc.city,
+            state: addressDoc.state,
+            pincode: addressDoc.pincode
+        },
+        paymentMethod: 'Razorpay',
+        paymentStatus: 'Failed', // <--- Key Change
+        razorpayStatus: 'Failed', // <--- Key Change
+        razorpayOrderId: paymentDetails.razorpayOrderId,
+        razorpayPaymentId: paymentDetails.razorpayPaymentId,
+        status: 'Failed', // <--- Key Change
+        orderId: `ORD-${Date.now()}`,
+        orderHistory: [{
+            status: 'Failed',
+            date: new Date(),
+            comment: 'Payment Failed by User or Bank'
+        }]
+    });
+
+    await failedOrder.save();
+    
+    
+    
+    return failedOrder;
+};
+
 // --- GET ORDER DETAILS (Success Page) ---
 const getOrderDetails = async (orderId) => {
     return await Order.findOne({ orderId });
@@ -134,5 +213,6 @@ const getOrderDetails = async (orderId) => {
 export default {
     getCheckoutData,
     placeOrderService,
-    getOrderDetails
+    getOrderDetails,
+    saveFailedOrderService
 };

@@ -1,0 +1,158 @@
+/* Layout - similar to your success page */
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+.failure-card {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+/* Icon Styling */
+.failure-icon {
+    font-size: 60px;
+    color: #dc3545; /* Bootstrap Red */
+    margin-bottom: 20px;
+    animation: shake 0.5s ease-in-out;
+}
+
+.failure-title {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+/* Text Styling */
+.error-message {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.server-msg {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.advice-text {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 25px;
+}
+
+.order-ref {
+    font-size: 14px;
+    color: #333;
+    background-color: #f1f1f1;
+    padding: 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+
+.order-ref span {
+    font-weight: 700;
+    font-family: monospace;
+}
+
+/* Buttons */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.retry-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.retry-btn:hover {
+    background-color: #b02a37;
+}
+
+.cart-btn {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 12px 25px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.cart-btn:hover {
+    background-color: #f1f1f1;
+    border-color: #bbb;
+}
+
+.continue-link {
+    display: block;
+    color: #666;
+    text-decoration: underline;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.continue-link:hover {
+    color: #333;
+}
+.transaction-details {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 15px 0;
+    font-size: 13px;
+    text-align: left;
+}
+
+.detail-row {
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.detail-row span {
+    font-weight: bold;
+    font-family: monospace;
+}
+
+/* Shake Animation for the X icon */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+    .failure-card {
+        padding: 30px 20px;
+    }
+}

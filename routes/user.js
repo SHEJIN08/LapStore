@@ -7,7 +7,7 @@ import otpController from "../Controller/user/otpController.js";
 import profileController from '../Controller/user/profileController.js';
 import addressController from '../Controller/user/addressController.js';
 import cartController from '../Controller/user/cartController.js';
-import checkoutContoller from '../Controller/user/checkoutContoller.js';
+import checkoutController from '../Controller/user/checkoutContoller.js';
 import orderController from '../Controller/user/orderContoller.js';
 import upload from '../middleware/multer.js'
 
@@ -50,9 +50,13 @@ router.post('/home/cart/update-quantity', cartController.updateCartQuantity)
 router.delete('/home/cart/remove', cartController.removeFromCart)
 router.post("/home/cart/add", cartController.addToCart);
 
-router.get('/cart/checkout',userAuth.isUserBlocked, checkoutContoller.loadCheckout)
-router.post('/cart/checkout/place-order', checkoutContoller.placeOrder)
-router.get('/order-success/:orderId',userAuth.isUserBlocked, checkoutContoller.orderSuccess)
+router.get('/cart/checkout',userAuth.isUserBlocked, checkoutController.loadCheckout)
+router.post('/create-payment', checkoutController.createPaymentOrder);
+router.post('/verify-payment', checkoutController.verifyPayment);
+router.post('/cart/checkout/place-order', checkoutController.placeOrder)
+router.get('/order-success/:orderId',userAuth.isUserBlocked, checkoutController.orderSuccess)
+router.get('/order-failure', userAuth.isUserBlocked, checkoutController.orderFailed)
+router.post('/payment-failed', checkoutController.handleFailedPayment);
 
 router.get('/home/orders',userAuth.isUserBlocked, orderController.loadOrders);
 router.patch('/orders/cancel', orderController.cancelOrder)

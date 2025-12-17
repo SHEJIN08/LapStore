@@ -16,6 +16,18 @@
             <p class="order-info">
                 Your order # <span class="order-id"><%= orderId || order %></span> has been placed successfully.
             </p>
+            <% if (order.paymentMethod === 'Razorpay') { %>
+        <div class="payment-details-box">
+            <p class="detail-row">
+                <span class="label">Payment ID:</span>
+                <span class="value"><%= order.razorpayPaymentId %></span>
+            </p>
+            <p class="detail-row">
+                <span class="label">Razorpay Order ID:</span>
+                <span class="value"><%= order.razorpayOrderId %></span>
+            </p>
+        </div>
+    <% } %>
 
             <p class="email-info">
                 You will receive a confirmation email shortly with your order details.

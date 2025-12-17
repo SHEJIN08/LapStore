@@ -27,7 +27,7 @@ const orderSchema = new mongoose.Schema({
         image: { type: String, required: true },
         productStatus: {
             type: String,
-            enum: [ "Placed", "Cancelled", "Delivered" ,"Return Request", "Returned", "Return Rejected"],
+            enum: [ "Placed", "Cancelled", "Delivered" ,"Return Request", "Returned", "Return Rejected", "Failed"],
             default: "Placed"
         },
         
@@ -65,7 +65,7 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Processing', 'Shipped', 'Out for Delivery' ,'Delivered', 'Cancelled', 'Return Request', 'Returned','Return Rejected'],
+        enum: ['Pending', 'Processing', 'Shipped', 'Out for Delivery' ,'Delivered', 'Cancelled', 'Return Request', 'Returned','Return Rejected', 'Failed'],
         default: 'Pending'
     },
    
@@ -103,6 +103,20 @@ const orderSchema = new mongoose.Schema({
             default: ''
         }
     }],
+    //Razor pay
+    razorpayOrderId: {
+        type: String,
+        default: null
+    },
+    razorpayPaymentId: {
+        type: String,
+        default: null
+    },
+    razorpayStatus: {
+        type: String,
+        enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
+        default: 'Pending'
+    },
 }, { timestamps: true });
 
 export default mongoose.model('Order', orderSchema);
