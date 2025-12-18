@@ -1,0 +1,470 @@
+  <%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/admin/coupon.css">
+</head>
+<body>
+
+    <div class="app-container">
+         <%- include('../partials/sidebar',{activePage: 'coupons' }) %>
+        <main class="main-content">
+            <header class="page-header">
+    <div class="header-text">
+        <h1>Coupon Management</h1>
+        <p>Create and manage discount coupons for your store.</p>
+    </div>
+    </header>
+
+<section class="filter-section">
+    <form action="/admin/coupons" method="GET" class="filter-form">
+        
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input 
+                type="text" 
+                name="search" 
+                placeholder="Search by code or name..." 
+                value="<%= locals.currentSearch || '' %>"
+                class="search-input"
+            >
+        </div>
+
+        <div class="select-wrapper">
+            <select name="status" class="filter-select" onchange="this.form.submit()">
+                <option value="all" <%= currentStatus === 'all' ? 'selected' : '' %>>All Status</option>
+                <option value="active" <%= currentStatus === 'active' ? 'selected' : '' %>>Active</option>
+                <option value="inactive" <%= currentStatus === 'inactive' ? 'selected' : '' %>>Inactive</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-search">Search</button>
+
+        <% if (currentSearch || (currentStatus && currentStatus !== 'all')) { %>
+            <a href="/admin/coupons" class="btn-reset" title="Clear Filters">
+                <i class="fa-solid fa-xmark"></i>
+            </a>
+        <% } %>
+    </form>
+
+   <button class="btn-primary" onclick="openCouponModal()">
+        + Add New Coupon
+    </button>
+</section>
+
+<section class="table-section">
+    <div class="table-responsive">
+        
+        <table class="coupon-table">
+            
+            <thead>
+                <tr>
+                    <th>Coupon Code</th>
+                    <th>Type</th>
+                    <th>Discount</th>
+                    <th>Usage</th>
+                    <th>Status</th>
+                    <th>Valid Until</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <% if (coupons.length > 0) { %>
+                    <% coupons.forEach(coupon => { %>
+                        <tr>
+                            <td>
+                                <div class="coupon-info">
+                                    <span class="code"><%= coupon.code %></span>
+                                    <span class="desc"><%= coupon.name %></span>
+                                </div>
+                            </td>
+                            <td style="text-transform: capitalize;"><%= coupon.type %></td>
+                            <td class="bold-text">
+                                <%= coupon.type === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %>
+                            </td>
+                            <td>
+                                <div class="usage-container">
+                                    <span class="usage-text"><%= coupon.currentUsageCount %> / <%= coupon.totalUsageLimit || '∞' %></span>
+                                    <% const progress = coupon.totalUsageLimit ? (coupon.currentUsageCount / coupon.totalUsageLimit) * 100 : 0; %>
+                                    <div class="progress-bar">
+                                        <div class="fill" style="width: <%= Math.min(progress, 100) %>%;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <% if (!coupon.isActive) { %>
+                                    <span class="badge inactive">Inactive</span>
+                                <% } else if (new Date(coupon.endDate) < new Date()) { %>
+                                    <span class="badge expired">Expired</span>
+                                <% } else { %>
+                                    <span class="badge active">Active</span>
+                                <% } %>
+                            </td>
+                            <td><%= new Date(coupon.endDate).toLocaleDateString() %></td>
+                            <td>
+                                <a href="/admin/coupons/edit/<%= coupon._id %>" class="action-link">Edit</a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="7" class="no-data">No coupons found matching your criteria.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table> </div> <% if (totalPages > 1) { %>
+    <div class="pagination">
+        <span class="results-text">
+            Page <%= currentPage %> of <%= totalPages %>
+        </span>
+        <div class="page-controls">
+            <% if (currentPage > 1) { %>
+                <a href="/admin/coupons?page=<%= currentPage - 1 %>&search=<%= currentSearch %>&status=<%= currentStatus %>" class="page-btn">Previous</a>
+            <% } %>
+            
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="/admin/coupons?page=<%= i %>&search=<%= currentSearch %>&status=<%= currentStatus %>" 
+                   class="page-btn <%= currentPage === i ? 'active' : '' %>">
+                   <%= i %>
+                </a>
+            <% } %>
+
+            <% if (currentPage < totalPages) { %>
+                <a href="/admin/coupons?page=<%= currentPage + 1 %>&search=<%= currentSearch %>&status=<%= currentStatus %>" class="page-btn">Next</a>
+            <% } %>
+        </div>
+    </div>
+    <% } %>
+</section>
+        </main>
+    </div>
+
+
+<div id="addCouponModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Coupon</h3>
+            <button class="close-btn" onclick="closeCouponModal()">&times;</button>
+        </div>
+
+        <form id="addCouponForm">
+            <section class="form-section">
+                <h4>Core Details</h4>
+                <div class="form-group">
+                    <label>Coupon Code</label>
+                    <div class="input-group">
+                        <input type="text" id="code" name="code" placeholder="e.g. SUMMER2024" required>
+                        <button type="button" class="btn-generate" onclick="generateCode()">Generate</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Coupon Type</label>
+                        <select name="couponType" id="couponType">
+                            <option value="percentage">Percentage</option>
+                            <option value="fixed">Fixed Amount</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label>Discount Value</label>
+                        <input type="number" name="discountValue" id="discountValue" placeholder="e.g. 20" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" id="description" placeholder="Enter a brief description..."></textarea>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h4>Usage Rules</h4>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Min Order Value</label>
+                        <input type="number" name="minOrderValue" id="minOrderValue" placeholder="e.g. 50">
+                    </div>
+                    <div class="form-group half">
+                        <label>Limit per User</label>
+                        <input type="number" name="limitPerUser" id="limitPerUser" value="1" placeholder="e.g. 1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Total Usage Limit</label>
+                    <input type="number" name="totalUsageLimit" id="totalUsageLimit" placeholder="e.g. 1000 (Optional)">
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h4>Target Audience</h4>
+                <div class="form-group">
+                    <label>User Eligibility</label>
+                    <select name="userEligibility" id="userEligibilitySelect">
+                        <option value="all">All Users</option>
+                        <option value="new_users">New Users Only</option>
+                        <option value="specific">Specific Users</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="specificUserSearchDiv" style="display: none;">
+                    <label>Search & Select Users</label>
+                    <div class="search-box-wrapper">
+                        <input type="text" id="userSearchInput" placeholder="Type name or email..." autocomplete="off">
+                        <div id="searchResultsDropdown" class="search-results-list"></div>
+                    </div>
+                    
+                    <div id="selectedUsersContainer" class="selected-tags-area">
+                        </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h4>Validity & Status</h4>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Start Date</label>
+                        <input type="date" name="startDate" id="startDate" required>
+                    </div>
+                    <div class="form-group half">
+                        <label>End Date</label>
+                        <input type="date" name="endDate" id="endDate" required>
+                    </div>
+                </div>
+                <div class="form-group toggle-group">
+                    <label>Status</label>
+                    <div class="toggle-wrapper">
+                        <span class="toggle-label">Inactive</span>
+                        <label class="switch">
+                            <input type="checkbox" name="status" id="status" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="toggle-label active">Active</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeCouponModal()">Cancel</button>
+                <button type="submit" class="btn-save">Create Coupon</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Tag Styling */
+    .selected-tags-area {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+        min-height: 30px;
+    }
+    .user-tag {
+        background-color: #e0f2fe;
+        color: #0369a1;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .remove-tag {
+        cursor: pointer;
+        font-weight: bold;
+        color: #0369a1;
+    }
+    .remove-tag:hover { color: #dc2626; }
+
+    /* Search Dropdown Styling */
+    .search-box-wrapper { position: relative; }
+    .search-results-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 0 0 6px 6px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none; /* Hidden by default */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .search-result-item {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+    }
+    .search-result-item:hover { background-color: #f9fafb; }
+    .search-result-item strong { display: block; font-size: 0.9rem; }
+    .search-result-item span { font-size: 0.8rem; color: #666; }
+</style>
+
+<script src="/js/axios.min.js"></script>
+<script>
+    // --- 1. STATE MANAGEMENT ---
+    let selectedUsers = []; // Stores objects: { id, name }
+
+    // --- 2. GENERATE CODE FUNCTION ---
+    function generateCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('code').value = result;
+    }
+
+    // --- 3. TOGGLE SEARCH BOX ---
+    document.getElementById('userEligibilitySelect').addEventListener('change', function() {
+        const searchDiv = document.getElementById('specificUserSearchDiv');
+        if (this.value === 'specific') {
+            searchDiv.style.display = 'block';
+        } else {
+            searchDiv.style.display = 'none';
+            // Optional: clear selected users when switching away
+            selectedUsers = [];
+            renderSelectedUsers();
+        }
+    });
+
+    // --- 4. USER SEARCH (AXIOS + DEBOUNCE) ---
+    const searchInput = document.getElementById('userSearchInput');
+    const resultsList = document.getElementById('searchResultsDropdown');
+    let debounceTimer;
+
+    searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.trim();
+        
+        clearTimeout(debounceTimer);
+        
+        if (query.length < 2) {
+            resultsList.style.display = 'none';
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            try {
+                // CALL BACKEND: Replace URL with your actual search route
+                const response = await axios.get(`/admin/users/search?search=${query}`);
+                
+                const users = response.data.users; // Assuming response is { users: [...] }
+                
+                resultsList.innerHTML = '';
+                
+                if (users.length > 0) {
+                    users.forEach(user => {
+                        // Don't show if already selected
+                        if (selectedUsers.some(u => u.id === user._id)) return;
+
+                        const div = document.createElement('div');
+                        div.className = 'search-result-item';
+                        div.innerHTML = `<strong>${user.name}</strong><span>${user.email}</span>`;
+                        
+                        div.onclick = () => addUser(user._id, user.name);
+                        
+                        resultsList.appendChild(div);
+                    });
+                    resultsList.style.display = 'block';
+                } else {
+                    resultsList.innerHTML = '<div class="search-result-item">No users found</div>';
+                    resultsList.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Search error:", error);
+            }
+        }, 300); // 300ms delay
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !resultsList.contains(e.target)) {
+            resultsList.style.display = 'none';
+        }
+    });
+
+    // --- 5. ADD / REMOVE USERS ---
+    function addUser(id, name) {
+        selectedUsers.push({ id, name });
+        renderSelectedUsers();
+        searchInput.value = ''; // Clear input
+        resultsList.style.display = 'none'; // Hide list
+    }
+
+    function removeUser(id) {
+        selectedUsers = selectedUsers.filter(u => u.id !== id);
+        renderSelectedUsers();
+    }
+
+    function renderSelectedUsers() {
+        const container = document.getElementById('selectedUsersContainer');
+        container.innerHTML = '';
+        
+        selectedUsers.forEach(user => {
+            const tag = document.createElement('div');
+            tag.className = 'user-tag';
+            tag.innerHTML = `
+                ${user.name} 
+                <span class="remove-tag" onclick="removeUser('${user.id}')">&times;</span>
+            `;
+            container.appendChild(tag);
+        });
+    }
+
+    // --- 6. FORM SUBMIT (AXIOS POST) ---
+    document.getElementById('addCouponForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // A. Validate Specific Users
+        const eligibility = document.getElementById('userEligibilitySelect').value;
+        if (eligibility === 'specific' && selectedUsers.length === 0) {
+            alert('Please select at least one user.');
+            return;
+        }
+
+        // B. Gather Data
+        const formData = {
+            code: document.getElementById('code').value,
+            couponType: document.getElementById('couponType').value,
+            discountValue: document.getElementById('discountValue').value,
+            description: document.getElementById('description').value,
+            minOrderValue: document.getElementById('minOrderValue').value,
+            limitPerUser: document.getElementById('limitPerUser').value,
+            totalUsageLimit: document.getElementById('totalUsageLimit').value,
+            userEligibility: eligibility,
+            // Map selected objects to just an array of IDs
+            specificUsers: selectedUsers.map(u => u.id),
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+            status: document.getElementById('status').checked ? 'Active' : 'Inactive'
+        };
+
+        try {
+            // C. Send Data
+            const response = await axios.post('/admin/coupons/create', formData);
+
+            if (response.data.success) {
+                alert('Coupon created successfully!');
+                window.location.reload(); // Refresh page to see new coupon
+            } else {
+                alert('Failed: ' + response.data.message);
+            }
+        } catch (error) {
+            console.error('Submit Error:', error);
+            alert(error.response?.data?.message || 'An error occurred while creating the coupon');
+        }
+    });
+
+    function openCouponModal() {
+    document.getElementById('addCouponModal').style.display = 'flex'; // Use 'flex' to center it
+}
+
+    // Helper to close modal
+    function closeCouponModal() {
+        document.getElementById('addCouponModal').style.display = 'none';
+    }
+</script>
+</body>
+</html>

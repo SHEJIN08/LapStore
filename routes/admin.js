@@ -7,6 +7,7 @@ import usersController from '../Controller/admin/usersController.js'
 import brandController from '../Controller/admin/brandController.js'
 import categoryController from '../Controller/admin/categoryController.js'
 import orderController from '../Controller/admin/orderContoller.js'
+import couponController from '../Controller/admin/couponController.js'
 import upload from '../middleware/multer.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
@@ -22,6 +23,7 @@ router.put('/edit-product/:id', upload.array('newImages',5),productController.ed
 router.post('/variant/upload-image/:variantId', upload.single('variantImage'),productController.uploadVariantImage)
 
 router.get('/users',adminAuth.checkSession,usersController.loadUsers)
+router.get('/users/search', usersController.searchUserForCoupon)
 router.post('/users/toggle-block/:id',usersController.BlockOrUnblock)
 
 
@@ -42,6 +44,9 @@ router.get('/orders',orderController.getOrder)
 router.get('/orders/details/:orderId', orderController.getOrderDetails);
 router.patch('/orders/update-status', orderController.updateOrderStatus);
 router.patch('/orders/handle-return', orderController.handleReturnRequest);
+
+router.get('/coupons', couponController.loadCoupon)
+router.post('/coupons/create', couponController.createCoupon)
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

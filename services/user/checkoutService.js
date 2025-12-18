@@ -24,10 +24,19 @@ const getCheckoutData = async (userId) => {
     if (!cartItems.length) return null; // Cart is empty
 
     // 3. Fetch Coupons
+    const currentDate = new Date();
     const coupons = await Coupon.find({
-        isListed: true,
-        expireOn: { $gt: new Date() }
-    });
+        isActive: true,          // Must be active
+        isListed: true,          // Must be listed (if you have this field)
+        startDate: { $lte: currentDate }, // Start date is past or today
+        endDate: { $gt: currentDate },    // Not expired
+        
+        // --- THE FIX: Check Eligibility ---
+        $or: [
+            { userEligibility: 'all' },           // 1. Coupon is for everyone
+            { specificUsers: { $in: [userId] } }  // 2. OR User is in the specific list
+        ]
+    }).sort({ createdAt: -1 });
 
     // 4. Calculate Totals
     let subtotal = 0;

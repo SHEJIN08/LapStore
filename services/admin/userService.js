@@ -40,6 +40,30 @@ const getAllUsersService = async ({ search, status, page, limit }) => {
     return { users, totalUsers, totalPages };
 };
 
+// NEW: SEARCH USERS FOR COUPON (Lightweight) ---
+const searchUsersForCoupon = async (searchQuery) => {
+    try {
+        // Simple query: Not Admin, Is Active, Matches Name/Email
+        const query = {
+            isAdmin: { $ne: true }, // Exclude admins
+            isActive: true,         // Only give coupons to active users
+            $or: [
+                { name: { $regex: searchQuery, $options: 'i' } },
+                { email: { $regex: searchQuery, $options: 'i' } }
+            ]
+        };
+
+        // Fetch only needed fields (_id, name, email) and limit to 10
+        const users = await userSchema.find(query)
+            .select('name email _id') 
+            .limit(7); 
+
+        return users;
+    } catch (error) {
+        throw new Error("Error searching users");
+    }
+};
+
 // --- TOGGLE USER STATUS (Block/Unblock) ---
 const toggleUserStatusService = async (userId) => {
     const user = await userSchema.findById(userId);
@@ -56,5 +80,6 @@ const toggleUserStatusService = async (userId) => {
 
 export default {
     getAllUsersService,
+    searchUsersForCoupon,
     toggleUserStatusService
 };

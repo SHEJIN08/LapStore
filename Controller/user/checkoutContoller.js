@@ -1,5 +1,6 @@
 import checkoutService from "../../services/user/checkoutService.js";
 import paymentService from "../../services/paymentService.js";
+
 import User from "../../model/userModel.js";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
@@ -7,7 +8,7 @@ import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 const loadCheckout = async (req, res) => {
     try {
         const userId = req.session.user;
-        const user = await User.findById(userId);
+        const user = await User.findById(userId);  
 
         const data = await checkoutService.getCheckoutData(userId);
 
