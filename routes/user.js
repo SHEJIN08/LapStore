@@ -58,6 +58,9 @@ router.get('/order-success/:orderId',userAuth.isUserBlocked, checkoutController.
 router.get('/order-failure', userAuth.isUserBlocked, checkoutController.orderFailed)
 router.post('/payment-failed', checkoutController.handleFailedPayment);
 
+router.post('/cart/apply-coupon', checkoutController.applyCoupon);
+router.post('/cart/remove-coupon', checkoutController.removeCoupon);
+
 router.get('/home/orders',userAuth.isUserBlocked, orderController.loadOrders);
 router.patch('/orders/cancel', orderController.cancelOrder)
 router.get('/home/orders/details/:orderId',userAuth.isUserBlocked, userAuth.checkSession, orderController.orderDetailedPage)

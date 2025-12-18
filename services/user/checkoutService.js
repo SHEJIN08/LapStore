@@ -3,6 +3,7 @@ import Address from "../../model/addressModel.js";
 import Coupon from "../../model/couponModel.js";
 import Order from "../../model/orderModel.js";
 import Variant from "../../model/variantModel.js";
+import mongoose from "mongoose";
 
 // --- GET CHECKOUT DATA ---
 const getCheckoutData = async (userId) => {
@@ -53,8 +54,69 @@ const getCheckoutData = async (userId) => {
     return { addresses, cartItems, coupons, subtotal, tax, shipping, total };
 };
 
+const applyCouponService = async (userId, couponCode, totalAmount) => {
+    try {
+        // 1. Validation Logic
+        if (!couponCode) return { success: false, message: "No coupon code provided" };
+
+        const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+
+        if (!coupon) {
+            return { success: false, message: 'Invalid Coupon code' };
+        }
+        if (!coupon.isActive) {
+            return { success: false, message: 'This coupon is inactive' };
+        }
+        if (new Date(coupon.endDate) < new Date()) {
+            return { success: false, message: 'This coupon has expired' };
+        }
+
+        if (coupon.userEligibility === 'specific' && !coupon.specificUsers.includes(userId)) {
+            return { success: false, message: 'You are not eligible for this coupon' };
+        }
+
+        // Parse totalAmount to ensure it's a number
+        const total = parseFloat(totalAmount); 
+
+        if (total < coupon.minPurchaseAmount) {
+            return { success: false, message: `Minimum purchase of ₹${coupon.minPurchaseAmount} required` };
+        }
+
+        // 2. Calculate Discount
+        let discountAmount = 0;
+
+        if (coupon.type === 'percentage') {
+            discountAmount = (total * coupon.discountValue) / 100;
+        } else if (coupon.type === 'fixed') {
+            discountAmount = coupon.discountValue;
+        }
+
+        // Ensure discount doesn't exceed total
+        if (discountAmount > total) {
+            discountAmount = total;
+        }
+
+        const newTotal = total - discountAmount;
+
+        // 3. RETURN SUCCESS (This was missing for the normal case!)
+        return {
+            success: true,
+            discountAmount: Math.round(discountAmount),
+            newTotal: Math.round(newTotal),
+            couponId: coupon._id
+        };
+
+    } catch (error) {
+        console.error("Service Error:", error);
+        return {
+            success: false,
+            message: error.message || "Error processing coupon"
+        };
+    }
+}
+
 // --- PLACE ORDER ---
-const placeOrderService = async (userId, addressId, paymentMethod, paymentDetails = {}) => {
+const placeOrderService = async (userId, addressId, paymentMethod, paymentDetails = {}, couponCode = null) => {
     
 
     const cartItems = await Cart.find({ userId }).populate('productId').populate('variantId');
@@ -84,18 +146,46 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
             productId: item.productId._id,
             variantId: item.variantId._id,
             productName: item.productId.name,
-            image: item.variantId.image[0],
+            image: Array.isArray(item.variantId.image) ? item.variantId.image[0] : item.variantId.image,
             productStatus: 'Placed',
             quantity: item.quantity,
             price: price
         });
     }
 
+    let discount = 0;
+    let appliedCouponCode = null; // Will be null if invalid
+
+    if (couponCode) {
+        const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+        
+        // Check if coupon is valid (Active, Date, Min Amount, Eligibility)
+        if (coupon && 
+            coupon.isActive && 
+            new Date(coupon.endDate) > new Date() &&
+            subtotal >= coupon.minPurchaseAmount
+        ) {
+            // Recalculate discount securely
+            if (coupon.type === 'percentage') {
+                discount = (subtotal * coupon.discountValue) / 100;
+            } else {
+                discount = coupon.discountValue;
+            }
+            
+            // Cap discount if needed
+            if (discount > subtotal) discount = subtotal;
+
+            appliedCouponCode = couponCode.toUpperCase();
+
+            // Optional: Increment usage count
+            await Coupon.updateOne({ _id: coupon._id }, { $inc: { currentUsageCount: 1 } });
+        }
+    }
+
     // 4. Calculate Final Amount
     const tax = subtotal * 0.05;
     const shipping = subtotal > 100000 ? 0 : 100;
-    const discount = 0; // Future coupon logic
-    const finalAmount = subtotal + tax + shipping - discount;
+    const finalAmount = Math.round(subtotal + tax + shipping - discount);
 
     // 5. Create Order Document
     const newOrder = new Order({
@@ -103,6 +193,7 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
         orderedItems,
         totalPrice: subtotal,
         discount,
+        couponCode,
         finalAmount,
         address: {
             fullName: addressDoc.fullName,
@@ -214,14 +305,31 @@ const saveFailedOrderService = async (userId, addressId, paymentDetails) => {
     return failedOrder;
 };
 
-// --- GET ORDER DETAILS (Success Page) ---
-const getOrderDetails = async (orderId) => {
-    return await Order.findOne({ orderId });
+const getOrderDetails = async (id) => {
+    try {
+        // 1. Try finding by Custom Order ID (e.g., "770741" or "ORD-123456")
+        // We use findOne because 'id' is a custom field, not the primary key _id
+        let order = await Order.findOne({ orderId: id }).populate('orderedItems.productId');
+       
+
+        // 2. If not found, check if it's a valid MongoDB _id and search that way
+        // This acts as a fallback if you mix ID types
+        if (!order && mongoose.Types.ObjectId.isValid(id)) {
+            order = await Order.findById(id).populate('orderedItems.productId');
+        }
+
+        return order;
+
+    } catch (error) {
+        console.error("Get Order Details Error:", error);
+        return null;
+    }
 };
 
 export default {
     getCheckoutData,
     placeOrderService,
     getOrderDetails,
-    saveFailedOrderService
+    saveFailedOrderService,
+    applyCouponService
 };

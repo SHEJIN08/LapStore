@@ -61,7 +61,8 @@ const verifyPayment = async (req, res) => {
             razorpay_order_id, 
             razorpay_payment_id, 
             razorpay_signature, 
-            addressId // We need this to create the actual order
+            addressId, // We need this to create the actual order
+            couponCode
         } = req.body;
         
         const userId = req.session.user;
@@ -93,7 +94,8 @@ const verifyPayment = async (req, res) => {
             { 
                 razorpayOrderId: razorpay_order_id,
                 razorpayPaymentId: razorpay_payment_id,
-            }
+            },
+            couponCode
         );
 
         res.status(StatusCode.OK).json({ 
@@ -112,9 +114,9 @@ const verifyPayment = async (req, res) => {
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const { addressId, paymentMethod } = req.body;
+        const { addressId, paymentMethod, couponCode } = req.body;
 
-        const newOrder = await checkoutService.placeOrderService(userId, addressId, paymentMethod);
+        const newOrder = await checkoutService.placeOrderService(userId, addressId, paymentMethod,{}, couponCode);
 
         return res.json({
             success: true,
@@ -207,7 +209,56 @@ const handleFailedPayment = async (req, res) => {
         res.status(StatusCode.OK).json({ success: false }); 
     }
 };
+const applyCoupon = async (req, res) => {
+    try {
+        const { couponCode, subtotal } = req.body;
+        const userId = req.session.user;
+
+        const result = await checkoutService.applyCouponService(userId, couponCode, subtotal);
+
+        if (!result) {
+            return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: "Something went wrong while applying the coupon." 
+            });
+        }
+
+        if (!result.success) {
+            return res.status(StatusCode.OK).json({ 
+                success: false, 
+                message: result.message 
+            });
+        }
+
+     
+        req.session.appliedCoupon = {
+            code: couponCode,
+            discount: result.discountAmount
+        };
+
+        return res.status(StatusCode.OK).json({ 
+            success: true, 
+            discount: result.discountAmount,
+            newTotal: result.newTotal,
+            message: "Coupon Applied Successfully!"
+        });
+
+    } catch (error) {
+        console.error("Apply Coupon Error:", error);
+         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message:  ResponseMessage.SERVER_ERROR });
+    }
+};
+
+const removeCoupon = async (req, res) => {
+    try {
+        // Clear from session
+        req.session.appliedCoupon = null;
+        res.json({ success: true, message: "Coupon removed" });
+    } catch (error) {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+    }
+}
 
 
 
-export default { loadCheckout, createPaymentOrder, verifyPayment, placeOrder, orderSuccess, orderFailed, handleFailedPayment };
+export default { loadCheckout, createPaymentOrder, verifyPayment, placeOrder, orderSuccess, orderFailed, handleFailedPayment, applyCoupon, removeCoupon };

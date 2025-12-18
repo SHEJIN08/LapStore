@@ -47,6 +47,8 @@ router.patch('/orders/handle-return', orderController.handleReturnRequest);
 
 router.get('/coupons', couponController.loadCoupon)
 router.post('/coupons/create', couponController.createCoupon)
+router.get('/coupons/get-details/:id', couponController.getCouponDetails);
+router.put('/coupons/edit/:id', couponController.editCoupon);
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

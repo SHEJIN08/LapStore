@@ -1,5 +1,6 @@
 import orderService from "../../services/user/orderService.js";
 import User from "../../model/userModel.js";
+import mongoose from "mongoose";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
 // --- LOAD ORDERS PAGE ---
@@ -36,6 +37,9 @@ const loadOrders = async (req, res) => {
 const orderDetailedPage = async (req, res) => {
   try {
     const { orderId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        res.render('user/404'); 
+    }
     
     const order = await orderService.getOrderByIdService(orderId);
     // Note: service populates userId, so we can access user data from order.userId

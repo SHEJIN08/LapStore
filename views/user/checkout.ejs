@@ -80,74 +80,91 @@
                 </div>
 
                <div class="checkout-right">
-                    <div class="summary-card">
-                        <h3>Order Summary</h3>
-                        
-                        <div class="mini-cart-list">
-                            <% cartItems.forEach(item => { %>
-                                <div class="mini-item">
-                                    <div class="mini-img">
-                                        <img src="<%= item.variantId.image %>" alt="Product">
-                                    </div>
-                                    <div class="mini-details">
-                                        <h4><%= item.productId.name %></h4>
-                                        <p>Qty: <%= item.quantity %></p>
-                                        <span class="mini-price">₹<%= item.variantId.salePrice.toLocaleString() %></span>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        </div>
-
-                        <div class="divider"></div>
-
-                        <div class="summary-row">
-                            <span>Subtotal</span>
-                            <span>₹<%= subtotal.toLocaleString() %></span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Shipping</span>
-                            <% if(shipping === 0) { %>
-                                <span class="green">Free</span>
-                            <% } else { %>
-                                <span>₹<%= shipping %></span>
-                            <% } %>
-                        </div>
-                        <div class="summary-row">
-                            <span>Tax</span>
-                            <span>₹<%= tax.toFixed(2) %></span>
-                        </div>
-
-                        <div class="divider"></div>
-
-                        <div class="summary-row total">
-                            <span>Total</span>
-                            <span id="totalAmount">₹<%= total.toFixed(2) %></span>
-                        </div>
-                        <button type="submit" class="place-order-btn">Place Order</button>
+    <div class="summary-card">
+        <h3>Order Summary</h3>
+        
+        <div class="mini-cart-list">
+            <% cartItems.forEach(item => { %>
+                <div class="mini-item">
+                    <div class="mini-img">
+                        <img src="<%= item.variantId.image %>" alt="Product">
                     </div>
-
-                    <div class="coupons-card">
-                        <h3><i class="fa-solid fa-tag"></i> Available Coupons</h3>
-                        
-                        <% if (coupons && coupons.length > 0) { %>
-                            <% coupons.forEach(coupon => { %>
-                                <div class="coupon-ticket">
-                                    <div class="coupon-info">
-                                        <span class="code"><%= coupon.code %></span>
-                                        <span class="desc"><%= coupon.description %></span>
-                                        <span class="min-order">Min. order: ₹<%= coupon.minPurchase %></span>
-                                    </div>
-                                    <button type="button" class="copy-btn" onclick="useCoupon('<%= coupon.code %>')">Apply</button>
-                                </div>
-                            <% }) %>
-                        <% } else { %>
-                            <div class="no-coupons">
-                                <i class="fa-regular fa-face-frown-open"></i>
-                                <p>No coupons available</p>
-                            </div>
-                        <% } %>
+                    <div class="mini-details">
+                        <h4><%= item.productId.name %></h4>
+                        <p>Qty: <%= item.quantity %></p>
+                        <span class="mini-price">₹<%= item.variantId.salePrice.toLocaleString() %></span>
                     </div>
                 </div>
+            <% }) %>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="coupon-input-section">
+            <div class="input-group">
+                <input type="text" id="couponCodeInput" placeholder="Enter Coupon Code">
+                <button type="button" class="apply-btn" onclick="applyManualCoupon()">Apply</button>
+            </div>
+            <p id="couponMessage" class="coupon-msg"></p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="subtotalDisplay" data-value="<%= subtotal %>">₹<%= subtotal.toLocaleString() %></span>
+        </div>
+        
+        <div class="summary-row" id="discountRow" style="display: none;">
+            <span>Coupon Discount</span>
+            <span id="discountDisplay" class="green">- ₹0</span>
+        </div>
+
+        <div class="summary-row">
+            <span>Shipping</span>
+            <% if(shipping === 0) { %>
+                <span class="green">Free</span>
+            <% } else { %>
+                <span>₹<%= shipping %></span>
+            <% } %>
+        </div>
+        <div class="summary-row">
+            <span>Tax</span>
+            <span>₹<%= tax.toFixed(2) %></span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="summary-row total">
+            <span>Total</span>
+            <span id="totalAmountDisplay">₹<%= total.toFixed(2) %></span>
+            <input type="hidden" id="realTotalAmount" value="<%= total %>">
+        </div>
+
+        <button type="submit" class="place-order-btn">Place Order</button>
+    </div>
+
+    <div class="coupons-card">
+        <h3><i class="fa-solid fa-tag"></i> Available Coupons</h3>
+        
+        <% if (coupons && coupons.length > 0) { %>
+            <% coupons.forEach(coupon => { %>
+                <div class="coupon-ticket">
+                    <div class="coupon-info">
+                        <span class="code"><%= coupon.code %></span>
+                        <span class="desc"><%= coupon.description %></span>
+                        <span class="min-order">Min. order: ₹<%= coupon.minPurchaseAmount %></span>
+                    </div>
+                    <button type="button" class="copy-btn" onclick="useCoupon('<%= coupon.code %>')">Apply</button>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="no-coupons">
+                <p>No coupons available</p>
+            </div>
+        <% } %>
+    </div>
+</div>
 
             </div>
         </form>
@@ -211,62 +228,98 @@
         }).showToast();
     };
 
-   function selectCard(input) {
+  function selectCard(input) {
         const container = input.closest('.address-grid') || input.closest('.payment-options');
         container.querySelectorAll('.selection-card').forEach(card => card.classList.remove('selected'));
         input.closest('.selection-card').classList.add('selected');
     }
 
-    // --- MAIN FORM SUBMIT LISTENER ---
+    // --- 1. COUPON LOGIC ---
+
+    // A. Manual Input
+    function applyManualCoupon() {
+        const code = document.getElementById('couponCodeInput').value;
+        if(code) applyCouponBackend(code);
+    }
+
+    // B. Clicking a Ticket (from coupons-card)
+    function useCoupon(code) {
+        document.getElementById('couponCodeInput').value = code;
+        applyCouponBackend(code);
+    }
+
+    // C. Backend Call
+    async function applyCouponBackend(code) {
+        const subtotal = document.getElementById('subtotalDisplay').getAttribute('data-value');
+        const msg = document.getElementById('couponMessage');
+
+        try {
+            const response = await axios.post('/user/cart/apply-coupon', {
+                couponCode: code,
+                subtotal: subtotal
+            });
+
+            if (response.data.success) {
+                // UI Updates
+                showToast("Coupon Applied!", "success");
+                msg.innerText = response.data.message;
+                msg.style.color = "green";
+
+                // Update Order Summary Numbers
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountDisplay').innerText = `- ₹${response.data.discount}`;
+                document.getElementById('totalAmountDisplay').innerText = `₹${response.data.newTotal}`;
+                
+                // CRITICAL: Update the hidden value used for payment
+                document.getElementById('realTotalAmount').value = response.data.newTotal;
+
+                // Disable input to prevent double apply
+                document.getElementById('couponCodeInput').disabled = true;
+                document.querySelector('.apply-btn').innerText = "Applied";
+                document.querySelector('.apply-btn').disabled = true;
+            } else {
+                showToast(response.data.message, "error");
+                msg.innerText = response.data.message;
+                msg.style.color = "red";
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("Failed to apply coupon", "error");
+        }
+    }
+
+    // --- 2. MAIN FORM SUBMIT ---
     document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
         e.preventDefault(); 
 
-        // 1. Get Selected Address (Directly from DOM)
         const selectedAddressInput = document.querySelector('input[name="addressId"]:checked');
         const selectedPaymentInput = document.querySelector('input[name="paymentMethod"]:checked');
 
-        // 2. Validate
-        if (!selectedAddressInput) {
-            return showToast("Please select a delivery address", "error");
-        }
-        if (!selectedPaymentInput) {
-            return showToast("Please select a payment method", "error");
-        }
+        if (!selectedAddressInput) return showToast("Please select a delivery address", "error");
+        if (!selectedPaymentInput) return showToast("Please select a payment method", "error");
 
         const addressId = selectedAddressInput.value;
         const paymentMethod = selectedPaymentInput.value;
-        const rawAmount = document.getElementById('totalAmount').innerText;
-        const totalAmount = parseFloat(rawAmount.replace(/[₹,]/g, '').trim());
+        
+        // Get the FINAL amount from hidden input (handling discounts)
+        const totalAmount = parseFloat(document.getElementById('realTotalAmount').value);
+        const couponCode = document.getElementById('couponCodeInput').value;
 
-
-
-        // 3. Route to Handler
         if (paymentMethod === 'Razorpay') {
-            await handleRazorpay(totalAmount, addressId);
+            await handleRazorpay(totalAmount, addressId, couponCode);
         } else {
-            await handleCodOrWallet(paymentMethod, addressId);
+            await handleCodOrWallet(paymentMethod, addressId, couponCode);
         }
     });
 
-    // --- A. RAZORPAY HANDLER ---
-    async function handleRazorpay(amount, addressId) {
-        
-    
-
-        if (!addressId) {
-            return showToast("Address ID missing. Refresh page.", "error");
-        }
-
+    // --- 3. RAZORPAY HANDLER ---
+    async function handleRazorpay(amount, addressId, couponCode) {
         try {
-            // 1. Create Order on Backend
             const response = await axios.post('/user/create-payment', { amount: amount });
             const orderData = response.data;
 
-            if (!orderData.success) {
-                return showToast('Error initiating payment', 'error');
-            }
+            if (!orderData.success) return showToast('Error initiating payment', 'error');
 
-            // 2. Configure Options
             const options = {
                 "key": orderData.key_id,
                 "amount": orderData.amount,
@@ -274,17 +327,14 @@
                 "name": "LapStore",
                 "description": "Purchase Payment",
                 "order_id": orderData.id,
-                
-                // --- SUCCESS HANDLER ---
                 "handler": async function (response) {
                     try {
-                     
-
                         const verifyResponse = await axios.post('/user/verify-payment', {
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature,
-                            addressId: addressId // <--- Sending it here
+                            addressId: addressId,
+                            couponCode: couponCode
                         });
 
                         if (verifyResponse.data.success) {
@@ -293,19 +343,13 @@
                             showToast('Payment verification failed!', 'error');
                         }
                     } catch (err) {
-                        console.error(err);
                         showToast("Verification error: " + (err.response?.data?.message || err.message), 'error');
                     }
                 },
                 "theme": { "color": "#3399cc" },
-                "modal": {
-                    "ondismiss": function() {
-                        showToast('Payment Cancelled', 'error');
-                    }
-                }
+                "modal": { "ondismiss": function() { showToast('Payment Cancelled', 'error'); } }
             };
 
-            // 3. Initialize & Open
             const rzp1 = new Razorpay(options);
 
             rzp1.on('payment.failed', async function (response){
@@ -341,11 +385,12 @@
     }
 
     // --- B. COD / WALLET HANDLER ---
-    async function handleCodOrWallet(paymentMethod, addressId) {
+    async function handleCodOrWallet(paymentMethod, addressId, couponCode) {
         try {
             const response = await axios.post('/user/cart/checkout/place-order', {
                 addressId: addressId,
-                paymentMethod: paymentMethod
+                paymentMethod: paymentMethod,
+                couponCode: couponCode
             });
 
             if (response.data.success) {
@@ -387,8 +432,5 @@
         }
     });
 
-    // --- D. COUPON LOGIC (Placeholder) ---
-    function useCoupon(code) {
-        showToast("Coupon functionality coming soon!", "success");
-    }
+  
 </script>

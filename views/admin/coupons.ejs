@@ -99,9 +99,11 @@
                                 <% } %>
                             </td>
                             <td><%= new Date(coupon.endDate).toLocaleDateString() %></td>
-                            <td>
-                                <a href="/admin/coupons/edit/<%= coupon._id %>" class="action-link">Edit</a>
-                            </td>
+                           <td>
+                    <button class="action-link" onclick="openEditModal('<%= coupon._id %>')">
+                        Edit
+                    </button>
+                </td>
                         </tr>
                     <% }) %>
                 <% } else { %>
@@ -245,6 +247,107 @@
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeCouponModal()">Cancel</button>
                 <button type="submit" class="btn-save">Create Coupon</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="editCouponModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Coupon</h3>
+            <button class="close-btn" onclick="closeEditModal()">&times;</button>
+        </div>
+
+        <form id="editCouponForm">
+            <input type="hidden" id="edit_couponId"> <section class="form-section">
+                <h4>Core Details</h4>
+                <div class="form-group">
+                    <label>Coupon Code</label>
+                    <input type="text" id="edit_code" name="code" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Coupon Type</label>
+                        <select id="edit_couponType">
+                            <option value="percentage">Percentage</option>
+                            <option value="fixed">Fixed Amount</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label>Discount Value</label>
+                        <input type="number" id="edit_discountValue" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="edit_description"></textarea>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h4>Usage Rules</h4>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Min Order Value</label>
+                        <input type="number" id="edit_minOrderValue">
+                    </div>
+                    <div class="form-group half">
+                        <label>Limit per User</label>
+                        <input type="number" id="edit_limitPerUser">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Total Usage Limit</label>
+                    <input type="number" id="edit_totalUsageLimit">
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h4>Target Audience</h4>
+                <div class="form-group">
+                    <label>User Eligibility</label>
+                    <select id="edit_userEligibilitySelect" onchange="toggleEditSearch(this.value)">
+                        <option value="all">All Users</option>
+                        <option value="new_users">New Users Only</option>
+                        <option value="specific">Specific Users</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="edit_specificUserSearchDiv" style="display: none;">
+                    <label>Manage Users</label>
+                    <div class="search-box-wrapper">
+                        <input type="text" id="edit_userSearchInput" placeholder="Search user...">
+                        <div id="edit_searchResultsDropdown" class="search-results-list"></div>
+                    </div>
+                    <div id="edit_selectedUsersContainer" class="selected-tags-area"></div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h4>Validity & Status</h4>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Start Date</label>
+                        <input type="date" id="edit_startDate" required>
+                    </div>
+                    <div class="form-group half">
+                        <label>End Date</label>
+                        <input type="date" id="edit_endDate" required>
+                    </div>
+                </div>
+                <div class="form-group toggle-group">
+                    <label>Active Status</label>
+                    <label class="switch">
+                        <input type="checkbox" id="edit_status">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </section>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn-save">Update Changes</button>
             </div>
         </form>
     </div>
@@ -465,6 +568,150 @@
     function closeCouponModal() {
         document.getElementById('addCouponModal').style.display = 'none';
     }
+
+    // State for Edit Mode
+    let editSelectedUsers = []; 
+
+    // --- 1. OPEN MODAL & FETCH DATA ---
+    async function openEditModal(couponId) {
+        try {
+            // Fetch latest data from backend
+            const response = await axios.get(`/admin/coupons/get-details/${couponId}`);
+            if(!response.data.success) return alert("Error fetching coupon data");
+
+            const coupon = response.data.coupon;
+
+            // Populate Fields
+            document.getElementById('edit_couponId').value = coupon._id;
+            document.getElementById('edit_code').value = coupon.code;
+            document.getElementById('edit_couponType').value = coupon.type;
+            document.getElementById('edit_discountValue').value = coupon.discountValue;
+            document.getElementById('edit_description').value = coupon.description;
+            document.getElementById('edit_minOrderValue').value = coupon.minPurchaseAmount;
+            document.getElementById('edit_limitPerUser').value = coupon.usageLimitPerUser;
+            document.getElementById('edit_totalUsageLimit').value = coupon.totalUsageLimit || '';
+            
+            // Dates (Format to YYYY-MM-DD)
+            document.getElementById('edit_startDate').value = new Date(coupon.startDate).toISOString().split('T')[0];
+            document.getElementById('edit_endDate').value = new Date(coupon.endDate).toISOString().split('T')[0];
+            
+            document.getElementById('edit_status').checked = coupon.isActive;
+
+            // Handle Specific Users
+            const eligibilitySelect = document.getElementById('edit_userEligibilitySelect');
+            eligibilitySelect.value = coupon.userEligibility;
+            
+            // Populate our local array with the users from DB
+            editSelectedUsers = coupon.specificUsers.map(u => ({ id: u._id, name: u.name }));
+            
+            // Show/Hide Search Box based on eligibility
+            toggleEditSearch(coupon.userEligibility);
+            renderEditSelectedUsers();
+
+            // Show Modal
+            document.getElementById('editCouponModal').style.display = 'flex';
+
+        } catch (error) {
+            console.error(error);
+            alert("Failed to load coupon details");
+        }
+    }
+
+    function closeEditModal() {
+        document.getElementById('editCouponModal').style.display = 'none';
+    }
+
+    // --- 2. HANDLE SPECIFIC USERS IN EDIT MODE ---
+    function toggleEditSearch(val) {
+        document.getElementById('edit_specificUserSearchDiv').style.display = (val === 'specific') ? 'block' : 'none';
+    }
+
+    function renderEditSelectedUsers() {
+        const container = document.getElementById('edit_selectedUsersContainer');
+        container.innerHTML = '';
+        editSelectedUsers.forEach(user => {
+            const tag = document.createElement('div');
+            tag.className = 'user-tag';
+            tag.innerHTML = `${user.name} <span class="remove-tag" onclick="removeEditUser('${user.id}')">&times;</span>`;
+            container.appendChild(tag);
+        });
+    }
+
+    function removeEditUser(id) {
+        editSelectedUsers = editSelectedUsers.filter(u => u.id !== id);
+        renderEditSelectedUsers();
+    }
+
+    // Edit Search Logic (Reusing your search endpoint)
+    const editSearchInput = document.getElementById('edit_userSearchInput');
+    const editResultsList = document.getElementById('edit_searchResultsDropdown');
+    
+    editSearchInput.addEventListener('input', function(e) {
+        const query = e.target.value.trim();
+        if (query.length < 2) { editResultsList.style.display = 'none'; return; }
+
+        // Simple debounce
+        setTimeout(async () => {
+            try {
+                const res = await axios.get(`/admin/users/search?search=${query}`);
+                const users = res.data.users;
+                editResultsList.innerHTML = '';
+                
+                if (users.length > 0) {
+                    users.forEach(user => {
+                        if (editSelectedUsers.some(u => u.id === user._id)) return;
+                        const div = document.createElement('div');
+                        div.className = 'search-result-item';
+                        div.innerHTML = `<strong>${user.name}</strong><span>${user.email}</span>`;
+                        div.onclick = () => {
+                            editSelectedUsers.push({ id: user._id, name: user.name });
+                            renderEditSelectedUsers();
+                            editSearchInput.value = '';
+                            editResultsList.style.display = 'none';
+                        };
+                        editResultsList.appendChild(div);
+                    });
+                    editResultsList.style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }, 300);
+    });
+
+    // --- 3. SUBMIT UPDATE ---
+    document.getElementById('editCouponForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const couponId = document.getElementById('edit_couponId').value;
+        
+        const formData = {
+            code: document.getElementById('edit_code').value,
+            couponType: document.getElementById('edit_couponType').value,
+            discountValue: document.getElementById('edit_discountValue').value,
+            description: document.getElementById('edit_description').value,
+            minOrderValue: document.getElementById('edit_minOrderValue').value,
+            limitPerUser: document.getElementById('edit_limitPerUser').value,
+            totalUsageLimit: document.getElementById('edit_totalUsageLimit').value,
+            userEligibility: document.getElementById('edit_userEligibilitySelect').value,
+            specificUsers: editSelectedUsers.map(u => u.id), // Send IDs
+            startDate: document.getElementById('edit_startDate').value,
+            endDate: document.getElementById('edit_endDate').value,
+            status: document.getElementById('edit_status').checked
+        };
+
+        try {
+            const response = await axios.put(`/admin/coupons/edit/${couponId}`, formData);
+            
+            if (response.data.success) {
+                alert('Coupon updated successfully!');
+                window.location.reload();
+            } else {
+                alert(response.data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert(error.response?.data?.message || "Update failed");
+        }
+    });
 </script>
 </body>
 </html>

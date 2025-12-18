@@ -475,3 +475,32 @@
     color: white;
     cursor: pointer;
 }
+
+/* Coupon Input Styling */
+.coupon-input-section {
+    margin: 15px 0;
+}
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+#couponCodeInput {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+.apply-btn {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.coupon-msg {
+    font-size: 0.8rem;
+    margin-top: 5px;
+    min-height: 1.2em;
+}
+.green { color: #166534; font-weight: 600; }

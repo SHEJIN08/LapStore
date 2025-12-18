@@ -68,4 +68,63 @@ const createCouponService = async (data) => {
     }
 }
 
-export default {loadCoupon, createCouponService}
+// 1. GET COUPON BY ID (Needed for filling the modal)
+const getCouponById = async (id) => {
+    try {
+        // We populate 'specificUsers' so we can show their names in the modal tags
+        return await Coupon.findById(id).populate('specificUsers', 'name email');
+    } catch (error) {
+        throw new Error("Coupon not found");
+    }
+};
+
+// 2. UPDATE COUPON (Needed for saving changes)
+const updateCouponService = async (id, data) => {
+    try {
+        const {
+            code, name, couponType, discountValue, description,
+            minOrderValue, limitPerUser, totalUsageLimit,
+            userEligibility, specificUsers, startDate, endDate, status
+        } = data;
+
+        // Check if code exists (excluding the current coupon ID)
+        const existingCoupon = await Coupon.findOne({ 
+            code: code, 
+            _id: { $ne: id } 
+        });
+
+        if (existingCoupon) {
+            throw new Error("Coupon code already exists");
+        }
+
+        const updateData = {
+            code,
+            name: name || code,
+            description,
+            type: couponType,
+            discountValue,
+            minPurchaseAmount: minOrderValue || 0,
+            usageLimitPerUser: limitPerUser || 1,
+            totalUsageLimit: totalUsageLimit || null,
+            userEligibility,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            isActive: status === 'Active' || status === true || status === 'on'
+        };
+
+        // Handle specific users list
+        if (userEligibility === 'specific') {
+            updateData.specificUsers = specificUsers;
+        } else {
+            updateData.specificUsers = [];
+        }
+
+        const updatedCoupon = await Coupon.findByIdAndUpdate(id, updateData, { new: true });
+        return updatedCoupon;
+
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+export default {loadCoupon, createCouponService, getCouponById, updateCouponService}
