@@ -320,8 +320,8 @@ ul {
 }
 
 .badge.inactive {
-    background-color: var(--inactive-bg);
-    color: var(--inactive-text);
+    background-color: rgb(244, 255, 226);
+    color: rgb(192, 199, 4);
 }
 
 .action-link {

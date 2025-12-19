@@ -61,6 +61,17 @@ const applyCouponService = async (userId, couponCode, totalAmount) => {
 
         const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
 
+        if(coupon.usageLimitPerUser){
+            const userUsageCount = await Order.countDocuments({
+                userId: userId,
+                couponCode: couponCode,
+                status: { $nin: ['Cancelled','Failed']}
+            })
+            if(userUsageCount >= coupon.usageLimitPerUser){
+                return {success: false, message: 'You have reached user usage limit'}
+            }
+        }
+
         if (!coupon) {
             return { success: false, message: 'Invalid Coupon code' };
         }
@@ -70,6 +81,8 @@ const applyCouponService = async (userId, couponCode, totalAmount) => {
         if (new Date(coupon.endDate) < new Date()) {
             return { success: false, message: 'This coupon has expired' };
         }
+
+        
 
         if (coupon.userEligibility === 'specific' && !coupon.specificUsers.includes(userId)) {
             return { success: false, message: 'You are not eligible for this coupon' };
@@ -165,6 +178,18 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
             new Date(coupon.endDate) > new Date() &&
             subtotal >= coupon.minPurchaseAmount
         ) {
+
+            if (coupon.usageLimitPerUser) {
+                const userUsageCount = await Order.countDocuments({
+                    userId: userId,
+                    couponCode: coupon.code,
+                    status: { $nin: ['Cancelled', 'Failed'] }
+                });
+
+                if (userUsageCount >= coupon.usageLimitPerUser) {
+                    throw new Error('You have already used this coupon the maximum number of times.');
+                }
+            }
             // Recalculate discount securely
             if (coupon.type === 'percentage') {
                 discount = (subtotal * coupon.discountValue) / 100;
@@ -176,6 +201,10 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
             if (discount > subtotal) discount = subtotal;
 
             appliedCouponCode = couponCode.toUpperCase();
+
+            if(coupon.totalUsageLimit && coupon.currentUsageCount >= coupon.totalUsageLimit){
+                throw new Error('Coupon is no longer available (Usage limit reached)')
+            }
 
             // Optional: Increment usage count
             await Coupon.updateOne({ _id: coupon._id }, { $inc: { currentUsageCount: 1 } });

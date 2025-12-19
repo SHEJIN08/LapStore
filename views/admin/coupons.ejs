@@ -32,6 +32,7 @@
                 <option value="all" <%= currentStatus === 'all' ? 'selected' : '' %>>All Status</option>
                 <option value="active" <%= currentStatus === 'active' ? 'selected' : '' %>>Active</option>
                 <option value="inactive" <%= currentStatus === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                <option value="expired" <%= currentStatus === 'expired' ? 'selected' : '' %>>Expired</option>
             </select>
         </div>
 
@@ -100,7 +101,7 @@
                             </td>
                             <td><%= new Date(coupon.endDate).toLocaleDateString() %></td>
                            <td>
-                    <button class="action-link" onclick="openEditModal('<%= coupon._id %>')">
+                    <button class="action-link" onclick="openEditModal('<%= coupon._id %>')" style="width: 46px; text-decoration: none;">
                         Edit
                     </button>
                 </td>
@@ -153,10 +154,18 @@
                 <div class="form-group">
                     <label>Coupon Code</label>
                     <div class="input-group">
-                        <input type="text" id="code" name="code" placeholder="e.g. SUMMER2024" required>
+                        <input type="text" id="code" name="code" placeholder="e.g. DY5FFEDZ" required>
                         <button type="button" class="btn-generate" onclick="generateCode()">Generate</button>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label>Coupon Name</label>
+                    <div class="input-group">
+                        <input type="text" id="name" name="name" placeholder="e.g. SUMMER2024" required>
+                    </div>
+                </div>
+
 
                 <div class="form-row">
                     <div class="form-group half">
@@ -265,6 +274,10 @@
                 <div class="form-group">
                     <label>Coupon Code</label>
                     <input type="text" id="edit_code" name="code" required>
+                </div>
+                <div class="form-group">
+                    <label>Coupon Name</label>
+                    <input type="text" id="edit_name" name="name" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group half">
@@ -407,6 +420,18 @@
 
 <script src="/js/axios.min.js"></script>
 <script>
+
+    const showToast = (message, type) => {
+                const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: bgColor, borderRadius: '10px' }
+                }).showToast();
+            };
+
     // --- 1. STATE MANAGEMENT ---
     let selectedUsers = []; // Stores objects: { id, name }
 
@@ -530,6 +555,7 @@
         // B. Gather Data
         const formData = {
             code: document.getElementById('code').value,
+            name: document.getElementById('name').value,
             couponType: document.getElementById('couponType').value,
             discountValue: document.getElementById('discountValue').value,
             description: document.getElementById('description').value,
@@ -549,14 +575,15 @@
             const response = await axios.post('/admin/coupons/create', formData);
 
             if (response.data.success) {
-                alert('Coupon created successfully!');
+                showToast('Coupon created successfully!','success');
                 window.location.reload(); // Refresh page to see new coupon
             } else {
-                alert('Failed: ' + response.data.message);
+                showToast('Failed: ' + response.data.message,'error');
             }
         } catch (error) {
             console.error('Submit Error:', error);
-            alert(error.response?.data?.message || 'An error occurred while creating the coupon');
+           const errorMessage = error.response?.data?.message || 'Something went wrong';
+          showToast(errorMessage, 'error');
         }
     });
 
@@ -584,6 +611,7 @@
             // Populate Fields
             document.getElementById('edit_couponId').value = coupon._id;
             document.getElementById('edit_code').value = coupon.code;
+            document.getElementById('edit_name').value = coupon.name;
             document.getElementById('edit_couponType').value = coupon.type;
             document.getElementById('edit_discountValue').value = coupon.discountValue;
             document.getElementById('edit_description').value = coupon.description;
@@ -685,6 +713,7 @@
         
         const formData = {
             code: document.getElementById('edit_code').value,
+            name: document.getElementById('edit_name').value,
             couponType: document.getElementById('edit_couponType').value,
             discountValue: document.getElementById('edit_discountValue').value,
             description: document.getElementById('edit_description').value,
