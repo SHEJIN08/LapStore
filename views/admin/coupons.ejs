@@ -548,7 +548,7 @@
         // A. Validate Specific Users
         const eligibility = document.getElementById('userEligibilitySelect').value;
         if (eligibility === 'specific' && selectedUsers.length === 0) {
-            alert('Please select at least one user.');
+            showToast('Please select at least one user.', 'error');
             return;
         }
 
@@ -731,14 +731,14 @@
             const response = await axios.put(`/admin/coupons/edit/${couponId}`, formData);
             
             if (response.data.success) {
-                alert('Coupon updated successfully!');
+                showToast('Coupon updated successfully!', 'success');
                 window.location.reload();
             } else {
-                alert(response.data.message);
+                showToast(response.data.message);
             }
         } catch (error) {
             console.error(error);
-            alert(error.response?.data?.message || "Update failed");
+            showToast(error.response?.data?.message || "Update failed");
         }
     });
 </script>

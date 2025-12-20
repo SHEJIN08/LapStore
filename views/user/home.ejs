@@ -1,215 +1,249 @@
 <%- include('../partials/header') %>
-<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-<link rel="stylesheet" href="/css/user/home.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/css/user/home.css">
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <section class="hero">
-        <div class="container hero-content">
-            <div class="hero-text">
-                <span class="tagline">New Arrivals</span>
-                <h1>Discover the Future of Performance</h1>
-                <p>Premium laptops with cutting-edge technology and unbeatable battery life.</p>
-                <a href="/user/home/shop" class="btn-shop-now">
-                    Shop Now <i class='bx bx-right-arrow-alt'></i>
-                </a>
-            </div>
-            <div class="hero-image">
-                <img src="/images/banner-img.png" alt="Hero Laptop">
-            </div>
-        </div>
-    </section>
-
-    <main class="main-content">
-
-        <section class="section category-section">
-            <div class="container">
-                <div class="section-header center">
-                    <h2>Shop by Category</h2>
-                    <p>Find the perfect device for your needs</p>
+            <section class="hero">
+                <div class="container hero-content">
+                    <div class="hero-text">
+                        <span class="tagline">New Arrivals</span>
+                        <h1>Discover the Future of Performance</h1>
+                        <p>Premium laptops with cutting-edge technology and unbeatable battery life.</p>
+                        <a href="/user/home/shop" class="btn-shop-now">
+                            Shop Now <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </div>
+                    <div class="hero-image">
+                        <img src="/images/banner-img.png" alt="Hero Laptop">
+                    </div>
                 </div>
-                
-              <div class="category-grid">
+            </section>
 
-    <% if(categories && categories.length > 0) { %>
-        <% categories.slice(0, 4).forEach(cat => { %>
-            
-            <%  let myImage = 'https://placehold.co/300x200/png?text=' + cat.categoryName; 
-                
-              
-                let name = cat.categoryName.toLowerCase().trim();
+            <main class="main-content">
 
-                if (name.includes('gaming')) {
-                    myImage = '/images/user/gaming.jpg'; 
-                } 
-                else if (name.includes('business')) {
-                    myImage = '/images/user/business.jpg';
-                }
-                else if (name.includes('2-in-1')) {
-                    myImage = '/images/user/2-in-1.jpg';
-                }
-                else if (name.includes('60000')) {
-                    myImage = '/images/user/under60k.jpg';
-                }
-            %>
+                <section class="section category-section">
+                    <div class="container">
+                        <div class="section-header center">
+                            <h2>Shop by Category</h2>
+                            <p>Find the perfect device for your needs</p>
+                        </div>
 
-            <a href="/user/home/shop?category=<%= cat.slug %>" class="category-card">
-                <div class="cat-img-wrapper">
-                    <img src="<%= myImage %>" alt="<%= cat.categoryName %>">
-                </div>
-                <div class="cat-content">
-                    <h3><%= cat.categoryName %></h3>
-                    <span class="btn-explore">Explore <i class='bx bx-right-arrow-alt'></i></span>
-                </div>
-            </a>
+                        <div class="category-grid">
 
-        <% }) %>
-    <% } else { %>
-        <p>No categories found.</p>
-    <% } %>
-</div>
-            </div>
-        </section>
+                            <% if(categories && categories.length> 0) { %>
+                                <% categories.slice(0, 4).forEach(cat=> { %>
 
-        <section class="section products-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>New Arrivals</h2>
-                    <a href="/user/home/shop" class="view-all-link">View All Products <i class='bx bx-right-arrow-alt'></i></a>
-                </div>
+                                    <% let myImage='https://placehold.co/300x200/png?text=' + cat.categoryName; let
+                                        name=cat.categoryName.toLowerCase().trim(); if (name.includes('gaming')) {
+                                        myImage='/images/user/gaming.jpg' ; } else if (name.includes('business')) {
+                                        myImage='/images/user/business.jpg' ; } else if (name.includes('2-in-1')) {
+                                        myImage='/images/user/2-in-1.jpg' ; } else if (name.includes('60000')) {
+                                        myImage='/images/user/under60k.jpg' ; } %>
 
-                <div class="product-grid">
-                    <% if(products.length > 0) { %>
-                        <% products.slice(0, 8).forEach(product => { %>
-                            <div class="product-card">
-                                <div class="badge">New</div>
-                                <div class="product-tumb">
-                                    <a href="/user/product/<%= product.slug %>">
-                                        <% if(product.images && product.images.length > 0) { %>
-                                            <img src="<%= product.images[0] %>" alt="<%= product.name %>">
-                                        <% } else { %>
-                                            <img src="https://placehold.co/300x300?text=No+Image" alt="No Image">
-                                        <% } %>
-                                    </a>
-                                </div>
-                                <div class="product-details">
-                                    <span class="product-cat">
-                                        <%= product.brandDetails?.brandName || 'Generic' %>
-                                    </span>
-                                    <h4><a href="/user/product/<%= product.slug %>"><%= product.name %></a></h4>
-                                    <div class="product-bottom-details">
-                                        <div class="product-price">
-                                            <% if(product.minPrice) { %>
-                                                ₹<%= product.minPrice.toLocaleString('en-IN') %>
+                                        <a href="/user/home/shop?category=<%= cat.slug %>" class="category-card">
+                                            <div class="cat-img-wrapper">
+                                                <img src="<%= myImage %>" alt="<%= cat.categoryName %>">
+                                            </div>
+                                            <div class="cat-content">
+                                                <h3>
+                                                    <%= cat.categoryName %>
+                                                </h3>
+                                                <span class="btn-explore">Explore <i
+                                                        class='bx bx-right-arrow-alt'></i></span>
+                                            </div>
+                                        </a>
+
+                                        <% }) %>
                                             <% } else { %>
-                                                Unavailable
-                                            <% } %>
+                                                <p>No categories found.</p>
+                                                <% } %>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section products-section">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2>New Arrivals</h2>
+                            <a href="/user/home/shop" class="view-all-link">View All Products <i
+                                    class='bx bx-right-arrow-alt'></i></a>
+                        </div>
+
+                        <div class="product-grid">
+                            <% if(products.length> 0) { %>
+                                <% products.slice(0, 8).forEach(product=> { %>
+                                    <div class="product-card">
+                                        <div class="badge">New</div>
+                                        <div class="product-tumb">
+                                            <a href="/user/product/<%= product.slug %>">
+                                                <% if(product.images && product.images.length> 0) { %>
+                                                    <img src="<%= product.images[0] %>" alt="<%= product.name %>">
+                                                    <% } else { %>
+                                                        <img src="https://placehold.co/300x300?text=No+Image"
+                                                            alt="No Image">
+                                                        <% } %>
+                                            </a>
                                         </div>
-                                        <div class="product-links">
-                                            <a href="/user/product/<%= product.slug %>"><i class='bx bx-heart'></i></a>
+                                        <div class="product-details">
+                                            <span class="product-cat">
+                                                <%= product.brandDetails?.brandName || 'Generic' %>
+                                            </span>
+                                            <h4><a href="/user/product/<%= product.slug %>">
+                                                    <%= product.name %>
+                                                </a></h4>
+                                            <div class="product-bottom-details">
+                                                <div class="product-price">
+                                                    <% if(product.minPrice) { %>
+                                                        ₹<%= product.minPrice.toLocaleString('en-IN') %>
+                                                            <% } else { %>
+                                                                Unavailable
+                                                                <% } %>
+                                                </div>
+                                                <button class="wishlist-btn"
+                                                    onclick="addToWishlist(event, '<%= product._id %>', '<%= product.variants[0]._id %>')">
+                                                    <i class="fa-regular fa-heart"></i>
+                                                </button>
+                                            </div>
                                         </div>
+                                    </div>
+                                    <% }) %>
+                                        <% } %>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section brand-section">
+                    <div class="container">
+                        <div class="section-header center">
+                            <h2>Authorized Dealer</h2>
+                            <p>We partner with the world's leading tech brands</p>
+                        </div>
+                        <div class="brand-grid">
+                            <div class="brand-item">
+                                <i class='bx bxl-apple'></i>
+                                <span>Apple</span>
+                            </div>
+                            <div class="brand-item">
+                                <i class='bx bx-laptop'></i> <span>Lenovo</span>
+                            </div>
+                            <div class="brand-item">
+                                <i class='bx bxs-microchip'></i> <span>HP</span>
+                            </div>
+                            <div class="brand-item">
+                                <i class='bx bxl-windows'></i> <span>Dell</span>
+                            </div>
+                            <div class="brand-item">
+                                <i class='bx bx-desktop'></i> <span>ASUS</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section reviews-section">
+                    <div class="container">
+                        <div class="section-header center">
+                            <h2>What Our Customers Say</h2>
+                        </div>
+                        <div class="reviews-grid">
+                            <div class="review-card">
+                                <div class="review-stars">
+                                    <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i
+                                        class='bx bxs-star'></i><i class='bx bxs-star'></i>
+                                </div>
+                                <p class="review-text">"Absolutely loving my new MacBook! The delivery was super fast
+                                    and the packaging was secure. Highly recommend LapStore."</p>
+                                <div class="reviewer-info">
+                                    <img src="https://placehold.co/50x50/png?text=JD" alt="User">
+                                    <div>
+                                        <h5>John Doe</h5>
+                                        <span>Verified Buyer</span>
                                     </div>
                                 </div>
                             </div>
-                        <% }) %>
-                    <% } %>
-                </div>
-            </div>
-        </section>
 
-        <section class="section brand-section">
-            <div class="container">
-                <div class="section-header center">
-                    <h2>Authorized Dealer</h2>
-                    <p>We partner with the world's leading tech brands</p>
-                </div>
-                <div class="brand-grid">
-                    <div class="brand-item">
-                        <i class='bx bxl-apple'></i>
-                        <span>Apple</span>
-                    </div>
-                    <div class="brand-item">
-                        <i class='bx bx-laptop'></i> <span>Lenovo</span>
-                    </div>
-                    <div class="brand-item">
-                        <i class='bx bxs-microchip'></i> <span>HP</span>
-                    </div>
-                    <div class="brand-item">
-                        <i class='bx bxl-windows'></i> <span>Dell</span>
-                    </div>
-                    <div class="brand-item">
-                        <i class='bx bx-desktop'></i> <span>ASUS</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+                            <div class="review-card">
+                                <div class="review-stars">
+                                    <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i
+                                        class='bx bxs-star'></i><i class='bx bxs-star-half'></i>
+                                </div>
+                                <p class="review-text">"Great selection of gaming laptops. I got the ASUS ROG and it
+                                    handles everything I throw at it. Support team was helpful too."</p>
+                                <div class="reviewer-info">
+                                    <img src="https://placehold.co/50x50/png?text=SM" alt="User">
+                                    <div>
+                                        <h5>Sarah Miller</h5>
+                                        <span>Gamer</span>
+                                    </div>
+                                </div>
+                            </div>
 
-        <section class="section reviews-section">
-            <div class="container">
-                <div class="section-header center">
-                    <h2>What Our Customers Say</h2>
-                </div>
-                <div class="reviews-grid">
-                    <div class="review-card">
-                        <div class="review-stars">
-                            <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i>
-                        </div>
-                        <p class="review-text">"Absolutely loving my new MacBook! The delivery was super fast and the packaging was secure. Highly recommend LapStore."</p>
-                        <div class="reviewer-info">
-                            <img src="https://placehold.co/50x50/png?text=JD" alt="User">
-                            <div>
-                                <h5>John Doe</h5>
-                                <span>Verified Buyer</span>
+                            <div class="review-card">
+                                <div class="review-stars">
+                                    <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i
+                                        class='bx bxs-star'></i><i class='bx bxs-star'></i>
+                                </div>
+                                <p class="review-text">"Best prices I found online for the Dell XPS series. The website
+                                    is easy to use and checkout was a breeze."</p>
+                                <div class="reviewer-info">
+                                    <img src="https://placehold.co/50x50/png?text=RJ" alt="User">
+                                    <div>
+                                        <h5>Rahul J.</h5>
+                                        <span>Developer</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    <div class="review-card">
-                        <div class="review-stars">
-                            <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star-half'></i>
-                        </div>
-                        <p class="review-text">"Great selection of gaming laptops. I got the ASUS ROG and it handles everything I throw at it. Support team was helpful too."</p>
-                        <div class="reviewer-info">
-                            <img src="https://placehold.co/50x50/png?text=SM" alt="User">
-                            <div>
-                                <h5>Sarah Miller</h5>
-                                <span>Gamer</span>
-                            </div>
-                        </div>
-                    </div>
+            </main>
 
-                    <div class="review-card">
-                        <div class="review-stars">
-                            <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i>
-                        </div>
-                        <p class="review-text">"Best prices I found online for the Dell XPS series. The website is easy to use and checkout was a breeze."</p>
-                        <div class="reviewer-info">
-                            <img src="https://placehold.co/50x50/png?text=RJ" alt="User">
-                            <div>
-                                <h5>Rahul J.</h5>
-                                <span>Developer</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+            <%- include('../partials/footer') %>
+                <script src="/js/axios.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+                <script>
+                    const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+                        Toastify({
+                            text: message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: bgColor, borderRadius: '10px' }
+                        }).showToast();
+                    };
 
-    </main>
+    async function addToWishlist(event, productId, variantId) {
+        // 1. Prevent the click from navigating to the product page (if inside an <a> tag)
+        event.preventDefault(); 
+        event.stopPropagation();
 
-    <%- include('../partials/footer') %>
+        const btn = event.currentTarget;
+        const icon = btn.querySelector('i');
 
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script>
-        const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "#28a745" : "#dc3545";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top",
-                position: "right",
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
-    </script>
+        try {
+            // 2. Send API Request
+            const response = await axios.post('/user/wishlist/add', {
+                productId: productId,
+                variantId: variantId
+            });
+
+            if(response.data.success){
+                showToast('Item added to the wishlist', 'success')
+
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+                icon.style.color = '#ef4444'; // Red color
+                
+                // Optional: Add a small bounce animation
+                btn.style.transform = "scale(1.2)";
+                setTimeout(() => btn.style.transform = "scale(1)", 200);
+            }
+            }catch (error) {
+            console.error(error);
+                showToast(error.response?.data?.message || "Something went wrong", "error");
+            }
+        }
+                </script>

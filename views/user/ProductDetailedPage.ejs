@@ -125,9 +125,10 @@
                                     <button class="btn-add-to-cart" onclick="addToCart()">
                                         <i class="fa-solid fa-cart-plus"></i> Add to Cart
                                     </button>
-                                    <button class="btn-wishlist">
+                                     <button class="wishlist-btn" style="margin-top: 7px;"
+                                        onclick="addToWishlist(event, '<%= product._id %>')">
                                         <i class="fa-regular fa-heart"></i>
-                                    </button>
+                                     </button>
                                 </div>
 
                                 <div class="additional-info">
@@ -163,8 +164,10 @@
                                             <a href="/user/product/<%= rel.slug %>">
                                                 <img src="<%= rel.images[0] %>" alt="<%= rel.name %>">
                                             </a>
-                                            <button class="card-wishlist-btn"><i
-                                                    class="fa-regular fa-heart"></i></button>
+                                             <button class="wishlist-btn-cat" style="margin-top: 7px;"
+                                        onclick="addToWishlist(event, '<%= product._id %>')">
+                                        <i class="fa-regular fa-heart"></i>
+                                     </button>
                                         </div>
                                         <div class="card-info">
                                             <span class="card-brand">
@@ -362,5 +365,70 @@
                             }
                         }
                     }
+
+    async function addToWishlist(event, productId) {
+    // 1. Stop navigation
+    event.preventDefault();
+    event.stopPropagation();
+
+    
+
+    const btn = event.currentTarget;
+    const icon = btn.querySelector('i');
+
+    // 2. FIND SELECTED VARIANT (Dynamic Check)
+    // This ensures we get the variant the user actually clicked on
+    const selectedVariant = document.querySelector('input[name="variant"]:checked');
+    
+    if (!selectedVariant) {
+        showToast("Please select a configuration option", "error");
+        return;
+    }
+    
+    const variantId = selectedVariant.value;
+
+    try {
+        // 3. Send API Request
+        const response = await axios.post('/user/wishlist/add', {
+            productId: productId,
+            variantId: variantId
+        });
+
+        if (response.data.success) {
+            showToast('Item added to the wishlist', 'success');
+
+            // 4. Update UI (Visual Feedback)
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            icon.style.color = '#ef4444'; // Red color
+
+            // Bounce animation
+            btn.style.transform = "scale(1.2)";
+            setTimeout(() => btn.style.transform = "scale(1)", 200);
+        }
+
+    } catch (error) {
+        console.error(error);
+       
+        let message = "Something went wrong";
+        
+        if(error.response){
+       if (error.response.data && error.response.data.message) {
+                message = error.response.data.message;
+            }
+
+            // Handle Not Logged In (401)
+            if (error.response.status === 401) {
+               message = "Please login to add items to wishlist";
+                setTimeout(() => {
+                    window.location.href = '/user/login';
+                }, 1500);
+                return;
+            }
+        }
+        showToast(message, "error");
+        }
+        
+    }   
                 </script>
     </body>

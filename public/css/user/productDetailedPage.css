@@ -715,3 +715,64 @@ a {
 .specs-list li:last-child {
     border-bottom: none;
 }
+ .wishlist-btn {
+   top: 10px;
+    right: 10px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10; /* Ensure it sits on top of the image */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);  
+ }
+ .wishlist-btn i {
+    color: #9ca3af; /* Default Grey */
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+.wishlist-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.wishlist-btn:hover i {
+    color: #ef4444; /* Red on hover */
+}
+.wishlist-btn-cat {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10; /* Ensure it sits on top of the image */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.wishlist-btn-cat i {
+    color: #9ca3af; /* Default Grey */
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+
+.wishlist-btn-cat:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.wishlist-btn-cat:hover i {
+    color: #ef4444; /* Red on hover */
+}

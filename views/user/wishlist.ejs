@@ -1,0 +1,168 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/user/wishlist.css">
+
+<body>
+    <%- include('../partials/navbar') %>
+
+    <div class="main-container">
+        
+        <div class="page-header-wrap">
+            <h1 class="page-title">My Wishlist</h1>
+        </div>
+
+  <div class="wishlist-grid">
+    <% if (items.length > 0) { %>
+        <% items.forEach(item => { %>
+            
+            <div class="wishlist-card" id="card-<%= item._id %>">
+                
+                <button class="remove-btn" onclick="removeFromWishlist('<%= item._id %>')">
+                    <i class="fa-regular fa-trash-can"></i>
+                </button>
+                
+                <div class="card-image">
+                    <% 
+                        let img = '/images/default.png';
+                        if(item.variantId && item.variantId.image) {
+                            img = Array.isArray(item.variantId.image) ? item.variantId.image[0] : item.variantId.image;
+                        }
+                    %>
+                    <img src="<%= img %>" alt="<%= item.productId.name %>">
+                </div>
+
+                <div class="card-details">
+                    <span class="brand-name"><%= item.productId.brand ? item.productId.brand.brandName : '' %> </span>
+                    <h3 class="product-name"><%= item.productId.name %></h3>
+                    
+                    <div class="price-area">
+                        <span class="sale-price">₹<%= item.variantId.salePrice.toLocaleString() %></span>
+                    </div>
+
+                    <button class="add-cart-btn" 
+                        onclick="moveToCart('<%= item._id %>', '<%= item.productId._id %>', '<%= item.variantId._id %>')">
+                        <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>Your wishlist is empty.</p>
+    <% } %>
+</div>
+
+        <% if (totalPages > 1) { %>
+    <div class="pagination-container">
+        
+        <% if (currentPage > 1) { %>
+            <a href="/user/wishlist?page=<%= currentPage - 1 %>" class="page-link prev">
+                <i class="fa-solid fa-arrow-left-long"></i> Previous
+            </a>
+        <% } else { %>
+            <span class="page-link prev disabled">
+                <i class="fa-solid fa-arrow-left-long"></i> Previous
+            </span>
+        <% } %>
+        
+        <div class="page-numbers">
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="/user/wishlist?page=<%= i %>" 
+                   class="page-num <%= i === currentPage ? 'active' : '' %>">
+                   <%= i %>
+                </a>
+            <% } %>
+        </div>
+
+        <% if (currentPage < totalPages) { %>
+            <a href="/user/wishlist?page=<%= currentPage + 1 %>" class="page-link next">
+                Next <i class="fa-solid fa-arrow-right-long"></i>
+            </a>
+        <% } else { %>
+            <span class="page-link next disabled">
+                Next <i class="fa-solid fa-arrow-right-long"></i>
+            </span>
+        <% } %>
+
+    </div>
+<% } %>
+    </div>
+
+    <%- include('../partials/footer') %>
+    
+    <script src="/js/axios.min.js"></script>
+    <script>
+       const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+                        Toastify({
+                            text: message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: bgColor, borderRadius: '10px' }
+                        }).showToast();
+                    };
+
+    async function removeFromWishlist(itemId) {
+  
+        try {
+            const response = await axios.delete(`/user/wishlist/remove/${itemId}`);
+
+            if (response.data.success) {
+                showToast("Item removed from wishlist", "success");
+                
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        } catch (error) {
+            console.error("Remove Error:", error);
+            const message = error.response?.data?.message || "Failed to remove item";
+            showToast(message, "error");
+        }
+    }
+    
+    // 1. Add to Cart
+    async function moveToCart(wishlistItemId, productId, variantId) {
+        try {
+            const cartResponse = await axios.post('/user/home/cart/add', {
+                productId: productId,
+                variantId: variantId,
+                quantity: 1
+            });
+
+            if (cartResponse.data.success) {
+        
+                await axios.delete(`/user/wishlist/remove/${wishlistItemId}`);
+
+                showToast("Moved to Cart Successfully!", "success");
+
+                const card = document.getElementById(`card-${wishlistItemId}`);
+                if (card) {
+            
+                    card.style.transition = "all 0.5s ease";
+                    card.style.transform = "translateX(100px)";
+                    card.style.opacity = "0";
+                    
+                    setTimeout(() => {
+                        card.remove();
+                        const grid = document.querySelector('.wishlist-grid');
+                        if (grid.children.length === 0) location.reload(); 
+                    }, 500);
+                }
+            } else {
+                showToast(cartResponse.data.message, "error");
+            }
+
+        } catch (error) {
+            console.error("Move to Cart Error:", error);
+            let message = "Failed to move to cart";
+            
+            if (error.response) {
+                message = error.response.data.message;
+                if(error.response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+            }
+            showToast(message, "error");
+        }
+    }
+    </script>
+</body>

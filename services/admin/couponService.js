@@ -43,6 +43,9 @@ const createCouponService = async (data) => {
         if (start < today) {
             throw new Error('Start date cannot be in the past');
         }
+        if(totalUsageLimit < 1) {
+            throw new Error('totalUsageLimit cannot be less than 1')
+        }
 
     const newCoupon = new Coupon({
             code: code,
@@ -101,6 +104,9 @@ const updateCouponService = async (id, data) => {
 
         if (existingCoupon) {
             throw new Error("Coupon code already exists");
+        }
+        if(totalUsageLimit < 1){
+            throw new Error("totalUsageLimit cannot become less than 1")
         }
 
         const updateData = {

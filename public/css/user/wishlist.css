@@ -1,0 +1,236 @@
+/* --- Page Layout --- */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    min-height: 80vh;
+    font-family: 'Inter', sans-serif; /* Ensure you have a nice font loaded */
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 30px;
+}
+
+/* --- Grid System --- */
+.wishlist-grid {
+    display: grid;
+    /* This creates the 2-column layout that breaks down on smaller screens */
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+    gap: 24px;
+    margin-bottom: 60px;
+}
+
+/* --- Card Styles --- */
+.wishlist-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb; /* Light grey border */
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    gap: 24px;
+    position: relative; /* Needed for absolute positioning of trash icon */
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.wishlist-card:hover {
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+    border-color: #d1d5db;
+}
+
+/* Trash Icon Button */
+.remove-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #9ca3af; /* Grey color */
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.remove-btn:hover {
+    color: #ef4444; /* Red on hover */
+}
+
+/* Product Image Box */
+.card-image {
+    width: 140px;
+    height: 140px;
+    background: #f3f4f6; /* Very light grey background */
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevents image from shrinking */
+    overflow: hidden;
+}
+
+.card-image img {
+    max-width: 100%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+/* Product Details Column */
+.card-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.brand-name {
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.product-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827; /* Dark black */
+    margin: 0 0 6px 0;
+}
+
+.specs {
+    font-size: 0.9rem;
+    color: #6b7280; /* Medium grey */
+    margin-bottom: 16px;
+}
+
+/* Price Section */
+.price-area {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.original-price {
+    font-size: 0.95rem;
+    color: #9ca3af;
+    text-decoration: line-through;
+    font-weight: 500;
+}
+
+.sale-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Blue Add Button */
+.add-cart-btn {
+    width: 100%;
+    background-color: #2563eb; /* Matches the blue in your image */
+    color: white;
+    border: none;
+    padding: 12px 0;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.add-cart-btn:hover {
+    background-color: #1d4ed8; /* Slightly darker blue */
+}
+
+/* --- Pagination Styles --- */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto; /* Pushes it to bottom if container is flex */
+}
+
+.page-link {
+    text-decoration: none;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+}
+
+.page-link:hover {
+    color: #111827;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 4px;
+}
+
+.page-num {
+    text-decoration: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: #6b7280;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.page-num:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* Active State (Blue Square) */
+.page-num.active {
+    background-color: #2563eb;
+    color: white;
+    font-weight: 600;
+}
+
+/* Add this to wishlist.css */
+
+.page-link.disabled {
+    color: #d1d5db; /* Light grey */
+    pointer-events: none; /* Prevents clicking */
+    cursor: default;
+}
+
+.page-num.active {
+    background-color: #2563eb; /* Blue background */
+    color: white;
+    border-color: #2563eb;
+    pointer-events: none; /* Optional: prevent clicking current page */
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .wishlist-grid {
+        grid-template-columns: 1fr; /* 1 card per row */
+    }
+
+    .wishlist-card {
+        flex-direction: column; /* Stack image on top */
+    }
+
+    .card-image {
+        width: 100%;
+        height: 200px;
+    }
+}
