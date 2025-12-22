@@ -1,6 +1,6 @@
 import Coupon from "../../model/couponModel.js";
 
-const loadCoupon = async ({search, status, page, limit}) => {
+const loadCouponService = async ({search, status, page, limit}) => {
     const skip = (page-1) * limit;
     let query = {};
 
@@ -43,6 +43,12 @@ const createCouponService = async (data) => {
         if (start < today) {
             throw new Error('Start date cannot be in the past');
         }
+        
+          if (end <= start) {
+            throw new Error('End date must be after the start date');
+        }
+
+
         if(totalUsageLimit < 1) {
             throw new Error('totalUsageLimit cannot be less than 1')
         }
@@ -139,4 +145,4 @@ const updateCouponService = async (id, data) => {
     }
 };
 
-export default {loadCoupon, createCouponService, getCouponById, updateCouponService}
+export default {loadCouponService, createCouponService, getCouponById, updateCouponService}

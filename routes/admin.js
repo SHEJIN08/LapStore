@@ -8,6 +8,7 @@ import brandController from '../Controller/admin/brandController.js'
 import categoryController from '../Controller/admin/categoryController.js'
 import orderController from '../Controller/admin/orderContoller.js'
 import couponController from '../Controller/admin/couponController.js'
+import offerController from '../Controller/admin/offerController.js'
 import upload from '../middleware/multer.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
@@ -49,6 +50,14 @@ router.get('/coupons', couponController.loadCoupon)
 router.post('/coupons/create', couponController.createCoupon)
 router.get('/coupons/get-details/:id', couponController.getCouponDetails);
 router.put('/coupons/edit/:id', couponController.editCoupon);
+
+
+router.get('/offers', offerController.loadOffers)
+router.post('/offers/create', offerController.createOffer)
+router.get('/offers/get/:id', offerController.getOfferDetails);
+router.put('/offers/edit/:id', offerController.editOffer);
+
+
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

@@ -3,6 +3,7 @@ import Address from "../../model/addressModel.js";
 import Coupon from "../../model/couponModel.js";
 import Order from "../../model/orderModel.js";
 import Variant from "../../model/variantModel.js";
+import Offer from "../../model/offerModel.js";
 import mongoose from "mongoose";
 
 // --- GET CHECKOUT DATA ---
@@ -248,6 +249,12 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
     });
 
     await newOrder.save();
+    if (newOrder.offerId) {
+             // Assuming you store the offer ID in the order
+            await Offer.findByIdAndUpdate(newOrder.offerId, { 
+                $inc: { usageCount: 1 } // $inc atomically increases value by 1
+            });
+        }
 
     // 6. Reduce Stock
     for (const item of cartItems) {

@@ -8,7 +8,7 @@ const loadCoupon = async (req,res) => {
         const page = Number.parseInt(req.query.page) || 1;
         const limit = 4;
 
-       const { coupons, totalCoupons, totalPages } = await couponService.loadCoupon({search, status, page, limit})
+       const { coupons, totalCoupons, totalPages } = await couponService.loadCouponService({search, status, page, limit})
    
        res.render('admin/coupons', {
         coupons,

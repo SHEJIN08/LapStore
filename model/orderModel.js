@@ -35,7 +35,12 @@ const orderSchema = new mongoose.Schema({
         returnComment: { type: String, default: null },
 
         quantity: { type: Number, required: true },
-        price: { type: Number, required: true } // Price at time of purchase
+        price: { type: Number, required: true }, // Price at time of purchase
+        offerId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Offer',
+            default: null // Null if no offer was applied to this item
+        }
     }],
     totalPrice: { type: Number, required: true }, // Subtotal
     discount: { type: Number, default: 0 },       // Coupon discount
