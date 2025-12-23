@@ -47,9 +47,9 @@ const getOfferStats = async () => {
     try {
         const now = new Date();
         
-        const [activeCount, upcomingCount, expiredCount] = await Promise.all([
+        const [activeCount, inactiveCount, expiredCount] = await Promise.all([
             Offer.countDocuments({ isActive: true, endDate: { $gte: now }, startDate: { $lte: now } }),
-            Offer.countDocuments({ isActive: true, startDate: { $gt: now } }),
+            Offer.countDocuments({ isActive: false, endDate: { $gt: now } }),
             Offer.countDocuments({ endDate: { $lt: now } })
         ]);
 
@@ -59,7 +59,7 @@ const getOfferStats = async () => {
 
             const mostUsed = mostUsedOfferDoc ? mostUsedOfferDoc.offerName : 'N/A';
 
-        return { activeCount, upcomingCount, expiredCount, mostUsed };
+        return { activeCount, inactiveCount, expiredCount, mostUsed };
     } catch (error) {
         throw new Error("Error fetching stats");
     }

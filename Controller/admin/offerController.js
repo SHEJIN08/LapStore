@@ -1,6 +1,7 @@
 import offerService from "../../services/admin/offerService.js"
 import Offer from "../../model/offerModel.js";
 import Category from "../../model/categoryModel.js"
+import Product from "../../model/productModel.js"
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
 
@@ -28,7 +29,7 @@ const loadOffers = async (req,res) => {
             currentStatus: status,
             stats: { 
                 active: stats.activeCount, 
-                upcoming: stats.upcomingCount, 
+                inactive: stats.inactiveCount, 
                 expired: stats.expiredCount,
                 mostUsed: stats.mostUsed
             },
@@ -87,7 +88,24 @@ const editOffer = async (req,res) => {
        res.status(StatusCode.BAD_REQUEST).json({success: false, message: error.message})
     }
 }
+const searchProducts = async (req, res) => {
+    try {
+        const search = req.query.search || "";
+        
+        // Find active products that match the name (Limit 10 for speed)
+        const products = await Product.find({
+            name: { $regex: search, $options: "i" }, // Case-insensitive
+            isPublished: true 
+        })
+        .select("name _id") // Only fetch ID and Name
+        .limit(5);
+
+        res.json({ success: true, products });
+    } catch (error) {
+        console.error("Search Error:", error);
+        res.status(500).json({ success: false, message: "Error searching products" });
+    }
+};
 
 
-
-export default {loadOffers, createOffer, getOfferDetails, editOffer}
+export default {loadOffers, createOffer, getOfferDetails, editOffer, searchProducts}

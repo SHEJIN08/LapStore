@@ -1,6 +1,5 @@
 <%- include('../partials/header') %>
 <link rel="stylesheet" href="/css/admin/offer.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body>
 
@@ -22,8 +21,8 @@
                     <div class="stat-value"><%= stats ? stats.active : 0 %></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Upcoming Offers</h3>
-                    <div class="stat-value"><%= stats ? stats.upcoming : 0 %></div>
+                    <h3>Blocked offers</h3>
+                    <div class="stat-value"><%= stats ? stats.inactive : 0 %></div>
                 </div>
                 <div class="stat-card">
                     <h3>Expired Offers</h3>
@@ -100,9 +99,6 @@
                                                 } else if (end < now) {
                                                     statusClass = 'expired';
                                                     statusText = 'Expired';
-                                                } else if (start > now) {
-                                                    statusClass = 'upcoming'; 
-                                                    statusText = 'Upcoming';
                                                 } else {
                                                     statusClass = 'active';
                                                     statusText = 'Active';
@@ -253,9 +249,21 @@
     </div>
 
     <script src="/js/axios.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
     
     <script>
+
+         const showToast = (message, type) => {
+                    const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                    Toastify({
+                        text: message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: bgColor, borderRadius: '10px' }
+                    }).showToast();
+                };
+
         let selectedProducts = [];
         const modal = document.getElementById('addOfferModal');
         const form = document.getElementById('addOfferForm');
@@ -285,10 +293,10 @@
         // --- 2. EDIT OFFER LOGIC ---
         async function editOffer(offerId) {
             try {
-                // Fetch details
+
                 const response = await axios.get(`/admin/offers/get/${offerId}`);
                 if (!response.data.success) {
-                    Toastify({ text: response.data.message, style: { background: "#dc2626" } }).showToast();
+                    showToast(response.data.message, 'error')
                     return;
                 }
 
@@ -335,7 +343,7 @@
 
             } catch (error) {
                 console.error(error);
-                Toastify({ text: "Error fetching offer details", style: { background: "#dc2626" } }).showToast();
+                showToast( "Error fetching offer details", 'error')
             }
         }
 
@@ -349,11 +357,11 @@
 
             // Validation
             if (offerType === 'product' && selectedProducts.length === 0) {
-                Toastify({ text: "Please select at least one product", style: { background: "#dc2626" } }).showToast();
+                showToast("Please select at least one product", 'error')
                 return;
             }
             if (offerType === 'category' && !categoryId) {
-                Toastify({ text: "Please select a category", style: { background: "#dc2626" } }).showToast();
+                showToast("Please select a category", 'error')
                 return;
             }
 
@@ -380,18 +388,15 @@
                 }
 
                 if (response.data.success) {
-                    Toastify({ 
-                        text: offerId ? "Offer Updated!" : "Offer Created!", 
-                        style: { background: "#059669" } 
-                    }).showToast();
+                    showToast(offerId ? "Offer Updated!" : "Offer Created!", 'success')
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    Toastify({ text: response.data.message, style: { background: "#dc2626" } }).showToast();
+                    showToast(response.data.message,'error')
                 }
             } catch (error) {
                 console.error(error);
                 const msg = error.response?.data?.message || "Something went wrong";
-                Toastify({ text: msg, style: { background: "#dc2626" } }).showToast();
+                showToast(msg,"error")
             }
         });
 

@@ -386,7 +386,7 @@ ul {
 .form-group.half { width: 50%; }
 
 /* Product Tags & Search */
-.search-box-wrapper { position: relative; }
+.search-box-wrapper { position: relative;  }
 .search-results-list {
     position: absolute;
     top: 100%;

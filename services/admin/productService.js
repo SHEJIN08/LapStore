@@ -3,6 +3,7 @@ import Product from "../../model/productModel.js";
 import Variant from "../../model/variantModel.js";
 import Category from "../../model/categoryModel.js";
 import Brand from "../../model/brandModel.js";
+import Offer from "../../model/offerModel.js";
 import { ResponseMessage } from "../../utils/statusCode.js";
 
 // --- GET ALL PRODUCTS (Pagination, Search, Filter) ---
@@ -239,6 +240,59 @@ const updateProductService = async (id, data, newImageUrls) => {
     return true;
 };
 
+export const calculateProductDiscount = async (product) => {
+    const now = new Date()
+
+    const productOffer = await Offer.findOne({
+        offerType: 'product',
+        productIds: product._id,
+        isActive: true,
+        startDate: { $lte: now},
+        endDate: { $gte: now}
+    }).sort({discountValue: -1})
+
+    const categoryOffer = await Offer.findOne({
+        offerType: 'category',
+        categoryId: product.category,
+        isActive: true,
+         startDate: { $lte: now},
+        endDate: { $gte: now}
+    }).sort({discountValue: -1})
+
+    const calculateSavings = (offer) => {
+        if(!offer) return 0;
+        if(offer.discountType === 'percentage'){
+            return (product.regularPrice * offer.discountValue)/ 100
+        }else if(offer.discountType === 'fixed'){
+            return offer.discountValue
+        }
+    }
+
+    const productSavings = calculateSavings(productOffer)
+    const categorySavings = calculateSavings(categoryOffer)
+
+    let bestOffer = null;
+    let discountAmount = 0;
+
+    if(productSavings >= categorySavings && productSavings > 0){
+        bestOffer = productOffer;
+        discountAmount=productSavings
+    }else if(categorySavings >= productSavings && categorySavings > 0){
+        bestOffer = categoryOffer;
+        discountAmount = categorySavings;
+    }
+
+    const finalPrice = Math.max(0, product.regularPrice - discountAmount)
+
+    return {
+        finalPrice: Math.round(finalPrice),
+        discountAmount: Math.round(discountAmount),
+        offerId: bestOffer ? bestOffer._id : null,
+        regularPrice: product.regularPrice
+    };
+
+}
+
 export default {
     getAllProductsService,
     getAddProductDataService,
@@ -246,5 +300,6 @@ export default {
     createProductService,
     getEditProductDataService,
     updateVariantImageService,
-    updateProductService
+    updateProductService,
+    calculateProductDiscount
 };

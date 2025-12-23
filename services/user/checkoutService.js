@@ -4,6 +4,8 @@ import Coupon from "../../model/couponModel.js";
 import Order from "../../model/orderModel.js";
 import Variant from "../../model/variantModel.js";
 import Offer from "../../model/offerModel.js";
+import cartService from "./cartService.js";
+import {calculateProductDiscount} from "../../services/admin/productService.js"
 import mongoose from "mongoose";
 
 // --- GET CHECKOUT DATA ---
@@ -11,20 +13,11 @@ const getCheckoutData = async (userId) => {
     // 1. Fetch Addresses
     const addresses = await Address.find({ userId }).sort({ createdAt: -1 });
 
-    // 2. Fetch Cart Items
-    let cartItems = await Cart.find({ userId })
-        .populate({
-            path: 'productId',
-            match: { isPublished: true },
-            populate: { path: 'brand' }
-        })
-        .populate('variantId');
+    const cartItems = await cartService.getAllCartItems(userId);
 
-    // Filter valid items
-    cartItems = cartItems.filter(item => item.productId !== null);
+    if(!cartItems || cartItems.length === 0) return null;
 
-    if (!cartItems.length) return null; // Cart is empty
-
+    const { subtotal, tax, shipping, total } = cartService.calculateTotals(cartItems);
     // 3. Fetch Coupons
     const currentDate = new Date();
     const coupons = await Coupon.find({
@@ -39,18 +32,6 @@ const getCheckoutData = async (userId) => {
             { specificUsers: { $in: [userId] } }  // 2. OR User is in the specific list
         ]
     }).sort({ createdAt: -1 });
-
-    // 4. Calculate Totals
-    let subtotal = 0;
-    cartItems.forEach(item => {
-        if (item.variantId) {
-            subtotal += item.variantId.salePrice * item.quantity;
-        }
-    });
-
-    const tax = subtotal * 0.05;
-    const shipping = subtotal > 100000 ? 0 : 100;
-    const total = subtotal + tax + shipping;
 
     return { addresses, cartItems, coupons, subtotal, tax, shipping, total };
 };
@@ -140,21 +121,26 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
     const addressDoc = await Address.findById(addressId);
     if (!addressDoc) throw new Error("Address not found");
 
+    
+
     // 3. Check Stock & Calculate Subtotal
     let subtotal = 0;
     const orderedItems = [];
 
     for (const item of cartItems) {
-        // Stock Check (Ensure variant exists and has stock)
        if (!item.variantId) {
-            continue; // Skip invalid items
+            continue;
         }
         if (item.variantId.stock < item.quantity) {
              throw new Error(`Out of stock: ${item.productId.name}`);
         }
 
-        const price = item.variantId.salePrice;
-        subtotal += price * item.quantity;
+        const productForOffer = item.productId;
+        productForOffer.regularPrice = item.variantId.salePrice;
+
+        const { finalPrice, offerId } = await calculateProductDiscount(productForOffer);
+
+        subtotal += finalPrice * item.quantity;
 
         orderedItems.push({
             productId: item.productId._id,
@@ -163,7 +149,8 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
             image: Array.isArray(item.variantId.image) ? item.variantId.image[0] : item.variantId.image,
             productStatus: 'Placed',
             quantity: item.quantity,
-            price: price
+            price: finalPrice,
+            offerId: offerId
         });
     }
 
@@ -249,17 +236,19 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
     });
 
     await newOrder.save();
-    if (newOrder.offerId) {
-             // Assuming you store the offer ID in the order
-            await Offer.findByIdAndUpdate(newOrder.offerId, { 
-                $inc: { usageCount: 1 } // $inc atomically increases value by 1
+
+    for(let item of newOrder.orderedItems){
+        if(item.offerId){
+            await Offer.findByIdAndUpdate(item.offerId, {
+                $inc: { usageCount: 1 }
             });
         }
+    }
 
     // 6. Reduce Stock
     for (const item of cartItems) {
         await Variant.findByIdAndUpdate(item.variantId._id, {
-            $inc: { stock: -item.quantity } // Use 'stock', your model likely uses 'stock' not 'quantity' for inventory
+            $inc: { stock: -item.quantity } 
         });
     }
 

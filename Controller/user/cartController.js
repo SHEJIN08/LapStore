@@ -8,15 +8,12 @@ const loadCart = async (req, res) => {
     const userId = req.session.user;
     const user = await User.findById(userId);
 
-    // 1. Configuration
     const page = parseInt(req.query.page) || 1;
     const limit = 3;
 
-    // 2. Get Data via Service
     const allCartItems = await cartService.getAllCartItems(userId);
     const { subtotal, tax, shipping, total } = cartService.calculateTotals(allCartItems);
-    
-    // 3. Get Display Items
+
     const cartItems = await cartService.getPaginatedCartItems(userId, page, limit);
 
     const totalItems = allCartItems.length;

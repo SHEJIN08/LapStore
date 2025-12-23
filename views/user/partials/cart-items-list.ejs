@@ -11,7 +11,7 @@
                 <div class="img-wrapper">
                     <img src="<%= item.variantId.image %>" alt="Product" onerror="this.src='https://placehold.co/120x120?text=No+Image'">
                 </div>
-                <div class="item-details">
+              <div class="item-details">
                     <span class="brand"><%= item.productId.brand?.brandName || 'Generic' %></span>
                     <h3 class="product-name"><%= item.productId.name %></h3>
                     <p class="specs">
@@ -23,10 +23,32 @@
                         <button class="qty-btn" onclick="updateQuantity('<%= item._id %>', 'increment')">+</button>
                     </div>
                 </div>
-                <div class="item-meta">
-                    <button class="delete-btn" onclick="confirmDelete('<%= item._id %>')"><i class="fa-regular fa-trash-can"></i></button>
-                    <span class="price">₹<%= item.variantId.salePrice.toLocaleString() %></span>
-                </div>
+
+                <div class="item-meta" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;">
+                    
+                    <button class="delete-btn" onclick="confirmDelete('<%= item._id %>')" style="margin-bottom: 10px;">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+
+                    <div class="price-display" style="text-align: right;">
+                        <% if (item.discountAmount > 0) { %>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+                                <span class="price" style="color: #ef4444; font-weight: 700;">
+                                    ₹<%= (item.finalPrice * item.quantity).toLocaleString() %>
+                                </span>
+                                <span class="old-price" style="text-decoration: line-through; color: #9ca3af; font-size: 0.9em;">
+                                    ₹<%= (item.regularPrice * item.quantity).toLocaleString() %>
+                                </span>
+                                <span class="save-badge" style="font-size: 0.75em; color: #166534; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">
+                                    Save ₹<%= (item.discountAmount * item.quantity) %>
+                                </span>
+                            </div>
+                        <% } else { %>
+                            <span class="price">₹<%= item.finalPrice.toLocaleString() %></span>
+                        <% } %>
+                    </div>
+                    
+                    </div>
             </div>
         </div>
     <% }) %>

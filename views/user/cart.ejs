@@ -186,7 +186,8 @@
                 showToast(response.data.message, 'error');
             }
         } catch (error) {
-            showToast('Error updating quantity', 'error');
+             console.error(error);
+            showToast(error.response?.data?.message || "Update failed");
         }
     }
 

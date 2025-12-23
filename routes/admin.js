@@ -56,6 +56,7 @@ router.get('/offers', offerController.loadOffers)
 router.post('/offers/create', offerController.createOffer)
 router.get('/offers/get/:id', offerController.getOfferDetails);
 router.put('/offers/edit/:id', offerController.editOffer);
+router.get('/products/search', offerController.searchProducts);
 
 
 
