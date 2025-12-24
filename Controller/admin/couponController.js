@@ -28,7 +28,8 @@ const createCoupon = async (req,res) => {
     try {
         await couponService.createCouponService(req.body);
 
-        return res.status(StatusCode.CREATED).json({success: true, message: 'New coupon added successfully'})
+         res.status(StatusCode.OK).json({success: true, message: 'New coupon added successfully'})
+
     } catch (error) {
         console.error(error)
        if (error.code === 11000) {

@@ -576,7 +576,9 @@
 
             if (response.data.success) {
                 showToast('Coupon created successfully!','success');
-                window.location.reload(); // Refresh page to see new coupon
+                setTimeout(() => {
+                    window.location.reload(); 
+                },1000)
             } else {
                 showToast('Failed: ' + response.data.message,'error');
             }
@@ -732,7 +734,9 @@
             
             if (response.data.success) {
                 showToast('Coupon updated successfully!', 'success');
-                window.location.reload();
+                setTimeout(() => {
+                    window.location.reload();
+                },1000)
             } else {
                 showToast(response.data.message);
             }

@@ -10,7 +10,7 @@ const loadCouponService = async ({search, status, page, limit}) => {
     }else if(status === 'inactive'){
         query.isActive = false;
     }else if (status === 'expired') {
-        query.endDate = { $lt: new Date() }; // Expired
+        query.endDate = { $lt: new Date() }; 
     }
 
     if(search){
@@ -36,6 +36,7 @@ const createCouponService = async (data) => {
     const {code,name, couponType, discountValue, description, limitPerUser, totalUsageLimit,userEligibility,specificUsers, startDate,minOrderValue, endDate, status} = data
      
     const start = new Date(startDate);
+    const end = new Date(endDate)
         
         const today = new Date();
         today.setHours(0, 0, 0, 0);

@@ -13,11 +13,9 @@ const getOfferService = async ({search, status, page, limit}) => {
             query.endDate = { $gte: now };
         } 
         else if (filterStatus === 'expired') {
-            // Expired = End Date passed
             query.endDate = { $lt: now };
         }
         else if (filterStatus === 'inactive') {
-            // Inactive = Toggle switch is off
             query.isActive = false;
         }
 

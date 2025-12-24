@@ -60,12 +60,34 @@
                             </label>
 
                             <label class="selection-card payment-card">
-                                <input type="radio" name="paymentMethod" value="Wallet" onchange="selectCard(this)">
-                                <div class="card-content">
-                                    <span class="payment-name">Wallet</span>
-                                    <span class="wallet-balance">Balance: ₹<%= wallet.balance.toFixed(2) || 0 %></span>
-                                    <span class="error-text" id="walletError" style="display: none;">Insufficient balance</span>
-                                </div>
+                               <% if (locals.wallet && wallet.balance >= total) { %>
+        <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" id="wallet" name="paymentMethod" value="Wallet">
+            <label class="custom-control-label d-flex justify-content-between w-100" for="wallet">
+                <span>
+                    <i class="fa-solid fa-wallet" style="margin-right: 8px; color: #0d6efd;"></i> Pay with Wallet
+                </span>
+                <span style="font-weight: 600; color: #166534;">(Bal: ₹<%= wallet.balance.toFixed(2) %>)</span>
+            </label>
+        </div>
+    <% } else { %>
+        <div class="custom-control custom-radio">
+            <input type="radio" class="custom-control-input" id="wallet" name="paymentMethod" value="wallet" disabled>
+            <label class="custom-control-label d-flex justify-content-between w-100" for="wallet" style="opacity: 0.6; cursor: not-allowed;">
+                <span>
+                    <i class="fa-solid fa-wallet" style="margin-right: 8px; color: #6c757d;"></i> Pay with Wallet
+                </span>
+                <span style="color: #dc2626; font-size: 0.9em;">
+                    (Low Bal: ₹<%= locals.wallet ? wallet.balance.toFixed(2) : '0.00' %>)
+                </span>
+            </label>
+        </div>
+        <% if (locals.wallet) { %>
+            <small class="text-danger" style="margin-left: 28px; font-size: 11px;">
+                You need ₹<%= (total - wallet.balance).toFixed(2) %> more.
+            </small>
+        <% } %>
+    <% } %>
                             </label>
 
                             <label class="selection-card payment-card selected">

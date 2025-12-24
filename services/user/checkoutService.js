@@ -7,6 +7,7 @@ import Offer from "../../model/offerModel.js";
 import cartService from "./cartService.js";
 import {calculateProductDiscount} from "../../services/admin/productService.js"
 import mongoose from "mongoose";
+import Wallet from "../../model/walletModel.js";
 import walletService from "./walletService.js";
 
 // --- GET CHECKOUT DATA ---
@@ -31,7 +32,7 @@ const getCheckoutData = async (userId) => {
     // 3. Calculate Totals
     let subtotal = 0;
     cartItems.forEach(item => {
-        subtotal += item.variantId.price * item.quantity;
+        subtotal += item.variantId.salePrice * item.quantity;
     });
     const tax = subtotal * 0.05;
     const shipping = subtotal > 100000 ? 0 : 100;
@@ -130,6 +131,7 @@ const applyCouponService = async (userId, couponCode, totalAmount) => {
 
 // --- PLACE ORDER ---
 const placeOrderService = async (userId, addressId, paymentMethod, paymentDetails = {}, couponCode = null) => {
+    
     
 
     const cartItems = await Cart.find({ userId }).populate('productId').populate('variantId');
@@ -253,7 +255,8 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
         }]
     });
 
-    if(paymentMethod === 'wallet'){
+    if(paymentMethod === 'Wallet'){
+
         const walletResult = await walletService.processWalletPayment(
             userId,
             newOrder.finalAmount,

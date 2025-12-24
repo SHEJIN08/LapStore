@@ -28,7 +28,6 @@ const loadCheckout = async (req, res) => {
             shipping: data.shipping,
             total: data.total,
             wallet: wallet,
-            total: data.total
         });
 
     } catch (error) {
