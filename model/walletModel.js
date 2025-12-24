@@ -1,4 +1,3 @@
-import { number } from "joi";
 import mongoose from "mongoose";
 
 const walletSchema = new mongoose.Schema({
