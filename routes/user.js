@@ -10,6 +10,7 @@ import cartController from '../Controller/user/cartController.js';
 import checkoutController from '../Controller/user/checkoutContoller.js';
 import orderController from '../Controller/user/orderContoller.js';
 import wishlistController from '../Controller/user/wishlistController.js';
+import walletController from '../Controller/user/walletController.js';
 import upload from '../middleware/multer.js'
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
@@ -68,9 +69,15 @@ router.get('/home/orders/details/:orderId',userAuth.isUserBlocked, userAuth.chec
 router.post('/orders/return', upload.single('returnImage'), orderController.returnOrder);
 router.get('/orders/invoice/:orderId', orderController.downloadInvoice);
 
+
 router.get('/wishlist', userAuth.isUserBlocked, userAuth.checkSession, wishlistController.loadWishlist);
 router.post('/wishlist/add', userAuth.checkSession, wishlistController.addToWishlist);
 router.delete('/wishlist/remove/:itemId', userAuth.checkSession, wishlistController.removeFromWishlist);
+
+router.get('/home/wallet',userAuth.isUserBlocked, walletController.loadWallet)
+router.post('/wallet/add-money', userAuth.checkSession, walletController.addMoneyToWallet)
+router.post('/wallet/verify-payment', userAuth.checkSession, walletController.verifyWalletPayment)
+
 
 router.get('/logout',userController.logout);
 

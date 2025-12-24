@@ -5,7 +5,7 @@
         
         <div class="image-container">
     <img src="<%= (user.avatar && user.avatar !== 'user') ? user.avatar : '/images/user/defaultUser.jpg' %>" 
-         alt="Profile Picture" 
+         alt="Profile pic" 
          class="profile-img"
          id="profileImageDisplay">
 
@@ -35,7 +35,7 @@
         <a href="/user/home/orders" class="menu-item <%= (active === 'ordersPage')? 'active' : ''  %>">
             <i class="fa-regular fa-file-lines"></i> My Orders
         </a>
-        <a href="#" class="menu-item <%= (active === 'walletPage')? 'active' : ''  %>">
+        <a href="/user/home/wallet" class="menu-item <%= (active === 'walletPage')? 'active' : ''  %>">
             <i class="fa-solid fa-wallet"></i> My Wallet
         </a>
         <a href="#" class="menu-item <%= (active === 'referPage')? 'active' : ''  %>">

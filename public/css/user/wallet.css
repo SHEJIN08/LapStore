@@ -1,0 +1,339 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #F9FAFB;
+    color: #1F2937;;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* --- Layout Container --- */
+.main-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    display: flex;
+    gap: 30px;
+    padding: 0 20px;
+    align-items: flex-start;
+}
+
+
+.wallet-content {
+    flex: 1;
+    
+}
+
+.page-title {   
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+/* Balance Card */
+.balance-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.balance-info .label {
+    color: #6c757d;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.balance-info .amount {
+    font-size: 48px;
+    font-weight: 700;
+    color: #212529;
+    margin: 0;
+}
+
+.wallet-id {
+    color: #adb5bd;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    display: block;
+}
+
+.add-money-btn {
+    background-color: #0d6efd; /* Specific blue from image */
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-money-btn:hover {
+    background-color: #0b5ed7;
+}
+
+/* History Header */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filter-tabs .tab {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    color: #6c757d;
+    cursor: pointer;
+    font-weight: 500;
+    border-radius: 20px;
+}
+
+.filter-tabs .tab.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Transaction List */
+.transaction-list {
+    background: white;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.txn-item {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.txn-item:last-child {
+    border-bottom: none;
+}
+
+.txn-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    font-size: 20px;
+}
+
+.txn-icon.debit { background-color: #ffe5e5; color: #e52d27; }
+.txn-icon.credit { background-color: #e5ffe7; color: #238500; }
+
+.txn-details {
+    flex: 1;
+}
+
+.txn-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.txn-date {
+    color: #adb5bd;
+    font-size: 13px;
+    margin-top: 4px;
+    display: block;
+}
+
+.txn-amount-status {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.amount { font-weight: 700; font-size: 16px; }
+.amount.credit { color: #238500; }
+.amount.debit { color: #e52d27; }
+
+/* Status Badges */
+.status {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+.status.success { background-color: #d1e7dd; color: #0f5132; }
+.status.pending { background-color: #fff3cd; color: #856404; }
+.status.failed { background-color: #f8d7da; color: #842029; }
+/* --- MODAL STYLES --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dimmed background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.add-money-modal {
+    background: white;
+    width: 400px;
+    padding: 30px;
+    border-radius: 20px; /* Rounded corners like image */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #666;
+}
+
+/* Balance Card inside Modal */
+.modal-balance-card {
+    background-color: #f0f7ff; /* Light blue bg */
+    border-radius: 12px;
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.modal-balance-card .label {
+    font-size: 13px;
+    color: #0d6efd;
+    font-weight: 500;
+}
+
+.modal-balance-card .balance-amount {
+    margin: 5px 0 0 0;
+    font-size: 28px;
+    color: #212529;
+}
+
+/* Input Field */
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+    border-color: #0d6efd;
+}
+
+/* Preset Chips */
+.preset-chips {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.chip {
+    flex: 1;
+    background: white;
+    border: 1px solid #0d6efd;
+    color: #0d6efd;
+    padding: 8px 0;
+    border-radius: 50px; /* Pill shape */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chip:hover {
+    background-color: #f0f7ff;
+}
+
+.chip.active {
+    background-color: #0d6efd;
+    color: white;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+
+/* Disclaimer Text */
+.modal-note {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+/* Proceed Button */
+.btn-proceed {
+    width: 100%;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+    transition: background 0.2s;
+}
+
+.btn-proceed:hover {
+    background-color: #0b5ed7;
+}

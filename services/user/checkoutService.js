@@ -7,17 +7,35 @@ import Offer from "../../model/offerModel.js";
 import cartService from "./cartService.js";
 import {calculateProductDiscount} from "../../services/admin/productService.js"
 import mongoose from "mongoose";
+import walletService from "./walletService.js";
 
 // --- GET CHECKOUT DATA ---
 const getCheckoutData = async (userId) => {
     // 1. Fetch Addresses
     const addresses = await Address.find({ userId }).sort({ createdAt: -1 });
 
-    const cartItems = await cartService.getAllCartItems(userId);
+    // 2. Fetch Cart Items
+    let cartItems = await Cart.find({ userId })
+        .populate({
+            path: 'productId',
+            match: { isPublished: true },
+            populate: { path: 'brand' }
+        })
+        .populate('variantId');
 
-    if(!cartItems || cartItems.length === 0) return null;
+    // Filter valid items
+    cartItems = cartItems.filter(item => item.productId !== null);
 
-    const { subtotal, tax, shipping, total } = cartService.calculateTotals(cartItems);
+    if (!cartItems.length) return null;
+
+    // 3. Calculate Totals
+    let subtotal = 0;
+    cartItems.forEach(item => {
+        subtotal += item.variantId.price * item.quantity;
+    });
+    const tax = subtotal * 0.05;
+    const shipping = subtotal > 100000 ? 0 : 100;
+    const total = subtotal + tax + shipping;
     // 3. Fetch Coupons
     const currentDate = new Date();
     const coupons = await Coupon.find({
@@ -234,6 +252,21 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
             comment: 'Order Placed'
         }]
     });
+
+    if(paymentMethod === 'wallet'){
+        const walletResult = await walletService.processWalletPayment(
+            userId,
+            newOrder.finalAmount,
+            newOrder._id
+        )
+
+        if (!walletResult.success) {
+              throw new Error(walletResult.message);
+            }
+
+            newOrder.paymentStatus = 'Paid';
+          
+    }
 
     await newOrder.save();
 

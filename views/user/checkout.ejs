@@ -63,7 +63,7 @@
                                 <input type="radio" name="paymentMethod" value="Wallet" onchange="selectCard(this)">
                                 <div class="card-content">
                                     <span class="payment-name">Wallet</span>
-                                    <span class="wallet-balance">Balance: ₹<%= user.walletBalance || 0 %></span>
+                                    <span class="wallet-balance">Balance: ₹<%= wallet.balance.toFixed(2) || 0 %></span>
                                     <span class="error-text" id="walletError" style="display: none;">Insufficient balance</span>
                                 </div>
                             </label>

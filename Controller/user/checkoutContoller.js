@@ -1,14 +1,16 @@
 import checkoutService from "../../services/user/checkoutService.js";
 import paymentService from "../../services/paymentService.js";
-
 import User from "../../model/userModel.js";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
+import walletService from "../../services/user/walletService.js";
 
 // --- LOAD CHECKOUT PAGE ---
 const loadCheckout = async (req, res) => {
     try {
         const userId = req.session.user;
-        const user = await User.findById(userId);  
+        const user = await User.findById(userId); 
+        
+        const { wallet } = await walletService.getWalletData(userId)
 
         const data = await checkoutService.getCheckoutData(userId);
 
@@ -17,13 +19,15 @@ const loadCheckout = async (req, res) => {
         }
 
         res.render("user/checkout", {
-            user: req.session.user,
+            user: userId,
             addresses: data.addresses,
             cartItems: data.cartItems,
             coupons: data.coupons,
             subtotal: data.subtotal,
             tax: data.tax,
             shipping: data.shipping,
+            total: data.total,
+            wallet: wallet,
             total: data.total
         });
 
@@ -114,11 +118,11 @@ const verifyPayment = async (req, res) => {
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const { addressId, paymentMethod, couponCode } = req.body;
+        const { addressId, paymentMethod, paymentDetails, couponCode } = req.body;
 
-        const newOrder = await checkoutService.placeOrderService(userId, addressId, paymentMethod,{}, couponCode);
+        const newOrder = await checkoutService.placeOrderService(userId, addressId, paymentMethod, paymentDetails, couponCode);
 
-        return res.json({
+        return res.json({   
             success: true,
             message: "Order placed successfully",
             orderId: newOrder.orderId
@@ -131,7 +135,7 @@ const placeOrder = async (req, res) => {
         }
         
         console.error("Place Order Error:", error);
-        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message:error.message });
     }
 };
 
