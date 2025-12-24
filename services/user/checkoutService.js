@@ -3,6 +3,7 @@ import Address from "../../model/addressModel.js";
 import Coupon from "../../model/couponModel.js";
 import Order from "../../model/orderModel.js";
 import Variant from "../../model/variantModel.js";
+import walletService from "./walletService.js";
 
 // --- GET CHECKOUT DATA ---
 const getCheckoutData = async (userId) => {
@@ -126,6 +127,21 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
             comment: 'Order Placed'
         }]
     });
+
+    if(paymentMethod === 'wallet'){
+        const walletResult = await walletService.processWalletPayment(
+            userId,
+            newOrder.finalAmount,
+            newOrder._id
+        )
+
+        if (!walletResult.success) {
+              throw new Error(walletResult.message);
+            }
+
+            newOrder.paymentStatus = 'Paid';
+          
+    }
 
     await newOrder.save();
 
