@@ -106,24 +106,28 @@ const returnOrder = async (req, res) => {
 
 // --- DOWNLOAD INVOICE ---
 const downloadInvoice = async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    
-    const { doc, filename } = await orderService.generateInvoiceService(orderId);
+    try {
+        const { orderId } = req.params;
+        
+        // 1. Call Service to get PDF Stream
+        const { doc, filename } = await orderService.generateInvoiceService(orderId);
 
-    // Set headers and pipe the doc to the response
-    res.setHeader("Content-disposition", `attachment; filename="${filename}"`);
-    res.setHeader("Content-type", "application/pdf");
+        // 2. Set Headers for Download
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        res.setHeader("Content-Type", "application/pdf");
 
-    doc.pipe(res);
+        // 3. Pipe the PDF document directly to the response
+        doc.pipe(res);
 
-  } catch (error) {
-    if (error.message === "Order not found") {
-        return res.status(StatusCode.NOT_FOUND).json({ success: false, message: "Order not found" });
+    } catch (error) {
+        console.error("Invoice Download Error:", error);
+        
+        if (error.message === "Order not found") {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+        
+        res.status(500).json({ success: false, message: "Failed to generate invoice" });
     }
-    console.error("Invoice Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
-  }
 };
 
 export default {

@@ -1,4 +1,5 @@
 import orderService from "../../services/admin/orderService.js";
+import referralService from "../../services/user/referralService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 // --- GET ORDERS LIST ---
@@ -54,7 +55,11 @@ const updateOrderStatus = async (req, res) => {
     try {
         const { orderId, status } = req.body;
 
-        await orderService.updateOrderStatusService(orderId, status);
+      const order =  await orderService.updateOrderStatusService(orderId, status);
+
+        if(status === 'Delivered'){
+            await referralService.checkAndCreditReferral(order.userId)
+        }
 
         res.status(StatusCode.OK).json({ success: true, message: 'Order status updated' });
 

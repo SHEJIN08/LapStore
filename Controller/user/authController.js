@@ -56,6 +56,7 @@ const resetPasswordSchema = Joi.object({
       "any.only": "Passwords do not match.",
       "string.empty": "Please confirm your password.",
     }),
+    referralCode: Joi.string().allow('').optional()
 });
 
 // ==========================================
@@ -67,10 +68,10 @@ const registerUser = async (req, res) => {
         const { error } = registerSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
         if (error) return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.details[0].message });
 
-        const { name, email, password } = req.body;
+        const { name, email, password, referralCode } = req.body;
 
         // 2. Call Service
-        await authService.registerUserService({ name, email, password });
+        await authService.registerUserService({ name, email, password, referralCodeInput: referralCode });
 
         // 3. Set Session
         req.session.email = email;

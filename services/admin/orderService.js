@@ -1,4 +1,7 @@
 import Order from "../../model/orderModel.js";
+import Wallet from "../../model/walletModel.js";
+import walletTransactions from "../../model/walletTransactionsModel.js";
+import Variant from "../../model/variantModel.js";
 import { ResponseMessage } from "../../utils/statusCode.js";
 
 // --- GET ALL ORDERS (Filter, Search, Pagination) ---
@@ -80,6 +83,14 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
     const order = await Order.findById(orderId);
     if (!order) throw new Error("Order not found");
 
+    let wallet = await Wallet.findOne({userId: order.userId})
+
+    if(!wallet){
+        wallet = new Wallet({userId: order.userId, balance: 0})
+
+        await wallet.save()
+    }
+
     const TAX_RATE = 0.05;
     const CONVENIENCE_FEE = 30;
 
@@ -98,8 +109,22 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
             item.productStatus = 'Returned';
             
             // TODO: Wallet Logic
-            // await Wallet.addMoney(order.userId, refundAmount);
+            wallet.balance += refundAmount
             // await Product.incrementStock(item.productId, item.quantity);
+            await wallet.save();
+
+            await Variant.findByIdAndUpdate(item.variantId, {
+                $inc: {stock: item.quantity}
+            })
+
+            await walletTransactions.create({
+                userId: wallet.userId,
+                walletId: wallet._id,
+                amount: refundAmount,
+                type: 'credit',
+                reason: 'refund',
+                description: 'Your products money have refunded'
+            })
 
         } else if (action === 'reject') {
             item.productStatus = 'Return Rejected';
@@ -111,12 +136,30 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
         if (action === 'approve') {
             order.status = 'Returned';
             order.returnRequest.status = 'Approved';
-            order.orderedItems.forEach(p => p.productStatus = 'Returned');
+
+          for(const item of order.orderedItems){
+              item.productStatus = 'Returned'
+
+            await Variant.findByIdAndUpdate(item.variantId, {
+                $inc: {stock: item.quantity}
+            })
+          }
 
             const totalPaid = order.finalAmount;
             const refundAmount = totalPaid - CONVENIENCE_FEE;
 
             // TODO: Wallet Logic
+              wallet.balance += refundAmount
+            await wallet.save();
+
+            await walletTransactions.create({
+                userId: wallet.userId,
+                walletId: wallet._id,
+                amount: refundAmount,
+                type: 'credit',
+                reason: 'refund',
+                description: 'Your products money has refunded'
+            })
 
         } else if (action === 'reject') {
             order.returnRequest.status = 'Rejected';

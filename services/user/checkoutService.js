@@ -7,7 +7,6 @@ import Offer from "../../model/offerModel.js";
 import cartService from "./cartService.js";
 import {calculateProductDiscount} from "../../services/admin/productService.js"
 import mongoose from "mongoose";
-import Wallet from "../../model/walletModel.js";
 import walletService from "./walletService.js";
 
 // --- GET CHECKOUT DATA ---

@@ -11,6 +11,7 @@ import checkoutController from '../Controller/user/checkoutContoller.js';
 import orderController from '../Controller/user/orderContoller.js';
 import wishlistController from '../Controller/user/wishlistController.js';
 import walletController from '../Controller/user/walletController.js';
+import referralController from '../Controller/user/referralController.js';
 import upload from '../middleware/multer.js'
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
@@ -77,6 +78,8 @@ router.delete('/wishlist/remove/:itemId', userAuth.checkSession, wishlistControl
 router.get('/home/wallet',userAuth.isUserBlocked, walletController.loadWallet)
 router.post('/wallet/add-money', userAuth.checkSession, walletController.addMoneyToWallet)
 router.post('/wallet/verify-payment', userAuth.checkSession, walletController.verifyWalletPayment)
+
+router.get('/home/referral', referralController.loadReferralPage)
 
 
 router.get('/logout',userController.logout);

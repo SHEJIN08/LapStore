@@ -1,7 +1,27 @@
 import Order from "../../model/orderModel.js";
 import Variant from "../../model/variantModel.js";
+import Wallet from "../../model/walletModel.js";
+import walletTransactions from "../../model/walletTransactionsModel.js";
 import PDFDocument from "pdfkit";
 import { ResponseMessage } from "../../utils/statusCode.js";
+
+ const processRefundToWallet = async (userId, amount, orderId, itemDetails = "") => {
+    let wallet = await Wallet.findOne({ userId });
+    if (!wallet) {
+        wallet = new Wallet({ userId, balance: 0 });
+    }
+    wallet.balance += amount;
+    await wallet.save();
+
+    await walletTransactions.create({
+        userId,
+        walletId: wallet._id,
+        amount,
+        type: 'credit',
+        reason: 'refund',
+        description: `Refund for Cancelled Order/Item #${orderId} ${itemDetails}`
+    });
+};
 
 // --- GET USER ORDERS (Paginated & Search) ---
 const getUserOrdersService = async ({ userId, status, page = 1, search, limit = 3 }) => {
@@ -55,6 +75,8 @@ const cancelOrderService = async ({ orderId, itemId, reason }) => {
     const order = await Order.findById(orderId);
     if (!order) throw new Error("Order not found");
 
+   
+
     const TAX_RATE = 0.05;
     const SHIPPING_THRESHOLD = 100000;
     const SHIPPING_FEE = 100;
@@ -80,7 +102,7 @@ const cancelOrderService = async ({ orderId, itemId, reason }) => {
         // 3. Financials
         if (order.paymentStatus === "Paid") {
             // Refund Logic (Wallet) would go here
-            console.log(`Refunded ₹${refundAmount} to Wallet`);
+         await processRefundToWallet(order.userId, refundAmount, order.orderId, `(${item.productName})`)
         } else if (order.paymentMethod === "COD") {
             let newTotalPrice = Math.max(0, order.totalPrice - refundAmount);
             let newTax = Math.round(newTotalPrice * TAX_RATE);
@@ -126,9 +148,9 @@ const cancelOrderService = async ({ orderId, itemId, reason }) => {
 
         // 2. Refund All
         if (order.paymentStatus === "Paid") {
-            console.log(`Refunded Full Amount ₹${order.finalAmount} to Wallet`);
+           await processRefundToWallet(order.userId, order.finalAmount, order.orderId, "(Full Order)");
             order.paymentStatus = "Refunded";
-        }
+        } 
 
         // 3. Update Status
         order.status = "Cancelled";
@@ -203,131 +225,84 @@ const generateInvoiceService = async (orderId) => {
 
     const doc = new PDFDocument({ margin: 50 });
     const filename = `invoice-${order.orderId}.pdf`;
-    res.setHeader("Content-disposition", `attachment; filename="${filename}"`);
-    res.setHeader("Content-type", "application/pdf");
 
+    // --- PDF CONTENT ---
     
-        doc.fontSize(20).text("INVOICE", { align: "center" });
-        doc.moveDown();
-        doc.fontSize(10).text(`Order ID: ${order.orderId}`, { align: "right" });
-        doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, {
-          align: "right",
-        });
-        doc.moveDown();
+    // Header
+    doc.fontSize(20).text("INVOICE", { align: "center" });
+    doc.moveDown();
     
-        doc.text(`Bill To:`, 50, 150);
-        doc.font("Helvetica-Bold").text(order.address.fullName, 50, 165);
-        doc.font("Helvetica").text(order.address.address1, 50, 180);
-        doc.text(
-          `${order.address.city}, ${order.address.state} ${order.address.pincode}`,
-          50,
-          195
-        );
-        doc.text(`Phone: ${order.address.phone}`, 50, 210);
-    
-        doc.moveDown();
-        const tableTop = 250;
-    
-        doc.font("Helvetica-Bold");
-        doc.text("Item", 50, tableTop);
-        doc.text("Quantity", 300, tableTop, { width: 90, align: "right" });
-        doc.text("Price", 400, tableTop, { width: 90, align: "right" });
-        doc.text("Total", StatusCode.INTERNAL_SERVER_ERROR, tableTop, {
-          width: 90,
-          align: "right",
-        });
-    
-        doc
-          .moveTo(50, tableTop + 15)
-          .lineTo(550, tableTop + 15)
-          .stroke(); // Line
-    
-        let yPosition = tableTop + 30;
-        doc.font("Helvetica");
-    
-        order.orderedItems.forEach((item) => {
-          const totalPrice = item.price * item.quantity;
-    
-          doc.text(item.productName, 50, yPosition, { width: 250 }); // Truncate long names if needed
-          doc.text(item.quantity.toString(), 300, yPosition, {
-            width: 90,
-            align: "right",
-          });
-          doc.text(`$${item.price.toLocaleString()}`, 400, yPosition, {
-            width: 90,
-            align: "right",
-          });
-          doc.text(
-            `$${totalPrice.toLocaleString()}`,
-            StatusCode.INTERNAL_SERVER_ERROR,
-            yPosition,
-            {
-              width: 90,
-              align: "right",
-            }
-          );
-    
-          yPosition += 20;
-        });
-    
-        doc
-          .moveTo(50, yPosition + 10)
-          .lineTo(550, yPosition + 10)
-          .stroke(); // Bottom Line
-    
-        const summaryTop = yPosition + 30;
-        doc.font("Helvetica-Bold");
-    
-        doc.text("Subtotal:", 400, summaryTop, { width: 90, align: "right" });
-        doc.text(
-          `$${order.totalPrice.toLocaleString()}`,
-          StatusCode.INTERNAL_SERVER_ERROR,
-          summaryTop,
-          {
-            width: 90,
-            align: "right",
-          }
-        );
-    
-        if (order.discount > 0) {
-          doc.text("Discount:", 400, summaryTop + 15, {
-            width: 90,
-            align: "right",
-          });
-          doc.text(
-            `-$${order.discount.toLocaleString()}`,
-            StatusCode.INTERNAL_SERVER_ERROR,
-            summaryTop + 15,
-            {
-              width: 90,
-              align: "right",
-            }
-          );
-        }
-    
-        doc.fontSize(12).text("Grand Total:", 400, summaryTop + 35, {
-          width: 90,
-          align: "right",
-        });
-        doc.text(
-          `$${order.finalAmount.toLocaleString()}`,
-          StatusCode.INTERNAL_SERVER_ERROR,
-          summaryTop + 35,
-          {
-            width: 90,
-            align: "right",
-          }
-        );
-    
-        doc.fontSize(10).text("Thank you for your business!", 50, 700, {
-          align: "center",
-          width: StatusCode.INTERNAL_SERVER_ERROR,
-        });
-    
-        doc.end();
-        return { doc, filename };
+    // Order Details (Top Right)
+    doc.fontSize(10).text(`Order ID: ${order.orderId}`, { align: "right" });
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, { align: "right" });
+    doc.moveDown();
 
-    } 
+    // Billing Info (Left)
+    doc.text(`Bill To:`, 50, 150);
+    doc.font("Helvetica-Bold").text(order.address.fullName, 50, 165);
+    doc.font("Helvetica").text(order.address.address1, 50, 180);
+    doc.text(`${order.address.city}, ${order.address.state} ${order.address.pincode}`, 50, 195);
+    doc.text(`Phone: ${order.address.phone}`, 50, 210);
+
+    doc.moveDown();
+    const tableTop = 250;
+
+    // Table Headers
+    doc.font("Helvetica-Bold");
+    doc.text("Item", 50, tableTop);
+    doc.text("Quantity", 300, tableTop, { width: 90, align: "right" });
+    doc.text("Price", 400, tableTop, { width: 90, align: "right" });
+    doc.text("Total", 500, tableTop, { width: 90, align: "right" }); 
+
+    // Header Line
+    doc.moveTo(50, tableTop + 15).lineTo(590, tableTop + 15).stroke();
+
+    let yPosition = tableTop + 30;
+    doc.font("Helvetica");
+
+    // Table Rows
+    order.orderedItems.forEach((item) => {
+        const totalPrice = item.price * item.quantity;
+
+        // Truncate long names to prevent overlap
+        const productName = item.productName.length > 40 
+            ? item.productName.substring(0, 37) + "..." 
+            : item.productName;
+
+        doc.text(productName, 50, yPosition, { width: 250 });
+        doc.text(item.quantity.toString(), 300, yPosition, { width: 90, align: "right" });
+        doc.text(`$${item.price.toLocaleString()}`, 400, yPosition, { width: 90, align: "right" });
+        doc.text(`$${totalPrice.toLocaleString()}`, 500, yPosition, { width: 90, align: "right" });
+
+        yPosition += 20;
+    });
+
+    // Bottom Line
+    doc.moveTo(50, yPosition + 10).lineTo(590, yPosition + 10).stroke();
+
+    const summaryTop = yPosition + 30;
+    doc.font("Helvetica-Bold");
+
+    // Summary Section
+    doc.text("Subtotal:", 400, summaryTop, { width: 90, align: "right" });
+    doc.text(`$${order.totalPrice.toLocaleString()}`, 500, summaryTop, { width: 90, align: "right" });
+
+    if (order.discount > 0) {
+        doc.text("Discount:", 400, summaryTop + 15, { width: 90, align: "right" });
+        doc.text(`-$${order.discount.toLocaleString()}`, 500, summaryTop + 15, { width: 90, align: "right" });
+    }
+
+    doc.fontSize(12).text("Grand Total:", 400, summaryTop + 35, { width: 90, align: "right" });
+    doc.text(`$${order.finalAmount.toLocaleString()}`, 500, summaryTop + 35, { width: 90, align: "right" });
+
+    // Footer
+    doc.fontSize(10).text("Thank you for your business!", 50, 700, { align: "center", width: 500 });
+
+    doc.end();
+    
+    // Return the stream and filename (Do not use res here)
+    return { doc, filename };
+};
 
     export default {
     getUserOrdersService,

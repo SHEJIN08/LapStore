@@ -6,9 +6,9 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase:true, trim:true },
   password: { type: String, required: true },
   avatar: { type: String,default:'user'},
-  phone: { type: String, default: '' },
   isVerified: { type: Boolean, default: false },
-  refferalCode: {type: String},
+  referralCode: {type: String, unique: true},
+  redeemed: {type: Boolean, default: false},
   isActive: {type: Boolean, default: true},
   role: { type:String, default: 'User'}
 },

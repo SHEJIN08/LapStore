@@ -1,19 +1,41 @@
-
 import bcrypt from "bcrypt";
 import userSchema from "../../model/userModel.js"
+import Wallet from "../../model/walletModel.js";
+import walletTransactions from "../../model/walletTransactionsModel.js";
 import UserOtpVerification from "../../model/otpModel.js";
+import Refferal from "../../model/referralModel.js";
 import { sendOtp } from "../../utils/otp.js";
 import { ResponseMessage } from "../../utils/statusCode.js";
 
 const saltround = 10;
 
+//function to generate refferalCode
+const generateUniqueReferralCode = async (name) => {
+    let result = '';
+    const prefix = name.slice(0, 4).toUpperCase();
+    let isUnique = false;
+
+    while (!isUnique) {
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        result = `${prefix}${randomNum}`;
+    
+        const existingUser = await userSchema.findOne({ referralCode: result });
+        if (!existingUser) {
+            isUnique = true; 
+        }
+    }
+    return result;
+};
+
 // --- REGISTER SERVICE ---
-const registerUserService = async ({ name, email, password }) => {
+const registerUserService = async ({ name, email, password,referralCodeInput }) => {
     // 1. Check existing user
     const existingUser = await userSchema.findOne({ email });
     if (existingUser) {
         throw new Error(ResponseMessage.DUP_USER); // Throw error to be caught by controller
     }
+
+    const newReferralCode = await generateUniqueReferralCode(name)
 
     // 2. Hash Password
     const hashedPassword = await bcrypt.hash(password, saltround);
@@ -25,10 +47,41 @@ const registerUserService = async ({ name, email, password }) => {
         name,
         email,
         password: hashedPassword,
+        referralCode: newReferralCode,
         isVerified: false,
     });
 
-    await newUser.save();
+    const savedUser = await newUser.save();
+
+    if(referralCodeInput){
+        const referrer = await userSchema.findOne({referralCode: referralCodeInput});
+
+        if(referrer && referrer._id.toString() !== savedUser._id.toString()){
+            await Refferal.create({
+                referrerId: referrer._id,
+                refereeId: savedUser._id,
+                referralAmount: 200,
+                status: 'Pending'
+            })
+            let wallet = await Wallet.findOne({userId: savedUser._id})
+            if(!wallet){
+                wallet = new Wallet({userId: savedUser._id, balance: 0})
+            }
+
+            const SIGNUP_BONUS = 100;
+            wallet.balance += SIGNUP_BONUS;
+            await wallet.save()
+
+            await walletTransactions.create({
+                userId: savedUser._id,
+                walletId: wallet._id,
+                amount: SIGNUP_BONUS,
+                type: 'credit',
+                reason: 'referral_bonus',
+                description: 'Welcome bonus for using referral code'
+            })
+        }
+    }
 
     // 4. Send OTP
     await sendOtp(email);
@@ -85,11 +138,15 @@ const googleAuthService = async ({ email, name }) => {
 
     if (!user) {
         const newUserId = `google_${Date.now()}`;
+
+        const newReferralCode = await generateUniqueReferralCode(name);
+
         user = new userSchema({
             userId: newUserId,
             name: name || 'Google User',
             email,
             password: 'oauth_google',
+            referralCode: newReferralCode,
             isVerified: true,
             isActive: true
         });
