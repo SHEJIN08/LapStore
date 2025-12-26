@@ -62,7 +62,7 @@
                             <label class="selection-card payment-card">
                                <% if (locals.wallet && wallet.balance >= total) { %>
         <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" id="wallet" name="paymentMethod" value="Wallet">
+            <input type="radio" class="custom-control-input" id="wallet" name="paymentMethod" value="Wallet" onchange="selectCard(this)">
             <label class="custom-control-label d-flex justify-content-between w-100" for="wallet">
                 <span>
                     <i class="fa-solid fa-wallet" style="margin-right: 8px; color: #0d6efd;"></i> Pay with Wallet
@@ -114,7 +114,13 @@
                     <div class="mini-details">
                         <h4><%= item.productId.name %></h4>
                         <p>Qty: <%= item.quantity %></p>
-                        <span class="mini-price">₹<%= item.variantId.salePrice.toLocaleString() %></span>
+                     <span class="price">₹<%= item.price %></span>
+
+                    <% if(item.offerDiscount > 0) { %>
+                        <small class="text-success">
+                            (Offer Applied: -₹<%= item.offerDiscount %>)
+                        </small>
+                    <% } %>
                     </div>
                 </div>
             <% }) %>

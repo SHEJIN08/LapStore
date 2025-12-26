@@ -13,41 +13,62 @@
     </div>
 </div>
 
-<div class="product-grid">
-    <% if(products.length > 0) { %>
-        <% products.forEach(product => { %>
-            <div class="product-card">
-                <div class="product-img-wrap">
-                    <a href="/user/product/<%= product.slug %>">
-                        <% if(product.images && product.images.length > 0) { %>
-                            <img src="<%= product.images[0] %>" alt="<%= product.name %>">
-                        <% } else { %>
-                            <img src="/images/no-image.png" alt="No img">
+    <div class="product-grid">
+        <% if(products.length > 0) { %>
+            <% products.forEach(product => { %>
+                <div class="product-card">
+                    <div class="product-img-wrap" style="position: relative;"> <% if (product.hasOffer) { %>
+                            <div style="position: absolute; top: 10px; right: 10px; background-color: #e53637; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; z-index: 10;">
+                                <% if (product.offerType === 'percentage') { %>
+                                    <%= product.offerValue %>% OFF
+                                <% } else if (product.offerType === 'fixed') { %>
+                                    ₹<%= product.offerValue %> OFF
+                                <% } else { %>
+                                    OFFER
+                                <% } %>
+                            </div>
                         <% } %>
-                    </a>
-                </div>
-                <div class="product-info">
-                    <div class="product-brand">
-                        <%= product.brandDetails ? product.brandDetails.brandName : 'Laptop' %>
+                        <a href="/user/product/<%= product.slug %>">
+                            <% if(product.images && product.images.length > 0) { %>
+                                <img src="<%= product.images[0] %>" alt="<%= product.name %>">
+                            <% } else { %>
+                                <img src="/images/no-image.png" alt="No img">
+                            <% } %>
+                        </a>
                     </div>
-                    <h4 class="product-title">
-                        <a href="/user/product/<%= product.slug %>"><%= product.name %></a>
-                    </h4>
-                    <div class="product-price">
-                        ₹<%= product.minPrice ? product.minPrice.toLocaleString('en-IN') : 'N/A' %>
+
+                    <div class="product-info">
+                        <div class="product-brand">
+                            <%= product.brandDetails ? product.brandDetails.brandName : 'Laptop' %>
+                        </div>
+                        <h4 class="product-title">
+                            <a href="/user/product/<%= product.slug %>"><%= product.name %></a>
+                        </h4>
+
+                        <div class="product-price">
+                            <% if (product.hasOffer) { %>
+                                <span style="color: #000; font-weight: bold;">
+                                    ₹<%= product.finalPrice ? product.finalPrice.toLocaleString('en-IN') : 'N/A' %>
+                                </span>
+                                <del style="color: #999; font-size: 0.9em; margin-left: 5px;">
+                                    ₹<%= product.originalPrice ? product.originalPrice.toLocaleString('en-IN') : 'N/A' %>
+                                </del>
+                            <% } else { %>
+                                ₹<%= product.originalPrice ? product.originalPrice.toLocaleString('en-IN') : (product.minPrice ? product.minPrice.toLocaleString('en-IN') : 'N/A') %>
+                            <% } %>
+                        </div>
+                        <a href="/user/product/<%= product.slug %>" class="btn-view">View Details</a>
                     </div>
-                    <a href="/user/product/<%= product.slug %>" class="btn-view">View Details</a>
                 </div>
+            <% }) %>
+        <% } else { %>
+            <div style="grid-column: 1 / -1; text-align: center; padding: 50px;">
+                <h3>No Products Found</h3>
+                <p>Try clearing your filters.</p>
+                <button onclick="updateParams('clear', '')" class="btn-view">Clear All Filters</button>
             </div>
-        <% }) %>
-    <% } else { %>
-        <div style="grid-column: 1 / -1; text-align: center; padding: 50px;">
-            <h3>No Products Found</h3>
-            <p>Try clearing your filters.</p>
-            <button onclick="updateParams('clear', '')" class="btn-view">Clear All Filters</button>
-        </div>
-    <% } %>
-</div>
+        <% } %>
+    </div>
 
 <div class="pagination-area">
     <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>

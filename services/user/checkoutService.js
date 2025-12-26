@@ -30,9 +30,24 @@ const getCheckoutData = async (userId) => {
 
     // 3. Calculate Totals
     let subtotal = 0;
-    cartItems.forEach(item => {
-        subtotal += item.variantId.salePrice * item.quantity;
-    });
+   const processedCartItems = await Promise.all(cartItems.map(async (item) => {
+        
+        const productForOffer = item.productId;
+        productForOffer.regularPrice = item.variantId.salePrice;
+
+        const { finalPrice, discountAmount, offerId } = await calculateProductDiscount(productForOffer);
+
+        subtotal += finalPrice * item.quantity;
+
+        const itemObj = item.toObject(); 
+
+        itemObj.price = finalPrice;    
+        itemObj.regularPrice = item.variantId.salePrice; 
+        itemObj.offerDiscount = discountAmount;
+        itemObj.offerId = offerId;
+
+        return itemObj;
+    }));
     const tax = subtotal * 0.05;
     const shipping = subtotal > 100000 ? 0 : 100;
     const total = subtotal + tax + shipping;
@@ -51,7 +66,7 @@ const getCheckoutData = async (userId) => {
         ]
     }).sort({ createdAt: -1 });
 
-    return { addresses, cartItems, coupons, subtotal, tax, shipping, total };
+    return { addresses, cartItems: processedCartItems, coupons, subtotal, tax, shipping, total };
 };
 
 const applyCouponService = async (userId, couponCode, totalAmount) => {
@@ -128,11 +143,46 @@ const applyCouponService = async (userId, couponCode, totalAmount) => {
     }
 }
 
+const calculateCouponDiscount = async (userId, couponCode, subtotal) => {
+    if (!couponCode) return 0;
+
+    const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+    
+    // Strict checks: If code is sent, it MUST be valid
+    if (!coupon) throw new Error("Invalid Coupon Code");
+    if (!coupon.isActive) throw new Error("Coupon is inactive");
+    if (new Date(coupon.endDate) < new Date()) throw new Error("Coupon has expired");
+    if (subtotal < coupon.minPurchaseAmount) throw new Error(`Minimum purchase of ₹${coupon.minPurchaseAmount} required`);
+
+    // Check usage limits
+    if (coupon.usageLimitPerUser) {
+        const userUsageCount = await Order.countDocuments({
+            userId: userId,
+            couponCode: coupon.code,
+            status: { $nin: ['Cancelled', 'Failed'] }
+        });
+        if (userUsageCount >= coupon.usageLimitPerUser) throw new Error('Coupon usage limit reached');
+    }
+
+    if (coupon.totalUsageLimit && coupon.currentUsageCount >= coupon.totalUsageLimit) {
+        throw new Error('Coupon usage limit reached');
+    }
+
+    let discount = 0;
+    if (coupon.type === 'percentage') {
+        discount = (subtotal * coupon.discountValue) / 100;
+    } else {
+        discount = coupon.discountValue;
+    }
+
+    if (discount > subtotal) discount = subtotal;
+    
+    return { discount, couponId: coupon._id };
+};
+
 // --- PLACE ORDER ---
 const placeOrderService = async (userId, addressId, paymentMethod, paymentDetails = {}, couponCode = null) => {
     
-    
-
     const cartItems = await Cart.find({ userId }).populate('productId').populate('variantId');
     if (!cartItems.length) throw new Error("Cart is empty");
 
@@ -174,62 +224,26 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
     }
 
     let discount = 0;
-    let appliedCouponCode = null; // Will be null if invalid
+    let couponIdToUpdate = null; // Will be null if invalid
 
     if (couponCode) {
-        const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
-        
-        // Check if coupon is valid (Active, Date, Min Amount, Eligibility)
-        if (coupon && 
-            coupon.isActive && 
-            new Date(coupon.endDate) > new Date() &&
-            subtotal >= coupon.minPurchaseAmount
-        ) {
-
-            if (coupon.usageLimitPerUser) {
-                const userUsageCount = await Order.countDocuments({
-                    userId: userId,
-                    couponCode: coupon.code,
-                    status: { $nin: ['Cancelled', 'Failed'] }
-                });
-
-                if (userUsageCount >= coupon.usageLimitPerUser) {
-                    throw new Error('You have already used this coupon the maximum number of times.');
-                }
-            }
-            // Recalculate discount securely
-            if (coupon.type === 'percentage') {
-                discount = (subtotal * coupon.discountValue) / 100;
-            } else {
-                discount = coupon.discountValue;
-            }
-            
-            // Cap discount if needed
-            if (discount > subtotal) discount = subtotal;
-
-            appliedCouponCode = couponCode.toUpperCase();
-
-            if(coupon.totalUsageLimit && coupon.currentUsageCount >= coupon.totalUsageLimit){
-                throw new Error('Coupon is no longer available (Usage limit reached)')
-            }
-
-            // Optional: Increment usage count
-            await Coupon.updateOne({ _id: coupon._id }, { $inc: { currentUsageCount: 1 } });
-        }
+        const result = await calculateCouponDiscount(userId, couponCode, subtotal);
+        discount = result.discount;
+        couponIdToUpdate = result.couponId;
     }
 
-    // 4. Calculate Final Amount
+    // 3. Final Math
     const tax = subtotal * 0.05;
     const shipping = subtotal > 100000 ? 0 : 100;
     const finalAmount = Math.round(subtotal + tax + shipping - discount);
 
-    // 5. Create Order Document
+    // 4. Create Order
     const newOrder = new Order({
         userId,
         orderedItems,
         totalPrice: subtotal,
-        discount,
-        couponCode,
+        discount: discount, 
+        couponCode: discount > 0 ? couponCode : null,
         finalAmount,
         address: {
             fullName: addressDoc.fullName,
@@ -243,7 +257,7 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
         },
         paymentMethod,
         paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Paid',
-        razorpayStatus: paymentMethod === 'Razorpay' ? 'Paid' : 'Pending', 
+        razorpayStatus: paymentMethod === 'Razorpay' ? 'Paid' : 'Pending',
         razorpayOrderId: paymentDetails.razorpayOrderId || null,
         razorpayPaymentId: paymentDetails.razorpayPaymentId || null,
         status: 'Pending',
@@ -254,46 +268,39 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
         }]
     });
 
-    if(paymentMethod === 'Wallet'){
-
+    if (paymentMethod === 'Wallet') {
         const walletResult = await walletService.processWalletPayment(
             userId,
             newOrder.finalAmount,
             newOrder._id
-        )
-
-        if (!walletResult.success) {
-              throw new Error(walletResult.message);
-            }
-
-            newOrder.paymentStatus = 'Paid';
-          
+        );
+        if (!walletResult.success) throw new Error(walletResult.message);
+        newOrder.paymentStatus = 'Paid';
     }
 
     await newOrder.save();
 
-    for(let item of newOrder.orderedItems){
-        if(item.offerId){
-            await Offer.findByIdAndUpdate(item.offerId, {
-                $inc: { usageCount: 1 }
-            });
+    // 5. Post-Order Updates (Coupon Count, Stock, Offers)
+    if (couponIdToUpdate) {
+        await Coupon.findByIdAndUpdate(couponIdToUpdate, { $inc: { currentUsageCount: 1 } });
+    }
+
+    for (let item of newOrder.orderedItems) {
+        if (item.offerId) {
+            await Offer.findByIdAndUpdate(item.offerId, { $inc: { usageCount: 1 } });
         }
     }
 
-    // 6. Reduce Stock
     for (const item of cartItems) {
-        await Variant.findByIdAndUpdate(item.variantId._id, {
-            $inc: { stock: -item.quantity } 
-        });
+        await Variant.findByIdAndUpdate(item.variantId._id, { $inc: { stock: -item.quantity } });
     }
 
-    // 7. Clear Cart
     await Cart.deleteMany({ userId });
 
-    return newOrder;
+    return newOrder
 };
 
-const saveFailedOrderService = async (userId, addressId, paymentDetails) => {
+const saveFailedOrderService = async (userId, addressId, paymentDetails, couponCode = null) => {
     
     // 1. Fetch Cart
     const cartItems = await Cart.find({ userId }).populate('productId').populate('variantId');
@@ -324,6 +331,17 @@ const saveFailedOrderService = async (userId, addressId, paymentDetails) => {
         });
     }
 
+    let discount = 0;
+    try{
+        if(couponCode){
+            const result = await calculateCouponDiscount(userId, couponCode, subtotal);
+            discount = result.discount;
+        }
+    }catch (err) {
+        console.log("Coupon failed for failed-order creation (ignoring discount):", err.message);
+        discount = 0;
+    }
+
     const tax = subtotal * 0.05;
     const shipping = subtotal > 100000 ? 0 : 100;
     const finalAmount = subtotal + tax + shipping;
@@ -333,6 +351,7 @@ const saveFailedOrderService = async (userId, addressId, paymentDetails) => {
         userId,
         orderedItems,
         totalPrice: subtotal,
+        discount: discount,
         finalAmount,
         address: {
             fullName: addressDoc.fullName,
@@ -367,13 +386,8 @@ const saveFailedOrderService = async (userId, addressId, paymentDetails) => {
 
 const getOrderDetails = async (id) => {
     try {
-        // 1. Try finding by Custom Order ID (e.g., "770741" or "ORD-123456")
-        // We use findOne because 'id' is a custom field, not the primary key _id
         let order = await Order.findOne({ orderId: id }).populate('orderedItems.productId');
        
-
-        // 2. If not found, check if it's a valid MongoDB _id and search that way
-        // This acts as a fallback if you mix ID types
         if (!order && mongoose.Types.ObjectId.isValid(id)) {
             order = await Order.findById(id).populate('orderedItems.productId');
         }

@@ -1,6 +1,8 @@
 import Product from "../../model/productModel.js";
 import Category from "../../model/categoryModel.js";
 import Brand from "../../model/brandModel.js";
+import Offer from "../../model/offerModel.js";
+import { calculateProductDiscount } from "../../services/admin/productService.js";
 import { ResponseMessage } from "../../utils/statusCode.js";
 
 // --- GET HOME PAGE DATA ---
@@ -96,9 +98,35 @@ const getProductDetailsService = async (slug) => {
     if (!product.category.isListed || product.brand.isBlocked) {
         return null;
     }
+    // --- LOGIC 1: CALCULATE OFFER FOR MAIN PRODUCT ---
+    
+    // A. Find the base price (Minimum price among variants) to show "Starts from..."
+    const basePrice = Math.min(...product.variants.map(v => v.salePrice));
+
+    // B. Calculate Discount
+    const mainOfferData = await calculateProductDiscount({
+        _id: product._id,
+        category: product.category._id,
+        regularPrice: basePrice
+    });
+
+    // C. Attach details to product object
+    product.finalPrice = mainOfferData.finalPrice;
+    product.originalPrice = basePrice;
+    product.hasOffer = mainOfferData.discountAmount > 0;
+    product.offerId = mainOfferData.offerId;
+
+    // D. Fetch Badge Info (Percentage vs Fixed)
+    if (product.offerId) {
+        const offerDoc = await Offer.findById(product.offerId).select('discountType discountValue');
+        if (offerDoc) {
+            product.offerType = offerDoc.discountType;
+            product.offerValue = offerDoc.discountValue;
+        }
+    }
 
     // 2. Fetch Related Products
-    const relatedProducts = await Product.aggregate([
+    const relatedProductsRaw = await Product.aggregate([
         {
             $match: {
                 category: product.category._id,
@@ -126,6 +154,36 @@ const getProductDetailsService = async (slug) => {
         { $unwind: { path: "$brand", preserveNullAndEmptyArrays: true } },
         { $limit: 4 }
     ]);
+
+    // --- LOGIC 2: CALCULATE OFFERS FOR RELATED PRODUCTS ---
+    
+    const relatedProducts = await Promise.all(relatedProductsRaw.map(async (rel) => {
+        // Construct object for calculator
+        const productForCalc = {
+            _id: rel._id,
+            category: rel.category, // In related query, category is just an ID usually, which is fine
+            regularPrice: rel.minPrice 
+        };
+
+        // Calculate
+        const offerData = await calculateProductDiscount(productForCalc);
+
+        // Attach Data
+        rel.finalPrice = offerData.finalPrice;
+        rel.originalPrice = rel.minPrice;
+        rel.hasOffer = offerData.discountAmount > 0;
+        
+        // Fetch Badge Info
+        if (offerData.offerId) {
+            const offerDoc = await Offer.findById(offerData.offerId).select('discountType discountValue');
+            if (offerDoc) {
+                rel.offerType = offerDoc.discountType;
+                rel.offerValue = offerDoc.discountValue;
+            }
+        }
+
+        return rel;
+    }));
 
     return { product, relatedProducts };
 };
@@ -193,9 +251,34 @@ const getShopProductsService = async ({ page, search, sortOption, brandOption, c
 
     const result = await Product.aggregate(pipeline);
     
-    const products = result[0].data;
+    const productsRaw = result[0].data;
     const totalProducts = result[0].metadata[0] ? result[0].metadata[0].total : 0;
     const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Promise.all(productsRaw.map(async (product) => {
+        const productForCalc = {
+            _id: product._id,
+            category: product.category,
+            regularPrice: product.minPrice 
+        };
+
+        const { finalPrice, discountAmount, offerId } = await calculateProductDiscount(productForCalc);
+
+        product.finalPrice = finalPrice;
+        product.originalPrice = product.minPrice;
+        product.hasOffer = discountAmount > 0;
+        product.offerId = offerId;
+
+        if (offerId) {
+            const offerDoc = await Offer.findById(offerId).select('offerType discountValue discountType');
+            if (offerDoc) {
+                product.offerType = offerDoc.discountType; 
+                product.offerValue = offerDoc.discountValue;
+            }
+        }
+
+        return product;
+    }))
 
     // Fetch filters for sidebar
     const categories = await Category.find({ isListed: true });

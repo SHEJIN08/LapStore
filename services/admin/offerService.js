@@ -114,7 +114,7 @@ const createOfferService = async (data) => {
     }
 }
 
-const updateOfferService = async (id, data) => {
+const updatedOfferService = async (id, data) => {
     try {
         const { offerName, offerType, discountType, discountValue, productIds, categoryId, startDate, endDate, status } = data;
 
@@ -149,13 +149,18 @@ const updateOfferService = async (id, data) => {
             updateData.categoryId = categoryId;
             updateData.productIds = [];
 
-            const updateOffer = await Offer.findByIdAndUpdate(id, updateData)
-            return updateOffer;
         }
+            const updatedOffer = await Offer.findByIdAndUpdate(id, updateData)
+
+            if (!updatedOffer) {
+            throw new Error('Offer not found');
+            }
+
+            return updatedOffer;
     } catch (error) {
         throw new Error(error.message);
     }
 }
 
 
-export default {getOfferService, getOfferStats, createOfferService, updateOfferService}
+export default {getOfferService, getOfferStats, createOfferService, updatedOfferService}

@@ -63,9 +63,22 @@ const updateOrderStatusService = async (orderId, status) => {
 
     order.status = status;
 
-    // Auto-update payment status for COD Delivered
-    if (status === 'Delivered' && order.paymentMethod === 'COD') {
-        order.paymentStatus = 'Paid';
+   if (status === 'Delivered') {
+        order.orderedItems.forEach(item => {
+            if (item.productStatus !== 'Cancelled' && item.productStatus !== 'Returned') {
+                item.productStatus = 'Delivered';
+            }
+        });
+        
+        if (order.paymentMethod === 'COD') {
+            order.paymentStatus = 'Paid';
+        }
+    } 
+    // Optional: If Order is Cancelled, mark items Cancelled
+    else if (status === 'Cancelled') {
+         order.orderedItems.forEach(item => {
+             item.productStatus = 'Cancelled';
+         });
     }
 
     order.orderHistory.push({
@@ -97,7 +110,7 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
     // --- OPTION 1: Handle Specific Item Return ---
     if (itemId) {
         const item = order.orderedItems.id(itemId);
-        if (!item) throw new Error("Item not found");
+        if (!item) throw new Error("Item not found");   
 
         if (action === 'approve') {
             // Calculate Refund
@@ -107,10 +120,11 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
             const refundAmount = Math.max(0, (priceAfterTax + shippingRefund) - CONVENIENCE_FEE);
 
             item.productStatus = 'Returned';
+
+           
             
             // TODO: Wallet Logic
             wallet.balance += refundAmount
-            // await Product.incrementStock(item.productId, item.quantity);
             await wallet.save();
 
             await Variant.findByIdAndUpdate(item.variantId, {
@@ -175,19 +189,43 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
     // --- SYNC MAIN ORDER STATUS ---
     // (This logic ensures that if all items are returned/rejected, the main order status updates)
     order.markModified('orderedItems');
-    const hasPendingRequests = order.orderedItems.some(item => item.productStatus === 'Return Request');
+    
+    const itemStatuses = order.orderedItems.map(item => item.productStatus);
+
+    // Check conditions
+    const hasPendingRequests = itemStatuses.includes('Return Request');
+    const allReturned = itemStatuses.every(status => status === 'Returned');
+    const allCancelledOrReturned = itemStatuses.every(status => ['Returned', 'Cancelled', 'Return Rejected'].includes(status));
+    
+    const hasActiveItems = order.orderedItems.some(item => 
+        ['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'].includes(item.productStatus)
+    );
 
     if (!hasPendingRequests) {
-        const allReturned = order.orderedItems.every(item => item.productStatus === 'Returned');
-        const hasDelivered = order.orderedItems.some(item => item.productStatus === 'Delivered');
-
         if (allReturned) {
             order.status = 'Returned';
-            order.returnRequest.status = 'Approved';
-        } else if (hasDelivered) {
-             order.status = 'Delivered'; // Partial return, but order is still active
-        } else {
-             order.status = 'Return Rejected'; // Everything else rejected/cancelled
+            if (order.returnRequest) order.returnRequest.status = 'Approved';
+        } 
+        else if (hasActiveItems) {
+            // If any item is Delivered, Order is Delivered. Otherwise check Shipped, etc.
+            if (itemStatuses.includes('Delivered')) {
+                order.status = 'Delivered';
+            } else if (itemStatuses.includes('Shipped')) {
+                order.status = 'Shipped';
+            } else if (itemStatuses.includes('Processing')) {
+                order.status = 'Processing';
+            } else {
+                order.status = 'Processing'; 
+            }
+        } 
+        else if (allCancelledOrReturned) {
+            // If everything is either Returned, Cancelled or Rejected, and nothing is active
+            // We can set it to 'Returned' if there is at least one return, otherwise 'Cancelled'
+             if (itemStatuses.includes('Returned')) {
+                 order.status = 'Returned';
+             } else {
+                 order.status = 'Return Rejected'; 
+             }
         }
     }
 

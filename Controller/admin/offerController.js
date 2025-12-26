@@ -81,7 +81,7 @@ const getOfferDetails = async (req,res) => {
 const editOffer = async (req,res) => {
     try {
         const id = req.params.id;
-        await offerService.updateOfferService(id, req.body)
+        await offerService.updatedOfferService(id, req.body)
         res.status(StatusCode.OK).json({success: true, message: 'Offer updated successfully'})
     } catch (error) {
         console.error(error )

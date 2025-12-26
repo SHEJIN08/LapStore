@@ -45,7 +45,7 @@
                             <div class="alert-body">
                                 <p class="label">Reason for Request:</p>
                                 <p class="value">"<%= order.returnRequest.reason %>"</p>
-
+                                
                                 <% if(order.returnRequest.comment) { %>
                                     <p class="value sub-value">
                                         <%= order.returnRequest.comment %>
@@ -101,90 +101,85 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <% order.orderedItems.forEach(item=> { %>
-                                                    <tr>
-                                                        <td>
-                                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                                <img src="<%= item.image %>" alt="Product"
-                                                                    style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #eee;"
-                                                                    onerror="this.src='https://placehold.co/50'">
-                                                                <div>
-                                                                    <span style="font-weight: 500; display: block;">
-                                                                        <%= item.productName %>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-
-                                                        <td>₹<%= item.price.toLocaleString() %>
-                                                        </td>
-
-                                                        <td>
-                                                            <%= item.quantity %>
-                                                        </td>
-
-                                                        <td>₹<%= (item.price * item.quantity).toLocaleString() %>
-                                                        </td>
-
-                                                        <td>
-                                                            <% let displayStatus=item.productStatus; let
-                                                                statusColor='text-warning' ; if
-                                                                (item.productStatus==='Placed' &&
-                                                                order.status==='Delivered' ) { displayStatus='Delivered'
-                                                                ; statusColor='text-success' ; } else if
-                                                                (item.productStatus==='Cancelled' ||
-                                                                item.productStatus==='Return Rejected' ) {
-                                                                statusColor='text-danger' ; } else if
-                                                                (item.productStatus==='Delivered' ) {
-                                                                statusColor='text-success' ; } else if
-                                                                (item.productStatus==='Returned' ) {
-                                                                statusColor='text-primary' ; } %>
-                                                                <span class="<%= statusColor %>"
-                                                                    style="font-weight: 600;">
-                                                                    <%= displayStatus %>
+                                            <% order.orderedItems.forEach(item=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                                            <img src="<%= item.image %>" alt="Product"
+                                                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #eee;"
+                                                                onerror="this.src='https://placehold.co/50'">
+                                                            <div>
+                                                                <span style="font-weight: 500; display: block;">
+                                                                    <%= item.productName %>
                                                                 </span>
-                                                        </td>
+                                                            </div>
+                                                        </div>
+                                                    </td>
 
-                                                        <td>
-                                                            <% if (order.orderedItems.length> 1) { %>
+                                                    <td>₹<%= item.price.toLocaleString() %></td>
 
-                                                                <% if (item.productStatus==='Return Request' ) { %>
-                                                                    <div style="display: flex; gap: 10px;">
-                                                                        <button
-                                                                            onclick="approveItemReturn('<%= order._id %>', '<%= item._id %>')"
-                                                                            class="btn btn-sm btn-success"
-                                                                            title="Approve">
-                                                                            <i class="fa-solid fa-check"></i>
-                                                                        </button>   
-                                                                        <button
-                                                                            onclick="rejectItemReturn('<%= order._id %>', '<%= item._id %>')"
-                                                                            class="btn btn-sm btn-danger"
-                                                                            title="Reject">
-                                                                            <i class="fa-solid fa-xmark"></i>
-                                                                        </button>
-                                                                    </div>
+                                                    <td><%= item.quantity %></td>
 
-                                                                    <% } else if (item.productStatus==='Cancelled' ) {
-                                                                        %>
-                                                                        <span class="badge bg-danger">Cancelled</span>
+                                                    <td>₹<%= (item.price * item.quantity).toLocaleString() %></td>
 
-                                                                        <% } else if (item.productStatus==='Returned' )
-                                                                            { %>
-                                                                            <span
-                                                                                class="badge bg-primary">Refunded</span>
+                                                    <td>
+                                                        <% 
+                                                            let displayStatus = item.productStatus;
+                                                            let statusColor = 'text-warning';
+                                                            
+                                                            if (item.productStatus === 'Placed' && order.status === 'Delivered') {
+                                                                displayStatus = 'Delivered';
+                                                                statusColor = 'text-success';
+                                                            } else if (item.productStatus === 'Cancelled' || item.productStatus === 'Return Rejected') {
+                                                                statusColor = 'text-danger';
+                                                            } else if (item.productStatus === 'Delivered') {
+                                                                statusColor = 'text-success';
+                                                            } else if (item.productStatus === 'Returned') {
+                                                                statusColor = 'text-primary';
+                                                            } else if (item.productStatus === 'Return Request') {
+                                                                statusColor = 'text-orange-500'; // Make it visible
+                                                            }
+                                                        %>
+                                                        <span class="<%= statusColor %>" style="font-weight: 600;">
+                                                            <%= displayStatus %>
+                                                        </span>
+                                                    </td>
 
-                                                                            <% } else { %>
-                                                                                <span class="text-muted">-</span>
-                                                                                <% } %>
+                                                    <td>
+                                                        <% if (item.productStatus === 'Return Request') { %>
+                                                            <div style="display: flex; gap: 10px;">
+                                                                <button onclick="approveItemReturn('<%= order._id %>', '<%= item._id %>')"
+                                                                    class="btn btn-sm btn-success" title="Approve">
+                                                                    <i class="fa-solid fa-check"></i>
+                                                                </button>
+                                                                <button onclick="rejectItemReturn('<%= order._id %>', '<%= item._id %>')"
+                                                                    class="btn btn-sm btn-danger" title="Reject">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </div>
 
-                                                                                    <% } else { %>
-                                                                                        <span
-                                                                                            class="text-muted">-</span>
-                                                                                        <% } %>
-                                                        </td>
-                                                    </tr>
-                                                    <% }) %>
-                                            </tbody>
+                                                            <% if(item.returnReason) { %>
+                                                                <small style="display:block; font-size:10px; color:#666; margin-top:4px;">
+                                                                    Reason: <%= item.returnReason %>
+                                                                </small>
+                                                            <% } %>
+
+                                                        <% } else if (item.productStatus === 'Cancelled') { %>
+                                                            <span class="badge bg-danger">Cancelled</span>
+
+                                                        <% } else if (item.productStatus === 'Returned') { %>
+                                                            <span class="badge bg-primary">Refunded</span>
+                                                        
+                                                        <% } else if (item.productStatus === 'Return Rejected') { %>
+                                                            <span class="badge bg-secondary">Rejected</span>
+
+                                                        <% } else { %>
+                                                            <span class="text-muted">-</span>
+                                                        <% } %>
+                                                    </td>
+                                                </tr>
+                                            <% }) %>
+                                        </tbody>
                                         </table>
 
                                         <div class="order-summary">
@@ -193,7 +188,7 @@
                                                 <span>₹<%= order.totalPrice.toLocaleString() %></span>
                                             </div>
                                             <div class="summary-row">
-                                                <span>Shipping</span>
+                                                <span>Shipping + Tax</span>  
                                                 <span>₹<%= (order.finalAmount - order.totalPrice +
                                                         order.discount).toFixed(0) %>
                                                 </span>

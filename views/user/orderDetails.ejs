@@ -326,7 +326,7 @@
                                     <span>₹<%= order.totalPrice.toLocaleString() %></span>
                                 </div>
                                 <div class="row">
-                                    <span>Shipping</span>
+                                    <span>Shipping + Tax</span>
                                     <span class="<%= order.finalAmount - order.totalPrice <= 0 ? 'free' : '' %>">
                                         <%= order.finalAmount - order.totalPrice <=0 ? 'Free' : '₹' + (order.finalAmount
                                             - order.totalPrice).toFixed(0)%>

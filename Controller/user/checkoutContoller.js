@@ -4,6 +4,7 @@ import User from "../../model/userModel.js";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 import walletService from "../../services/user/walletService.js";
 
+
 // --- LOAD CHECKOUT PAGE ---
 const loadCheckout = async (req, res) => {
     try {
@@ -187,10 +188,15 @@ const handleFailedPayment = async (req, res) => {
             razorpay_order_id, 
             razorpay_payment_id, 
             razorpay_error,
-            addressId 
+            addressId,
+            couponCode
         } = req.body;
         
         const userId = req.session.user;
+
+        if (!couponCode || couponCode === "null" || couponCode === "undefined") {
+            couponCode = null;
+        }
 
         const failedOrder = await checkoutService.saveFailedOrderService(
             userId, 
@@ -198,7 +204,8 @@ const handleFailedPayment = async (req, res) => {
             { 
                 razorpayOrderId: razorpay_order_id,
                 razorpayPaymentId: razorpay_payment_id
-            }
+            },
+            couponCode
         );
 
         res.status(StatusCode.OK).json({ 
