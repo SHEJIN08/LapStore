@@ -341,7 +341,7 @@ const saveFailedOrderService = async (userId, addressId, paymentDetails, couponC
         console.log("Coupon failed for failed-order creation (ignoring discount):", err.message);
         discount = 0;
     }
-
+    
     const tax = subtotal * 0.05;
     const shipping = subtotal > 100000 ? 0 : 100;
     const finalAmount = subtotal + tax + shipping;

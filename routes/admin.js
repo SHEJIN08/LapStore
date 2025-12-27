@@ -9,6 +9,7 @@ import categoryController from '../Controller/admin/categoryController.js'
 import orderController from '../Controller/admin/orderContoller.js'
 import couponController from '../Controller/admin/couponController.js'
 import offerController from '../Controller/admin/offerController.js'
+import salesController from '../Controller/admin/salesController.js'
 import upload from '../middleware/multer.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
@@ -58,7 +59,8 @@ router.get('/offers/get/:id', offerController.getOfferDetails);
 router.put('/offers/edit/:id', offerController.editOffer);
 router.get('/products/search', offerController.searchProducts);
 
-
+router.get('/sales', salesController.loadSalesReport)
+router.get('/sales/download', salesController.downloadReport)
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

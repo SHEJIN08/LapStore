@@ -1,0 +1,202 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/admin/salesReport.css">
+
+<body>
+    <div class="admin-layout">
+        <%- include('../partials/sidebar',{activePage: 'sales' }) %>
+
+        <main class="main-content">
+            <div class="report-container">
+                
+                <header class="page-header">
+                    <div>
+                        <h1>Sales Report</h1>
+                        <p style="color: #6b7280; font-size: 14px; margin-top: 5px;">View sales analytics and generate reports.</p>
+                    </div>
+                    <div class="export-group">
+                        <button onclick="downloadReport('pdf')" class="btn-export pdf">
+                            <i class="fa-solid fa-file-pdf"></i> Download PDF
+                        </button>
+                        <button onclick="downloadReport('excel')" class="btn-export excel">
+                            <i class="fa-solid fa-file-excel"></i> Download Excel
+                        </button>
+                    </div>
+                </header>
+
+                <section class="filter-card">
+                    <form action="/admin/sales" method="GET" class="filter-form" id="reportForm">
+                        <div class="form-group">
+                            <label>Report Type</label>
+                            <select name="reportType" id="reportType" class="form-select" onchange="toggleCustomDates()">
+                                <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily (Today)</option>
+                                <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly (Last 7 Days)</option>
+                                <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly (This Month)</option>
+                                <option value="yearly" <%= reportType === 'yearly' ? 'selected' : '' %>>Yearly (This Year)</option>
+                                <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Date Range</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group custom-date-field" id="startDateDiv" style="display: none;">
+                            <label>Start Date</label>
+                            <input type="date" name="startDate" value="<%= startDate %>" class="form-input">
+                        </div>
+
+                        <div class="form-group custom-date-field" id="endDateDiv" style="display: none;">
+                            <label>End Date</label>
+                            <input type="date" name="endDate" value="<%= endDate %>" class="form-input">
+                        </div>
+
+                        <button type="submit" class="btn-filter">Generate Report</button>
+                    </form>
+                </section>
+
+                <section class="stats-grid">
+                    <div class="stat-card sales">
+                        <div class="stat-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+                        <div class="stat-label">Total Sales (Count)</div>
+                        <div class="stat-value"><%= totalOrders %></div>
+                    </div>
+
+                    <div class="stat-card revenue">
+                        <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                        <div class="stat-label">Total Sales (Revenue)</div>
+                        <div class="stat-value">₹<%= totalSales.toLocaleString('en-IN') %></div>
+                    </div>
+
+                    <div class="stat-card discount">
+                        <div class="stat-icon"><i class="fa-solid fa-tags"></i></div>
+                        <div class="stat-label">Total Discount</div>
+                        <div class="stat-value">₹<%= totalDiscount.toLocaleString('en-IN') %></div>
+                    </div>
+
+                    <div class="stat-card customers">
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-label">Net Revenue</div>
+                        <div class="stat-value">₹<%= (totalSales - totalDiscount).toLocaleString('en-IN') %></div>
+                    </div>
+                </section>
+
+                <section class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th>Discount</th>
+                                <th>Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <% if (orders && orders.length > 0) { %>
+                            <% orders.forEach(order => { %>
+                                <tr>
+                                    <td><%= new Date(order.date).toLocaleDateString() %></td>
+                                    
+                                    <td>#<%= order.orderId %></td>
+                                    
+                                    <td>
+                                        <strong><%= order.customerName %></strong><br>
+                                        <span style="font-size: 11px; color:#888;"><%= order.customerEmail || 'N/A' %></span>
+                                    </td>
+                                    
+                                    <td>
+                                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                                            <% if(order.deliveredItems && order.deliveredItems.length > 0) { %>
+                                                <% order.deliveredItems.forEach(item => { %>
+                                                    <span style="font-size: 13px;">
+                                                        <span style="color: #6b7280;">x<%= item.quantity %></span> 
+                                                        <%= item.productName %>
+                                                    </span>
+                                                <% }) %>
+                                            <% } %>
+                                        </div>
+                                    </td>
+
+                                    <td><%= order.paymentMethod %></td>
+                                    
+                                    <td>
+                                        <span class="status-badge status-delivered">Delivered</span>
+                                    </td>
+                                    
+                                    <td class="discount-text">
+                                        -
+                                    </td>
+                                    
+                                    <td class="amount">
+                                        ₹<%= Math.round(order.rowTotal).toLocaleString('en-IN') %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                                        <i class="fa-regular fa-folder-open" style="font-size: 24px; color: #9ca3af;"></i>
+                                        <span>No delivered orders found for this period.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                    </table>
+                </section>
+
+                      <% if(totalPages > 1) { %>
+                        <div class="pagination-controls">
+                            <% for(let i = 1; i <= totalPages; i++) { %>                                
+                                <a href="/admin/sales?page=<%= i %>&reportType=<%= reportType %>" 
+                                class="page-link <%= currentPage === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </a>
+                            <% } %>
+                        </div>
+                    <% } %>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 1. Toggle Custom Date Inputs
+        function toggleCustomDates() {
+            const type = document.getElementById('reportType').value;
+            const startDiv = document.getElementById('startDateDiv');
+            const endDiv = document.getElementById('endDateDiv');
+
+            if (type === 'custom') {
+                startDiv.style.display = 'flex';
+                endDiv.style.display = 'flex';
+            } else {
+                startDiv.style.display = 'none';
+                endDiv.style.display = 'none';
+            }
+        }
+
+        // Run on load to check if custom was previously selected
+        window.onload = toggleCustomDates;
+
+        // 2. Handle Export Button Clicks
+        function downloadReport(format) {
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.querySelector('input[name="startDate"]').value;
+            const endDate = document.querySelector('input[name="endDate"]').value;
+
+            let url = `/admin/sales/download?format=${format}&reportType=${reportType}`;
+            
+            if (reportType === 'custom') {
+                if(!startDate || !endDate) {
+                    alert("Please select Start and End dates for custom report");
+                    return;
+                }
+                url += `&startDate=${startDate}&endDate=${endDate}`;
+            }
+
+            // Trigger download
+            window.location.href = url;
+        }
+    </script>
+</body>
