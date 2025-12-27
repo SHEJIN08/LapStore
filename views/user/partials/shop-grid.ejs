@@ -47,10 +47,10 @@
 
                         <div class="product-price">
                             <% if (product.hasOffer) { %>
-                                <span style="color: #000; font-weight: bold;">
+                                <span style="color: #03791d; font-weight: bold;">
                                     ₹<%= product.finalPrice ? product.finalPrice.toLocaleString('en-IN') : 'N/A' %>
                                 </span>
-                                <del style="color: #999; font-size: 0.9em; margin-left: 5px;">
+                                <del style="color: #d04a4a; font-size: 0.9em; margin-left: 5px;">
                                     ₹<%= product.originalPrice ? product.originalPrice.toLocaleString('en-IN') : 'N/A' %>
                                 </del>
                             <% } else { %>

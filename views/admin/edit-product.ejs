@@ -76,7 +76,12 @@
                                 <div><label>Stock</label><input type="number" id="v_stock" class="form-control"></div>
                                  <div><label>Graphics</label><input type="text" id="v_graphics" class="form-control"></div>
                                 <div style="display:flex; align-items:end;">
-                                    <button type="button" onclick="addVariant()" class="btn-add-variant" style="background: #0d6efd; color: white; border: none; padding: 0px;">+ Add</button>
+                                   <button type="button" id="variantActionBtn" onclick="handleVariantSubmit()" class="btn-add-variant" style="background: #0d6efd; color: white; border: none; padding: 5px 15px; border-radius: 4px;">
+                                        + Add
+                                    </button>
+                                    <button type="button" id="cancelVariantEditBtn" onclick="resetVariantForm()" style="background: #6c757d; color: white; border: none; padding: 9px 15px; border-radius: 4px; display: none;">
+                                        Cancel
+                                    </button>
                                 </div>
                             </div>
 
@@ -195,6 +200,8 @@
         const imageToCrop = document.getElementById('imageToCrop');
         const discountInput = document.getElementById('discount');
 
+        let editingVariantIndex = -1; // -1 means "Add Mode", 0+ means "Edit Mode"
+
         document.addEventListener('DOMContentLoaded', () => {
             renderVariants();
         });
@@ -303,109 +310,164 @@
         // ==========================================
         // 4. VARIANT LOGIC (FIXED)
         // ==========================================
-        function renderVariants() {
-            const tbody = document.getElementById('variantBody');
-            tbody.innerHTML = '';
+       function renderVariants() {
+    const tbody = document.getElementById('variantBody');
+    tbody.innerHTML = '';
 
-            // Get current Global Discount
-            const globalDiscount = parseFloat(document.getElementById('discount').value) || 0;
+    const globalDiscount = parseFloat(document.getElementById('discount').value) || 0;
 
-            variants.forEach((v, index) => {
-                let imgSrc = '/assets/imgs/theme/upload.svg';
-                if (v.image) {
-                    imgSrc = v.image.startsWith('http') ? v.image : `${CLOUDINARY_BASE_URL}${v.image}`;
-                }
-
-                // 🟢 PRICE LOGIC START
-                // 1. Get MRP (Regular Price). Handle old data or new input.
-                const regularPrice = parseFloat(v.regularPrice || v.price || 0);
-
-                // 2. Calculate Sale Price dynamically based on the Input Field
-                let salePrice = regularPrice - globalDiscount;
-                if (salePrice < 0) salePrice = 0;
-                // 🟢 PRICE LOGIC END
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                <td>
-                    <strong>${v.ram} / ${v.storage}</strong><br>
-                    <small>${v.color}</small>
-                </td>
-                <td>
-                    <span style="text-decoration: line-through; color: #888; margin-right: 5px;">₹${regularPrice}</span>
-                    <br>
-                    <span style="font-weight: bold; color: green;">₹${salePrice}</span>
-                </td>
-                <td>${v.graphics}</td>
-                <td>${v.stock}</td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <img src="${imgSrc}" class="variant-img-preview" style="width:40px; height:40px; object-fit:cover; border:1px solid #ddd;">
-                        ${v._id ? `
-                        <label class="btn btn-sm btn-light" style="margin:0; cursor:pointer; padding: 2px 5px; font-size: 12px; border: 1px solid #ccc;">
-                            <i class="bi bi-upload"></i> Upload
-                            <input type="file" hidden accept="image/*" onchange="uploadVariantImage(event, '${v._id}', ${index})">
-                        </label>` : '<span style="font-size:10px; color:#666;">Save first</span>'}
-                    </div>
-                </td>
-                <td>
-                    <button type="button" onclick="removeVariant(${index})" style="color: red; border: none; background: none;">Remove</button>
-                </td>
-            `;
-                tbody.appendChild(tr);
-            });
-            updateHiddenInput();
+    variants.forEach((v, index) => {
+        let imgSrc = '/assets/imgs/theme/upload.svg';
+        if (v.image) {
+            imgSrc = v.image.startsWith('http') ? v.image : `${CLOUDINARY_BASE_URL}${v.image}`;
         }
 
-        function addVariant() {
-            const ram = document.getElementById('v_ram').value;
-            const storage = document.getElementById('v_storage').value;
-            const color = document.getElementById('v_color').value;
-            const price = document.getElementById('v_price').value; // MRP
-            const stock = document.getElementById('v_stock').value;
-            const graphics = document.getElementById('v_graphics').value;
-            const discount = document.getElementById('discount').value;
-      
+        const regularPrice = parseFloat(v.regularPrice || v.price || 0);
+        let salePrice = regularPrice - globalDiscount;
+        if (salePrice < 0) salePrice = 0;
 
-         
+        const tr = document.createElement('tr');
+        
+        // Highlight the row if it's being edited
+        if(index === editingVariantIndex) {
+            tr.style.backgroundColor = "#e7f1ff"; // Light blue highlight
+            tr.style.border = "2px solid #0d6efd";
+        }
 
-            if (!ram || !storage || !price || !stock || !graphics) return showToast('Fill all fields', 'error');
-            
-            if(price < 1){
-                return showToast('Price cannot be less than or equal 0')
-            }
-            if(stock < 0){
-                return showToast('Stock cannot be negative')
-            }
-            if(discount > price){
-                return showToast('Discount cannot be greater than  to price')
-            }
-            
-            
+        tr.innerHTML = `
+        <td>
+            <strong>${v.ram} / ${v.storage}</strong><br>
+            <small>${v.color}</small>
+        </td>
+        <td>
+            <span style="text-decoration: line-through; color: #888; margin-right: 5px;">₹${regularPrice}</span>
+            <br>
+            <span style="font-weight: bold; color: green;">₹${salePrice}</span>
+        </td>
+        <td>${v.graphics}</td>
+        <td>${v.stock}</td>
+        <td>
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <img src="${imgSrc}" class="variant-img-preview" style="width:40px; height:40px; object-fit:cover; border:1px solid #ddd;">
+                ${v._id ? `
+                <label class="btn btn-sm btn-light" style="margin:0; cursor:pointer; padding: 2px 5px; font-size: 12px; border: 1px solid #ccc;">
+                    <i class="bi bi-upload"></i> Upload
+                    <input type="file" hidden accept="image/*" onchange="uploadVariantImage(event, '${v._id}', ${index})">
+                </label>` : '<span style="font-size:10px; color:#666;">Save first</span>'}
+            </div>
+        </td>
+        <td>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="editVariant(${index})" style="color: blue; border: none; background: none; cursor: pointer; font-weight:600;">
+                    Edit
+                </button>
+                <button type="button" onclick="removeVariant(${index})" style="color: red; border: none; background: none; cursor: pointer;">
+                    Remove
+                </button>
+            </div>
+        </td>
+    `;
+        tbody.appendChild(tr);
+    });
+    updateHiddenInput();
+}
 
-            // Push object with 'price' (MRP)
-            variants.push({
-                ram,
-                storage,
-                color: color || 'Standard',
-                price: parseFloat(price), // Important: Save as Number
-                graphics,
-                stock: parseInt(stock),
-                image: ''
-            });
-            
-            renderVariants();
-            
-           
+      function handleVariantSubmit() {
+    const ram = document.getElementById('v_ram').value;
+    const storage = document.getElementById('v_storage').value;
+    const color = document.getElementById('v_color').value;
+    const price = document.getElementById('v_price').value;
+    const stock = document.getElementById('v_stock').value;
+    const graphics = document.getElementById('v_graphics').value;
+    const discount = parseFloat(document.getElementById('discount').value) || 0;
 
-            // Clear inputs
+    // Validation
+    if (!ram || !storage || !price || !stock || !graphics) return showToast('Fill all fields', 'error');
+    if (parseFloat(price) < 1) return showToast('Price cannot be less than or equal 0');
+    if (parseInt(stock) < 0) return showToast('Stock cannot be negative');
+    if (discount > parseFloat(price)) return showToast('Discount cannot be greater than price');
+
+    const variantData = {
+        ram,
+        storage,
+        color: color || 'Standard',
+        price: parseFloat(price),
+        regularPrice: parseFloat(price),
+        graphics,
+        stock: parseInt(stock),
+        // Preserve ID and Image if editing
+        image: (editingVariantIndex > -1) ? variants[editingVariantIndex].image : '',
+        _id: (editingVariantIndex > -1) ? variants[editingVariantIndex]._id : undefined
+    };
+
+    if (editingVariantIndex === -1) {
+        // --- ADD MODE ---
+        variants.push(variantData);
+        showToast("Variant Added", "success");
+        // Clear inputs manually here because we are not calling resetVariantForm
+        document.getElementById('v_ram').value = '';
+        document.getElementById('v_storage').value = '';
+        document.getElementById('v_color').value = '';
+        document.getElementById('v_price').value = '';
+        document.getElementById('v_stock').value = '';
+        document.getElementById('v_graphics').value = '';
+        renderVariants();
+    } else {
+        // --- EDIT MODE ---
+        variants[editingVariantIndex] = variantData;
+        showToast("Variant Updated", "success");
+        resetVariantForm(); // This handles clearing inputs and re-rendering
+    }
+}
+
+        // Load data into inputs for editing
+        function editVariant(index) {
+            const v = variants[index];
+            
+            // Fill Inputs
+            document.getElementById('v_ram').value = v.ram;
+            document.getElementById('v_storage').value = v.storage;
+            document.getElementById('v_color').value = v.color;
+            document.getElementById('v_price').value = v.price || v.regularPrice;
+            document.getElementById('v_stock').value = v.stock;
+            document.getElementById('v_graphics').value = v.graphics;
+
+            // Set Edit Mode
+            editingVariantIndex = index;
+
+            // Change Buttons
+            const actionBtn = document.getElementById('variantActionBtn');
+            actionBtn.innerText = "Update";
+            actionBtn.style.background = "#ffc107"; // Yellow color
+            actionBtn.style.color = "#000";
+            
+            document.getElementById('cancelVariantEditBtn').style.display = 'block';
+
+            renderVariants(); // Re-render to show highlight
+        }
+
+
+        function resetVariantForm() {
             document.getElementById('v_ram').value = '';
             document.getElementById('v_storage').value = '';
             document.getElementById('v_color').value = '';
             document.getElementById('v_price').value = '';
             document.getElementById('v_stock').value = '';
             document.getElementById('v_graphics').value = '';
+
+            editingVariantIndex = -1;
+
+            const actionBtn = document.getElementById('variantActionBtn');
+            actionBtn.innerText = "+ Add";
+            actionBtn.style.background = "#0d6efd"; // Blue color
+            actionBtn.style.color = "#fff";
+
+            document.getElementById('cancelVariantEditBtn').style.display = 'none';
+            
+            renderVariants();
         }
+
+
         function removeVariant(index) {
             variants.splice(index, 1);
             renderVariants();

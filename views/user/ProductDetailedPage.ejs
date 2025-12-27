@@ -69,12 +69,12 @@
 
                         <div class="price">
                             <% if (product.hasOffer) { %>
-                                <span class="original-price" id="displayOriginal">
+                                <span class="original-price" id="displayOriginal" style="color: red;">
                                     ₹<%= product.originalPrice.toLocaleString('en-IN') %>
                                 </span>
                                 <span class="sale-price price-highlight" id="displaySale">
                                     ₹<%= product.finalPrice.toLocaleString('en-IN') %>
-                                </span>
+                                </span> 
                             <% } else { %>
                                 <span class="sale-price" id="displaySale">
                                     ₹<%= product.originalPrice.toLocaleString('en-IN') %>
@@ -95,9 +95,6 @@
                                     <% product.variants.forEach((variant, index)=> { %>
                                         
                                         <% 
-                                            // --- 3. DYNAMIC VARIANT PRICING LOGIC ---
-                                            // We must calculate the specific price for this variant
-                                            // so the javascript selectVariant() function receives the correct discounted amount
                                             
                                             let variantOriginal = variant.salePrice; // This is the database price
                                             let variantFinal = variantOriginal;
