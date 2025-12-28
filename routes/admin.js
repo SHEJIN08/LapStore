@@ -14,7 +14,9 @@ import upload from '../middleware/multer.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
 router.post('/login',authController.login)
+
 router.get('/dashboard',adminAuth.checkSession,authController.loadDashboard)
+router.get('/chart-data', authController.filterChartData)
 
 router.get('/products',adminAuth.checkSession,productController.loadProduct)
 router.patch('/products/toggle-block/:id',adminAuth.checkSession,productController.BlockOrUnblock)

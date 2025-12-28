@@ -1,5 +1,6 @@
 import Joi from "joi";
 import adminAuthService from "../../services/admin/authService.js";
+import salesService from "../../services/admin/salesService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 // 🧩 Joi validation schema
@@ -67,8 +68,42 @@ const login = async (req, res) => {
 
 // 🧩 Load admin dashboard
 const loadDashboard = async (req, res) => {
-    res.render("admin/dashboard");
+ try {
+        // 1. Fetch the full report data (Default to 'monthly' or 'yearly')
+        // We call 'getSalesReportService' because it returns EVERYTHING: summary, chartData, and orders.
+        const reportData = await salesService.getSalesReportService({ 
+            reportType: 'monthly', 
+            page: 1, 
+            limit: 5 // Limit to 5 for the "Recent Orders" table in dashboard
+        });
+
+        // 2. Render the dashboard and PASS THE DATA
+        res.render('admin/dashboard', { 
+            activePage: 'dashboard',
+            
+            // Pass the specific parts the EJS needs
+            summary: reportData.summary,       // Fixes "summary is not defined"
+            chartData: reportData.chartData,   // Fixes the Graph
+            orders: reportData.orders          // Fixes the Recent Orders table
+        });
+
+    } catch (error) {
+        console.log("Dashboard Error:", error);
+        res.render('admin/error/500');
+    }
 };
+
+const filterChartData = async (req,res) => {
+  try {
+    const { filter } = req.query;
+    
+    const data = await salesService.getSalesChartData(filter)
+
+    res.json(data);
+  } catch (error) {
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR})
+  }
+}
 
 // 🚪 Logout
 const logout = async (req, res) => {
@@ -85,6 +120,7 @@ const logout = async (req, res) => {
 const authController = {
   loadDashboard,
   loadLogin,
+  filterChartData,
   login,
   logout,
 };

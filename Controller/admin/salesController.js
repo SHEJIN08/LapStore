@@ -14,7 +14,7 @@ const loadSalesReport = async (req, res) => {
             startDate,
             endDate
         });
-
+        
         res.render("admin/salesReport", {
             orders: data.orders,
             // Stats
