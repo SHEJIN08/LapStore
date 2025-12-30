@@ -69,22 +69,27 @@ const login = async (req, res) => {
 // 🧩 Load admin dashboard
 const loadDashboard = async (req, res) => {
  try {
-        // 1. Fetch the full report data (Default to 'monthly' or 'yearly')
-        // We call 'getSalesReportService' because it returns EVERYTHING: summary, chartData, and orders.
         const reportData = await salesService.getSalesReportService({ 
             reportType: 'monthly', 
             page: 1, 
-            limit: 5 // Limit to 5 for the "Recent Orders" table in dashboard
+            limit: 5
         });
 
-        // 2. Render the dashboard and PASS THE DATA
+       const topProducts = await salesService.getBestSellingProducts();
+       const topCategories = await salesService.getBestSellingCategory();
+       const topBrands = await salesService.getBestSellingBrand();
+       const countStatus = await salesService.getOrderStatus();
+       const activeUserCount = await salesService.activeUsersCount();
+
         res.render('admin/dashboard', { 
-            activePage: 'dashboard',
-            
-            // Pass the specific parts the EJS needs
-            summary: reportData.summary,       // Fixes "summary is not defined"
-            chartData: reportData.chartData,   // Fixes the Graph
-            orders: reportData.orders          // Fixes the Recent Orders table
+            summary: reportData.summary,       
+            chartData: reportData.chartData,   
+            orders: reportData.orders,
+            topProducts,
+            topCategories,
+            topBrands,
+            orderStatusData: countStatus,
+            activeUser: activeUserCount       
         });
 
     } catch (error) {

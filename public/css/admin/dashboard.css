@@ -388,3 +388,33 @@ ul {
 .view-all-link:hover {
     background-color: var(--light-blue);
 }
+.product-thumbnail {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.product-name-cell {
+    display: flex;
+    align-items: center;
+}
+.brand-thumbnail {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.brand-name-cell {
+    display: flex;
+    align-items: center;
+}
+.users-icon {
+    background-color: #ffebee; /* Light red background */
+    color: #d32f2f;            /* Darker red color for the SVG icon */
+}

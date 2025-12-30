@@ -22,7 +22,7 @@
                     </div>
                     <div class="card-info">
                         <span class="card-title">Total Revenue</span>
-                        <span class="card-value">₹<%= summary.totalSales ? summary.totalSales.toFixed(2) : '0.00' %></span>
+                        <span class="card-value">₹<%= summary.totalSales ? Number(summary.totalSales.toFixed(2)).toLocaleString('en-IN') : '0.00' %></span>
                         <span class="card-change positive">Revenue based on current filter</span>
                     </div>
                 </div>
@@ -44,9 +44,23 @@
                     </div>
                     <div class="card-info">
                         <span class="card-title">Total Discount</span>
-                        <span class="card-value">₹<%= summary.totalDiscount ? summary.totalDiscount.toFixed(2) : '0.00' %></span>
+                        <span class="card-value">₹<%= summary.totalDiscount ?  Number(summary.totalDiscount.toFixed(2)).toLocaleString('en-IN') : '0.00' %></span>
                     </div>
                 </div>
+                <div class="stat-card">
+    <div class="card-icon users-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+    </div>
+    <div class="card-info">
+        <span class="card-title">Active Users</span>
+        <span class="card-value"><%= activeUser %></span>
+    </div>
+</div>
             </section>
 
             <section class="dashboard-row">
@@ -65,27 +79,36 @@
     </div>
 </div>
 
-                <div class="activity-feed card">
-                    <div class="card-header">
-                        <h3>Activity Feed</h3>
-                    </div>
-                    <ul class="feed-list">
-                         <li class="feed-item">
-                            <div class="feed-content">
-                                <p>System <strong>Active</strong></p>
-                                <span class="feed-time">Just now</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                <div class="order-status-card card">
+    <div class="card-header">
+        <h3>Order Status</h3>
+    </div>
+    
+    <div class="chart-container" style="position: relative; height: 250px; display: flex; justify-content: center; align-items: center;">
+        <canvas id="statusChart"></canvas>
+        
+        <div id="chartCenterText" style="position: absolute; text-align: center; pointer-events: none;">
+            <span id="centerCount" style="display: block; font-size: 2rem; font-weight: bold; color: #333;">0</span>
+            <span style="font-size: 0.9rem; color: #888;">Orders</span>
+        </div>
+    </div>
+
+    <div id="statusLegend" style="margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+        </div>
+</div>
             </section>
 
-            <section class="orders-table card">
-                <div class="card-header">
-                    <div class="tabs">
-                        <button class="tab-btn active">Recent Orders</button>
-                    </div>
+           <section class="orders-table card">
+            <div class="card-header">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTable('recent-orders', this)">Recent Orders</button>
+                    <button class="tab-btn" onclick="switchTable('top-products', this)">Top Products</button>
+                    <button class="tab-btn" onclick="switchTable('top-categories', this)">Top Categories</button>
+                    <button class="tab-btn" onclick="switchTable('top-brands', this)">Top Brands</button>
                 </div>
+            </div>
+
+            <div id="recent-orders" class="table-container">
                 <table>
                     <thead>
                         <tr>
@@ -103,23 +126,105 @@
                                 <td>#<%= order.orderId %></td>
                                 <td><%= order.customerName %></td>
                                 <td><%= new Date(order.date).toLocaleDateString() %></td>
-                                
-                                <td>
-                                    <span class="status completed">Completed</span>
-                                </td>
-                                
+                                <td><span class="status completed">Completed</span></td>
                                 <td>₹<%= order.rowTotal.toFixed(2) %></td>
                             </tr>
                             <% }) %>
                         <% } else { %>
-                            <tr>
-                                <td colspan="5">No orders found.</td>
-                            </tr>
+                            <tr><td colspan="5">No orders found.</td></tr>
                         <% } %>
                     </tbody>
                 </table>
                 <a href="/admin/sales-report" class="view-all-link">View Full Report</a>
-            </section>
+            </div>
+
+          <div id="top-products" class="table-container" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Product</th> <th>Units Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (topProducts && topProducts.length > 0) { %>
+                        <% topProducts.forEach((item, index) => { %>
+                        <tr>
+                            <td>#<%= index + 1 %></td>
+                            <td>
+                                <div class="product-name-cell">
+                                    <img src="<%= item.productImage %>" 
+                                        alt="Product" 
+                                        class="product-thumbnail"
+                                        onerror="this.src='/images/default-product.jpg'"> <span><%= item._id %></span>
+                                </div>
+                            </td>
+                            <td><%= item.totalSold %></td>
+                            <td>₹<%= item.totalRevenue.toFixed(2) %></td>
+                        </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr><td colspan="4">No data available.</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+            <div id="top-categories" class="table-container" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Category Name</th>
+                            <th>Units Sold</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (topCategories && topCategories.length > 0) { %>
+                            <% topCategories.forEach((item, index) => { %>
+                            <tr style="height: 50px;">
+                                <td>#<%= index + 1 %></td>
+                                <td><%= item._id %></td>
+                                <td><%= item.totalSold %></td>
+                            </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr><td colspan="3">No data available.</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="top-brands" class="table-container" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Brand Name</th>
+                            <th>Units Sold</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (topBrands && topBrands.length > 0) { %>
+                            <% topBrands.forEach((item, index) => { %>
+                            <tr>
+                                <td>#<%= index + 1 %></td>
+                                <td>
+                                    <div class="brand-name-cell">
+                                        <img src="<%= item.brandImage %>" alt="brand"
+                                        class="brand-thumbnail"
+                                       onerror="this.src='/images/default-product.jpg'"> <span><%= item._id %></span>
+                                    </div>
+                                <td><%= item.totalSold %></td>
+                            </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr><td colspan="3">No data available.</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
         </main>
     </div>
@@ -180,31 +285,116 @@
 
     // 3. UPDATED FUNCTION: USING AXIOS
     async function updateChart(btn, filterType) {
-        // A. Update UI Buttons
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
         try {
-            // B. Axios Request
-            // Axios automatically parses JSON, so we don't need .json()
+
             const response = await axios.get(`/admin/chart-data`, {
                 params: { filter: filterType }
             });
 
-            // C. Get Data (Axios puts the backend response inside .data)
-            // Assuming your backend sends { chartData: [...] }
             const newData = response.data.chartData; 
 
-            // D. Update Chart Data
             salesChart.data.labels = newData.map(item => item._id);
             salesChart.data.datasets[0].data = newData.map(item => item.totalSales);
-            
-            // E. Refresh
+
             salesChart.update();
 
         } catch (error) {
             console.error("Error fetching chart data:", error);
-            // Optional: alert('Failed to load graph data');
         }
     }
+
+    // TAB SWITCHER FOR TABLES
+    function switchTable(tableId, btn) {
+        document.querySelectorAll('.table-container').forEach(el => {
+            el.style.display = 'none';
+        });
+
+        document.getElementById(tableId).style.display = 'block';
+
+        const parentTabs = btn.closest('.tabs');
+
+        parentTabs.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+
+        btn.classList.add('active');
+    }
+
+    // ==========================================
+    // ORDER STATUS DONUT CHART
+    // ==========================================
+    const statusRaw = <%- JSON.stringify(orderStatusData || []) %>;
+    
+    // 1. Prepare Data
+    const statusLabels = statusRaw.map(item => item._id);
+    const statusCounts = statusRaw.map(item => item.count);
+    const totalStatusCount = statusCounts.reduce((a, b) => a + b, 0);
+
+    // Update the center text number
+    document.getElementById('centerCount').innerText = totalStatusCount;
+
+    // 2. Define Colors (Matching your uploaded image)
+    const statusColors = {
+        'Delivered': '#4caf50',       // Green
+        'Pending': '#ff9800',         // Orange
+        'Shipped': '#2196f3',         // Blue
+        'Cancelled': '#f44336',       // Red
+        'Returned': '#9c27b0',        // Purple
+        'Return Rejected': '#607d8b', // Grey
+        'Confirmed': '#00bcd4',        // Cyan
+        'Processing': 'yellow'
+    };
+
+    // Map existing statuses to colors (fallback to grey if status not listed)
+    const backgroundColors = statusLabels.map(label => statusColors[label] || '#ccc');
+
+    // 3. Render Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusCounts,
+                backgroundColor: backgroundColors,
+                borderWidth: 0, // Clean look without borders
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%', // Makes the donut thinner
+            plugins: {
+                legend: {
+                    display: false // We use a custom legend below
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            let value = context.raw || 0;
+                            return `${label}: ${value} items`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 4. Generate Custom Legend (HTML)
+    const legendContainer = document.getElementById('statusLegend');
+    statusLabels.forEach((label, index) => {
+        const color = backgroundColors[index];
+        const html = `
+            <div style="display: flex; align-items: center; font-size: 0.85rem; color: #555;">
+                <span style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
+                ${label}
+            </div>
+        `;
+        legendContainer.innerHTML += html;
+    });
 </script>

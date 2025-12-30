@@ -103,8 +103,20 @@ const applyCouponService = async (userId, couponCode, totalAmount) => {
             return { success: false, message: 'You are not eligible for this coupon' };
         }
 
-        // Parse totalAmount to ensure it's a number
-        const total = parseFloat(totalAmount); 
+        const tax = 0.05;
+        let shipping = 100;
+
+            // Parse totalAmount to ensure it's a number
+            let total = parseFloat(totalAmount); 
+
+            if(total > 100000){
+                shipping = 0
+            }
+
+            const taxAmount = total * tax;
+
+            total += (taxAmount + shipping)
+
 
         if (total < coupon.minPurchaseAmount) {
             return { success: false, message: `Minimum purchase of ₹${coupon.minPurchaseAmount} required` };
@@ -195,7 +207,6 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
     // 3. Check Stock & Calculate Subtotal
     let subtotal = 0;
     const orderedItems = [];
-
     for (const item of cartItems) {
        if (!item.variantId) {
             continue;
@@ -304,54 +315,64 @@ const saveFailedOrderService = async (userId, addressId, paymentDetails, couponC
     
     // 1. Fetch Cart
     const cartItems = await Cart.find({ userId }).populate('productId').populate('variantId');
-    if (!cartItems || cartItems.length === 0) return null; // Nothing to save
+    if (!cartItems || cartItems.length === 0) return null; 
 
     // 2. Fetch Address
     const addressDoc = await Address.findOne({ _id: addressId });
     if (!addressDoc) throw new Error("Address not found");
 
-    // 3. Calculate Totals (Same logic as placeOrder)
+    // 3. Calculate Totals
     let subtotal = 0;
     const orderedItems = [];
 
     for (const item of cartItems) {
         if (!item.variantId) continue;
-        
-        const price = item.variantId.salePrice;
-        subtotal += price * item.quantity;
+
+        const productForOffer = item.productId;
+        productForOffer.regularPrice = item.variantId.salePrice;
+
+        const { finalPrice, offerId } = await calculateProductDiscount(productForOffer);
+
+        subtotal += finalPrice * item.quantity;
 
         orderedItems.push({
             productId: item.productId._id,
             variantId: item.variantId._id,
             productName: item.productId.name,
-            image: item.variantId.image,
-            productStatus: 'Failed', // Set individual item status
+            // FIX 1: Handle Image Array (Same as placeOrderService)
+            image: Array.isArray(item.variantId.image) ? item.variantId.image[0] : item.variantId.image,
+            productStatus: 'Failed', 
             quantity: item.quantity,
-            price: price
+            price: finalPrice,
+            offerId: offerId
         });
     }
 
     let discount = 0;
-    try{
+    try {
         if(couponCode){
             const result = await calculateCouponDiscount(userId, couponCode, subtotal);
             discount = result.discount;
         }
-    }catch (err) {
-        console.log("Coupon failed for failed-order creation (ignoring discount):", err.message);
+    } catch (err) {
+        console.log("Coupon failed for failed-order creation:", err.message);
         discount = 0;
     }
     
     const tax = subtotal * 0.05;
     const shipping = subtotal > 100000 ? 0 : 100;
-    const finalAmount = subtotal + tax + shipping;
 
-    // 4. Create Order Document with 'Failed' Status
-    const failedOrder = new Order({
+    // FIX 2: Subtract Discount from Final Amount
+    const finalAmount = Math.round(subtotal + tax + shipping - discount);
+
+    // 4. Create Order Document
+    let failedOrder = new Order({
         userId,
         orderedItems,
         totalPrice: subtotal,
         discount: discount,
+        // FIX 3: Save the Coupon Code if used
+        couponCode: discount > 0 ? couponCode : null,
         finalAmount,
         address: {
             fullName: addressDoc.fullName,
@@ -364,11 +385,11 @@ const saveFailedOrderService = async (userId, addressId, paymentDetails, couponC
             pincode: addressDoc.pincode
         },
         paymentMethod: 'Razorpay',
-        paymentStatus: 'Failed', // <--- Key Change
-        razorpayStatus: 'Failed', // <--- Key Change
+        paymentStatus: 'Failed',
+        razorpayStatus: 'Failed',
         razorpayOrderId: paymentDetails.razorpayOrderId,
         razorpayPaymentId: paymentDetails.razorpayPaymentId,
-        status: 'Failed', // <--- Key Change
+        status: 'Failed',
         orderId: `ORD-${Date.now()}`,
         orderHistory: [{
             status: 'Failed',
@@ -378,8 +399,6 @@ const saveFailedOrderService = async (userId, addressId, paymentDetails, couponC
     });
 
     await failedOrder.save();
-    
-    
     
     return failedOrder;
 };

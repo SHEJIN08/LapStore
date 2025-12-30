@@ -1,6 +1,8 @@
 import checkoutService from "../../services/user/checkoutService.js";
 import paymentService from "../../services/paymentService.js";
 import User from "../../model/userModel.js";
+import Variant from "../../model/variantModel.js";
+import Order from "../../model/orderModel.js";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 import walletService from "../../services/user/walletService.js";
 
@@ -72,45 +74,114 @@ const verifyPayment = async (req, res) => {
         const userId = req.session.user;
 
 
-        if (!addressId) {
-            return res.status(StatusCode.BAD_REQUEST).json({ 
-                success: false, 
-                message: "Address ID is missing. Please select an address." 
-            });
-        }
-
+        
         // A. Verify Signature
         const isValid = paymentService.verifySignatureService(
             razorpay_order_id, 
             razorpay_payment_id, 
             razorpay_signature
         );
-
+        
         if (!isValid) {
             return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: "Payment Verification Failed" });
         }
 
-        // B. Signature is Valid -> Place the Order in DB
-        const newOrder = await checkoutService.placeOrderService(
-            userId, 
-            addressId, 
-            "Razorpay", // Payment Method
-            { 
-                razorpayOrderId: razorpay_order_id,
-                razorpayPaymentId: razorpay_payment_id,
-            },
-            couponCode
-        );
+        const existingOrder = await Order.findOne({razorpayOrderId: razorpay_order_id});
 
-        res.status(StatusCode.OK).json({ 
-            success: true, 
-            orderId: newOrder.orderId,
-            message: "Order placed successfully" 
-        });
+        if(existingOrder){
+            existingOrder.paymentStatus = 'Paid';
+            existingOrder.razorpayStatus = 'Paid';
+            existingOrder.razorpayPaymentId = razorpay_payment_id;
+            existingOrder.status = 'Pending';
+
+            existingOrder.orderHistory.push({
+                status: 'Pending',
+                date: new Date(),
+                comment: 'Payment Successful on Retry'
+            });
+
+            for (const item of existingOrder.orderedItems) {
+                await Variant.findByIdAndUpdate(item.variantId, { 
+                    $inc: { stock: -item.quantity } 
+                });
+            }
+
+            await existingOrder.save();
+
+            return res.status(StatusCode.OK).json({ 
+                success: true, 
+                orderId: existingOrder.orderId,
+                message: "Payment Retried Successfully" 
+            });
+        }else{
+
+            if (!addressId) {
+                return res.status(StatusCode.BAD_REQUEST).json({ 
+                    success: false, 
+                    message: "Address ID is missing. Please select an address." 
+                });
+            }
+    
+            // B. Signature is Valid -> Place the Order in DB
+            const newOrder = await checkoutService.placeOrderService(
+                userId, 
+                addressId, 
+                "Razorpay", // Payment Method
+                { 
+                    razorpayOrderId: razorpay_order_id,
+                    razorpayPaymentId: razorpay_payment_id,
+                },
+                couponCode
+            );
+    
+            res.status(StatusCode.OK).json({ 
+                success: true, 
+                orderId: newOrder.orderId,
+                message: "Order placed successfully" 
+            });
+
+        }
 
     } catch (error) {
         console.error("Payment Verify Error:", error);
         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    }
+};
+
+const retryFailedPayment = async (req, res) => {
+    try {
+        const { orderId } = req.body; 
+        const userId = req.session.user; 
+
+        // 1. Find the Failed Order
+      const order = await Order.findOne({ orderId: orderId });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.status !== 'Failed' && order.paymentStatus !== 'Failed') {
+            return res.status(400).json({ success: false, message: "This order cannot be retried." });
+        }
+
+        const user = await User.findById(userId);
+
+        res.status(200).json({
+            success: true,
+            key_id: process.env.RAZORPAY_KEY_ID,
+            amount: order.finalAmount * 100, // Amount in paise
+            currency: "INR",
+            razorpayOrderId: order.razorpayOrderId,
+            user: {
+                name: order.address.fullName,
+                email: user.email,
+                phone: order.address.phone
+            }
+        });
+
+    } catch (error) {
+        console.error("Retry Payment Error:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
     }
 };
 
@@ -169,6 +240,7 @@ const orderSuccess = async (req, res) => {
 const orderFailed = async (req, res) => {
     try {
         const { error, orderId, razorpayOrderId, razorpayPaymentId } = req.query;
+    
         res.render('user/orderFailure', {
             error: error,
             orderId: orderId, // Pass this if you have a Pending order ID
@@ -189,8 +261,9 @@ const handleFailedPayment = async (req, res) => {
             razorpay_payment_id, 
             razorpay_error,
             addressId,
-            couponCode
         } = req.body;
+        let couponCode = req.body.couponCode;
+      
         
         const userId = req.session.user;
 
@@ -208,9 +281,15 @@ const handleFailedPayment = async (req, res) => {
             couponCode
         );
 
-        res.status(StatusCode.OK).json({ 
+        const finalOrderId = failedOrder.orderId || failedOrder._id;
+
+        if (!finalOrderId) {
+            throw new Error("Order ID not generated by service");
+        }
+
+        res.json({ 
             success: true, 
-            orderId: failedOrder ? failedOrder.orderId : null,
+            orderId:  failedOrder.orderId,
             message: "Failed order saved" 
         });
 
@@ -271,4 +350,4 @@ const removeCoupon = async (req, res) => {
 
 
 
-export default { loadCheckout, createPaymentOrder, verifyPayment, placeOrder, orderSuccess, orderFailed, handleFailedPayment, applyCoupon, removeCoupon };
+export default { loadCheckout, createPaymentOrder, verifyPayment, placeOrder, orderSuccess, orderFailed, handleFailedPayment, applyCoupon, removeCoupon, retryFailedPayment };

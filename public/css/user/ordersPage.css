@@ -469,6 +469,26 @@
     margin-top: 15px;
     border-radius: 8px
 }
+
+.btn-retry {
+    background: none;
+    border: none;
+    color: #EF4444;
+    font-size: 13px;
+    font-weight: 1000;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+
+.rtr-pay {
+ background: #ffebeb;
+    margin-top: 15px;
+    border-radius: 8px;
+    width: 90px;
+}
+
+
 /* --- Modal Overlay --- */
 .modal-overlay {
     position: fixed;

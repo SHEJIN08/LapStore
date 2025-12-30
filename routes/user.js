@@ -70,6 +70,7 @@ router.get('/home/orders/details/:orderId',userAuth.isUserBlocked, userAuth.chec
 router.post('/orders/return', upload.single('returnImage'), orderController.returnOrder);
 router.get('/orders/invoice/:orderId', orderController.downloadInvoice);
 
+router.post('/repay-failed-order', checkoutController.retryFailedPayment);
 
 router.get('/wishlist', userAuth.isUserBlocked, userAuth.checkSession, wishlistController.loadWishlist);
 router.post('/wishlist/add', userAuth.checkSession, wishlistController.addToWishlist);

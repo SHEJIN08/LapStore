@@ -128,13 +128,20 @@
 
         <div class="divider"></div>
 
-        <div class="coupon-input-section">
-            <div class="input-group">
-                <input type="text" id="couponCodeInput" placeholder="Enter Coupon Code">
-                <button type="button" class="apply-btn" onclick="applyManualCoupon()">Apply</button>
-            </div>
-            <p id="couponMessage" class="coupon-msg"></p>
-        </div>
+     <input type="hidden" id="originalTotalAmount" value="<%= total %>">
+
+<div class="coupon-input-section">
+    <div class="input-group">
+        <input type="text" id="couponCodeInput" placeholder="Enter Coupon Code">
+        
+        <button type="button" class="apply-btn" id="applyCouponBtn" onclick="applyManualCoupon()">Apply</button>
+        
+        <button type="button" class="remove-btn" id="removeCouponBtn" onclick="removeCoupon()" style="display: none;">
+            <i class="fa-solid fa-times"></i> Remove
+        </button>
+    </div>
+    <p id="couponMessage" class="coupon-msg"></p>
+</div>
 
         <div class="divider"></div>
 
@@ -244,9 +251,8 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
-    // --- Toast Helper ---
     const showToast = (message, type) => {
-        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+  const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
         Toastify({
             text: message,
             duration: 3000,
@@ -254,9 +260,9 @@
             position: "right",
             style: { background: bgColor, borderRadius: '10px' }
         }).showToast();
-    };
+    }
 
-  function selectCard(input) {
+    function selectCard(input) {
         const container = input.closest('.address-grid') || input.closest('.payment-options');
         container.querySelectorAll('.selection-card').forEach(card => card.classList.remove('selected'));
         input.closest('.selection-card').classList.add('selected');
@@ -270,17 +276,16 @@
         if(code) applyCouponBackend(code);
     }
 
-    // B. Clicking a Ticket (from coupons-card)
+    // B. Clicking a Ticket
     function useCoupon(code) {
         document.getElementById('couponCodeInput').value = code;
         applyCouponBackend(code);
     }
 
-    // C. Backend Call
+    // C. Backend Call (Apply)
     async function applyCouponBackend(code) {
         const subtotal = document.getElementById('subtotalDisplay').getAttribute('data-value');
-        const msg = document.getElementById('couponMessage');
-
+        
         try {
             const response = await axios.post('/user/cart/apply-coupon', {
                 couponCode: code,
@@ -288,27 +293,26 @@
             });
 
             if (response.data.success) {
-                // UI Updates
                 showToast("Coupon Applied!", "success");
-                msg.innerText = response.data.message;
-                msg.style.color = "green";
-
-                // Update Order Summary Numbers
+                
+                // Update UI
+                document.getElementById('couponMessage').innerText = response.data.message;
+                document.getElementById('couponMessage').style.color = "green";
+                
                 document.getElementById('discountRow').style.display = 'flex';
                 document.getElementById('discountDisplay').innerText = `- ₹${response.data.discount}`;
                 document.getElementById('totalAmountDisplay').innerText = `₹${response.data.newTotal}`;
-                
-                // CRITICAL: Update the hidden value used for payment
                 document.getElementById('realTotalAmount').value = response.data.newTotal;
 
-                // Disable input to prevent double apply
+                // Toggle Buttons
                 document.getElementById('couponCodeInput').disabled = true;
-                document.querySelector('.apply-btn').innerText = "Applied";
-                document.querySelector('.apply-btn').disabled = true;
+                document.getElementById('applyCouponBtn').style.display = 'none'; 
+                document.getElementById('removeCouponBtn').style.display = 'block'; 
+
             } else {
                 showToast(response.data.message, "error");
-                msg.innerText = response.data.message;
-                msg.style.color = "red";
+                document.getElementById('couponMessage').innerText = response.data.message;
+                document.getElementById('couponMessage').style.color = "red";
             }
         } catch (error) {
             console.error(error);
@@ -316,6 +320,42 @@
         }
     }
 
+    // D. Remove Coupon Logic (FIXED)
+    async function removeCoupon() {
+        const originalTotal = document.getElementById('originalTotalAmount').value;
+
+        try {
+            // 1. Tell Backend to remove coupon
+            // Make sure you have this route: router.post('/cart/remove-coupon', ...)
+            const response = await axios.post('/user/cart/remove-coupon'); 
+
+            if(response.data.success) {
+                // 2. Reset UI Values
+                document.getElementById('discountRow').style.display = 'none';
+                document.getElementById('discountDisplay').innerText = `- ₹0`;
+                document.getElementById('totalAmountDisplay').innerText = `₹${parseFloat(originalTotal).toFixed(2)}`;
+                document.getElementById('realTotalAmount').value = originalTotal;
+
+                // 3. Reset Inputs
+                const input = document.getElementById('couponCodeInput');
+                input.value = '';
+                input.disabled = false;
+                document.getElementById('couponMessage').innerText = '';
+
+                // 4. Toggle Buttons
+                document.getElementById('removeCouponBtn').style.display = 'none';
+                document.getElementById('applyCouponBtn').style.display = 'block';
+                
+                showToast("Coupon removed", "info");
+            } else {
+                showToast("Could not remove coupon", "error");
+            }
+        } catch(error) {
+            console.error(error);
+            // Fallback UI reset if backend call fails but we want to reset UI anyway
+            showToast("Network error removing coupon", "error");
+        }
+    }
     // --- 2. MAIN FORM SUBMIT ---
     document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
         e.preventDefault(); 
@@ -384,15 +424,21 @@
                 const errorDesc = response.error.description;
                 const rzpOrderId = response.error.metadata.order_id;
                 const rzpPaymentId = response.error.metadata.payment_id;
-
+              let finalOrderId = '';
                 try {
                     // 1. Save Failed Order to DB
-                    await axios.post('/user/payment-failed', {
+                  const saveResponse =  await axios.post('/user/payment-failed', {
                         razorpay_order_id: rzpOrderId,
                         razorpay_payment_id: rzpPaymentId,
                         razorpay_error: errorDesc,
-                        addressId: addressId
+                        addressId: addressId,
+                        couponCode: couponCode
                     });
+               
+
+                  if (saveResponse.data.success && saveResponse.data.orderId) {
+            finalOrderId = saveResponse.data.orderId;
+        }
                 } catch (err) {
                     console.error("Could not save failed order", err);
                 }
@@ -400,6 +446,10 @@
                 let failureUrl = `/user/order-failure?error=${encodeURIComponent(errorDesc)}`;
                 if(rzpOrderId) failureUrl += `&razorpayOrderId=${rzpOrderId}`;
                 if(rzpPaymentId) failureUrl += `&razorpayPaymentId=${rzpPaymentId}`;
+
+               if(finalOrderId) {
+        failureUrl += `&orderId=${finalOrderId}`; 
+    }
 
                 window.location.href = failureUrl;
             });

@@ -30,7 +30,7 @@
                 <% } %>
 
                 <% if (typeof orderId !== 'undefined' && orderId) { %>
-                    <p class="detail-row">Order Reference: <span><%= orderId %></span></p>
+                   <p class="detail-row">Order Reference: <span id="failedOrderId"><%= orderId %></span></p>
                 <% } %>
             </div>
 
@@ -43,9 +43,9 @@
             <% } %>
 
             <div class="action-buttons">
-                <a href="/user/cart/checkout" class="retry-btn">Try Again</a>
+<button type="button" class="retry-btn" onclick="retryPayment('<%= orderId %>')">Try Again</button>
 
-                <a href="/user/cart" class="cart-btn">Go to Cart</a>
+                <a href="/user/home/cart" class="cart-btn">Go to Cart</a>
             </div>
             
             <a href="/user/home/shop" class="continue-link">Continue Shopping</a>
@@ -55,3 +55,114 @@
 
 <%- include('../partials/footer') %>
 </body>
+<script src="/js/axios.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    async function retryPayment(orderIdParam) {
+        const button = document.querySelector('.retry-btn');
+        
+        // --- SAFE ID RETRIEVAL ---
+        let orderId = orderIdParam;
+        
+        // Fallback: If button didn't pass it, try the HTML span
+        if (!orderId) {
+            const orderSpan = document.getElementById('failedOrderId');
+            if (orderSpan) orderId = orderSpan.innerText.trim();
+        }
+
+        // Fallback: Try URL
+        if (!orderId) {
+            const urlParams = new URLSearchParams(window.location.search);
+            orderId = urlParams.get('orderId');
+        }
+
+        // Final Check
+        if (!orderId) {
+            console.error("Critical: No Order ID found.");
+            showToast("Cannot retry: Order ID missing.", "error");
+            return;
+        }
+
+        try {
+            button.innerText = "Processing...";
+            button.disabled = true;
+
+            // Call Backend
+            const response = await axios.post('/user/repay-failed-order', { orderId: orderId });
+
+            if (!response.data.success) {
+                throw new Error(response.data.message);
+            }
+
+            const { key_id, amount, currency, razorpayOrderId, user } = response.data;
+
+            const options = {
+                "key": key_id,
+                "amount": amount,
+                "currency": currency,
+                "name": "LapStore",
+                "order_id": razorpayOrderId,
+                "handler": async function (response) {
+                    try {
+                        const verifyRes = await axios.post('/user/verify-payment', {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            orderId: orderId // Send the custom ID back for verification
+                        });
+
+                        if (verifyRes.data.success) {
+                            window.location.href = `/user/order-success/${verifyRes.data.orderId}`;
+                        } else {
+                            showToast('Payment verification failed', 'error');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showToast('Verification error', 'error');
+                    }
+                },
+                "prefill": {
+                    "name": user.name,
+                    "email": user.email,
+                    "contact": user.phone
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        button.innerText = "Try Again";
+                        button.disabled = false;
+                        showToast("Payment cancelled", "error");
+                    }
+                }
+            };
+
+            const rzp1 = new Razorpay(options);
+            
+            rzp1.on('payment.failed', function (response){
+                 // Redirect to failure page with specific error
+                 const errorDesc = response.error.description;
+                 window.location.href = `/user/order-failure?error=${encodeURIComponent(errorDesc)}&orderId=${orderId}`;
+            });
+
+            rzp1.open();
+
+        } catch(error) {
+            console.error(error);
+            button.innerText = "Try Again";
+            button.disabled = false;
+            showToast(error.response?.data?.message || error.message || "Retry failed", 'error');
+        }
+    }
+    // Helper Toast Function
+    function showToast(msg, type) {
+        // Use your existing Toastify logic here
+        Toastify({
+            text: msg,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: { background: type === 'success' ? "green" : "#e52d27" }
+        }).showToast();
+    }
+
+   
+</script>

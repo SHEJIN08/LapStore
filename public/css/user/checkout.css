@@ -504,3 +504,22 @@
     min-height: 1.2em;
 }
 .green { color: #166534; font-weight: 600; }
+.remove-btn {
+    background-color: #ef4444; /* Red color */
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 0 8px 8px 0; /* Rounded right corners */
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.remove-btn:hover {
+    background-color: #dc2626;
+}
+
+/* Update input to look good when button changes */
+.input-group input {
+    border-radius: 8px 0 0 8px; /* Keep left rounded */
+}
