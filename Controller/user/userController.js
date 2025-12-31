@@ -1,6 +1,8 @@
-// controllers/user/userController.js
+
 import productService from "../../services/admin/productService.js";
 import userService from "../../services/user/userService.js";
+import Review from "../../model/reviewModel.js";
+import reviewService from "../../services/user/reviewService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 
@@ -33,16 +35,20 @@ const detailedPage = async (req, res) => {
 
     // Call Service
     const data = await userService.getProductDetailsService(slug);
+    // const reviews = await Review.findById()
 
     if (!data) {
         // Handle Not Found (Product/Brand/Category issue)
         return res.status(StatusCode.NOT_FOUND).render('user/404');
     }
 
+    const reviews = await reviewService.getProductReviewService(data.product._id)
+
     res.render('user/ProductDetailedPage', {
         user: userId,
         product: data.product,
         relatedProducts: data.relatedProducts,
+        reviews: reviews || []
     });
 
   } catch (error) {

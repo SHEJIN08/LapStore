@@ -12,6 +12,7 @@ import orderController from '../Controller/user/orderContoller.js';
 import wishlistController from '../Controller/user/wishlistController.js';
 import walletController from '../Controller/user/walletController.js';
 import referralController from '../Controller/user/referralController.js';
+import reviewController from '../Controller/user/reviewController.js';
 import upload from '../middleware/multer.js'
 
 router.get('/register',userAuth.isLogin,authController.loadRegister)
@@ -81,6 +82,9 @@ router.post('/wallet/add-money', userAuth.checkSession, walletController.addMone
 router.post('/wallet/verify-payment', userAuth.checkSession, walletController.verifyWalletPayment)
 
 router.get('/home/referral', referralController.loadReferralPage)
+
+router.post('/product/reviews/add', userAuth.checkSession, reviewController.addReview)
+router.get('/product/:productId', reviewController.getProductReviews)
 
 
 router.get('/logout',userController.logout);

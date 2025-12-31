@@ -178,9 +178,46 @@
                         <h2 class="section-heading">Customer Reviews</h2>
                         <button class="btn-add-review">Add a Review</button>
                     </div>
-                    <div class="review-list">
-                        <p style="color: #666;">No reviews yet. Be the first to review!</p>
-                    </div>
+                 <div class="review-list">
+                    <% if (reviews && reviews.length > 0) { %>
+                        <% reviews.forEach(review => { %>
+                            <div class="review-card" style="border-bottom: 1px solid #eee; padding: 15px 0; margin-bottom: 10px;">
+                                <div class="review-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div class="reviewer-info" style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="width: 35px; height: 35px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #555;">
+                                            <%= review.userId.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <div>
+                                            <strong style="display: block; font-size: 0.95rem;"><%= review.userId.name %></strong>
+                                            <span style="font-size: 0.8rem; color: #888;">
+                                                <%= new Date(review.createdAt).toLocaleDateString('en-IN') %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="star-display" style="color: #FFD700;">
+                                        <% for(let i=1; i<=5; i++) { %>
+                                            <% if(i <= review.rating) { %>
+                                                <i class="fa-solid fa-star"></i>
+                                            <% } else { %>
+                                                <i class="fa-regular fa-star" style="color: #ccc;"></i>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
+                                </div>
+
+                                <p class="review-comment" style="color: #444; line-height: 1.5; font-size: 0.95rem;">
+                                    <%= review.comment %>
+                                </p>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div style="text-align: center; padding: 20px;">
+                            <i class="fa-regular fa-comments" style="font-size: 2rem; color: #ddd; margin-bottom: 10px;"></i>
+                            <p style="color: #666;">No reviews yet. Be the first to review this product!</p>
+                        </div>
+                    <% } %>
+                </div>
                 </section>
 
                 <% if(relatedProducts && relatedProducts.length> 0) { %>
@@ -241,6 +278,50 @@
                     <% } %>
 
             </main>
+
+            <div id="reviewModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 style="font-size: 1.2rem; font-weight: 600;">
+                <i class="fa-solid fa-circle-info" style="color: #2563eb; margin-right: 8px;"></i> 
+                Write a Review
+            </h3>
+            <button class="close-modal" onclick="closeReviewModal()">&times;</button>
+        </div>
+
+        <div class="modal-product-summary">
+            <div class="modal-prod-img">
+                <img id="modalImg" src="" alt="Product">
+            </div>
+            <div class="modal-prod-details">
+                <h4 id="modalProdName"><%= product.name %></h4>
+                <p id="modalVariantSpecs" style="color: #666; font-size: 0.9rem;"></p>
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <label class="modal-label">Your Overall Rating</label>
+            <div class="star-rating-input">
+                <i class="fa-regular fa-star" data-value="1"></i>
+                <i class="fa-regular fa-star" data-value="2"></i>
+                <i class="fa-regular fa-star" data-value="3"></i>
+                <i class="fa-regular fa-star" data-value="4"></i>
+                <i class="fa-regular fa-star" data-value="5"></i>
+                <span id="rating-text" style="font-size: 0.9rem; color: #666; margin-left: 10px;">Select a rating</span>
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <label class="modal-label">Add a Written Review</label>
+            <div class="textarea-container">
+                <textarea id="reviewComment" placeholder="What did you like or dislike? How did you use this product?" maxlength="1000"></textarea>
+                <div class="char-count"><span id="charCount">0</span>/1000</div>
+            </div>
+        </div>
+
+        <button class="btn-submit-review" onclick="submitReview()">Submit Review</button>
+    </div>
+</div>
 
             <%- include('../partials/footer') %>
 
@@ -479,5 +560,149 @@
         }
         
     }   
-                </script>
-    </body>
+
+    // --- VARIABLES ---
+    let currentRating = 0;
+    const modal = document.getElementById('reviewModal');
+    const commentInput = document.getElementById('reviewComment');
+    const charCount = document.getElementById('charCount');
+    const stars = document.querySelectorAll('.star-rating-input i');
+    const ratingText = document.getElementById('rating-text');
+
+    // --- 1. OPEN MODAL LOGIC ---
+    // Attach this to your existing "Add a Review" button
+    document.querySelector('.btn-add-review').addEventListener('click', openReviewModal);
+
+    function openReviewModal() {
+        // Get Selected Variant Details from your existing DOM
+        const selectedVariant = document.querySelector('input[name="variant"]:checked');
+        
+        if (!selectedVariant) {
+            showToast("Please select a variant first", "error");
+            return;
+        }
+
+        // Find the visual box associated with the checkbox to get text details
+        const variantBox = selectedVariant.closest('.config-box');
+        const variantImage = variantBox.getAttribute('data-image');
+        const variantSpecs = variantBox.querySelector('.config-details').innerText.trim(); // e.g., "8GB / 512GB..."
+
+        // Populate Modal
+        document.getElementById('modalImg').src = variantImage;
+        document.getElementById('modalVariantSpecs').innerText = variantSpecs;
+        
+        // Show Modal
+        modal.style.display = 'flex';
+    }
+
+    // --- 2. CLOSE MODAL LOGIC ---
+    function closeReviewModal() {
+        modal.style.display = 'none';
+        resetForm();
+    }
+
+    // Close on clicking outside
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeReviewModal();
+        }
+    }
+
+    // --- 3. STAR RATING INTERACTION ---
+    stars.forEach(star => {
+        // Hover Effect
+        star.addEventListener('mouseenter', function() {
+            const val = this.getAttribute('data-value');
+            highlightStars(val);
+        });
+
+        // Click to Set
+        star.addEventListener('click', function() {
+            currentRating = this.getAttribute('data-value');
+            highlightStars(currentRating);
+            
+            // Update Text
+            const texts = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
+            ratingText.innerText = texts[currentRating - 1];
+            
+            // Lock the active state visually
+            stars.forEach(s => {
+                if(s.getAttribute('data-value') <= currentRating) {
+                    s.classList.add('active');
+                    s.classList.remove('fa-regular');
+                    s.classList.add('fa-solid');
+                } else {
+                    s.classList.remove('active');
+                    s.classList.add('fa-regular');
+                    s.classList.remove('fa-solid');
+                }
+            });
+        });
+    });
+
+    // Reset stars when mouse leaves container (unless clicked)
+    document.querySelector('.star-rating-input').addEventListener('mouseleave', function() {
+        highlightStars(currentRating); // Reset to saved rating
+    });
+
+    function highlightStars(val) {
+        stars.forEach(star => {
+            if (star.getAttribute('data-value') <= val) {
+                star.classList.add('hover');
+                star.classList.remove('fa-regular');
+                star.classList.add('fa-solid');
+            } else {
+                star.classList.remove('hover');
+                // Only revert to empty if not part of permanent selection
+                if (!star.classList.contains('active')) {
+                    star.classList.add('fa-regular');
+                    star.classList.remove('fa-solid');
+                }
+            }
+        });
+    }
+
+    // --- 4. CHARACTER COUNT ---
+    commentInput.addEventListener('input', function() {
+        charCount.innerText = this.value.length;
+    });
+
+    // --- 5. SUBMIT FUNCTION ---
+    async function submitReview() {
+        const comment = commentInput.value.trim();
+        const productId = '<%= product._id %>';
+
+        // Validation
+        if (currentRating === 0) return showToast("Please select a star rating", "error");
+        if (!comment) return showToast("Please write a review", "error");
+
+        try {
+            const response = await axios.post('/user/product/reviews/add', {
+                productId: productId,
+                rating: parseInt(currentRating),
+                comment: comment
+            });
+
+            if (response.data.success) {
+                showToast("Review submitted successfully!", "success");
+                closeReviewModal();
+                 setTimeout(() => window.location.reload(), 1000);
+            }
+        } catch (error) {
+            console.error(error);
+            const msg = error.response?.data?.message || "Failed to submit review";
+            showToast(msg, "error");
+        }
+    }
+
+    function resetForm() {
+        currentRating = 0;
+        commentInput.value = '';
+        charCount.innerText = '0';
+        ratingText.innerText = 'Select a rating';
+        stars.forEach(s => {
+            s.className = 'fa-regular fa-star'; // Reset classes
+        });
+    }
+ </script>
+    
