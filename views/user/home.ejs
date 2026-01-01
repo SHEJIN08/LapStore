@@ -146,55 +146,40 @@
                         <div class="section-header center">
                             <h2>What Our Customers Say</h2>
                         </div>
-                        <div class="reviews-grid">
-                            <div class="review-card">
-                                <div class="review-stars">
-                                    <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i
-                                        class='bx bxs-star'></i><i class='bx bxs-star'></i>
-                                </div>
-                                <p class="review-text">"Absolutely loving my new MacBook! The delivery was super fast
-                                    and the packaging was secure. Highly recommend LapStore."</p>
-                                <div class="reviewer-info">
-                                    <img src="https://placehold.co/50x50/png?text=JD" alt="User">
-                                    <div>
-                                        <h5>John Doe</h5>
-                                        <span>Verified Buyer</span>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="review-card">
-                                <div class="review-stars">
-                                    <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i
-                                        class='bx bxs-star'></i><i class='bx bxs-star-half'></i>
-                                </div>
-                                <p class="review-text">"Great selection of gaming laptops. I got the ASUS ROG and it
-                                    handles everything I throw at it. Support team was helpful too."</p>
-                                <div class="reviewer-info">
-                                    <img src="https://placehold.co/50x50/png?text=SM" alt="User">
-                                    <div>
-                                        <h5>Sarah Miller</h5>
-                                        <span>Gamer</span>
+                        <% if(reviews && reviews.length> 0) { %>
+                            <div class="reviews-grid">
+                                <% reviews.forEach(review=> { %>
+                                    <div class="review-card">
+                                        <div class="review-stars" style="color: #f59e0b;">
+                                            <% for(let i=1; i<=5; i++) { %>
+                                                <% if(i <=review.rating) { %>
+                                                    <i class='bx bxs-star'></i>
+                                                    <% } else { %>
+                                                        <i class='bx bx-star'></i>
+                                                        <% } %>
+                                                            <% } %>
+                                        </div>
+                                        <p class="review-text">
+                                            <%= review.comment %>
+                                        </p>
+                                        <div class="reviewer-info">
+                                           <div class="user-avatar-circle">
+                                            <%= review.userId?.name ? review.userId.name[0].toUpperCase() : 'U' %>
+                                        </div>
+                                            <div>
+                                                <h5>
+                                                    <%= review.userId.name %>
+                                                </h5>
+                                                <span>
+                                                    <%= review.userId.email %>
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                    <% }) %>
                             </div>
-
-                            <div class="review-card">
-                                <div class="review-stars">
-                                    <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i
-                                        class='bx bxs-star'></i><i class='bx bxs-star'></i>
-                                </div>
-                                <p class="review-text">"Best prices I found online for the Dell XPS series. The website
-                                    is easy to use and checkout was a breeze."</p>
-                                <div class="reviewer-info">
-                                    <img src="https://placehold.co/50x50/png?text=RJ" alt="User">
-                                    <div>
-                                        <h5>Rahul J.</h5>
-                                        <span>Developer</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            <% } %>
                     </div>
                 </section>
 
@@ -215,35 +200,35 @@
                         }).showToast();
                     };
 
-    async function addToWishlist(event, productId, variantId) {
-        // 1. Prevent the click from navigating to the product page (if inside an <a> tag)
-        event.preventDefault(); 
-        event.stopPropagation();
+                    async function addToWishlist(event, productId, variantId) {
+                        // 1. Prevent the click from navigating to the product page (if inside an <a> tag)
+                        event.preventDefault();
+                        event.stopPropagation();
 
-        const btn = event.currentTarget;
-        const icon = btn.querySelector('i');
+                        const btn = event.currentTarget;
+                        const icon = btn.querySelector('i');
 
-        try {
-            // 2. Send API Request
-            const response = await axios.post('/user/wishlist/add', {
-                productId: productId,
-                variantId: variantId
-            });
+                        try {
+                            // 2. Send API Request
+                            const response = await axios.post('/user/wishlist/add', {
+                                productId: productId,
+                                variantId: variantId
+                            });
 
-            if(response.data.success){
-                showToast('Item added to the wishlist', 'success')
+                            if (response.data.success) {
+                                showToast('Item added to the wishlist', 'success')
 
-                icon.classList.remove('fa-regular');
-                icon.classList.add('fa-solid');
-                icon.style.color = '#ef4444'; // Red color
-                
-                // Optional: Add a small bounce animation
-                btn.style.transform = "scale(1.2)";
-                setTimeout(() => btn.style.transform = "scale(1)", 200);
-            }
-            }catch (error) {
-            console.error(error);
-                showToast(error.response?.data?.message || "Something went wrong", "error");
-            }
-        }
+                                icon.classList.remove('fa-regular');
+                                icon.classList.add('fa-solid');
+                                icon.style.color = '#ef4444'; // Red color
+
+                                // Optional: Add a small bounce animation
+                                btn.style.transform = "scale(1.2)";
+                                setTimeout(() => btn.style.transform = "scale(1)", 200);
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            showToast(error.response?.data?.message || "Something went wrong", "error");
+                        }
+                    }
                 </script>

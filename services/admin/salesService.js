@@ -14,54 +14,70 @@ const getSalesChartData = async (reportType) => {
 
        const getISTTime = () => new Date(new Date().getTime() + IST_OFFSET);
 
+       const getISTDateString = (dateObj) => {
+            const istDate = new Date(dateObj.getTime() + IST_OFFSET);
+            return istDate.toISOString().split('T')[0];
+        };
+
         let start = new Date();
         let end = new Date();
         let dateFormat = "%Y-%m-%d"; // Default: Daily
 
-       if (reportType === 'yearly') {
-            // Start of Current Year (Jan 1st)
-            start.setMonth(0, 1);
-            start.setHours(0, 0, 0, 0);
+        const nowIST = getISTTime();
+
+      if (reportType === 'yearly') {
+            const currentYear = nowIST.getUTCFullYear();
+            start = new Date(Date.UTC(currentYear, 0, 1, 0, 0, 0)); // Jan 1st 00:00 UTC (Adjusted via offset later if needed, but for yearly match it's okay)
+            start = new Date(start.getTime() - IST_OFFSET); // Shift back so 00:00 IST matches DB
+
+            end = new Date(Date.UTC(currentYear, 11, 31, 23, 59, 59, 999));
+            end = new Date(end.getTime() - IST_OFFSET);
             
-            // End of Current Year (Dec 31st)
-            end.setMonth(11, 31);
-            end.setHours(23, 59, 59, 999);
-            
-            dateFormat = "%Y-%m"; // Key: "2025-01"
+            dateFormat = "%Y-%m"; 
 
         } else if (reportType === 'monthly') {
-            // Start of Current Month (1st)
-            start.setDate(1);
-            start.setHours(0, 0, 0, 0);
+            const year = nowIST.getUTCFullYear();
+            const month = nowIST.getUTCMonth();
             
-            // End of Current Month
-            end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            end.setHours(23, 59, 59, 999);
+            // Start of Month (IST)
+            start = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+            start = new Date(start.getTime() - IST_OFFSET); // Adjust to 00:00 IST
+
+            // End of Month (IST)
+            end = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+            end = new Date(end.getTime() - IST_OFFSET);
             
-            dateFormat = "%Y-%m-%d"; // Key: "2025-12-05"
+            dateFormat = "%Y-%m-%d";
 
         } else if (reportType === 'weekly') {
-            // Start of Current Week (Monday)
-            const day = now.getDay(); // 0 is Sunday, 1 is Monday...
-            const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is sunday
-            start.setDate(diff);
-            start.setHours(0, 0, 0, 0);
+            const currentDayIST = nowIST.getUTCDay(); // 0 (Sun) to 6 (Sat)
             
-            // End of Current Week (Sunday)
-            end = new Date(start);
-            end.setDate(start.getDate() + 6);
-            end.setHours(23, 59, 59, 999);
+            // Calculate difference to get to Monday
+            // If Sunday (0), diff is -6. If Monday (1), diff is 0. 
+            const diff = currentDayIST === 0 ? -6 : 1 - currentDayIST;
+
+            // Set Start to Monday 00:00:00 IST
+            const mondayIST = new Date(nowIST);
+            mondayIST.setUTCDate(nowIST.getUTCDate() + diff);
+            mondayIST.setUTCHours(0, 0, 0, 0); 
             
-            dateFormat = "%Y-%m-%d"; // Key: "2025-12-25"
+            // Adjust server object to match 00:00 IST (which is previous day 18:30 UTC)
+            start = new Date(mondayIST.getTime() - IST_OFFSET);
+
+            // End is 6 days later at 23:59:59 IST
+            end = new Date(start.getTime() + (7 * 24 * 60 * 60 * 1000) - 1);
+            
+            dateFormat = "%Y-%m-%d";
 
         } else if (reportType === 'daily') {
             // Start of Today (IST aligned)
-            const istNow = getISTTime();
-            istNow.setUTCHours(0, 0, 0, 0);
-            start = new Date(istNow.getTime() - IST_OFFSET);
+           const todayIST = new Date(nowIST);
+            todayIST.setUTCHours(0,0,0,0);
+            
+            start = new Date(todayIST.getTime() - IST_OFFSET);
             end = new Date(start.getTime() + (24 * 60 * 60 * 1000) - 1);
             
-            dateFormat = "%H:00"; // Key: "09:00"
+            dateFormat = "%H:00";
         } else {
             // Default
             start.setDate(1);
@@ -177,22 +193,28 @@ const getSalesChartData = async (reportType) => {
             const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             
             // Iterate through the generated start-to-end range (7 days)
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(start);
-                date.setDate(start.getDate() + i);
+           for (let i = 0; i < 7; i++) {
+                // 1. Create a date object for the specific day in the loop
+                const date = new Date(start.getTime() + (i * 24 * 60 * 60 * 1000));
                 
-                // Key format matches %Y-%m-%d
-                const dateKey = date.toISOString().split('T')[0];
+                // 2. Generate Key: MUST use getISTDateString helper
+                // This converts the Date object (which is in server time) to IST string "YYYY-MM-DD"
+                // matching what Mongo $dateToString with timezone: "+05:30" produced.
+                const dateKey = getISTDateString(date); 
+                
+                // 3. Get label logic
+                // We shift time to IST to find out what day of the week it is in India
+                const istDateObj = new Date(date.getTime() + IST_OFFSET);
+                const dayName = days[istDateObj.getUTCDay()];
+
                 const data = dataMap.get(dateKey);
-                const dayName = days[date.getDay()];
 
                 filledData.push({
-                    _id: dayName, // Label: "Monday", "Tuesday"...
+                    _id: dayName,
                     totalSales: data ? data.totalSales : 0,
                     count: data ? data.count : 0
                 });
             }
-
         } else if (reportType === 'daily') {
             for (let i = 0; i < 24; i++) {
                 const hourKey = i.toString().padStart(2, '0') + ":00"; // "09:00"

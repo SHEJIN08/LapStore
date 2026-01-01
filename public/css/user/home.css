@@ -445,3 +445,24 @@ body {
 .wishlist-btn:hover i {
     color: #ef4444; /* Red on hover */
 }
+.user-avatar-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    
+    /* Your Gradient Code */
+    background: linear-gradient(81deg, rgba(0, 0, 0, 1) 0%, rgba(255, 225, 0, 1) 100%);
+    
+    /* Text Styling */
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 20px;
+    
+    /* Centering the Letter */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Prevent text selection */
+    flex-shrink: 0; /* Ensures it doesn't squash in flex layouts */
+}

@@ -10,6 +10,8 @@ import orderController from '../Controller/admin/orderContoller.js'
 import couponController from '../Controller/admin/couponController.js'
 import offerController from '../Controller/admin/offerController.js'
 import salesController from '../Controller/admin/salesController.js'
+import reviewController from '../Controller/admin/reviewController.js'
+import bannerController from '../Controller/admin/bannerController.js'
 import upload from '../middleware/multer.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
@@ -63,6 +65,12 @@ router.get('/products/search', offerController.searchProducts);
 
 router.get('/sales', salesController.loadSalesReport)
 router.get('/sales/download', salesController.downloadReport)
+
+router.get('/reviews', reviewController.getReviewDetails)
+router.patch('/reviews/toggle-status', reviewController.toggleReviewStatus)
+
+router.get('/banners', bannerController.bannerManagement)
+router.post('/banners/add', upload.single('image'), bannerController.addBanner);
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

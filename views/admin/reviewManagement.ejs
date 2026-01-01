@@ -1,0 +1,205 @@
+<%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/admin/review.css">
+
+    <div class="admin-layout">
+        <%- include('../partials/sidebar',{activePage: 'reviews' }) %>
+
+            <main class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Review Management</h1>
+                        <p class="page-subtitle">Manage customer reviews and moderate feedback.</p>
+                    </div>
+                    <button class="btn-export">
+                        <i class="fa-solid fa-download"></i> Export Reviews
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Reviews</h3>
+                        <p class="stat-value">
+                            <%= totalReviews %>
+                        </p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Average Rating</h3>
+                        <p class="stat-value">
+                            <%= averageRating %>
+                        </p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Listed Review</h3>
+                        <p class="stat-value">
+                            <%= listedReviewsCount %>
+                        </p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Unlisted Reviews</h3>
+                        <p class="stat-value">
+                            <%= unlistedReviewsCount %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h2 class="section-title">All Reviews</h2>
+
+                    <table class="review-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Product</th>
+                                <th>Rating</th>
+                                <th>Review</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (reviews && reviews.length> 0) { %>
+                                <% reviews.forEach(review=> { %>
+                                    <tr>
+                                        <td>
+                                            <div class="user-info">
+                                                <span class="user-name">
+                                                    <%= review.userId?.name || 'Unknown' %>
+                                                </span>
+                                                <span class="user-email">
+                                                    <%= review.userId?.email || 'No Email' %>
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="product-info">
+                                                <span class="product-name">
+                                                    <%= review.productId?.name || 'Product Removed' %>
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="rating-cell">
+                                                <div class="stars">
+                                                    <% for(let i=1; i<=5; i++) { %>
+                                                        <i
+                                                            class="<%= i <= review.rating ? 'fa-solid' : 'fa-regular' %> fa-star"></i>
+                                                        <% } %>
+                                                </div>
+                                                <span class="rating-number">
+                                                    <%= review.rating.toFixed(1) %>
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <p class="review-text" title="<%= review.comment %>">
+                                                <%= review.comment.length> 50 ? review.comment.substring(0, 50) + '...'
+                                                    : review.comment %>
+                                            </p>
+                                        </td>
+
+                                        <td>
+                                            <span class="date-text">
+                                                <%= new Date(review.createdAt).toLocaleDateString('en-US', {
+                                                    month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                            </span>
+                                        </td>
+
+
+                                        <td>
+                                            <% if (review.isListed) { %>
+                                                <button class="btn-action"
+                                                    onclick="toggleReviewStatus('<%= review._id %>', false)"
+                                                    title="Unlist this review">
+                                                    <i class="bi bi-slash-circle" style="color: #ef4444;"></i>
+                                                </button>
+                                                <% } else { %>
+                                                    <button class="btn-action"
+                                                        onclick="toggleReviewStatus('<%= review._id %>', true)"
+                                                        title="List this review">
+                                                        <i class="bi bi-check-circle" style="color: #10b981;"></i>
+                                                    </button>
+                                                    <% } %>
+                                        </td>
+
+                                    </tr>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6" style="text-align: center; padding: 20px;">No reviews
+                                                    found.</td>
+                                            </tr>
+                                            <% } %>
+                        </tbody>
+                    </table>
+
+                    <div class="pagination-footer">
+                        <span class="showing-text">
+                            Showing <%= ((currentPage - 1) * limit) + 1 %> to <%= Math.min(currentPage * limit,
+                                    totalReviews) %> of <%= totalReviews %> results
+                        </span>
+                        <div class="pagination-controls">
+                            <% if (currentPage> 1) { %>
+                                <a href="?page=<%= currentPage - 1 %>" class="btn-page">Previous</a>
+                                <% } %>
+
+                                    <button class="btn-page active">
+                                        <%= currentPage %>
+                                    </button>
+
+                                    <% if (currentPage < totalPages) { %>
+                                        <a href="?page=<%= currentPage + 1 %>" class="btn-page highlight">Next</a>
+                                        <% } %>
+                        </div>
+                    </div>
+                </div>
+            </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/axios.min.js"></script>
+    <script>
+        async function toggleReviewStatus(reviewId, shouldList) {
+            const actionText = shouldList ? "List" : "Unlist";
+            const confirmText = shouldList ? "This review will be visible to users." : "This review will be hidden from users.";
+            const btnColor = shouldList ? "#10b981" : "#ef4444"; // Green for List, Red for Unlist
+
+            const result = await Swal.fire({
+                title: `Are you sure you want to ${actionText}?`,
+                text: confirmText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: btnColor,
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: `Yes, ${actionText} it!`
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    // Send PATCH request to update status
+                    const response = await axios.patch('/admin/reviews/toggle-status', {
+                        reviewId: reviewId,
+                        isListed: shouldList
+                    });
+
+
+                    if (response.data.success) {
+                        Swal.fire(
+                            `${actionText}ed!`,
+                            `The review has been ${actionText.toLowerCase()}ed.`,
+                            'success'
+                        ).then(() => {
+                            window.location.reload(); // Reload to update icons/stats
+                        });
+                    } else {
+                        Swal.fire('Error', data.message || 'Failed to update status', 'error');
+                    }
+                } catch (error) {
+                    const msg = error.response?.data?.message || 'Something went wrong';
+                    Swal.fire('Error', msg, 'error');
+                }
+            }
+        }
+    </script>

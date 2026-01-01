@@ -1,8 +1,8 @@
 
 import productService from "../../services/admin/productService.js";
-import userService from "../../services/user/userService.js";
 import Review from "../../model/reviewModel.js";
 import reviewService from "../../services/user/reviewService.js";
+import userService from "../../services/user/userService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 
@@ -14,11 +14,14 @@ const loadHome = async (req, res) => {
     // Call Service
     const { categories, brands, products } = await userService.getHomeDataService();
 
+    const reviews = await reviewService.topRateReviewService();
+
     res.render("user/home", {
       user: userId,
       products,
       categories,
       brands,
+      reviews: reviews
     });
 
   } catch (error) {

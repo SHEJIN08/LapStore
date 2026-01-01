@@ -42,11 +42,22 @@ const addReviewService = async (userId, reviewData) => {
 }
 
 const getProductReviewService = async (productId) => {
-    const reviews = await Review.find({productId: productId})
+    const reviews = await Review.find({productId: productId, isListed: true})
         .populate('userId', 'name')
         .sort({createdAt: -1})
 
         return reviews;
 }
 
-export default {addReviewService, getProductReviewService}
+const topRateReviewService = async () => {
+    const reviews = await Review.find({isListed: true})
+    .populate('userId', 'name email')
+    .sort({rating: -1, createdAt: -1})
+    .limit(3)
+
+    return reviews;
+}
+
+
+
+export default {addReviewService, getProductReviewService, topRateReviewService}

@@ -11,11 +11,6 @@ const reviewSchema = new mongoose.Schema({
             ref: 'Product',
             required: true
         },
-        // variantId: {
-        //     type: mongoose.Schema.Types.ObjectId,
-        //     ref: 'Variant',
-        //     required: true
-        // },
         rating: {
             type: Number,
             default: 0,
@@ -24,6 +19,10 @@ const reviewSchema = new mongoose.Schema({
         comment: {
             type: String,
             required: true
+        },
+        isListed: {
+            type: Boolean,
+            default: true
         }
     },
     {timestamps: true},

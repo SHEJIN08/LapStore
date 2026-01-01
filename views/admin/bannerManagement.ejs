@@ -1,0 +1,267 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/admin/bannerManagement.css">
+
+<div class="admin-layout">
+       <%- include('../partials/sidebar',{activePage: 'banners' }) %>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div class="header-text">
+                <h1 class="page-title">Banner Management</h1>
+                <p class="page-subtitle">Create and manage your home page banners.</p>
+            </div>
+          <button class="btn-add-banner" onclick="openAddBannerModal()"> 
+            <i class="fa-solid fa-plus"></i> Add New Banner
+        </button>
+        </div>
+
+        <div class="table-container">
+            <table class="banner-table">
+                <thead>
+                    <tr>
+                        <th width="15%">Image</th>
+                        <th width="25%">Title</th>
+                        <th width="15%">Link / CTA</th>
+                        <th width="15%">Status</th>
+                        <th width="20%">Dates</th>
+                        <th width="10%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (banners && banners.length > 0) { %>
+                        <% banners.forEach(banner => { %>
+                        <tr>
+                            <td>
+                                <div class="img-wrapper">
+                                    <img src="<%= banner.image %>" alt="Banner" class="banner-thumb">
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="banner-title"><%= banner.title %></span>
+                            </td>
+
+                            <td>
+                                <span class="banner-link"><%= banner.link %></span>
+                            </td>
+
+                            <td>
+                                <% if (banner.isActive) { %>
+                                    <span class="status-badge status-active">
+                                        <span class="dot"></span> Active
+                                    </span>
+                                <% } else { %>
+                                    <span class="status-badge status-inactive">
+                                        <span class="dot"></span> Inactive
+                                    </span>
+                                <% } %>
+                            </td>
+
+                            <td>
+                                <span class="date-text">
+                                    <%= new Date(banner.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) %> - 
+                                    <%= new Date(banner.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) %>
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/admin/banners/edit/<%= banner._id %>" class="btn-icon edit" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <button class="btn-icon delete" onclick="deleteBanner('<%= banner._id %>')" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" class="no-data">No banners found. Add one to get started!</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="page-footer">
+            &copy; 2025 LapStore Admin Panel
+        </footer>
+    </main>
+</div>
+
+<div id="addBannerModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Banner</h3>
+            <button class="close-btn" onclick="closeAddBannerModal()">&times;</button>
+        </div>
+        
+        <form id="addBannerForm" onsubmit="submitBanner(event)">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Banner Title</label>
+                        <input type="text" name="title" placeholder="e.g., Summer Sale" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Subtitle</label>
+                        <input type="text" name="description" placeholder="e.g., Up to 50% Off">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>CTA Text</label>
+                        <input type="text" name="ctaText" placeholder="e.g., Shop Now" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CTA Link</label>
+                        <input type="text" name="link" placeholder="e.g., /collections/summer-sale" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Banner Image</label>
+                    <div class="upload-area" onclick="document.getElementById('bannerImage').click()">
+                        <input type="file" id="bannerImage" name="image" accept="image/*" hidden onchange="previewImage(event)">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <p><strong>Click to upload</strong> or drag and drop</p>
+                            <span>PNG, JPG, GIF up to 10MB</span>
+                        </div>
+                        <img id="imgPreview" class="img-preview" style="display: none;">
+                    </div>
+                </div>
+
+                <div class="form-row" style="align-items: center; justify-content: space-between; margin-top: 15px;">
+                    <label style="margin:0; font-weight: 500;">Status</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="statusToggle" name="isActive" checked>
+                        <label for="statusToggle" class="slider"></label>
+                        <span class="toggle-label">Active</span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Schedule (Optional)</label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="sub-label">Start Date</label>
+                            <input type="date" name="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="sub-label">End Date</label>
+                            <input type="date" name="endDate" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeAddBannerModal()">Cancel</button>
+                <button type="submit" class="btn-save">Save Banner</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>// 1. Open/Close Logic
+    function openAddBannerModal() {
+        document.getElementById('addBannerModal').style.display = 'flex';
+    }
+
+    function closeAddBannerModal() {
+        document.getElementById('addBannerModal').style.display = 'none';
+        document.getElementById('addBannerForm').reset();
+        resetPreview();
+    }
+
+    // 2. Image Preview Logic
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+                const img = document.getElementById('imgPreview');
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function resetPreview() {
+        document.getElementById('uploadPlaceholder').style.display = 'flex';
+        document.getElementById('imgPreview').style.display = 'none';
+        document.getElementById('imgPreview').src = '';
+    }
+
+    // 3. Close modal on outside click
+    window.onclick = function(event) {
+        const modal = document.getElementById('addBannerModal');
+        if (event.target == modal) {
+            closeAddBannerModal();
+        }
+    }
+
+    // 4. Submit Form Logic (Requires Backend Route)
+    async function submitBanner(event) {
+        event.preventDefault();
+        
+        const form = document.getElementById('addBannerForm');
+        const formData = new FormData(form);
+        
+        // Handle checkbox manually (checkboxes don't send value if unchecked)
+        const isActive = document.getElementById('statusToggle').checked;
+        formData.set('isActive', isActive);
+
+        try {
+            const response = await axios.post('/admin/banners/add', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            if (response.data.success) {
+                Swal.fire('Success', 'Banner added successfully', 'success')
+                .then(() => window.location.reload());
+            } else {
+                Swal.fire('Error', response.data.message, 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'Failed to add banner', 'error');
+        }
+    }
+
+    async function deleteBanner(bannerId) {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "This will remove the banner from your homepage.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await axios.delete(`/admin/banners/delete/${bannerId}`);
+                if (response.data.success) {
+                    Swal.fire('Deleted!', 'Banner has been deleted.', 'success')
+                    .then(() => window.location.reload());
+                } else {
+                    Swal.fire('Error', response.data.message, 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Failed to delete banner', 'error');
+            }
+        }
+    }
+</script>
