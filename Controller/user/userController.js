@@ -3,6 +3,7 @@ import productService from "../../services/admin/productService.js";
 import Review from "../../model/reviewModel.js";
 import reviewService from "../../services/user/reviewService.js";
 import userService from "../../services/user/userService.js";
+import Banner from "../../model/bannerModel.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 
@@ -11,6 +12,14 @@ const loadHome = async (req, res) => {
   try {
     const userId = req.session.user;
 
+    const today = new Date();
+
+    const banner = await Banner.findOne({
+      isActive: true,
+      startDate: {$lte: today},
+      endDate: {$gte: today}
+    })
+
     // Call Service
     const { categories, brands, products } = await userService.getHomeDataService();
 
@@ -18,6 +27,7 @@ const loadHome = async (req, res) => {
 
     res.render("user/home", {
       user: userId,
+      banner: banner,
       products,
       categories,
       brands,

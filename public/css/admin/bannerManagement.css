@@ -187,6 +187,7 @@ ul {
     color: #9ca3af;
     transition: color 0.2s;
     text-decoration: none;
+    padding-left: 22px;
 }
 
 .btn-icon:hover {

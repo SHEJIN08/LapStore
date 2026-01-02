@@ -71,6 +71,7 @@ router.patch('/reviews/toggle-status', reviewController.toggleReviewStatus)
 
 router.get('/banners', bannerController.bannerManagement)
 router.post('/banners/add', upload.single('image'), bannerController.addBanner);
+router.put('/banners/edit/:id', upload.single('image'), bannerController.editBanner)
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

@@ -84,7 +84,7 @@ body {
     color: var(--primary-color);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     margin-bottom: 10px;
     display: block;
 }
@@ -465,4 +465,31 @@ body {
     
     /* Prevent text selection */
     flex-shrink: 0; /* Ensures it doesn't squash in flex layouts */
+}
+/* 1. Define the size of the container box */
+.hero-image {
+    width: 60%;           /* Takes full width of its column */
+    height: 450px;         /* FORCE a consistent height */
+    display: flex;         /* Helps align the image perfectly */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;      /* Hides any overflow, though object-fit handles this */
+    border-radius: 12px;   /* Optional: Adds rounded corners like your design */
+}
+
+/* 2. Force the image to fill the box without stretching */
+.hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* THE MAGIC: Crops image to fill the box */
+    object-position: center; /* Centers the image so the middle is visible */
+}
+
+
+/* 3. Mobile Responsiveness (Optional but recommended) */
+@media (max-width: 768px) {
+    .hero-image {
+        height: 300px;     /* Smaller height for mobile screens */
+        margin-top: 30px;
+    }
 }

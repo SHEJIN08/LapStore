@@ -7,17 +7,31 @@
 
             <section class="hero">
                 <div class="container hero-content">
-                    <div class="hero-text">
-                        <span class="tagline">New Arrivals</span>
-                        <h1>Discover the Future of Performance</h1>
-                        <p>Premium laptops with cutting-edge technology and unbeatable battery life.</p>
-                        <a href="/user/home/shop" class="btn-shop-now">
-                            Shop Now <i class='bx bx-right-arrow-alt'></i>
+                    <% if(banner) { %>
+                         <div class="hero-text">
+                        <span class="tagline">Limited time offer. Don't miss out!</span>
+                        <h1><%= banner.title %></h1>
+                        <p style="font-size: 2.1rem;"><%= banner.description %></p>
+                        <a href="<%= banner.link %>" class="btn-shop-now">
+                            <%= banner.ctaText || 'Shop now' %><i class='bx bx-right-arrow-alt'></i>
                         </a>
                     </div>
                     <div class="hero-image">
-                        <img src="/images/banner-img.png" alt="Hero Laptop">
+                        <img src="<%= banner.image %>" alt="<%= banner.title %>">
                     </div>
+                  <%  } else { %>
+                      <div class="hero-text">
+                          <span class="tagline">New Arrivals</span>
+                          <h1>Discover the Future of Performance</h1>
+                          <p>Premium laptops with cutting-edge technology and unbeatable battery life.</p>
+                          <a href="/user/home/shop" class="btn-shop-now">
+                              Shop Now <i class='bx bx-right-arrow-alt'></i>
+                          </a>
+                      </div>
+                      <div class="hero-image">
+                          <img src="/images/banner-img.png" alt="Hero Laptop">
+                      </div>
+                <%  } %>
                 </div>
             </section>
 
