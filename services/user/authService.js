@@ -106,7 +106,7 @@ const loginUserService = async ({ email, password }) => {
 // --- FORGOT PASSWORD SERVICE ---
 const forgotPasswordService = async (email) => {
     const user = await userSchema.findOne({ email });
-    if (!user) throw new Error(ResponseMessage.BAD_REQUEST);
+    if (!user) throw new Error('User not found');
 
     await sendOtp(email);
     return true;

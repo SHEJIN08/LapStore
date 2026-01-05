@@ -18,6 +18,7 @@ router.get('/login',adminAuth.isLogin,authController.loadLogin)
 router.post('/login',authController.login)
 
 router.get('/dashboard',adminAuth.checkSession,authController.loadDashboard)
+router.get('/dashboard-filter', authController.filterDashboardData);
 router.get('/chart-data', authController.filterChartData)
 
 router.get('/products',adminAuth.checkSession,productController.loadProduct)

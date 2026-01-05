@@ -1,6 +1,4 @@
-import { start } from "repl";
 import Banner from "../../model/bannerModel.js";
-import { BADFAMILY } from "dns";
 
 const getBannerManagementService = async () => {
     try {

@@ -69,17 +69,17 @@ const login = async (req, res) => {
 // 🧩 Load admin dashboard
 const loadDashboard = async (req, res) => {
  try {
-        const reportData = await salesService.getSalesReportService({ 
-            reportType: 'monthly', 
-            page: 1, 
-            limit: 5
-        });
+      const defaultFilter = { reportType: 'monthly' };
 
-       const topProducts = await salesService.getBestSellingProducts();
-       const topCategories = await salesService.getBestSellingCategory();
-       const topBrands = await salesService.getBestSellingBrand();
-       const countStatus = await salesService.getOrderStatus();
-       const activeUserCount = await salesService.activeUsersCount();
+        // We fetch everything using the default filter (Monthly)
+        const [reportData, topProducts, topCategories, topBrands, countStatus, activeUserCount] = await Promise.all([
+            salesService.getSalesReportService({ ...defaultFilter, page: 1, limit: 5 }),
+            salesService.getBestSellingProducts(defaultFilter),
+            salesService.getBestSellingCategory(defaultFilter),
+            salesService.getBestSellingBrand(defaultFilter),
+            salesService.getOrderStatus(defaultFilter),
+            salesService.activeUsersCount()
+        ]);
 
         res.render('admin/dashboard', { 
             summary: reportData.summary,       
@@ -110,6 +110,46 @@ const filterChartData = async (req,res) => {
   }
 }
 
+const filterDashboardData = async (req, res) => {
+    try {
+        const { filter, startDate, endDate } = req.query;
+        
+        // Prepare the filter object
+        const queryFilter = { 
+            reportType: filter, 
+            startDate: startDate, 
+            endDate: endDate 
+        };
+
+        // Fetch ALL data in parallel with the new dates
+        const [reportData, topProducts, topCategories, topBrands, countStatus] = await Promise.all([
+            salesService.getSalesReportService({ ...queryFilter, page: 1, limit: 5 }),
+            salesService.getBestSellingProducts(queryFilter),
+            salesService.getBestSellingCategory(queryFilter),
+            salesService.getBestSellingBrand(queryFilter),
+            salesService.getOrderStatus(queryFilter)
+        ]);
+
+        // Return JSON to the frontend
+        res.json({
+            success: true,
+            data: {
+                summary: reportData.summary,
+                chartData: reportData.chartData,
+                orders: reportData.orders,
+                topProducts,
+                topCategories,
+                topBrands,
+                orderStatusData: countStatus
+            }
+        });
+
+    } catch (error) {
+        console.error("Filter API Error:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+}
+
 // 🚪 Logout
 const logout = async (req, res) => {
   try {
@@ -126,6 +166,7 @@ const authController = {
   loadDashboard,
   loadLogin,
   filterChartData,
+  filterDashboardData,
   login,
   logout,
 };

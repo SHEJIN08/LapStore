@@ -382,6 +382,26 @@ ul { list-style: none; }
     margin-top: 10px;
     border-top: 1px solid #f3f4f6;
 }
+/* Style for the 'X' Reset Icon */
+.reset-search {
+    position: absolute;
+    right: 65px; /* Adjust based on your button size */
+    top: 50%;
+    transform: translateY(-50%); /* Vertically center exactly */
+    font-size: 22px;
+    color: #999;
+    cursor: pointer;
+    z-index: 10;
+    transition: color 0.2s;
+}
+
+.reset-search:hover {
+    color: #dc3545;
+}
+
+.search-bar input {
+    padding-right: 40px; /* Space for the icon */
+}
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .hero-content {

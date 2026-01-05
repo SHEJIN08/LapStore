@@ -40,20 +40,18 @@ const getAllUsersService = async ({ search, status, page, limit }) => {
     return { users, totalUsers, totalPages };
 };
 
-// NEW: SEARCH USERS FOR COUPON (Lightweight) ---
+
 const searchUsersForCoupon = async (searchQuery) => {
     try {
-        // Simple query: Not Admin, Is Active, Matches Name/Email
         const query = {
-            isAdmin: { $ne: true }, // Exclude admins
-            isActive: true,         // Only give coupons to active users
+            isAdmin: { $ne: true }, 
+            isActive: true,        
             $or: [
                 { name: { $regex: searchQuery, $options: 'i' } },
                 { email: { $regex: searchQuery, $options: 'i' } }
             ]
         };
 
-        // Fetch only needed fields (_id, name, email) and limit to 10
         const users = await userSchema.find(query)
             .select('name email _id') 
             .limit(7); 

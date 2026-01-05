@@ -22,7 +22,7 @@
                     </div>
                     <div class="card-info">
                         <span class="card-title">Total Revenue</span>
-                        <span class="card-value">₹<%= summary.totalSales ? Number(summary.totalSales.toFixed(2)).toLocaleString('en-IN') : '0.00' %></span>
+                        <span class="card-value" id="stat-revenue">₹<%= summary.totalSales ? Number(summary.totalSales.toFixed(2)).toLocaleString('en-IN') : '0.00' %></span>
                         <span class="card-change positive">Revenue based on current filter</span>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                     </div>
                     <div class="card-info">
                         <span class="card-title">Total Orders</span>
-                        <span class="card-value"><%= summary.totalOrders %></span>
+                        <span class="card-value" id="stat-orders"><%= summary.totalOrders %></span>
                         <span class="card-change positive">Orders based on current filter</span>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                     </div>
                     <div class="card-info">
                         <span class="card-title">Total Discount</span>
-                        <span class="card-value">₹<%= summary.totalDiscount ?  Number(summary.totalDiscount.toFixed(2)).toLocaleString('en-IN') : '0.00' %></span>
+                        <span class="card-value" id="stat-discount">₹<%= summary.totalDiscount ?  Number(summary.totalDiscount.toFixed(2)).toLocaleString('en-IN') : '0.00' %></span>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -58,7 +58,7 @@
     </div>
     <div class="card-info">
         <span class="card-title">Active Users</span>
-        <span class="card-value"><%= activeUser %></span>
+        <span class="card-value" id="stat-active-users"><%= activeUser %></span>
     </div>
 </div>
             </section>
@@ -119,7 +119,7 @@
                             <th>Total</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="table-recent-orders-body">
                         <% if (orders && orders.length > 0) { %>
                             <% orders.forEach(order => { %>
                             <tr>
@@ -147,7 +147,7 @@
                         <th>Revenue</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="table-top-products-body">
                     <% if (topProducts && topProducts.length > 0) { %>
                         <% topProducts.forEach((item, index) => { %>
                         <tr>
@@ -179,7 +179,7 @@
                             <th>Units Sold</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="table-top-categories-body">
                         <% if (topCategories && topCategories.length > 0) { %>
                             <% topCategories.forEach((item, index) => { %>
                             <tr style="height: 50px;">
@@ -204,7 +204,7 @@
                             <th>Units Sold</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="table-top-brands-body">
                         <% if (topBrands && topBrands.length > 0) { %>
                             <% topBrands.forEach((item, index) => { %>
                             <tr>
@@ -234,15 +234,14 @@
     <script src="/js/axios.min.js"></script>
 
    <script>
-    let salesChart; // Global variable to hold the chart instance
+   let salesChart; 
+    let statusChart; // Global variable for status chart
 
     document.addEventListener("DOMContentLoaded", function () {
+        // --- 1. Initialize Sales Chart ---
         const ctx = document.getElementById('salesChart').getContext('2d');
-        
-        // 1. Initial Data (Passed from Server on page load)
         const initialData = <%- JSON.stringify(chartData || []) %>;
         
-        // 2. Initialize the Chart
         salesChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -263,19 +262,18 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        suggestedMax: 100,
-                        ticks: { callback: function(value) { return '₹' + value; } }
-                    },
+                    y: { beginAtZero: true, ticks: { callback: (val) => '₹' + val } },
                     x: { grid: { display: false } }
                 },
                 plugins: { legend: { display: false } }
             }
         });
+
+        // --- 2. Initialize Status Chart ---
+        initStatusChart();
     });
 
-    // Helper: Create Gradient
+    // Helper: Gradient
     function createGradient(ctx) {
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
         gradient.addColorStop(0, 'rgba(0, 123, 255, 0.2)');
@@ -283,118 +281,211 @@
         return gradient;
     }
 
-    // 3. UPDATED FUNCTION: USING AXIOS
+    // --- 3. Initialize Status Donut Chart ---
+    function initStatusChart() {
+        const statusRaw = <%- JSON.stringify(orderStatusData || []) %>;
+        renderStatusChart(statusRaw);
+    }
+
+    function renderStatusChart(data) {
+        const statusLabels = data.map(item => item._id);
+        const statusCounts = data.map(item => item.count);
+        const totalStatusCount = statusCounts.reduce((a, b) => a + b, 0);
+
+        // Update Center Text
+        document.getElementById('centerCount').innerText = totalStatusCount;
+
+        // Colors
+        const statusColors = {
+            'Delivered': '#4caf50', 'Pending': '#ff9800', 'Shipped': '#2196f3',
+            'Cancelled': '#f44336', 'Returned': '#9c27b0', 'Return Rejected': '#607d8b',
+            'Confirmed': '#00bcd4', 'Processing': 'yellow'
+        };
+        const bgColors = statusLabels.map(label => statusColors[label] || '#ccc');
+
+        const ctx = document.getElementById('statusChart').getContext('2d');
+
+        // Destroy existing chart if updating
+        if (statusChart) {
+            statusChart.destroy();
+        }
+
+        statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: bgColors,
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Update Legend HTML
+        const legendContainer = document.getElementById('statusLegend');
+        legendContainer.innerHTML = '';
+        statusLabels.forEach((label, index) => {
+            const html = `
+                <div style="display: flex; align-items: center; font-size: 0.85rem; color: #555;">
+                    <span style="width: 10px; height: 10px; background-color: ${bgColors[index]}; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
+                    ${label}
+                </div>`;
+            legendContainer.innerHTML += html;
+        });
+    }
+
+    // ============================================
+    // 🚀 MAIN UPDATE FUNCTION (Linked to Buttons)
+    // ============================================
     async function updateChart(btn, filterType) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        // 1. Update UI Buttons
+        document.querySelectorAll('.sales-overview .tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
         try {
-
-            const response = await axios.get(`/admin/chart-data`, {
+            // 2. Fetch Data from the NEW API Endpoint
+            const response = await axios.get(`/admin/dashboard-filter`, {
                 params: { filter: filterType }
             });
 
-            const newData = response.data.chartData; 
+            if (response.data.success) {
+                const data = response.data.data;
 
-            salesChart.data.labels = newData.map(item => item._id);
-            salesChart.data.datasets[0].data = newData.map(item => item.totalSales);
+                // A. Update Stats Cards
+                document.getElementById('stat-revenue').innerText = '₹' + data.summary.totalSales.toLocaleString('en-IN');
+                document.getElementById('stat-orders').innerText = data.summary.totalOrders;
+                document.getElementById('stat-discount').innerText = '₹' + data.summary.totalDiscount.toLocaleString('en-IN');
+                
+                // B. Update Sales Chart
+                salesChart.data.labels = data.chartData.map(item => item._id);
+                salesChart.data.datasets[0].data = data.chartData.map(item => item.totalSales);
+                salesChart.update();
 
-            salesChart.update();
+                // C. Update Status Chart
+                renderStatusChart(data.orderStatusData);
+
+                // D. Update Tables
+                updateRecentOrdersTable(data.orders);
+                updateTopProductsTable(data.topProducts);
+                updateTopCategoriesTable(data.topCategories);
+                updateTopBrandsTable(data.topBrands);
+            }
 
         } catch (error) {
-            console.error("Error fetching chart data:", error);
+            console.error("Error updating dashboard:", error);
+            // Optional: Show a toast notification here
         }
     }
 
-    // TAB SWITCHER FOR TABLES
+    // --- Table HTML Generators ---
+
+    function updateRecentOrdersTable(orders) {
+        const tbody = document.getElementById('table-recent-orders-body');
+        tbody.innerHTML = ''; // Clear current rows
+
+        if (!orders || orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">No orders found.</td></tr>';
+            return;
+        }
+
+        orders.forEach(order => {
+            const row = `
+                <tr>
+                    <td>#${order.orderId}</td>
+                    <td>${order.customerName}</td>
+                    <td>${new Date(order.date).toLocaleDateString()}</td>
+                    <td><span class="status completed">Completed</span></td>
+                    <td>₹${order.rowTotal.toFixed(2)}</td>
+                </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function updateTopProductsTable(products) {
+        const tbody = document.getElementById('table-top-products-body');
+        tbody.innerHTML = '';
+
+        if (!products || products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4">No data available.</td></tr>';
+            return;
+        }
+
+        products.forEach((item, index) => {
+            const row = `
+                <tr>
+                    <td>#${index + 1}</td>
+                    <td>
+                        <div class="product-name-cell">
+                            <img src="${item.productImage}" class="product-thumbnail" onerror="this.src='/images/default-product.jpg'">
+                            <span>${item._id}</span>
+                        </div>
+                    </td>
+                    <td>${item.totalSold}</td>
+                    <td>₹${item.totalRevenue.toFixed(2)}</td>
+                </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function updateTopCategoriesTable(categories) {
+        const tbody = document.getElementById('table-top-categories-body');
+        tbody.innerHTML = '';
+
+        if (!categories || categories.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3">No data available.</td></tr>';
+            return;
+        }
+
+        categories.forEach((item, index) => {
+            const row = `
+                <tr style="height: 50px;">
+                    <td>#${index + 1}</td>
+                    <td>${item._id}</td>
+                    <td>${item.totalSold}</td>
+                </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function updateTopBrandsTable(brands) {
+        const tbody = document.getElementById('table-top-brands-body');
+        tbody.innerHTML = '';
+
+        if (!brands || brands.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3">No data available.</td></tr>';
+            return;
+        }
+
+        brands.forEach((item, index) => {
+            const row = `
+                <tr>
+                    <td>#${index + 1}</td>
+                    <td>
+                        <div class="brand-name-cell">
+                            <img src="${item.brandImage}" class="brand-thumbnail" onerror="this.src='/images/default-product.jpg'">
+                            <span>${item._id}</span>
+                        </div>
+                    </td>
+                    <td>${item.totalSold}</td>
+                </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // --- Table Tab Switcher (Visual only) ---
     function switchTable(tableId, btn) {
-        document.querySelectorAll('.table-container').forEach(el => {
-            el.style.display = 'none';
-        });
-
+        document.querySelectorAll('.table-container').forEach(el => el.style.display = 'none');
         document.getElementById(tableId).style.display = 'block';
-
-        const parentTabs = btn.closest('.tabs');
-
-        parentTabs.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('active');
-        });
-
+        
+        btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     }
-
-    // ==========================================
-    // ORDER STATUS DONUT CHART
-    // ==========================================
-    const statusRaw = <%- JSON.stringify(orderStatusData || []) %>;
-    
-    // 1. Prepare Data
-    const statusLabels = statusRaw.map(item => item._id);
-    const statusCounts = statusRaw.map(item => item.count);
-    const totalStatusCount = statusCounts.reduce((a, b) => a + b, 0);
-
-    // Update the center text number
-    document.getElementById('centerCount').innerText = totalStatusCount;
-
-    // 2. Define Colors (Matching your uploaded image)
-    const statusColors = {
-        'Delivered': '#4caf50',       // Green
-        'Pending': '#ff9800',         // Orange
-        'Shipped': '#2196f3',         // Blue
-        'Cancelled': '#f44336',       // Red
-        'Returned': '#9c27b0',        // Purple
-        'Return Rejected': '#607d8b', // Grey
-        'Confirmed': '#00bcd4',        // Cyan
-        'Processing': 'yellow'
-    };
-
-    // Map existing statuses to colors (fallback to grey if status not listed)
-    const backgroundColors = statusLabels.map(label => statusColors[label] || '#ccc');
-
-    // 3. Render Chart
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: statusLabels,
-            datasets: [{
-                data: statusCounts,
-                backgroundColor: backgroundColors,
-                borderWidth: 0, // Clean look without borders
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '75%', // Makes the donut thinner
-            plugins: {
-                legend: {
-                    display: false // We use a custom legend below
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            let value = context.raw || 0;
-                            return `${label}: ${value} items`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // 4. Generate Custom Legend (HTML)
-    const legendContainer = document.getElementById('statusLegend');
-    statusLabels.forEach((label, index) => {
-        const color = backgroundColors[index];
-        const html = `
-            <div style="display: flex; align-items: center; font-size: 0.85rem; color: #555;">
-                <span style="width: 10px; height: 10px; background-color: ${color}; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
-                ${label}
-            </div>
-        `;
-        legendContainer.innerHTML += html;
-    });
 </script>

@@ -2,6 +2,44 @@ import mongoose  from "mongoose";
 import Order from "../../model/orderModel.js";
 import User from "../../model/userModel.js";
 
+
+const calculateDateRange = (reportType, startDate, endDate) => {
+    const now = new Date();
+    let start = new Date();
+    let end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    if (reportType === 'daily') {
+        start.setHours(0, 0, 0, 0);
+    } else if (reportType === 'weekly') {
+       const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ...
+        
+        // Calculate days to subtract to get to the previous Monday
+        // If Sunday (0), subtract 6. If Monday (1), subtract 0.
+        const distanceToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+        start.setDate(now.getDate() - distanceToMonday);
+        start.setHours(0, 0, 0, 0);
+
+        // Optional: If you want the "End Date" to be this coming Sunday (instead of today)
+        const endOfSun = new Date(start);
+        endOfSun.setDate(start.getDate() + 6);
+        endOfSun.setHours(23,59,59,999);
+        end = endOfSun;
+    } else if (reportType === 'monthly') {
+        start.setDate(1);
+        start.setHours(0, 0, 0, 0);
+    } else if (reportType === 'yearly') {
+        start.setMonth(0, 1);
+        start.setHours(0, 0, 0, 0);
+    } else if (reportType === 'custom' && startDate && endDate) {
+        start = new Date(startDate);
+        end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+    }
+    return { start, end };
+};
+
 // 2. NEW FUNCTION: ONLY FOR CHART
 
 const getSalesChartData = async (reportType) => {
@@ -50,24 +88,22 @@ const getSalesChartData = async (reportType) => {
             dateFormat = "%Y-%m-%d";
 
         } else if (reportType === 'weekly') {
-            const currentDayIST = nowIST.getUTCDay(); // 0 (Sun) to 6 (Sat)
-            
-            // Calculate difference to get to Monday
-            // If Sunday (0), diff is -6. If Monday (1), diff is 0. 
-            const diff = currentDayIST === 0 ? -6 : 1 - currentDayIST;
+           // 1. Get current day (0=Sun, 1=Mon, ..., 6=Sat)
+    const dayOfWeek = now.getDay(); 
+    
+    // 2. Calculate offset to get to the previous Monday
+    // If today is Sunday (0), subtract 6 days. Otherwise, subtract (day - 1).
+    const distanceToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
-            // Set Start to Monday 00:00:00 IST
-            const mondayIST = new Date(nowIST);
-            mondayIST.setUTCDate(nowIST.getUTCDate() + diff);
-            mondayIST.setUTCHours(0, 0, 0, 0); 
-            
-            // Adjust server object to match 00:00 IST (which is previous day 18:30 UTC)
-            start = new Date(mondayIST.getTime() - IST_OFFSET);
+    // 3. Set Start Date (Monday 00:00:00)
+    start.setDate(now.getDate() - distanceToMonday);
+    start.setHours(0, 0, 0, 0);
 
-            // End is 6 days later at 23:59:59 IST
-            end = new Date(start.getTime() + (7 * 24 * 60 * 60 * 1000) - 1);
-            
-            dateFormat = "%Y-%m-%d";
+    // 4. Set End Date (Sunday 23:59:59)
+    // We clone the 'start' date and add 6 days to it
+    end = new Date(start); 
+    end.setDate(start.getDate() + 6);
+    end.setHours(23, 59, 59, 999);
 
         } else if (reportType === 'daily') {
             // Start of Today (IST aligned)
@@ -86,32 +122,27 @@ const getSalesChartData = async (reportType) => {
         }
 
         const chartData = await Order.aggregate([
-            // 1. Filter Orders by Date
+
             { $match: { createdAt: { $gte: start, $lte: end } } },
-            
-            // 2. Unwind Items to check status
+
             { $unwind: '$orderedItems' },
-            
-            // 3. Filter valid items only
+
             { $match: { "orderedItems.productStatus": { $in: ['Delivered', 'Return Rejected'] } } },
             {
                 $group: {
                     _id: "$_id",
                     orderDate: { $first: "$createdAt" },
-                    
-                    // Simple Math: Price * Quantity
+
                     orderSubtotal: { 
                         $sum: { 
                             $multiply: ["$orderedItems.price", "$orderedItems.quantity"] 
                         } 
                     },
-                    
-                    // Capture Coupon (Handle if missing)
+
                     couponDiscount: { $first: { $ifNull: ["$discount", 0] } }
                 }
             },
 
-            // 5. APPLY TAX & SHIPPING LOGIC (Replicating your rules)
             {
                 $addFields: {
                     taxAmount: { $multiply: ["$orderSubtotal", 0.05] }, // 5% Tax
@@ -121,7 +152,6 @@ const getSalesChartData = async (reportType) => {
                 }
             },
 
-            // 6. CALCULATE FINAL REVENUE PER ORDER
             {
                 $addFields: {
                     finalOrderRevenue: { 
@@ -133,14 +163,13 @@ const getSalesChartData = async (reportType) => {
                 }
             },
 
-            // 7. FINAL GROUPING BY DATE (For the Graph)
           {
                 $group: {
                     _id: { 
                         $dateToString: { 
                             format: dateFormat, 
                             date: "$orderDate",
-                            timezone: MY_TIMEZONE  // Ensures labels are 9:00, 10:00 (IST) not 4:00 (UTC)
+                            timezone: MY_TIMEZONE  
                         } 
                     },
                     totalSales: { $sum: "$finalOrderRevenue" },
@@ -161,29 +190,29 @@ const getSalesChartData = async (reportType) => {
             const currentYear = new Date().getFullYear();
             
             for (let i = 0; i < 12; i++) {
-                // Key format matches %Y-%m (e.g., "2025-01")
+
                 const monthKey = `${currentYear}-${(i + 1).toString().padStart(2, '0')}`;
                 const data = dataMap.get(monthKey);
                 
                 filledData.push({
-                    _id: months[i], // Label: "Jan", "Feb"...
+                    _id: months[i], 
                     totalSales: data ? data.totalSales : 0,
                     count: data ? data.count : 0
                 });
             }
 
         } else if (reportType === 'monthly') {
-            // Get days in current month
+     
             const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
             const currentYearMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
 
             for (let i = 1; i <= daysInMonth; i++) {
-                // Key format matches %Y-%m-%d (e.g., "2025-12-05")
+    
                 const dayKey = `${currentYearMonth}-${i.toString().padStart(2, '0')}`;
                 const data = dataMap.get(dayKey);
 
                 filledData.push({
-                    _id: i.toString(), // Label: "1", "2", "3"...
+                    _id: i.toString(),
                     totalSales: data ? data.totalSales : 0,
                     count: data ? data.count : 0
                 });
@@ -191,19 +220,12 @@ const getSalesChartData = async (reportType) => {
 
         } else if (reportType === 'weekly') {
             const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            
-            // Iterate through the generated start-to-end range (7 days)
+
            for (let i = 0; i < 7; i++) {
-                // 1. Create a date object for the specific day in the loop
                 const date = new Date(start.getTime() + (i * 24 * 60 * 60 * 1000));
                 
-                // 2. Generate Key: MUST use getISTDateString helper
-                // This converts the Date object (which is in server time) to IST string "YYYY-MM-DD"
-                // matching what Mongo $dateToString with timezone: "+05:30" produced.
                 const dateKey = getISTDateString(date); 
                 
-                // 3. Get label logic
-                // We shift time to IST to find out what day of the week it is in India
                 const istDateObj = new Date(date.getTime() + IST_OFFSET);
                 const dayName = days[istDateObj.getUTCDay()];
 
@@ -217,10 +239,9 @@ const getSalesChartData = async (reportType) => {
             }
         } else if (reportType === 'daily') {
             for (let i = 0; i < 24; i++) {
-                const hourKey = i.toString().padStart(2, '0') + ":00"; // "09:00"
+                const hourKey = i.toString().padStart(2, '0') + ":00"; 
                 const data = dataMap.get(hourKey);
                 
-                // Readable Label: 1 AM, 2 PM...
                 let label = i === 0 ? "12 AM" : (i < 12 ? `${i} AM` : (i === 12 ? "12 PM" : `${i-12} PM`));
 
                 filledData.push({
@@ -248,8 +269,20 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
         if(reportType === 'daily'){
             start.setHours(0, 0, 0, 0)
         } else if(reportType === 'weekly'){
-            start.setDate(now.getDate() - 7)
-            start.setHours(0, 0, 0, 0)
+           const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ...
+        
+        // Calculate days to subtract to get to the previous Monday
+        // If Sunday (0), subtract 6. If Monday (1), subtract 0.
+        const distanceToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+        start.setDate(now.getDate() - distanceToMonday);
+        start.setHours(0, 0, 0, 0);
+
+        // Optional: If you want the "End Date" to be this coming Sunday (instead of today)
+        const endOfSun = new Date(start);
+        endOfSun.setDate(start.getDate() + 6);
+        endOfSun.setHours(23,59,59,999);
+        end = endOfSun;
         } else if(reportType === 'monthly'){
             start.setDate(1);
             start.setHours(0, 0, 0, 0)
@@ -297,10 +330,8 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
             },
             {
                 $addFields: {
-                    // Tax: 5% (0.05). If you meant exactly 0.05%, change 0.05 to 0.0005
                     taxAmount: { $multiply: ["$orderSubtotal", 0.05] }, 
                     
-                    // Shipping: 100 if subtotal < 100,000
                     shippingFee: { 
                         $cond: { if: { $lt: ["$orderSubtotal", 100000] }, then: 100, else: 0 } 
                     }
@@ -353,12 +384,12 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
                     customerName: { $first: "$address.fullName" },
                     customerEmail: { $first: "$userDetails.email" },
                     paymentMethod: { $first: "$paymentMethod" },
-                    // Reconstruct the filtered items array
+                 
                     deliveredItems: { $push: "$orderedItems" },
-                    // Calculate Total for this specific row (Sum of delivered items only)
+             
                    subtotal: { $sum: { $multiply: ["$orderedItems.price", "$orderedItems.quantity"] } },
                    couponValue: { $first: "$discount" },
-                   // CORRECTED DISCOUNT PER ROW
+       
                     discount: { 
                         $sum: { 
                             $multiply: [
@@ -423,11 +454,14 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
     }
 }
 
-const getBestSellingProducts = async () => {
+const getBestSellingProducts = async ({ reportType, startDate, endDate }) => {
+    const { start, end } = calculateDateRange(reportType, startDate, endDate);
+
     return await Order.aggregate([
-        {$unwind: "$orderedItems"},
-        {$match: {"orderedItems.productStatus": {$in: ["Delivered", "Return Rejected"]}}},
-      //  Lookup Variant (to get the Product ID)
+        // Filter by Date FIRST (Optimization)
+        { $match: { createdAt: { $gte: start, $lte: end } } },
+        { $unwind: "$orderedItems" },
+        { $match: { "orderedItems.productStatus": { $in: ["Delivered", "Return Rejected"] } } },
         {
             $lookup: {
                 from: "variants",
@@ -442,19 +476,21 @@ const getBestSellingProducts = async () => {
                 _id: "$orderedItems.productName",
                 totalSold: { $sum: "$orderedItems.quantity" },
                 totalRevenue: { $sum: { $multiply: ["$orderedItems.price", "$orderedItems.quantity"] } },
-
-                productImage: { $first: "$variant.image"}
+                productImage: { $first: "$variant.image" }
             }
         },
-        {$sort: {totalSold: -1}},
-        {$limit: 10}
-    ])
-}
+        { $sort: { totalSold: -1 } },
+        { $limit: 10 }
+    ]);
+};
 
-const getBestSellingCategory = async () => {
+const getBestSellingCategory = async ({ reportType, startDate, endDate }) => {
+    const { start, end } = calculateDateRange(reportType, startDate, endDate);
+
     return await Order.aggregate([
-        {$unwind: "$orderedItems"},
-        {$match: {"orderedItems.productStatus": {$in: ['Delivered', 'Return Rejected']}}},
+        { $match: { createdAt: { $gte: start, $lte: end } } },
+        { $unwind: "$orderedItems" },
+        { $match: { "orderedItems.productStatus": { $in: ['Delivered', 'Return Rejected'] } } },
         {
             $lookup: {
                 from: 'variants',
@@ -463,7 +499,7 @@ const getBestSellingCategory = async () => {
                 as: 'variant'
             }
         },
-        {$unwind: '$variant'},
+        { $unwind: '$variant' },
         {
             $lookup: {
                 from: 'products',
@@ -472,7 +508,7 @@ const getBestSellingCategory = async () => {
                 as: 'product'
             }
         },
-        {$unwind: '$product'},
+        { $unwind: '$product' },
         {
             $lookup: {
                 from: 'categories',
@@ -481,71 +517,75 @@ const getBestSellingCategory = async () => {
                 as: 'categoryDetails'
             }
         },
-        {$unwind: '$categoryDetails'},
+        { $unwind: '$categoryDetails' },
         {
             $group: {
                 _id: "$categoryDetails.categoryName",
-                totalSold: {$sum: "$orderedItems.quantity"}
+                totalSold: { $sum: "$orderedItems.quantity" }
             }
         },
-        {$sort: {totalSold: -1}},
-        {$limit: 10}
-    ])
-}
+        { $sort: { totalSold: -1 } },
+        { $limit: 10 }
+    ]);
+};
+const getBestSellingBrand = async ({ reportType, startDate, endDate }) => {
+    const { start, end } = calculateDateRange(reportType, startDate, endDate);
 
-const getBestSellingBrand = async () => {
     return await Order.aggregate([
-        {$unwind: "$orderedItems"},
-        {$match: {"orderedItems.productStatus": {$in: ['Delivered', 'Return Rejected']}}},
-       {
-         $lookup: {
-            from: 'variants',
-            localField: 'orderedItems.variantId',
-            foreignField: '_id',
-            as: 'variant'
-         }
-       },
-       {$unwind: '$variant'},
-       {
-         $lookup: {
-            from: 'products',
-            localField: 'variant.productId',
-            foreignField: '_id',
-            as: 'product'
-         }
-       },
-       {$unwind: '$product'},
-       {
-        $lookup: {
-            from: 'brands',
-            localField: 'product.brand',
-            foreignField: '_id',
-            as: 'brandDetails'
-        }
-       },
-       {$unwind: "$brandDetails"},
-       {
-        $group: {
-            _id: '$brandDetails.brandName',
-            totalSold: {$sum: '$orderedItems.quantity'},
-            brandImage: {$first: {$arrayElemAt: ['$brandDetails.brandImage', 0]}}
-        }
-       },
-       {$sort: {totalSold: -1}},
-       {$limit: 10}
-    ])
-}
+        { $match: { createdAt: { $gte: start, $lte: end } } },
+        { $unwind: "$orderedItems" },
+        { $match: { "orderedItems.productStatus": { $in: ['Delivered', 'Return Rejected'] } } },
+        {
+            $lookup: {
+                from: 'variants',
+                localField: 'orderedItems.variantId',
+                foreignField: '_id',
+                as: 'variant'
+            }
+        },
+        { $unwind: '$variant' },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'variant.productId',
+                foreignField: '_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        {
+            $lookup: {
+                from: 'brands',
+                localField: 'product.brand',
+                foreignField: '_id',
+                as: 'brandDetails'
+            }
+        },
+        { $unwind: "$brandDetails" },
+        {
+            $group: {
+                _id: '$brandDetails.brandName',
+                totalSold: { $sum: '$orderedItems.quantity' },
+                brandImage: { $first: { $arrayElemAt: ['$brandDetails.brandImage', 0] } }
+            }
+        },
+        { $sort: { totalSold: -1 } },
+        { $limit: 10 }
+    ]);
+};
 
-const getOrderStatus = async () => {
+const getOrderStatus = async ({ reportType, startDate, endDate }) => {
+    const { start, end } = calculateDateRange(reportType, startDate, endDate);
     return await Order.aggregate([
+        { $match: { createdAt: { $gte: start, $lte: end } } },
         {
             $group: {
                 _id: "$status",
-                count: {$sum: 1}
+                count: { $sum: 1 }
             }
         }
-    ])
-}
+    ]);
+};
 const activeUsersCount = async () => {
   const count = await User.countDocuments({isActive: true});
 

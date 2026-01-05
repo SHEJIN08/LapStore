@@ -135,7 +135,7 @@ const forgotPasswordPost = async (req, res) => {
             return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: err.message });
         }
         console.error(err);
-        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: err.message });
     }
 };
 
@@ -207,9 +207,6 @@ const googleCallback = async (req, res) => {
     }
 };
 
-// ==========================================
-// 🚀 PAGE RENDERS (Keep these in Controller)
-// ==========================================
 // These are view logic, so they stay in the controller
 const loadRegister = (req, res) => res.render("user/register");
 const loadLogin = (req, res) => res.render("user/login");
