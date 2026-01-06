@@ -20,6 +20,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 style: { background: bgColor, borderRadius: '10px' }
             }).showToast();
         };
+    const Loading = {
+    // 1. Show Full Page Loader
+    show: function(text = "Processing...") {
+        const loader = document.getElementById('global-loader');
+        const textEl = loader.querySelector('p');
+        if (textEl) textEl.innerText = text;
+        loader.style.display = 'flex';
+    },
+
+    // 2. Hide Full Page Loader
+    hide: function() {
+        document.getElementById('global-loader').style.display = 'none';
+    },
+
+    // 3. Turn a Button into a Loader
+    showButton: function(btnElement) {
+        btnElement.classList.add('btn-loading');
+        btnElement.disabled = true; // Prevent double clicks
+    },
+
+    // 4. Restore Button
+    hideButton: function(btnElement) {
+        btnElement.classList.remove('btn-loading');
+        btnElement.disabled = false;
+    }
+};
 
             // --- CROPPER SETUP ---
             let cropper; // Variable to hold the cropper instance
@@ -72,19 +98,17 @@ document.addEventListener('DOMContentLoaded', () => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
+                Loading.showButton(submitBtn)
+
                 // Basic validation
                 if (!fileInput.files[0] && !cropper) {
+                    Loading.hideButton(submitBtn)
                     showToast("Please upload a brand logo", "error");
                     return;
                 }
                 
-                // Disable button to prevent double submit
-                submitBtn.disabled = true;
-                submitBtn.innerText = 'Uploading...';
 
-                // Check if cropper is active and get the canvas
                 if (cropper) {
-                    // Convert cropped canvas to a file (blob)
                     cropper.getCroppedCanvas({
                         width: 400, // Optional: resize target width
                         height: 400 // Optional: resize target height
@@ -118,17 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.location.href = '/admin/brands';
                         }, 1000);
                     } else {
+                        Loading.hideButton(submitBtn)
                         showToast(response.data.message, "error");
-                        submitBtn.disabled = false;
-                        submitBtn.innerText = 'Add Brand';
                     }
 
                 } catch (error) {
+                     Loading.hideButton(submitBtn)
                     console.error('Error:', error);
                     const errMsg = error.response?.data?.message || "Something went wrong";
                     showToast(errMsg, "error");
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = 'Add Brand';
                 }
             }
         });

@@ -212,3 +212,61 @@
 
 input:checked + .slider { background-color: #0d6efd; }
 input:checked + .slider:before { transform: translateX(18px); }
+/* =============================
+   GLOBAL LOADER STYLES
+   ============================= */
+#global-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+    z-index: 10000; /* High z-index to cover Sidebar and Navbar */
+    display: none; /* Hidden by default, toggled by JS */
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* The Spinning Circle */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #e0e0e0; 
+    border-top: 5px solid #007BFF; /* Admin Blue Theme */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* Button Loading State */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-top: -10px;
+    margin-left: -10px;
+    border: 2px solid #ffffff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}   

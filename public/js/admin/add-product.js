@@ -1,3 +1,30 @@
+    // loading logic
+    const Loading = {
+    // 1. Show Full Page Loader
+    show: function(text = "Processing...") {
+        const loader = document.getElementById('global-loader');
+        const textEl = loader.querySelector('p');
+        if (textEl) textEl.innerText = text;
+        loader.style.display = 'flex';
+    },
+
+    // 2. Hide Full Page Loader
+    hide: function() {
+        document.getElementById('global-loader').style.display = 'none';
+    },
+
+    // 3. Turn a Button into a Loader
+    showButton: function(btnElement) {
+        btnElement.classList.add('btn-loading');
+        btnElement.disabled = true; // Prevent double clicks
+    },
+
+    // 4. Restore Button
+    hideButton: function(btnElement) {
+        btnElement.classList.remove('btn-loading');
+        btnElement.disabled = false;
+    }
+};
    // ==========================================
     // 1. SPECIFICATIONS LOGIC
     // ==========================================
@@ -215,26 +242,26 @@
     // ==========================================
     // 4. FORM SUBMISSION
     // ==========================================
+       
     document.addEventListener('DOMContentLoaded', () => {
         const productForm = document.getElementById('addProductForm');
         if (productForm) {
             productForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const submitBtn = productForm.querySelector('.btn-save');
-                
+                Loading.showButton(submitBtn)
                 // --- Validation ---
                 if (imageInput.files.length < 3) {
+                    Loading.hideButton(submitBtn)
                     showToast('Please select at least 3 product images.', 'error');
                     return;
                 }
                 if (variants.length === 0) {
+                     Loading.hideButton(submitBtn)
                     showToast('Please add at least one variant.', 'error');
                     return;
                 }
                 // ------------------
-
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = 'Saving...';
                 
                 const formData = new FormData(productForm);
 
@@ -247,22 +274,17 @@
                         showToast(response.data.message, 'success');
                         setTimeout(() => window.location.href = '/admin/products', 1000);
                     } else {
+                         Loading.hideButton(submitBtn)
                         showToast(response.data.message, 'error');
-                        resetBtn(submitBtn);
                     }
                 } catch (err) {
+                     Loading.hideButton(submitBtn)
                     console.error("Error:", err);
                     showToast("Something went wrong.", 'error');
-                    resetBtn(submitBtn);
                 }
             });
         }
     });
-
-    function resetBtn(btn) {
-        btn.disabled = false;
-        btn.innerText = "Save Changes";
-    }
 
       const showToast = (message, type) => {
             const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";

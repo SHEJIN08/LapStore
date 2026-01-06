@@ -373,6 +373,7 @@
         const totalAmount = parseFloat(document.getElementById('realTotalAmount').value);
         const couponCode = document.getElementById('couponCodeInput').value;
 
+
         if (paymentMethod === 'Razorpay') {
             await handleRazorpay(totalAmount, addressId, couponCode);
         } else {
@@ -381,9 +382,11 @@
     });
 
     // --- 3. RAZORPAY HANDLER ---
-    async function handleRazorpay(amount, addressId, couponCode) {
+    async function handleRazorpay(amount, addressId, couponCode, btn) {
+      Loading.show("Initializing Payment...");
         try {
             const response = await axios.post('/user/create-payment', { amount: amount });
+           Loading.hide();
             const orderData = response.data;
 
             if (!orderData.success) return showToast('Error initiating payment', 'error');
@@ -397,6 +400,7 @@
                 "order_id": orderData.id,
                 "handler": async function (response) {
                     try {
+                        Loading.show("Verifying Payment...");
                         const verifyResponse = await axios.post('/user/verify-payment', {
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
@@ -408,9 +412,11 @@
                         if (verifyResponse.data.success) {
                             window.location.href = `/user/order-success/${verifyResponse.data.orderId}`;
                         } else {
+                            Loading.hide();
                             showToast('Payment verification failed!', 'error');
                         }
                     } catch (err) {
+                        Loading.hide();
                         showToast("Verification error: " + (err.response?.data?.message || err.message), 'error');
                     }
                 },
@@ -440,7 +446,9 @@
             finalOrderId = saveResponse.data.orderId;
         }
                 } catch (err) {
+                   Loading.hide();
                     console.error("Could not save failed order", err);
+                    showToast("Something went wrong with payment", 'error');
                 }
 
                 let failureUrl = `/user/order-failure?error=${encodeURIComponent(errorDesc)}`;
@@ -464,6 +472,9 @@
 
     // --- B. COD / WALLET HANDLER ---
     async function handleCodOrWallet(paymentMethod, addressId, couponCode) {
+
+        // 1. Show Button Spinner
+       Loading.show("Placing your order...");
         try {
             const response = await axios.post('/user/cart/checkout/place-order', {
                 addressId: addressId,
@@ -474,10 +485,12 @@
             if (response.data.success) {
                 window.location.href = `/user/order-success/${response.data.orderId}`;
             } else {
+              Loading.hide();
                 showToast(response.data.message || "Failed to place order", "error");
             }
         } catch (error) {
             console.error(error);
+            Loading.hide();
             showToast(error.response?.data?.message || "Something went wrong", "error");
         }
     }

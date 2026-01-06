@@ -4,9 +4,9 @@ const client = new Appwrite.Client()
   .setProject(window.APPWRITE_CONFIG.APPWRITE_PROJECT);       // your Appwrite project ID
 
 const account = new Appwrite.Account(client);
-
-document.getElementById("google-btn").addEventListener("click",  () => {
-
+const btn = document.getElementById("google-btn")
+btn.addEventListener("click",  () => {
+ Loading.showButton(btn)
      account.createOAuth2Session(
       "google",
       window.APPWRITE_CONFIG.GOOGLE_CALLBACK,

@@ -346,6 +346,7 @@
     // 🚀 MAIN UPDATE FUNCTION (Linked to Buttons)
     // ============================================
     async function updateChart(btn, filterType) {
+        Loading.show("Loading Dashboard...");
         // 1. Update UI Buttons
         document.querySelectorAll('.sales-overview .tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -382,7 +383,11 @@
         } catch (error) {
             console.error("Error updating dashboard:", error);
             // Optional: Show a toast notification here
-        }
+        }finally {
+        // 2. Hide Loader (Always runs, success or error)
+        Loading.hide(); 
+    }
+        
     }
 
     // --- Table HTML Generators ---

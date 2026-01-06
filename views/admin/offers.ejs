@@ -247,7 +247,7 @@
             </form>
         </div>
     </div>
-
+  <%- include('../partials/footer') %>
     <script src="/js/axios.min.js"></script>
 
     
@@ -351,16 +351,22 @@
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const btn = document.querySelector('.btn-save')
+
+           Loading.showButton(btn)
+
             const offerId = document.getElementById('offerId').value;
             const offerType = document.getElementById('offerTypeSelect').value;
             const categoryId = document.getElementById('categoryId').value;
 
             // Validation
             if (offerType === 'product' && selectedProducts.length === 0) {
+                Loading.hideButton(btn)
                 showToast("Please select at least one product", 'error')
                 return;
             }
             if (offerType === 'category' && !categoryId) {
+                Loading.hideButton(btn)
                 showToast("Please select a category", 'error')
                 return;
             }
@@ -391,9 +397,11 @@
                     showToast(offerId ? "Offer Updated!" : "Offer Created!", 'success')
                     setTimeout(() => location.reload(), 1000);
                 } else {
+                    Loading.hideButton(btn)
                     showToast(response.data.message,'error')
                 }
             } catch (error) {
+                Loading.hideButton(btn)
                 console.error(error);
                 const msg = error.response?.data?.message || "Something went wrong";
                 showToast(msg,"error")
