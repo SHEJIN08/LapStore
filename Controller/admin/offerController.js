@@ -94,7 +94,7 @@ const searchProducts = async (req, res) => {
         
         // Find active products that match the name (Limit 10 for speed)
         const products = await Product.find({
-            name: { $regex: search, $options: "i" }, // Case-insensitive
+            name: { $regex: search, $options: "i" },
             isPublished: true 
         })
         .select("name _id") // Only fetch ID and Name

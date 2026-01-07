@@ -2,7 +2,7 @@ import addressService from "../../services/user/addressService.js";
 import User from "../../model/userModel.js";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
-// --- LOAD PAGE ---
+
 const loadAddress = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -10,7 +10,6 @@ const loadAddress = async (req, res) => {
 
     if (!user) return res.redirect("/user/login");
 
-    // Call Service
     const addresses = await addressService.getUserAddressesService(userId);
 
     res.render("user/manageAddress", {
@@ -23,7 +22,6 @@ const loadAddress = async (req, res) => {
   }
 };
 
-// --- ADD ADDRESS ---
 const addAddress = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -124,7 +122,7 @@ const setDefaultAddress = async (req, res) => {
   }
 };
 
-// --- GET DETAILS ---
+
 const getAddressDetails = async (req, res) => {
   try {
     const { addressId } = req.params;
@@ -144,7 +142,7 @@ const getAddressDetails = async (req, res) => {
   }
 };
 
-// --- EDIT ADDRESS ---
+
 const editAddress = async (req, res) => {
   try {
     const { addressId } = req.params;
@@ -159,7 +157,6 @@ const editAddress = async (req, res) => {
       pincode,
     } = req.body;
 
-    // Validation
     if (!name || !phone || !addressLine1 || !city || !state || !pincode) {
       return res
         .status(StatusCode.BAD_REQUEST)
@@ -189,7 +186,7 @@ const editAddress = async (req, res) => {
   }
 };
 
-// --- DELETE ADDRESS ---
+
 const deleteAddress = async (req, res) => {
   try {
     const { addressId } = req.params;

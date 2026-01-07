@@ -2,7 +2,6 @@ import userManagementService from "../../services/admin/userService.js";
 import userService from "../../services/admin/userService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
-// --- LOAD USERS PAGE ---
 const loadUsers = async (req, res) => {
     try {
         const search = req.query.search || '';
@@ -10,7 +9,6 @@ const loadUsers = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
 
-        // Call Service
         const { users, totalUsers, totalPages } = await userManagementService.getAllUsersService({
             search, status, page, limit
         });
@@ -43,14 +41,13 @@ const searchUserForCoupon = async (req, res) => {
 
         const users = await userService.searchUsersForCoupon(search);
 
-        res.json({ users }); // Send clean JSON back to frontend
+        res.json({ users }); 
     } catch (error) {
         console.error(error);
         res.status(500).json({ users: [] });
     }
 };
 
-// --- BLOCK / UNBLOCK USER ---
 const BlockOrUnblock = async (req, res) => {
     try {
         const userId = req.params.id;

@@ -43,50 +43,50 @@ router.put('/home/profile/edit-info', profileController.editInfo)
 router.post('/home/profile/verify-update-otp',otpController.verifyOtp)
 
 router.get('/home/manageAddress', userAuth.isUserBlocked, userAuth.checkSession,addressController.loadAddress)
-router.post('/home/manageAddress/add',addressController.addAddress)
-router.put('/home/manageAddress/set-default/:addressId', addressController.setDefaultAddress);
-router.get("/home/manageAddress/get/:addressId", addressController.getAddressDetails);
-router.put("/home/manageAddress/edit/:addressId", addressController.editAddress);
-router.delete("/home/manageAddress/delete/:addressId", addressController.deleteAddress);
+router.post('/home/manageAddress/add',userAuth.isUserBlocked, userAuth.checkSession,addressController.addAddress)
+router.put('/home/manageAddress/set-default/:addressId',userAuth.isUserBlocked, userAuth.checkSession, addressController.setDefaultAddress);
+router.get("/home/manageAddress/get/:addressId",userAuth.isUserBlocked, userAuth.checkSession, addressController.getAddressDetails);
+router.put("/home/manageAddress/edit/:addressId",userAuth.isUserBlocked, userAuth.checkSession, addressController.editAddress);
+router.delete("/home/manageAddress/delete/:addressId",userAuth.isUserBlocked, userAuth.checkSession, addressController.deleteAddress);
 
 router.get('/home/cart',userAuth.isUserBlocked,cartController.loadCart)
-router.post('/home/cart/update-quantity', cartController.updateCartQuantity)
-router.delete('/home/cart/remove', cartController.removeFromCart)
-router.post("/home/cart/add", cartController.addToCart);
+router.post('/home/cart/update-quantity',userAuth.isUserBlocked, userAuth.checkSession, cartController.updateCartQuantity)
+router.delete('/home/cart/remove',userAuth.isUserBlocked, userAuth.checkSession, cartController.removeFromCart)
+router.post("/home/cart/add",userAuth.isUserBlocked, cartController.addToCart);
 
-router.get('/cart/checkout',userAuth.isUserBlocked, checkoutController.loadCheckout)
-router.post('/create-payment', checkoutController.createPaymentOrder);
-router.post('/verify-payment', checkoutController.verifyPayment);
-router.post('/cart/checkout/place-order', checkoutController.placeOrder)
+router.get('/cart/checkout',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.loadCheckout)
+router.post('/create-payment',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.createPaymentOrder);
+router.post('/verify-payment',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.verifyPayment);
+router.post('/cart/checkout/place-order',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.placeOrder)
 router.get('/order-success/:orderId',userAuth.isUserBlocked, checkoutController.orderSuccess)
-router.get('/order-failure', userAuth.isUserBlocked, checkoutController.orderFailed)
-router.post('/payment-failed', checkoutController.handleFailedPayment);
+router.get('/order-failure',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.orderFailed)
+router.post('/payment-failed',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.handleFailedPayment);
 
-router.post('/cart/apply-coupon', checkoutController.applyCoupon);
-router.post('/cart/remove-coupon', checkoutController.removeCoupon);
+router.post('/cart/apply-coupon',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.applyCoupon);
+router.post('/cart/remove-coupon',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.removeCoupon);
 
-router.get('/home/orders',userAuth.isUserBlocked, orderController.loadOrders);
-router.patch('/orders/cancel', orderController.cancelOrder)
+router.get('/home/orders',userAuth.isUserBlocked, userAuth.checkSession, orderController.loadOrders);
+router.patch('/orders/cancel',userAuth.isUserBlocked, userAuth.checkSession, orderController.cancelOrder)
 router.get('/home/orders/details/:orderId',userAuth.isUserBlocked, userAuth.checkSession, orderController.orderDetailedPage)
-router.post('/orders/return', upload.single('returnImage'), orderController.returnOrder);
-router.get('/orders/invoice/:orderId', orderController.downloadInvoice);
+router.post('/orders/return', upload.single('returnImage'),userAuth.isUserBlocked, userAuth.checkSession, orderController.returnOrder);
+router.get('/orders/invoice/:orderId',userAuth.isUserBlocked, userAuth.checkSession, orderController.downloadInvoice);
 
-router.post('/repay-failed-order', checkoutController.retryFailedPayment);
+router.post('/repay-failed-order',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.retryFailedPayment);
 
 router.get('/wishlist', userAuth.isUserBlocked, userAuth.checkSession, wishlistController.loadWishlist);
-router.post('/wishlist/add', userAuth.checkSession, wishlistController.addToWishlist);
-router.delete('/wishlist/remove/:itemId', userAuth.checkSession, wishlistController.removeFromWishlist);
+router.post('/wishlist/add',userAuth.isUserBlocked, userAuth.checkSession, wishlistController.addToWishlist);
+router.delete('/wishlist/remove/:itemId', userAuth.isUserBlocked, userAuth.checkSession, wishlistController.removeFromWishlist);
 
-router.get('/home/wallet',userAuth.isUserBlocked, walletController.loadWallet)
-router.post('/wallet/add-money', userAuth.checkSession, walletController.addMoneyToWallet)
-router.post('/wallet/verify-payment', userAuth.checkSession, walletController.verifyWalletPayment)
+router.get('/home/wallet',userAuth.isUserBlocked, userAuth.checkSession, walletController.loadWallet)
+router.post('/wallet/add-money', userAuth.isUserBlocked, userAuth.checkSession, walletController.addMoneyToWallet)
+router.post('/wallet/verify-payment', userAuth.isUserBlocked, userAuth.checkSession, walletController.verifyWalletPayment)
 
-router.get('/home/referral', referralController.loadReferralPage)
+router.get('/home/referral',userAuth.isUserBlocked, userAuth.checkSession, referralController.loadReferralPage)
 
-router.post('/product/reviews/add', userAuth.checkSession, reviewController.addReview)
+router.post('/product/reviews/add', userAuth.isUserBlocked, userAuth.checkSession, reviewController.addReview)
 router.get('/product/:productId', reviewController.getProductReviews)
 
 
-router.get('/logout',userController.logout);
+router.get('/logout',userAuth.checkSession,userController.logout);
 
 export default router;

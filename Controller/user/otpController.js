@@ -17,11 +17,7 @@ const verifyOtp = async (req, res) => {
 
     // 2. Verify OTP via Service (Throws error if invalid)
     await otpService.verifyAndClearOtp(email, otp);
-
-    // -----------------------------------------
-    // ✅ HANDLE PURPOSES (Session Logic)
-    // -----------------------------------------
-
+    //  HANDLE PURPOSES (Session Logic)
     // CASE A: Registration
     if (purpose === "register") {
       const userData = await otpService.markUserVerified(email);

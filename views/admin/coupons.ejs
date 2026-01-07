@@ -366,58 +366,7 @@
     </div>
 </div>
 
-<style>
-    /* Tag Styling */
-    .selected-tags-area {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 10px;
-        min-height: 30px;
-    }
-    .user-tag {
-        background-color: #e0f2fe;
-        color: #0369a1;
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 0.85rem;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .remove-tag {
-        cursor: pointer;
-        font-weight: bold;
-        color: #0369a1;
-    }
-    .remove-tag:hover { color: #dc2626; }
-
-    /* Search Dropdown Styling */
-    .search-box-wrapper { position: relative; }
-    .search-results-list {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 0 0 6px 6px;
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 1000;
-        display: none; /* Hidden by default */
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .search-result-item {
-        padding: 10px;
-        cursor: pointer;
-        border-bottom: 1px solid #eee;
-    }
-    .search-result-item:hover { background-color: #f9fafb; }
-    .search-result-item strong { display: block; font-size: 0.9rem; }
-    .search-result-item span { font-size: 0.8rem; color: #666; }
-</style>
-
+ <%- include('../partials/footer') %>      
 <script src="/js/axios.min.js"></script>
 <script>
 
@@ -431,6 +380,8 @@
                     style: { background: bgColor, borderRadius: '10px' }
                 }).showToast();
             };
+
+            const btn = document.querySelector('.btn-save')
 
     // --- 1. STATE MANAGEMENT ---
     let selectedUsers = []; // Stores objects: { id, name }
@@ -544,10 +495,11 @@
     // --- 6. FORM SUBMIT (AXIOS POST) ---
     document.getElementById('addCouponForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-
+        Loading.showButton(btn)
         // A. Validate Specific Users
         const eligibility = document.getElementById('userEligibilitySelect').value;
         if (eligibility === 'specific' && selectedUsers.length === 0) {
+            Loading.hideButton(btn)
             showToast('Please select at least one user.', 'error');
             return;
         }
@@ -580,9 +532,11 @@
                     window.location.reload(); 
                 },1000)
             } else {
+                Loading.hideButton(btn)
                 showToast('Failed: ' + response.data.message,'error');
             }
         } catch (error) {
+            Loading.hideButton(btn)
             console.error('Submit Error:', error);
            const errorMessage = error.response?.data?.message || 'Something went wrong';
           showToast(errorMessage, 'error');
@@ -590,7 +544,7 @@
     });
 
     function openCouponModal() {
-    document.getElementById('addCouponModal').style.display = 'flex'; // Use 'flex' to center it
+    document.getElementById('addCouponModal').style.display = 'flex'; 
 }
 
     // Helper to close modal
@@ -710,7 +664,8 @@
     // --- 3. SUBMIT UPDATE ---
     document.getElementById('editCouponForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+        const submitBtn = this.querySelector('.btn-save');
+        Loading.showButton(submitBtn)
         const couponId = document.getElementById('edit_couponId').value;
         
         const formData = {
@@ -738,9 +693,11 @@
                     window.location.reload();
                 },1000)
             } else {
+                Loading.hideButton(submitBtn)
                 showToast(response.data.message);
             }
         } catch (error) {
+            Loading.hideButton(submitBtn)
             console.error(error);
             showToast(error.response?.data?.message || "Update failed");
         }

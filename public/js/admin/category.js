@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmBtn = document.getElementById('confirmActionBtn');
     const closeBtn = document.querySelector('.modal-close-btn');
     const cancelBtn = document.getElementById('cancelModalBtn');
+     const btn = document.querySelector('.btn-save');
 
     let targetId = null;
 
@@ -116,14 +117,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (categoryForm) {
         categoryForm.addEventListener('submit', async (e) => {
             e.preventDefault(); // 1. Stop the browser from reloading
-
+           
             // 2. Get data from the form
             const formData = new FormData(categoryForm);
             // Convert FormData to a simple JavaScript Object
             const data = Object.fromEntries(formData.entries());
+            Loading.showButton(btn)
 
             try {
-                // 3. Send via Axios
                 const response = await axios.post('/admin/category/add-category', data);
 
                 if (response.data.success) {
@@ -135,13 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         window.location.reload();
                     }, 1000);
                 } else {
-                    // Logic failure (e.g. name already exists)
+                    Loading.hideButton(btn)
                     showToast(response.data.message, 'error');
                 }
 
             } catch (error) {
+                Loading.hideButton(btn)
                 console.error("Error adding category:", error);
-                // 5. Network/Server Error
                 const errMsg = error.response?.data?.message || "Something went wrong";
                showToast(errMsg, 'error')
             }

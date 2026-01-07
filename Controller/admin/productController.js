@@ -3,7 +3,7 @@ import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
-// --- LOAD PRODUCTS PAGE ---
+
 const loadProduct = async (req, res) => {
     try {
         const search = req.query.search || '';
@@ -29,7 +29,7 @@ const loadProduct = async (req, res) => {
     }
 };
 
-// --- LOAD ADD PRODUCT PAGE ---
+
 const loadAddProduct = async (req, res) => {
     try {
         const { categories, brands } = await productService.getAddProductDataService();
@@ -40,7 +40,7 @@ const loadAddProduct = async (req, res) => {
     }
 };
 
-// --- BLOCK / UNBLOCK ---
+
 const BlockOrUnblock = async (req, res) => {
     try {
         const id = req.params.id;
@@ -56,7 +56,7 @@ const BlockOrUnblock = async (req, res) => {
     }
 };
 
-// --- ADD PRODUCT ---
+
 const addProduct = async (req, res) => {
     try {
         const imageUrls = req.files ? req.files.map((file) => file.secure_url) : [];
@@ -70,7 +70,6 @@ const addProduct = async (req, res) => {
     }
 };
 
-// --- LOAD EDIT PAGE ---
 const loadEditProduct = async (req, res) => {
     try {
         const id = req.params.id;
@@ -96,7 +95,6 @@ const loadEditProduct = async (req, res) => {
     }
 };
 
-// --- UPLOAD VARIANT IMAGE ---
 const uploadVariantImage = async (req, res) => {
     try {
         const variantId = req.params.variantId;
@@ -122,7 +120,7 @@ const uploadVariantImage = async (req, res) => {
     }
 };
 
-// --- EDIT PRODUCT ---
+
 const editProduct = async (req, res) => {
     try {
         const id = req.params.id;

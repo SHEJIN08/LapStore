@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 1. Select Elements
+  
     const modal = document.getElementById('confirmationModal');
     const modalUserName = document.getElementById('modalUserName');
     const modalTitle = document.getElementById('modalTitle');
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let targetUserId = null; // Store ID to operate on
 
-    // --- HELPER: Toast Function ---
+  
       const showToast = (message, type) => {
             const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
             Toastify({

@@ -47,7 +47,7 @@ const verifyWalletPayment = async (req, res) => {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
         const userId = req.session.user;
 
-        // Call Service
+     
         await walletService.verifyAndCreditWallet(
             userId, 
             razorpay_order_id, 

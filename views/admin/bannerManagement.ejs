@@ -148,7 +148,7 @@
         </form>
     </div>
 </div>
-
+ <%- include('../partials/footer') %>    
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/js/axios.min.js"></script>
 
@@ -240,6 +240,9 @@
         const form = document.getElementById('bannerForm');
         const formData = new FormData(form);
         const bannerId = document.getElementById('bannerId').value;
+        const btn = document.querySelector('.btn-save')
+
+        Loading.showButton(btn)
         
         // Handle Checkbox manually
         formData.set('isActive', document.getElementById('statusToggle').checked);
@@ -252,15 +255,12 @@
                 response = await axios.put(`/admin/banners/edit/${bannerId}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                document.getElementById('btnSubmit').innerText = 'Updating...';
-                document.getElementById('btnSubmit').disabled = true;
+                
             } else {
                 // === ADD MODE (POST) ===
                 response = await axios.post('/admin/banners/add', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                document.getElementById('btnSubmit').innerText = 'Adding...';
-                document.getElementById('btnSubmit').disabled = true;
             }
 
             if (response.data.success) {
@@ -272,15 +272,16 @@
                     showConfirmButton: false
                 }).then(() => window.location.reload());
             } else {
+                Loading.hideButton(btn)
                 Swal.fire('Error', response.data.message, 'error');
             }
 
         } catch (error) {
+             Loading.hideButton(btn)
             console.error(error);
             Swal.fire('Error', error.response?.data?.message || 'Operation failed', 'error');
         }
     }
-
 
     // Close on outside click
     window.onclick = function(event) {

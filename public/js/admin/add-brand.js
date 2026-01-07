@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const removeBtn = document.getElementById('removeImageBtn');
             const submitBtn = document.getElementById('submitBtn');
 
-            // Toast Helper
              const showToast = (message, type) => {
             const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
             Toastify({
@@ -110,8 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (cropper) {
                     cropper.getCroppedCanvas({
-                        width: 400, // Optional: resize target width
-                        height: 400 // Optional: resize target height
+                        width: 400, 
+                        height: 400 
                     }).toBlob(async (blob) => {
                         // This block runs once the image is cropped and converted
                         await sendDataToBackend(blob);
@@ -126,14 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Helper function to send data
             async function sendDataToBackend(fileToSend) {
                  try {
-                    // 1. Create FormData based on existing form text fields
+                    //  Create FormData based on existing form text fields
                     const formData = new FormData(form);
                     
-                    // 2. IMPORTANT: Replace the 'brandLogo' file with the new (cropped) file
-                    // The third argument 'brand-logo.jpg' is the filename the server will see
                     formData.set('brandLogo', fileToSend, 'brand-logo.jpg');
 
-                    // 3. Send via Axios
+                    //  Send via Axios
                     const response = await axios.post('/admin/brands/add', formData);
 
                     if (response.data.success) {

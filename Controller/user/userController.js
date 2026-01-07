@@ -7,7 +7,6 @@ import Banner from "../../model/bannerModel.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 
-// --- LOAD HOME ---
 const loadHome = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -20,7 +19,7 @@ const loadHome = async (req, res) => {
       endDate: {$gte: today}
     })
 
-    // Call Service
+
     const { categories, brands, products } = await userService.getHomeDataService();
 
     const reviews = await reviewService.topRateReviewService();
@@ -46,12 +45,11 @@ const detailedPage = async (req, res) => {
     const userId = req.session.user;
     const slug = req.params.id;
 
-    // Call Service
+   
     const data = await userService.getProductDetailsService(slug);
-    // const reviews = await Review.findById()
 
     if (!data) {
-        // Handle Not Found (Product/Brand/Category issue)
+        
         return res.status(StatusCode.NOT_FOUND).render('user/404');
     }
 
@@ -70,7 +68,6 @@ const detailedPage = async (req, res) => {
   }
 };
 
-// --- SHOP PAGE ---
 const shopPage = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -85,7 +82,7 @@ const shopPage = async (req, res) => {
     const minPrice = parseInt(req.query.minPrice) || 0;
     const maxPrice = parseInt(req.query.maxPrice) || 1000000;
 
-    // Call Service
+ 
     const { products, totalPages, categories, brands } = await userService.getShopProductsService({
         page, limit, search, sortOption, brandOption, categoryOption, minPrice, maxPrice
     });

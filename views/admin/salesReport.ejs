@@ -159,9 +159,19 @@
             </div>
         </main>
     </div>
+    <%- include('../partials/footer') %>   
 
     <script>
-        // 1. Toggle Custom Date Inputs
+         const showToast = (message, type) => {
+                const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: bgColor, borderRadius: '10px' }
+                }).showToast();
+            };
         function toggleCustomDates() {
             const type = document.getElementById('reportType').value;
             const startDiv = document.getElementById('startDateDiv');
@@ -179,6 +189,26 @@
         // Run on load to check if custom was previously selected
         window.onload = toggleCustomDates;
 
+        // --- 2. Handle Filter Form Submission (SHOW LOADER) ---
+    document.getElementById('reportForm').addEventListener('submit', function(e) {
+        // A. Validation
+        const type = document.getElementById('reportType').value;
+        const startDate = document.querySelector('input[name="startDate"]').value;
+        const endDate = document.querySelector('input[name="endDate"]').value;
+
+        if (type === 'custom' && (!startDate || !endDate)) {
+            e.preventDefault(); 
+            alert("Please select both Start and End dates.");
+            return;
+        }
+        if(type === 'custom' && (startDate >= endDate)){
+            e.preventDefault();
+            alert('End date must be after the start date')
+            return;
+        }
+        Loading.show("Generating Report...");
+    });
+
         // 2. Handle Export Button Clicks
         function downloadReport(format) {
             const reportType = document.getElementById('reportType').value;
@@ -195,8 +225,12 @@
                 url += `&startDate=${startDate}&endDate=${endDate}`;
             }
 
+            Loading.show(`Preparing ${format.toUpperCase()}...`);
             // Trigger download
             window.location.href = url;
+            setTimeout(() => {
+            Loading.hide();
+        }, 3000); // Hides after 3 seconds
         }
     </script>
 </body>

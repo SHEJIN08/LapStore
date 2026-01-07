@@ -1,7 +1,7 @@
 import brandService from "../../services/admin/brandService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
-// --- GET BRANDS PAGE ---
+
 const getBrandPage = async (req, res) => {
     try {
         const search = req.query.search || '';
@@ -9,7 +9,6 @@ const getBrandPage = async (req, res) => {
         const page = Number.parseInt(req.query.page) || 1;
         const limit = 4;
 
-        // Call Service
         const { brands, totalBrands, totalPages } = await brandService.getAllBrandsService({ 
             search, status, page, limit 
         });
@@ -32,12 +31,12 @@ const getBrandPage = async (req, res) => {
     }
 };
 
-// --- GET ADD PAGE ---
+
 const getAddBrandPage = (req, res) => {
     res.render('admin/add-brand');
 };
 
-// --- ADD BRAND (POST) ---
+
 const addBrand = async (req, res) => {
     try {
         const { brandName, country, foundedYear, website, description } = req.body;
@@ -48,7 +47,7 @@ const addBrand = async (req, res) => {
         
         const imageUrl = req.file.url; // path from Cloudinary middleware
 
-        // Call Service
+     
         await brandService.createBrandService({
             brandName, country, foundedYear, website, description, imageUrl
         });
@@ -64,7 +63,7 @@ const addBrand = async (req, res) => {
     }
 };
 
-// --- BLOCK / UNBLOCK ---
+
 const BlockOrUnblock = async (req, res) => {
     try {
         const id = req.params.brandId;
@@ -82,7 +81,7 @@ const BlockOrUnblock = async (req, res) => {
     }
 };
 
-// --- GET EDIT PAGE ---
+
 const getEditBrand = async (req, res) => {
     try {
         const brandId = req.params.brandId;
@@ -97,7 +96,6 @@ const getEditBrand = async (req, res) => {
     }
 };
 
-// --- EDIT BRAND (PUT/POST) ---
 const editBrand = async (req, res) => {
     try {
         const id = req.params.brandId;

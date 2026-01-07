@@ -131,6 +131,7 @@
                 });
 
                 if(response.data.success){
+                    Loading.show('Redirecting...')
                     showToast('Login successfull...','success');
                     setTimeout(() => {
                         window.location.href = '/user/home';

@@ -14,15 +14,14 @@ const loginSchema = Joi.object({
   }),
 });
 
-// 🧠 Load login page
+
 const loadLogin = async (req, res) => {
   res.render("admin/login");
 };
 
-// ⚙️ Handle login logic
 const login = async (req, res) => { 
   try {
-    // ✅ Step 1: Validate input using Joi
+    //  Step 1: Validate input using Joi
     const { error } = loginSchema.validate(req.body, {
         abortEarly: false,
         allowUnknown: true
@@ -35,13 +34,13 @@ const login = async (req, res) => {
       });
     }
 
-    // ✅ Step 2: Extract fields
+    //  Step 2: Extract fields
     const { email, password } = req.body;
 
-    // ✅ Step 3: Call Service
+    //  Step 3: Call Service
     const admin = await adminAuthService.loginAdminService(email, password);
 
-    // ✅ Step 4: Login success (Set Session)
+    // Step 4: Login success (Set Session)
     req.session.admin = admin._id;
     
     return res.status(StatusCode.OK).json({
@@ -50,7 +49,6 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    // Handle Invalid Credentials explicitly
     if (error.message === ResponseMessage.INVALID_CREDENTIALS) {
         return res.status(StatusCode.UNAUTHORIZED).json({
             success: false, 
@@ -66,7 +64,7 @@ const login = async (req, res) => {
   }
 };
 
-// 🧩 Load admin dashboard
+
 const loadDashboard = async (req, res) => {
  try {
       const defaultFilter = { reportType: 'monthly' };
@@ -114,7 +112,6 @@ const filterDashboardData = async (req, res) => {
     try {
         const { filter, startDate, endDate } = req.query;
         
-        // Prepare the filter object
         const queryFilter = { 
             reportType: filter, 
             startDate: startDate, 
@@ -150,7 +147,6 @@ const filterDashboardData = async (req, res) => {
     }
 }
 
-// 🚪 Logout
 const logout = async (req, res) => {
   try {
     delete req.session.admin;
@@ -161,7 +157,7 @@ const logout = async (req, res) => {
   }
 };
 
-// 📦 Export controller
+
 const authController = {
   loadDashboard,
   loadLogin,

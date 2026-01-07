@@ -292,6 +292,9 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
         }else if(reportType === 'custom' && startDate && endDate){
             start = new Date(startDate)
             end = new Date(endDate)
+            if(start >= end){
+                throw new Error('End date must be after the start date')
+            }
             end.setHours(23, 59, 59, 999)
         }
 

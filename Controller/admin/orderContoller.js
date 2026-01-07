@@ -2,14 +2,13 @@ import orderService from "../../services/admin/orderService.js";
 import referralService from "../../services/user/referralService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
-// --- GET ORDERS LIST ---
+
 const getOrder = async (req, res) => {
     try {
         const { startDate, endDate, search, status } = req.query;
         const page = Number.parseInt(req.query.page) || 1;
         const limit = 4;
 
-        // Call Service
         const { orders, totalOrders, totalPages } = await orderService.getAllOrdersService({
             startDate, endDate, search, status, page, limit
         });
@@ -31,7 +30,6 @@ const getOrder = async (req, res) => {
     }
 };
 
-// --- GET ORDER DETAILS ---
 const getOrderDetails = async (req, res) => {
     try {
         const orderId = req.params.orderId;
@@ -50,7 +48,6 @@ const getOrderDetails = async (req, res) => {
     }
 };
 
-// --- UPDATE STATUS ---
 const updateOrderStatus = async (req, res) => {
     try {
         const { orderId, status } = req.body;

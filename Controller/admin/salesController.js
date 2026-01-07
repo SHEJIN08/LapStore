@@ -3,7 +3,7 @@ import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
 
-// --- 1. LOAD SALES REPORT PAGE ---
+
 const loadSalesReport = async (req, res) => {
     try {
         const { page = 1, reportType = 'yearly', startDate, endDate } = req.query;
@@ -33,7 +33,7 @@ const loadSalesReport = async (req, res) => {
 
     } catch (error) {
         console.error("Sales Report Error:", error);
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).send(ResponseMessage.SERVER_ERROR);
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: error.message});
     }
 };
 

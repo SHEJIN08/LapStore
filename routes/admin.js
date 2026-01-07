@@ -18,20 +18,20 @@ router.get('/login',adminAuth.isLogin,authController.loadLogin)
 router.post('/login',authController.login)
 
 router.get('/dashboard',adminAuth.checkSession,authController.loadDashboard)
-router.get('/dashboard-filter', authController.filterDashboardData);
-router.get('/chart-data', authController.filterChartData)
+router.get('/dashboard-filter',adminAuth.checkSession, authController.filterDashboardData);
+router.get('/chart-data',adminAuth.checkSession, authController.filterChartData)
 
 router.get('/products',adminAuth.checkSession,productController.loadProduct)
 router.patch('/products/toggle-block/:id',adminAuth.checkSession,productController.BlockOrUnblock)
 router.get('/add-product', adminAuth.checkSession,productController.loadAddProduct)
-router.post('/add-product', upload.array('images',5), productController.addProduct);
+router.post('/add-product', upload.array('images',5),adminAuth.checkSession, productController.addProduct);
 router.get('/edit-product/:id',adminAuth.checkSession,productController.loadEditProduct);
-router.put('/edit-product/:id', upload.array('newImages',5),productController.editProduct)
-router.post('/variant/upload-image/:variantId', upload.single('variantImage'),productController.uploadVariantImage)
+router.put('/edit-product/:id', upload.array('newImages',5),adminAuth.checkSession,productController.editProduct)
+router.post('/variant/upload-image/:variantId', upload.single('variantImage'),adminAuth.checkSession,productController.uploadVariantImage)
 
 router.get('/users',adminAuth.checkSession,usersController.loadUsers)
-router.get('/users/search', usersController.searchUserForCoupon)
-router.post('/users/toggle-block/:id',usersController.BlockOrUnblock)
+router.get('/users/search', adminAuth.checkSession, usersController.searchUserForCoupon)
+router.post('/users/toggle-block/:id',adminAuth.checkSession, usersController.BlockOrUnblock)
 
 
 router.get('/brands',adminAuth.checkSession, brandController.getBrandPage);
@@ -47,32 +47,32 @@ router.get('/category/edit/:id',adminAuth.checkSession, categoryController.getEd
 router.patch('/category/edit/:id',adminAuth.checkSession, categoryController.editCategory); 
 router.patch('/category/toggle-status/:id',adminAuth.checkSession, categoryController.getListOrUnlist);
 
-router.get('/orders',orderController.getOrder)
-router.get('/orders/details/:orderId', orderController.getOrderDetails);
-router.patch('/orders/update-status', orderController.updateOrderStatus);
-router.patch('/orders/handle-return', orderController.handleReturnRequest);
+router.get('/orders',adminAuth.checkSession,orderController.getOrder)
+router.get('/orders/details/:orderId',adminAuth.checkSession, orderController.getOrderDetails);
+router.patch('/orders/update-status',adminAuth.checkSession, orderController.updateOrderStatus);
+router.patch('/orders/handle-return',adminAuth.checkSession, orderController.handleReturnRequest);
 
-router.get('/coupons', couponController.loadCoupon)
-router.post('/coupons/create', couponController.createCoupon)
-router.get('/coupons/get-details/:id', couponController.getCouponDetails);
-router.put('/coupons/edit/:id', couponController.editCoupon);
+router.get('/coupons',adminAuth.checkSession, couponController.loadCoupon)
+router.post('/coupons/create',adminAuth.checkSession, couponController.createCoupon)
+router.get('/coupons/get-details/:id',adminAuth.checkSession, couponController.getCouponDetails);
+router.put('/coupons/edit/:id',adminAuth.checkSession, couponController.editCoupon);
 
 
-router.get('/offers', offerController.loadOffers)
-router.post('/offers/create', offerController.createOffer)
-router.get('/offers/get/:id', offerController.getOfferDetails);
-router.put('/offers/edit/:id', offerController.editOffer);
-router.get('/products/search', offerController.searchProducts);
+router.get('/offers',adminAuth.checkSession, offerController.loadOffers)
+router.post('/offers/create',adminAuth.checkSession, offerController.createOffer)
+router.get('/offers/get/:id',adminAuth.checkSession, offerController.getOfferDetails);
+router.put('/offers/edit/:id',adminAuth.checkSession, offerController.editOffer);
+router.get('/products/search',adminAuth.checkSession, offerController.searchProducts);
 
-router.get('/sales', salesController.loadSalesReport)
-router.get('/sales/download', salesController.downloadReport)
+router.get('/sales',adminAuth.checkSession, salesController.loadSalesReport)
+router.get('/sales/download',adminAuth.checkSession, salesController.downloadReport)
 
-router.get('/reviews', reviewController.getReviewDetails)
-router.patch('/reviews/toggle-status', reviewController.toggleReviewStatus)
+router.get('/reviews',adminAuth.checkSession, reviewController.getReviewDetails)
+router.patch('/reviews/toggle-status',adminAuth.checkSession, reviewController.toggleReviewStatus)
 
-router.get('/banners', bannerController.bannerManagement)
-router.post('/banners/add', upload.single('image'), bannerController.addBanner);
-router.put('/banners/edit/:id', upload.single('image'), bannerController.editBanner)
+router.get('/banners',adminAuth.checkSession, bannerController.bannerManagement)
+router.post('/banners/add', upload.single('image'),adminAuth.checkSession, bannerController.addBanner);
+router.put('/banners/edit/:id', upload.single('image'),adminAuth.checkSession, bannerController.editBanner)
 
 router.get('/logout',adminAuth.checkSession,authController.logout)
 

@@ -155,6 +155,11 @@
             </div>
         </div>
 
+              <!-- loaders   -->
+    <div id="global-loader">
+    <div class="spinner"></div>
+    <p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
+    </div>
 
         <script src="/js/axios.min.js"></script>
 
@@ -169,6 +174,33 @@
                 const confirmBtn = document.getElementById('confirmActionBtn');
                 const closeBtn = document.querySelector('.modal-close-btn');
                 const cancelBtn = document.querySelector('.btn-cancel');
+
+     const Loading = {
+    // 1. Show Full Page Loader
+    show: function(text = "Processing...") {
+        const loader = document.getElementById('global-loader');
+        const textEl = loader.querySelector('p');
+        if (textEl) textEl.innerText = text;
+        loader.style.display = 'flex';
+    },
+
+    // 2. Hide Full Page Loader
+    hide: function() {
+        document.getElementById('global-loader').style.display = 'none';
+    },
+
+    // 3. Turn a Button into a Loader
+    showButton: function(btnElement) {
+        btnElement.classList.add('btn-loading');
+        btnElement.disabled = true; 
+    },
+
+    // 4. Restore Button
+    hideButton: function(btnElement) {
+        btnElement.classList.remove('btn-loading');
+        btnElement.disabled = false;
+    }
+};
 
                 // Get the Category ID from the EJS variable embedded in script
                 const categoryId = '<%= category._id %>';
@@ -203,7 +235,7 @@
                     }
                 };
 
-                // 2. Open Modal Logic (Handles BOTH Block and Unblock)
+                //  Open Modal Logic (Handles BOTH Block and Unblock)
                 const openModal = (productId, name, actionType) => {
                     targetProductId = productId;
                     modalProductName.textContent = name;
@@ -232,8 +264,6 @@
                     }
                 };
 
-                // 3. Attach Event Listeners to Buttons
-
                 // Block Buttons
                 document.querySelectorAll('.block-btn').forEach(btn => {
                     btn.addEventListener('click', function (e) {
@@ -256,7 +286,7 @@
                     });
                 });
 
-                // 4. Confirm Button Click
+                //  Confirm Button Click
                 if (confirmBtn) {
                     confirmBtn.addEventListener('click', function () {
                         if (targetProductId) {
@@ -276,7 +306,11 @@
 
 
                 form.addEventListener('submit', async (e) => {
-                    e.preventDefault(); // Stop page reload
+                    e.preventDefault(); 
+
+                    const btn = document.querySelector('.px-4');
+
+                    Loading.showButton(btn);
 
                     // Gather data
                     const categoryName = document.getElementById('categoryName').value;
@@ -298,9 +332,11 @@
                                 window.location.href = '/admin/category';
                             }, 1000);
                         } else {
+                            Loading.hideButton(btn)
                             showToast(response.data.message, 'error');
                         }
                     } catch (error) {
+                         Loading.hideButton(btn)
                         console.error(error);
                         const errMsg = error.response?.data?.message || 'Something went wrong';
                         showToast(errMsg, 'error');

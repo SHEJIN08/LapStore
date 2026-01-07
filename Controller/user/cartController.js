@@ -2,7 +2,6 @@ import cartService from "../../services/user/cartService.js";
 import User from '../../model/userModel.js';
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
-// --- LOAD CART PAGE ---
 const loadCart = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -19,7 +18,7 @@ const loadCart = async (req, res) => {
     const totalItems = allCartItems.length;
     const totalPages = Math.ceil(totalItems / limit);
 
-    // 4. Handle AJAX vs Standard Request
+    //  Handle AJAX vs Standard Request
     if (req.query.ajax) {
         return res.render("user/partials/cart-items-list", { 
             cartItems: cartItems, 
@@ -51,7 +50,7 @@ const loadCart = async (req, res) => {
   }
 };
 
-// --- ADD TO CART ---
+
 const addToCart = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -64,7 +63,6 @@ const addToCart = async (req, res) => {
     res.json({ success: true, message });
 
   } catch (error) {
-    const logicErrors = ["Product variant not found", "Out of stock"];
     if (error.message.includes("stock") || error.message.includes("left") || error.message.includes("found")) {
          return res.json({ success: false, message: error.message });
     }
@@ -84,7 +82,6 @@ const updateCartQuantity = async (req, res) => {
     res.json({ success: true, message: "Quantity updated" });
 
   } catch (error) {
-    // Handle logic errors gracefully
     if (error.message === "Out of stock" || error.message.includes("Max")) {
         return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.message });
     }
@@ -97,7 +94,7 @@ const updateCartQuantity = async (req, res) => {
   }
 };
 
-// --- REMOVE ITEM ---
+
 const removeFromCart = async (req, res) => {
   try {
     const { cartId } = req.body;

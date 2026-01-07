@@ -14,8 +14,8 @@ const getReviewDetails = async (req,res) => {
             totalPages: data.totalPages,
             totalReviews: data.totalReviews,
             averageRating: data.averageRating,
-            listedReviewsCount: data.listedReviewCount,   // Make sure names match EJS
-            unlistedReviewsCount: data.unlistedReviewCount, // Make sure names match EJS
+            listedReviewsCount: data.listedReviewCount,   
+            unlistedReviewsCount: data.unlistedReviewCount, 
             limit: limit
         });
     } catch (error) {

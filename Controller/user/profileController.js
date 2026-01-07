@@ -1,12 +1,10 @@
 import profileService from "../../services/user/profileService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
-// --- LOAD PROFILE PAGE ---
 const loadProfile = async (req, res) => {
   try {
     const userId = req.session.user;
     
-    // Call Service
     const user = await profileService.getUserProfileService(userId);
 
     if (!user) {
@@ -21,7 +19,6 @@ const loadProfile = async (req, res) => {
   }
 };
 
-// --- CHANGE PASSWORD ---
 const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -31,17 +28,15 @@ const changePassword = async (req, res) => {
       return res.status(StatusCode.UNAUTHORIZED).json({ success: false, message: ResponseMessage.UNAUTHORIZED });
     }
 
-    // Validation
     if(newPassword.length === 0) return res.status(StatusCode.BAD_REQUEST).json({success: false, message: 'Please fill the form'});
     if (newPassword.length < 6) return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: "Password must be atleast 6 characters" });
 
-    // Call Service
     await profileService.changePasswordService(userId, currentPassword, newPassword);
 
     res.status(StatusCode.OK).json({ success: true, message: ResponseMessage.NEW_PASS });
 
   } catch (error) {
-    // Handle specific errors
+  
     if (error.message === "Incorrect current password" || error.message === ResponseMessage.NOT_FOUND) {
         return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.message });
     }
@@ -56,7 +51,7 @@ const editInfo = async (req, res) => {
     const { name, email } = req.body;
     const userId = req.session.user?._id || req.session.user;
     
-    // 1. Fetch current user to compare
+    //  Fetch current user to compare
     const currentUser = await profileService.getUserProfileService(userId);
     if (!currentUser) {
         return res.status(StatusCode.NOT_FOUND).json({ success: false, message: ResponseMessage.USER_NOT_FOUND });
@@ -110,7 +105,7 @@ const updateProfilePic = async (req, res) => {
     }
 
     const imageUrl = req.file.secure_url;
-    const userId = req.session.user?._id || req.session.user; // Ensure we get the ID string/object correctly
+    const userId = req.session.user?._id || req.session.user; 
 
     await profileService.updateAvatarService(userId, imageUrl);
 

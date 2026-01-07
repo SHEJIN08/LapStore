@@ -3,7 +3,7 @@ import User from "../../model/userModel.js";
 import mongoose from "mongoose";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
-// --- LOAD ORDERS PAGE ---
+
 const loadOrders = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -33,7 +33,7 @@ const loadOrders = async (req, res) => {
   }
 };
 
-// --- ORDER DETAILS PAGE ---
+
 const orderDetailedPage = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -56,7 +56,6 @@ const orderDetailedPage = async (req, res) => {
   }
 };
 
-// --- CANCEL ORDER ---
 const cancelOrder = async (req, res) => {
   try {
     const { orderId, itemId, reason } = req.body;

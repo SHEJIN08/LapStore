@@ -475,8 +475,6 @@
                             if (response.data.success) {
                                 showToast("Item added to cart successfully!", "success");
 
-                            
-
                             } else {
                                 showToast(response.data.message, "error");
                             }
@@ -489,10 +487,10 @@
                                     window.location.href = '/user/login'
                                 }, 2000)
 
-                            } else {
-                             
-                                showToast("Failed to add to cart", "error");
-                            }
+                            } else {                            
+                              const msg = error.response?.data?.message || "Failed to add to cart";
+                              showToast(msg, "error");
+                                  }
                         }
                     }
 

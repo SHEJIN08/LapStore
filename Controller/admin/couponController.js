@@ -45,7 +45,7 @@ const createCoupon = async (req,res) => {
     }
 }
 
-// 1. API TO GET SINGLE COUPON DETAILS
+//  API TO GET SINGLE COUPON DETAILS
 const getCouponDetails = async (req, res) => {
     try {
         const { id } = req.params;
@@ -59,7 +59,7 @@ const getCouponDetails = async (req, res) => {
     }
 };
 
-// 2. KEEP YOUR EXISTING UPDATE FUNCTION (It returns JSON, so it's perfect)
+
 const editCoupon = async (req, res) => {
     try {
         const { id } = req.params;

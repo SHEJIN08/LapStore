@@ -1,7 +1,6 @@
 import categoryService from "../../services/admin/categoryService.js";
 import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
-// --- LOAD CATEGORIES ---
 const loadCategory = async (req, res) => {
     try {
         const search = req.query.search || '';
@@ -9,7 +8,6 @@ const loadCategory = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 4;
 
-        // Call Service
         const { categories, totalCategories, totalPages } = await categoryService.getAllCategoriesService({ 
             search, filter, page, limit 
         });
@@ -29,7 +27,6 @@ const loadCategory = async (req, res) => {
     }
 };
 
-// --- ADD CATEGORY ---
 const addCategory = async (req, res) => {
     try {
         const { categoryName, description, isListed, count } = req.body;
@@ -38,7 +35,6 @@ const addCategory = async (req, res) => {
             return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: ResponseMessage.MISSING_FIELDS });
         }
 
-        // Call Service
         await categoryService.createCategoryService({ categoryName, description, isListed, count });
 
         return res.status(StatusCode.CREATED).json({ success: true, message: ResponseMessage.CREATED });
@@ -52,12 +48,10 @@ const addCategory = async (req, res) => {
     }
 };
 
-// --- GET EDIT PAGE ---
 const getEditCategory = async (req, res) => {
     try {
         const id = req.params.id;
 
-        // Call Service (Gets Category + Product Stats)
         const { category, products } = await categoryService.getCategoryWithProductsService(id);
 
         res.render('admin/edit-category', { 
@@ -74,7 +68,7 @@ const getEditCategory = async (req, res) => {
     }
 };
 
-// --- EDIT CATEGORY (PUT) ---
+
 const editCategory = async (req, res) => {
     try {
         const id = req.params.id;
