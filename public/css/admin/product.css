@@ -37,8 +37,7 @@ ul {
     flex-grow: 1;
     padding: 30px;
     background-color: #f4f6f9;
-    height: 100vh;
-    overflow-y: auto;
+    min-height: 100vh;
 }
 
 /* =========================================

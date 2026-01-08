@@ -12,6 +12,7 @@ import offerController from '../Controller/admin/offerController.js'
 import salesController from '../Controller/admin/salesController.js'
 import reviewController from '../Controller/admin/reviewController.js'
 import bannerController from '../Controller/admin/bannerController.js'
+import referralController from '../Controller/admin/referralController.js'
 import upload from '../middleware/multer.js'
 
 router.get('/login',adminAuth.isLogin,authController.loadLogin)
@@ -63,6 +64,8 @@ router.post('/offers/create',adminAuth.checkSession, offerController.createOffer
 router.get('/offers/get/:id',adminAuth.checkSession, offerController.getOfferDetails);
 router.put('/offers/edit/:id',adminAuth.checkSession, offerController.editOffer);
 router.get('/products/search',adminAuth.checkSession, offerController.searchProducts);
+
+router.get('/referrals', adminAuth.checkSession, referralController.getReferrals)
 
 router.get('/sales',adminAuth.checkSession, salesController.loadSalesReport)
 router.get('/sales/download',adminAuth.checkSession, salesController.downloadReport)

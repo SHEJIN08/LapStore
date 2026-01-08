@@ -21,7 +21,9 @@ const refferalSchema = new mongoose.Schema({
         required: true,
         default: 100
     },
-})
+},
+{timestamps: true},
+)
 
 
 export default mongoose.model('Referral', refferalSchema)

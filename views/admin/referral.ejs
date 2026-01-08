@@ -1,0 +1,105 @@
+<%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/admin/referral.css">
+<body>
+
+    <div class="container">
+             <%- include('../partials/sidebar',{activePage: 'referrals' }) %>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Referral Management</h1>
+                    <p>Manage your referral programs and track referral activity.</p>
+                </div>
+            </header>
+
+           <form action="/admin/referrals" method="GET" class="actions-bar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="search" value="<%= search %>" placeholder="Search by name or email...">
+                </div>
+                
+                <div class="filters">
+                    <div class="dropdown">
+                        <span>Status: </span>
+                        <select name="status" class="custom-select" onchange="this.form.submit()">
+                            <option value="" <%= status === '' ? 'selected' : '' %>>All</option>
+                            <option value="completed" <%= status === 'completed' ? 'selected' : '' %>>Completed</option>
+                            <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Pending</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-search">Search</button> 
+                </div>
+            </form>
+
+            <div class="table-container">
+                <h3>Referral List</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Referrer</th>
+                            <th>Referred User</th>
+                            <th>Status</th>
+                            <th>Bonus</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(referrals && referrals.length > 0){ %>
+                           <% referrals.forEach(ref => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <span class="name"><%= ref.referrerId?.name || 'Unknown' %></span>
+                                            <span class="email"><%= ref.referrerId?.email || 'No Email' %></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <span class="name"><%= ref.refereeId?.name || 'Unknown' %></span>
+                                            <span class="email"><%= ref.refereeId?.email || 'No Email' %></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge <%= ref.status.toLowerCase() %>"><%= ref.status %></span>
+                                    </td>
+                                    <td class="amount"><%= ref.referralAmount %></td>
+                                    <td class="date"> 
+                                        <%= new Date(ref.createdAt).toLocaleDateString('en-US', { month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                    </td>
+                                </tr>
+                           <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 20px;">No referrals found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <span class="results-count">
+                        Showing <%= ((currentPage - 1) * limit) + 1 %> 
+                        to <%= Math.min(currentPage * limit, totalReferrals) %> 
+                        of <%= totalReferrals %> results
+                    </span>
+                    
+                    <div class="page-buttons">
+                        <% if (currentPage > 1) { %>
+                            <a href="?page=<%= currentPage - 1 %>&search=<%= search %>&status=<%= status %>">
+                                <button class="prev-btn">Previous</button>
+                            </a>
+                        <% } %>
+
+                        <% if (currentPage < totalPages) { %>
+                            <a href="?page=<%= currentPage + 1 %>&search=<%= search %>&status=<%= status %>">
+                                <button class="next-btn">Next</button>
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+ <%- include('../partials/footer') %> 
