@@ -50,10 +50,19 @@
                                 <label>Full Name</label>
                                 <input type="text" id="editName" name="name" value="<%= user.name %>">
                             </div>
-                            <div class="form-group">
+                          <%  if(user.userId.slice(0,6) === 'google'){ %>
+                                  <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" id="editEmail" name="email" value="<%= user.email %>">
+                                <span style="color: red; font-size: 15px;" >Google users cannot edit email </span>
+                                <input type="email" id="editEmail" name="email" value="<%= user.email %>" disabled>
                             </div>
+                          <%  }else{ %>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="editEmail" name="email" value="<%= user.email %>">
+                                </div>
+
+                         <%   } %>
                             <button type="submit" class="btn-save" id="updateBtn">Update Changes</button>
                         </form>
 

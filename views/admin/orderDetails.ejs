@@ -146,23 +146,34 @@
                                                     </td>
 
                                                     <td>
-                                                        <% if (item.productStatus === 'Return Request') { %>
-                                                            <div style="display: flex; gap: 10px;">
-                                                                <button onclick="approveItemReturn('<%= order._id %>', '<%= item._id %>')"
-                                                                    class="btn btn-sm btn-success" title="Approve">
-                                                                    <i class="fa-solid fa-check"></i>
-                                                                </button>
-                                                                <button onclick="rejectItemReturn('<%= order._id %>', '<%= item._id %>')"
-                                                                    class="btn btn-sm btn-danger" title="Reject">
-                                                                    <i class="fa-solid fa-xmark"></i>
-                                                                </button>
-                                                            </div>
+                                                     <% if (item.productStatus === 'Return Request') { %>
+                                                    <div style="display: flex; gap: 10px;">
+                                                        <button onclick="approveItemReturn('<%= order._id %>', '<%= item._id %>')"
+                                                            class="btn btn-sm btn-primary" title="Approve Request">
+                                                            <i class="fa-solid fa-thumbs-up"></i> Approve
+                                                        </button>
+                                                        <button onclick="rejectItemReturn('<%= order._id %>', '<%= item._id %>')"
+                                                            class="btn btn-sm btn-danger" title="Reject Request">
+                                                            <i class="fa-solid fa-xmark"></i> Reject
+                                                        </button>
+                                                    </div>
+                                                    <% if(item.returnReason) { %>
+                                                        <small style="display:block; font-size:10px; color:#666; margin-top:4px;">
+                                                            Reason: <%= item.returnReason %>
+                                                        </small>
+                                                    <% } %>
 
-                                                            <% if(item.returnReason) { %>
-                                                                <small style="display:block; font-size:10px; color:#666; margin-top:4px;">
-                                                                    Reason: <%= item.returnReason %>
-                                                                </small>
-                                                            <% } %>
+                                                <% } else if (item.productStatus === 'Return Approved') { %>
+                                                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                                                        <span style="font-size: 11px; color: #d97706; font-weight: 600;">
+                                                            <i class="fa-solid fa-clock"></i> Waiting for return
+                                                        </span>
+                                                        <button onclick="verifyReturnReceived('<%= order._id %>', '<%= item._id %>')"
+                                                            class="btn btn-sm btn-success" 
+                                                            style="background-color: #059669; border: none; font-size: 12px; padding: 5px 10px;">
+                                                            <i class="fa-solid fa-box-open"></i> Mark Received & Refund
+                                                        </button>
+                                                    </div>
 
                                                         <% } else if (item.productStatus === 'Cancelled') { %>
                                                             <span class="badge bg-danger">Cancelled</span>
@@ -430,4 +441,25 @@
             showToast(msg, 'error');
         }
     }
+    
+    // 6. Verify Return Receipt (The "Mark as Complete" Action)
+async function verifyReturnReceived(orderId, itemId) {
+    const result = await Swal.fire({
+        title: 'Confirm Item Receipt?',
+        html: `
+            <p>Have you physically received and checked this product?</p>
+            <p style="font-size: 12px; color: #666;">Clicking "Yes" will initiate the refund to the user's wallet.</p>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#059669', // Green
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, Refund User'
+    });
+
+    if (result.isConfirmed) {
+        // We reuse the sendReturnAction but with a new action type
+        sendReturnAction(orderId, itemId, 'mark_received');
+    }
+}
         </script>

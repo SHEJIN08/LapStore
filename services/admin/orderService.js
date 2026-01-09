@@ -113,23 +113,38 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
         if (!item) throw new Error("Item not found");   
 
         if (action === 'approve') {
-            // Calculate Refund
+         item.productStatus = 'Return Approved'
+
+        } else if (action === 'reject') {
+            item.productStatus = 'Return Rejected';
+        }else if (action === 'mark_received'){
+            if (item.productStatus === 'Returned') return true;
+
+               // Calculate Refund
             const itemBasePrice = item.price * item.quantity;
             const priceAfterTax = itemBasePrice + (itemBasePrice * TAX_RATE);
-            const shippingRefund = (priceAfterTax > 100000) ? 0 : 1000;
+           // FIX: Only refund shipping if this is the LAST active item in the order
+            const activeItems = order.orderedItems.filter(p => 
+                ['Placed', 'Processing', 'Shipped', 'Delivered', 'Return Request', 'Return Approved'].includes(p.productStatus)
+            );
+            
+            // If this is the only item left, refund the shipping too. Otherwise 0.
+            let shippingRefund = 0;
+            if (activeItems.length <= 1) { 
+                 shippingRefund = (order.finalAmount > 100000) ? 0 : 100; 
+                 
+            }
             const refundAmount = Math.max(0, (priceAfterTax + shippingRefund) - CONVENIENCE_FEE);
 
-            item.productStatus = 'Returned';
+            item.productStatus = 'Returned'; 
 
-           
+            await Variant.findByIdAndUpdate(item.variantId, {
+                $inc: { stock: item.quantity }
+            });
             
             // TODO: Wallet Logic
             wallet.balance += refundAmount
             await wallet.save();
-
-            await Variant.findByIdAndUpdate(item.variantId, {
-                $inc: {stock: item.quantity}
-            })
 
             await walletTransactions.create({
                 userId: wallet.userId,
@@ -137,51 +152,70 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
                 amount: refundAmount,
                 type: 'credit',
                 reason: 'refund',
-                description: 'Your products money have refunded'
+                description: `Refund for item: ${item.productName}`
             })
-
-        } else if (action === 'reject') {
-            item.productStatus = 'Return Rejected';
         }
     } 
     
     // --- OPTION 2: Handle Whole Order Return ---
     else {
         if (action === 'approve') {
-            order.status = 'Returned';
-            order.returnRequest.status = 'Approved';
+          order.status = 'Return Approved';
 
-          for(const item of order.orderedItems){
-              item.productStatus = 'Returned'
+          order.orderedItems.forEach(item => {
+                if(item.productStatus === 'Return Request' || item.productStatus === 'Delivered'){
+                    item.productStatus = 'Return Approved';
+                }
+            });
 
-            await Variant.findByIdAndUpdate(item.variantId, {
-                $inc: {stock: item.quantity}
-            })
-          }
+        } else if (action === 'reject') {
+           order.status = 'Return Rejected';
+            if(order.returnRequest) order.returnRequest.status = 'Rejected';
+            
+            // Reset pending items to Delivered/Rejected as needed
+            order.orderedItems.forEach(p => {
+                if(p.productStatus === 'Return Request') p.productStatus = 'Return Rejected';
+            });
+        }else if (action === 'mark_received'){
+              order.status = 'Returned';
+            if(order.returnRequest) order.returnRequest.status = 'Approved';
 
-            const totalPaid = order.finalAmount;
-            const refundAmount = totalPaid - CONVENIENCE_FEE;
+            let totalRefundableAmount = 0;
 
-            // TODO: Wallet Logic
-              wallet.balance += refundAmount
+            for (const item of order.orderedItems) {
+                // FIX: Skip items that are already Cancelled or Returned to prevent double stocking
+                if (['Returned', 'Cancelled', 'Return Rejected'].includes(item.productStatus)) {
+                    continue; 
+                }
+
+                // Update Status
+                item.productStatus = 'Returned';
+
+                // Update Stock
+                await Variant.findByIdAndUpdate(item.variantId, {
+                    $inc: { stock: item.quantity }
+                });
+
+                // Calculate Item Value for Refund
+                const itemTotal = (item.price * item.quantity) * (1 + TAX_RATE);
+                totalRefundableAmount += itemTotal;
+            }
+
+            // Add Shipping logic for whole order
+            const shippingFee = (order.finalAmount > 100000) ? 0 : 1000;
+            const finalRefund = Math.max(0, (totalRefundableAmount + shippingFee) - CONVENIENCE_FEE);
+
+            // Update Wallet
+            wallet.balance += finalRefund;
             await wallet.save();
 
             await walletTransactions.create({
                 userId: wallet.userId,
                 walletId: wallet._id,
-                amount: refundAmount,
+                amount: finalRefund,
                 type: 'credit',
                 reason: 'refund',
-                description: 'Your products money has refunded'
-            })
-
-        } else if (action === 'reject') {
-            order.returnRequest.status = 'Rejected';
-            order.status = 'Return Rejected'; // Ensure main status updates so UI clears
-            
-            // Reset pending items to Delivered/Rejected as needed
-            order.orderedItems.forEach(p => {
-                if(p.productStatus === 'Return Request') p.productStatus = 'Return Rejected';
+                description: 'Full Order Refund processed'
             });
         }
     }
@@ -207,7 +241,6 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
             if (order.returnRequest) order.returnRequest.status = 'Approved';
         } 
         else if (hasActiveItems) {
-            // If any item is Delivered, Order is Delivered. Otherwise check Shipped, etc.
             if (itemStatuses.includes('Delivered')) {
                 order.status = 'Delivered';
             } else if (itemStatuses.includes('Shipped')) {
@@ -219,8 +252,6 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
             }
         } 
         else if (allCancelledOrReturned) {
-            // If everything is either Returned, Cancelled or Rejected, and nothing is active
-            // We can set it to 'Returned' if there is at least one return, otherwise 'Cancelled'
              if (itemStatuses.includes('Returned')) {
                  order.status = 'Returned';
              } else {

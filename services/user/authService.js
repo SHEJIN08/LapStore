@@ -107,6 +107,10 @@ const loginUserService = async ({ email, password }) => {
 const forgotPasswordService = async (email) => {
     const user = await userSchema.findOne({ email });
     if (!user) throw new Error('User not found');
+    
+    if(user.userId.slice(0,6) === 'google'){
+        throw new Error('Google users cannot change the password')
+    }
 
     await sendOtp(email);
     return true;

@@ -366,16 +366,13 @@
                 <div id="returnModal" class="modal-overlay hidden">
                     <div class="modal-container" style="max-width: 600px;">
                         <div class="modal-header" style="border:none; padding-bottom: 0;">
-                            <h2 class="modal-title" style="text-align: left;">Request Refund or Replacement</h2>
+                            <h2 class="modal-title" style="text-align: left;">Request Refund</h2>
                             <button class="close-btn" onclick="closeReturnModal()">&times;</button>
                         </div>
 
                         <div class="request-type-toggle">
                             <button type="button" class="type-btn active" onclick="setReturnType('Refund', this)">
                                 Request Refund
-                            </button>
-                            <button type="button" class="type-btn" onclick="setReturnType('Replacement', this)">
-                                Request Replacement
                             </button>
                             <input type="hidden" id="returnType" value="Refund">
                             <input type="hidden" id="returnItemId" value="">
