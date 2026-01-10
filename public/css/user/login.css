@@ -230,20 +230,70 @@ input::placeholder {
     text-decoration: underline;
 }
 
-/* 10. Responsive Design */
+/* 10. Responsive Design (Optimized) */
 @media (max-width: 900px) {
+    /* Stack columns vertically */
     body {
-        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+        grid-template-columns: 1fr;
+        /* Logo takes auto height, Login takes the rest */
+        grid-template-rows: auto 1fr; 
         height: auto;
         min-height: 100vh;
     }
 
+    /* --- Compact Logo Panel for Mobile --- */
     .logo-panel {
-        padding: 40px;
-        /* Hide logo panel on very small screens or just pad it */
+        padding: 20px;
+        /* Optional: Add a border or slight color to separate header */
+        border-bottom: 1px solid #F1F5F9; 
     }
 
+    /* Shrink the logo icon and text so it doesn't dominate the screen */
+    .logo svg {
+        width: 32px;
+        height: 32px;
+    }
+
+    .logo span {
+        font-size: 20px;
+    }
+
+    /* --- Adjust Login Form Area --- */
+    
     .login-panel {
-        padding: 40px 20px; /* Add horizontal padding */
+        padding: 30px 20px; /* Reduce outer padding */
+        
+        /* Stop vertical centering on mobile. 
+           It helps prevent the keyboard from covering the input field. */
+        align-items: flex-start; 
+        min-width: 0; 
+    width: 100%;
+    }
+
+    .form-wrapper {
+      width: 100%; 
+    max-width: 400px;/* Let form use full width on phones */
+    }
+
+    /* --- Typography Scaling --- */
+    h1 {
+        font-size: 28px; /* Reduce from 36px */
+        text-align: center;
+    }
+
+    .subtitle {
+        text-align: center;
+        display: block; /* Ensure centering applies */
+        margin-bottom: 30px;
+    }
+
+    /* Center the separator text */
+    .separator {
+        justify-content: center;
+    }
+
+    /* Increase button size slightly for touch targets */
+    .btn {
+        padding: 16px;
     }
 }

@@ -258,3 +258,83 @@ ul {
 .btn-action:hover {
     background-color: #f3f4f6;
 }
+/* --- REVIEW PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .admin-layout {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+
+    /* Stats Grid: 2 Columns */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Button --- */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .btn-export {
+        width: 100%; /* Full width button */
+        justify-content: center;
+    }
+
+    /* --- B. Stats Grid: 1 Column --- */
+    .stats-grid {
+        grid-template-columns: 1fr; /* Stack vertically */
+    }
+
+    /* --- C. Table: Horizontal Scroll (Crucial) --- */
+    /* This allows the table to keep its shape but scroll sideways */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        padding: 0; /* Remove padding to maximize space */
+        border: none;
+        box-shadow: none;
+    }
+
+    /* Force Table width so it scrolls instead of squashing */
+    .review-table {
+        min-width: 800px; 
+    }
+    
+    /* Adjust cell padding for cleaner look */
+    .review-table th, 
+    .review-table td {
+        padding: 12px 15px;
+    }
+
+    /* --- D. Pagination: Stack It --- */
+    .pagination-footer {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* --- E. Text truncation for mobile --- */
+    /* Prevent long reviews from breaking the table layout on small screens */
+    .review-text {
+        max-width: 200px; /* Reduce max width on mobile */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

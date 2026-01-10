@@ -1,4 +1,6 @@
 import Offer from "../../model/offerModel.js";
+import Product from "../../model/productModel.js";
+import Variant from "../../model/variantModel.js";
 
 const getOfferService = async ({search, status, page, limit}) => {
     try {
@@ -90,6 +92,49 @@ const createOfferService = async (data) => {
             isActive: status === 'Active' || status === true || status === 'on'
         };
 
+        if(discountType === 'percentage' && discountValue > 99){
+            throw new Error("Discount percentage must be less than 100")
+        }
+
+        if(discountType === 'fixed'){
+            const fixedVal = Number(discountValue);
+
+            if(offerType === 'product') {
+                if(!productIds || productIds.length === 0){
+                     throw new Error('Please select at least one product');
+                }
+
+                const variants = await Variant.find({productId: {$in: productIds}})
+
+                 if(!variants || variants.length === 0){
+                    throw new Error("No variants found for the selected products");
+                 }
+
+                 const invalidVariant = variants.find(v => v.salePrice <= fixedVal);
+                 
+                 if(invalidVariant){
+                    throw new Error(`Discount amount (₹${fixedVal}) cannot be greater than the price of product variant (₹${invalidVariant.salePrice})`);
+                 }
+
+            }else if(offerType === 'category'){
+                if(!categoryId) throw new Error('Please select a category')
+                
+                const productsInCategory = await Product.find({category: categoryId}).select('_id')
+
+                if(!productsInCategory.length){
+                    throw new Error("This category has no products to apply an offer to.");
+                }
+
+                const categoryProductsId = productsInCategory.map(s => s._id)
+
+                const categoryVariants = await Variant.find({productId: {$in: categoryProductsId}});
+                const invalidVariant = categoryVariants.find(v => v.salePrice <=fixedVal);
+                if(invalidVariant){
+                  throw new Error(`Discount (₹${fixedVal}) is too high for some items in this category (Lowest Price found: ₹${invalidVariant.salePrice})`);
+                }
+            }
+        }
+
         if (offerType === 'product') {
             if (!productIds || productIds.length === 0) {
                 throw new Error('Please select at least one product');
@@ -118,14 +163,13 @@ const updatedOfferService = async (id, data) => {
     try {
         const { offerName, offerType, discountType, discountValue, productIds, categoryId, startDate, endDate, status } = data;
 
-      const start = new Date(startDate);
+        const start = new Date(startDate);
         const end = new Date(endDate);
-        
+
         if (end <= start) {
             throw new Error('End date must be after start date');
         }
 
-        // 2. Prepare Update Object
         let updateData = {
             offerName,
             offerType,
@@ -136,28 +180,74 @@ const updatedOfferService = async (id, data) => {
             isActive: status === 'Active' || status === true || status === 'on'
         };
 
-        if(offerType === 'product'){
-            if(!productIds || productIds.length === 0){
-                throw new Error('Please select atleast 1 product')
+        if (discountType === 'percentage' && discountValue > 99) {
+            throw new Error("Discount percentage must be less than 100");
+        }
+
+        if (discountType === 'fixed') {
+            const fixedVal = Number(discountValue);
+
+            if (offerType === 'product') {
+                if (!productIds || productIds.length === 0) {
+                    throw new Error('Please select at least 1 product');
+                }
+
+                // Check variants of specific products
+                const variants = await Variant.find({ productId: { $in: productIds } });
+                
+                if (!variants || variants.length === 0) {
+                    throw new Error("No variants found for selected products");
+                }
+
+                const invalidVariant = variants.find(v => v.salePrice <= fixedVal);
+                if (invalidVariant) {
+                    throw new Error(`Discount (₹${fixedVal}) cannot exceed product price (₹${invalidVariant.salePrice})`);
+                }
+
+            } else if (offerType === 'category') {
+                if (!categoryId) throw new Error('Please select a category');
+
+                // Check variants of all products in category
+                const productsInCategory = await Product.find({ category: categoryId }).select('_id');
+                
+                if (!productsInCategory.length) {
+                    throw new Error("This category has no products");
+                }
+
+                const categoryProductIds = productsInCategory.map(p => p._id);
+                const categoryVariants = await Variant.find({ productId: { $in: categoryProductIds } });
+
+                const invalidVariant = categoryVariants.find(v => v.salePrice <= fixedVal);
+                if (invalidVariant) {
+                    throw new Error(`Discount (₹${fixedVal}) is too high for category items (Lowest: ₹${invalidVariant.salePrice})`);
+                }
+            }
+        }
+
+        if (offerType === 'product') {
+            if (!productIds || productIds.length === 0) {
+                throw new Error('Please select at least 1 product');
             }
             updateData.productIds = productIds;
             updateData.categoryId = null;
-        }else if(offerType === 'category'){
-            if(!categoryId){
-                throw new Error('Please select a category')
+        } else if (offerType === 'category') {
+            if (!categoryId) {
+                throw new Error('Please select a category');
             }
             updateData.categoryId = categoryId;
             updateData.productIds = [];
-
         }
-            const updatedOffer = await Offer.findByIdAndUpdate(id, updateData)
 
-            if (!updatedOffer) {
+        const updatedOffer = await Offer.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!updatedOffer) {
             throw new Error('Offer not found');
-            }
+        }
 
-            return updatedOffer;
+        return updatedOffer;
+
     } catch (error) {
+        console.error("Error updating offer:", error);
         throw new Error(error.message);
     }
 }

@@ -459,3 +459,95 @@ ul { list-style: none; }
     padding-left: 12px;
     font-weight: 500;
 }
+/* --- ORDER PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar (if present) and Content */
+    .admin-layout {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+
+    /* --- Search & Filter Bar: Stack Vertical --- */
+    .search-filter-container {
+        padding: 20px;
+    }
+
+    .search-form {
+        flex-direction: column; /* Stack Search on top, Filters below */
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    /* Make Search Bar full width */
+    .search-bar {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Make Filter Section full width and stack internal items */
+    .filter-status {
+        width: 100%;
+        flex-direction: column; /* Stack Status dropdown and Date pickers */
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .dropdown {
+        width: 100%; /* Full width dropdowns */
+    }
+
+    /* Adjust Select width inside the full-width dropdown */
+    .filter-status select {
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- Page Header --- */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .export-btn {
+        width: 100%; /* Full width button for easier tapping */
+    }
+
+    /* --- Table: Horizontal Scroll (Crucial) --- */
+    /* This allows the table to keep its shape but scroll sideways */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    }
+
+    .order-table {
+        min-width: 800px; /* Force table to be wide enough to read */
+    }
+    
+    /* Reduce cell padding slightly */
+    .order-table th, 
+    .order-table td {
+        padding: 12px 15px;
+    }
+
+    /* --- Pagination --- */
+    .pagination-controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .pagination-controls .btn {
+        width: 70%;
+    }
+}

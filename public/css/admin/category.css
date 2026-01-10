@@ -451,3 +451,110 @@ ul {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/* --- CATEGORY PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+
+    /* --- Search & Filter: Stack Vertically --- */
+    .search-filter-container {
+        padding: 20px;
+    }
+
+    .search-form {
+        flex-direction: column; /* Stack Search on top, Filters below */
+        gap: 15px;
+    }
+
+    /* Make Search Bar full width */
+    .search-bar {
+        width: 100%;
+    }
+
+    /* Fix Icon Position for Stacked Layout */
+    .search-bar .search-icon {
+        margin-bottom: -55px; 
+    }
+
+    /* Make Filter Section full width */
+    .filter-status {
+        width: 100%;
+    }
+
+    .filter-status select {
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- Header --- */
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    /* --- Table: Horizontal Scroll (Crucial) --- */
+    /* Since we don't have a wrapper div around the table in your HTML structure, 
+       we often need to add one, OR force the table to block display */
+    .category-table {
+        display: block; 
+        width: 100%;
+        overflow-x: auto; /* Enable scroll */
+        -webkit-overflow-scrolling: touch; 
+        border: 1px solid #eee; /* Add border for definition */
+    }
+
+    /* Force table width so it scrolls instead of squashing columns */
+    .category-table tbody {
+        min-width: 600px;
+        display: table; /* Reset display for tbody to keep rows aligned */
+        width: 100%;
+    }
+    
+    /* Ensure Header matches body width */
+    .category-table thead {
+         min-width: 600px;
+         display: table;
+         width: 100%;
+    }
+
+    /* Reduce cell padding */
+    .category-table th, 
+    .category-table td {
+        padding: 12px 15px;
+    }
+
+    /* --- Pagination --- */
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* --- Modal Fixes --- */
+    .modal-dialog {
+        width: 95%; /* Fit screen width */
+        margin: 10px auto; /* Center it */
+        max-width: 100%;
+    }
+
+    /* Confirmation Modal (Small one) */
+    #confirmationModal .modal-content {
+        width: 90%;
+        max-width: 90%;
+    }
+}

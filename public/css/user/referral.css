@@ -188,3 +188,92 @@ a {
 
 .empty-state { text-align: center; padding: 30px; color: #9ca3af; }
 .empty-state i { font-size: 30px; margin-bottom: 10px; display: block; }
+
+/* --- REFERRAL PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 900px) */
+@media (max-width: 900px) {
+    /* Stack Layout: Sidebar on top of Content */
+    .main-container {
+        flex-direction: column;
+        padding: 20px 15px;
+        gap: 20px;
+    }
+
+    .referral-content {
+        padding: 0; /* Remove extra padding since container has padding */
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 600px) */
+@media (max-width: 600px) {
+    
+    /* --- Header Adjustments --- */
+    .referral-header-section h2 {
+        font-size: 20px; /* Reduce heading size */
+    }
+    
+    /* --- Link Card (Input Field) --- */
+    .referral-link-card {
+        padding: 20px;
+    }
+
+    .input-group {
+        flex-direction: column; /* Stack Input and Copy Button */
+        gap: 10px;
+    }
+
+    .input-group input {
+        width: 100%;
+    }
+
+    .copy-btn {
+        width: 100%;
+        padding: 12px; /* Make it a full button */
+        background: #3b82f6; /* Optional: Make it blue for better visibility */
+        color: white;
+    }
+    
+    .share-options {
+        flex-wrap: wrap; /* Allow icons to wrap if needed */
+        margin-top: 15px;
+    }
+
+    /* --- Rewards Grid (Crucial Fix) --- */
+    .rewards-grid {
+        grid-template-columns: 1fr; /* Stack cards vertically */
+        gap: 15px;
+    }
+
+    .reward-card {
+        padding: 15px;
+    }
+    
+    /* --- Referral List Items --- */
+    .referral-item {
+        flex-wrap: wrap; /* Allow status to drop to next line if needed */
+        gap: 10px;
+    }
+    
+    .user-info {
+        flex: 1; /* Take up available space */
+    }
+
+    /* Adjust status badge position on very small screens */
+    .status-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+    
+    /* Avatar sizing */
+    .avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+    
+    .details h4 {
+        font-size: 13px;
+    }
+}

@@ -322,3 +322,103 @@ ul {
     cursor: pointer;
     margin-top: 15px;
 }
+/* --- EDIT PRODUCT RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .product-main-content {
+        flex-direction: column;
+        height: auto; /* Remove fixed height so it scrolls naturally */
+        overflow: visible;
+    }
+    
+    .main-page-content {
+        width: 100%;
+        padding: 20px;
+        overflow: visible;
+    }
+
+    /* Main Grid: Switch from 2 Columns to 1 Column */
+    .add-product-grid {
+        grid-template-columns: 1fr; /* Stack vertically */
+        gap: 20px;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Buttons --- */
+    .product-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .header-actions {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-cancel, .btn-save {
+        flex: 1; /* Make buttons share equal width */
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* --- B. Variants Grid: Stack Inputs --- */
+    /* The 5-column grid is impossible on mobile. We switch to 1 or 2 cols */
+    .variant-input-grid {
+        display: flex;
+        flex-direction: column; /* Stack all inputs vertically */
+        gap: 12px;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    /* Make the "Add Variant" button full width at the bottom */
+    .variant-input-grid div:last-child {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    /* --- C. Specifications: Stack Key/Value --- */
+    .spec-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #eee;
+    }
+
+    .spec-group {
+        width: 100%;
+    }
+
+    /* Move delete button to top-right of the spec block */
+    .delete-spec {
+        align-self: flex-end;
+        margin-bottom: 5px;
+    }
+
+    /* --- D. Image Lists --- */
+    .existing-images-grid,
+    .image-preview-grid {
+        justify-content: center; /* Center images on small screens */
+    }
+    
+    /* If you have a Variants Table */
+    .variant-table-container { 
+        overflow-x: auto;
+        display: block;
+        width: 100%;
+    }
+}

@@ -970,3 +970,90 @@ textarea:focus {
 .btn-submit-review:hover {
   background-color: #1d4ed8;
 }
+/* --- MOBILE RESPONSIVENESS FIXES --- */
+
+/* 1. Tablet & Small Desktop (Max Width 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 15px; /* Reduce padding to save space */
+    }
+
+    /* Stack the Left (Image) and Right (Info) columns */
+    .product-detail {
+        grid-template-columns: 1fr; 
+        gap: 2rem;
+    }
+
+    /* Center the image section */
+    .product-images {
+        align-items: center; 
+    }
+
+    /* Adjust Related Products Grid to 3 columns */
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* 2. Mobile Devices (Max Width 768px) */
+@media (max-width: 768px) {
+    
+    /* FIX THE MAIN IMAGE WIDTH ISSUE */
+    .main-image {
+        width: 100%; /* Force it to fit the screen */
+        height: auto; /* Let height adjust automatically */
+        min-height: 300px; /* Ensure it's not too short */
+        aspect-ratio: 1 / 1; /* Keep it square */
+    }
+
+    /* Hide the "Hover Zoom" box on mobile (phones use pinch-to-zoom) */
+    .img-zoom-result, 
+    .img-zoom-lens {
+        display: none !important;
+    }
+
+    /* Adjust Related Products Grid to 2 columns */
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    /* Typography Scaling */
+    .product-title {
+        font-size: 1.5rem; /* Reduce from 2rem */
+    }
+    .sale-price {
+        font-size: 1.5rem; /* Reduce price size */
+    }
+    
+    /* Config Options (Stack them) */
+    .config-options {
+        flex-direction: column;
+    }
+}
+
+/* 3. Very Small Phones (Max Width 480px) */
+@media (max-width: 480px) {
+    
+    /* Thumbnails - Allow scrolling if there are many */
+    .thumbnail-list {
+        width: 100%;
+        overflow-x: auto; /* Horizontal scroll */
+        justify-content: flex-start; /* Align left */
+        padding-bottom: 5px;
+    }
+
+    /* Related Products to 1 Column */
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Buttons Stack */
+    .product-actions {
+        flex-direction: column;
+    }
+    
+    .btn-wishlist {
+        width: 100%; /* Make wishlist button full width */
+    }
+}

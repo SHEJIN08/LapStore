@@ -268,3 +268,99 @@ ul {
     color: white;              /* White Text */
     border-color: #2563eb;     /* Blue Border */
 }
+/* --- SALES REPORT RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .admin-layout {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+
+    /* Filters: Allow wrapping on tablets */
+    .filter-form {
+        flex-wrap: wrap;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Export Buttons --- */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .export-group {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-export {
+        flex: 1; /* Make buttons share full width */
+        justify-content: center;
+    }
+
+    /* --- B. Filter Section: Stack Inputs Vertically --- */
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch; /* Stretch inputs to full width */
+        gap: 15px;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+
+    /* Override min-width so they fit small screens */
+    .form-select, 
+    .form-input {
+        width: 100%;
+        min-width: 0; 
+    }
+
+    .btn-filter {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    /* --- C. Stats Grid: 1 Column --- */
+    .stats-grid {
+        grid-template-columns: 1fr; /* Stack cards vertically */
+    }
+
+    /* --- D. Table: Horizontal Scroll (Crucial) --- */
+    /* Ensure the table container handles scrolling */
+    .table-container {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* Adds horizontal scrollbar */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    }
+
+    .report-table {
+        min-width: 800px; /* Force table width so it scrolls instead of squashing */
+    }
+
+    /* Reduce padding for mobile table cells */
+    .report-table th, 
+    .report-table td {
+        padding: 10px 12px;
+        white-space: nowrap; /* Keep text on one line */
+    }
+
+    /* --- E. Pagination --- */
+    .pagination-controls {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+}

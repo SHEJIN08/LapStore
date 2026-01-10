@@ -270,3 +270,82 @@ input:checked + .slider:before { transform: translateX(18px); }
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }   
+/* --- ADD PRODUCT PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .product-main-content {
+        flex-direction: column;
+    }
+
+    /* Change the Main Grid from 2 Columns to 1 Column */
+    .add-product-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Reset width ratios */
+    .left-col, .right-col {
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- Header: Stack Title and Buttons --- */
+    .product-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .header-actions {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-cancel, .btn-save {
+        flex: 1; /* Make buttons share equal width */
+        text-align: center;
+        justify-content: center;
+        padding: 12px;
+    }
+
+    /* --- Specifications: Stack Inputs Vertically --- */
+    /* On small screens, Key/Value inputs side-by-side are too small */
+    .spec-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        background: #f8f9fa; /* Light background to distinguish groups */
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #eee;
+    }
+
+    .spec-group {
+        width: 100%;
+    }
+
+    .delete-spec {
+        align-self: flex-end; /* Move delete button to the right */
+        color: #dc3545;
+        margin-top: 5px;
+    }
+
+    /* --- Image Preview: Center Items --- */
+    .image-preview-grid {
+        justify-content: center;
+    }
+    
+    /* --- Form Padding --- */
+    .form-card {
+        padding: 20px 15px;
+    }
+}

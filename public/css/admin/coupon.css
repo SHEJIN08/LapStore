@@ -793,3 +793,130 @@ input:checked + .slider:before {
         min-width: 800px; /* Ensure table scrolls horizontally */
     }
 }
+/* --- COUPON PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    /* Stats Grid: Switch from 4 columns to 2 columns */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Add Button --- */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .btn-primary {
+        width: 100%; /* Full width button */
+        justify-content: center;
+    }
+
+    /* --- B. Stats Grid: 1 Column --- */
+    .stats-grid {
+        grid-template-columns: 1fr; /* Stack vertically */
+    }
+
+    /* --- C. Filter Section: Stack Search & Controls --- */
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch; /* Stretch children to full width */
+        gap: 15px;
+        height: auto;
+    }
+
+    .filter-form {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* Override fixed widths */
+    .search-wrapper {
+        width: 100%;
+    }
+    
+    .search-input {
+        width: 100%;
+    }
+
+    .select-wrapper, 
+    .filter-select {
+        width: 100%;
+    }
+
+    /* --- D. Table: Horizontal Scroll (Crucial) --- */
+    /* Ensure the table container handles scrolling */
+    .table-section {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* Adds horizontal scrollbar */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    }
+
+    .coupon-table {
+        min-width: 800px; /* Force table width so it scrolls instead of squashing */
+    }
+
+    /* Reduce padding for mobile table cells */
+    .coupon-table th, 
+    .coupon-table td {
+        padding: 12px 15px;
+    }
+
+    /* --- E. Pagination --- */
+    .pagination {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* --- F. Modal Fixes --- */
+    .modal-content {
+        width: 95% !important; /* Fit screen width */
+        max-width: 100%;
+        margin: 10px;
+        padding: 20px;
+        max-height: 85vh;
+    }
+
+    /* Stack form rows (e.g. Start Date / End Date side-by-side) */
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .form-group.half {
+        width: 100%; /* Full width inputs inside modal */
+    }
+    
+    /* Input Group for Code Generation */
+    .input-group {
+        flex-direction: column;
+    }
+    
+    .btn-generate {
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+    }
+}

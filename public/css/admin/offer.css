@@ -454,3 +454,113 @@ ul {
 input:checked + .slider { background-color: #10b981; }
 input:checked + .slider:before { transform: translateX(20px); }
 .toggle-wrapper { display: flex; align-items: center; }
+
+/* --- OFFER PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Stats Grid: Switch from 4 columns to 2 columns */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    /* Layout: Stack Sidebar and Content if needed */
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Add Button --- */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .btn-primary {
+        width: 100%; /* Full width button */
+        justify-content: center;
+    }
+
+    /* --- B. Stats Grid: 1 Column --- */
+    .stats-grid {
+        grid-template-columns: 1fr; /* Stack all cards vertically */
+    }
+
+    /* --- C. Filter Section: Stack Search & Controls --- */
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch; /* Stretch children to full width */
+        gap: 15px;
+        height: auto;
+    }
+
+    .search-input {
+        width: 100%; /* Full width search */
+    }
+
+    .filter-controls {
+        width: 100%;
+        flex-direction: column; /* Stack select dropdowns if multiple */
+    }
+
+    .status-select {
+        width: 100%;
+    }
+
+    /* --- D. Table: Horizontal Scroll (Crucial) --- */
+    /* Ensure the table container handles scrolling */
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    }
+
+    .coupon-table {
+        min-width: 800px; /* Force table width so it scrolls instead of squashing */
+    }
+
+    /* Reduce padding for mobile table cells */
+    .coupon-table th, 
+    .coupon-table td {
+        padding: 12px 15px;
+    }
+
+    /* --- E. Pagination --- */
+    .pagination {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* --- F. Modal Fixes --- */
+    .modal-content {
+        width: 95% !important; /* Fit screen width */
+        max-width: 100%;
+        margin: 10px;
+        padding: 20px;
+        max-height: 85vh; /* Ensure it fits vertically */
+    }
+
+    /* Stack form rows (e.g. Start Date / End Date side-by-side) */
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .form-group.half {
+        width: 100%; /* Full width inputs inside modal */
+    }
+}

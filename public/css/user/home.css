@@ -486,10 +486,63 @@ body {
 }
 
 
-/* 3. Mobile Responsiveness (Optional but recommended) */
 @media (max-width: 768px) {
+    
+    /* 1. Global Spacing */
+    .container {
+        padding: 0 16px; /* Reduced side padding */
+    }
+    .section {
+        padding: 40px 0; /* Reduced vertical spacing */
+    }
+
+    /* 2. Hero Section Fixes */
+    .hero {
+        padding: 40px 0;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr; /* Stack vertically (1 column) */
+        text-align: center; /* Center text for mobile */
+        gap: 30px;
+    }
+
+    .hero-text h1 {
+        font-size: 2.2rem; /* Reduce from 3.5rem to fit screen */
+    }
+
+    /* Fix the Hero Image */
     .hero-image {
-        height: 300px;     /* Smaller height for mobile screens */
-        margin-top: 30px;
+        display: flex; /* Force it to show (overrides any display:none) */
+        width: 100%;   /* Full width of the screen */
+        height: 300px; /* Smaller height for mobile */
+        margin-top: 0;
+        order: -1; /* OPTIONAL: Moves image ABOVE text on mobile. Remove if you want text first. */
+    }
+
+    /* 3. Section Headers */
+    .section-header {
+        flex-direction: column; /* Stack Title and 'View All' link */
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+    
+    .section-header h2 {
+        font-size: 1.75rem;
+    }
+    .reviews-grid,
+    .product-grid,
+    .category-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px; /* Smaller gaps between cards */
+    }
+    
+    /* 5. Brands Section */
+    .brand-grid {
+        gap: 25px;
+    }
+    .brand-item i {
+        font-size: 2.5rem; /* Slightly smaller icons */
     }
 }

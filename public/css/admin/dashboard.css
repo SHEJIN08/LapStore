@@ -418,3 +418,67 @@ ul {
     background-color: #ffebee; /* Light red background */
     color: #d32f2f;            /* Darker red color for the SVG icon */
 }
+/* --- DASHBOARD RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 1024px) */
+@media (max-width: 1024px) {
+    
+    /* Stats Cards: Switch from 4 columns to 2 columns */
+    .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    /* Dashboard Row: Stack the Chart and Activity Feed vertically */
+    .dashboard-row {
+        flex-direction: column;
+    }
+
+    .sales-overview, 
+    .activity-feed {
+        flex-basis: 100%; /* Make them full width */
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- Header Adjustments --- */
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start; /* Align to left */
+        gap: 20px;
+    }
+
+    .header-controls {
+        width: 100%;
+        justify-content: space-between; /* Spread search and buttons */
+        flex-wrap: wrap;
+    }
+
+    .search-bar {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .search-bar input {
+        width: 100%; /* Full width search */
+    }
+
+    /* --- Stats Cards --- */
+    .stats-cards {
+        grid-template-columns: 1fr; /* 1 Column (Stack vertically) */
+    }
+
+    /* --- Table Fix (Horizontal Scroll) --- */
+    /* We add a wrapper logic here directly to the table container */
+    .orders-table {
+        overflow-x: auto; /* Enable horizontal scroll */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    }
+
+    .orders-table table {
+        min-width: 600px; /* Force table to keep shape so it scrolls instead of squashing */
+    }
+}

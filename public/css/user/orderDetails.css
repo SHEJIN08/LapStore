@@ -515,9 +515,148 @@ h3 {
     color: #2563eb; /* Blue */
 }
 
-/* --- Responsive --- */
-@media (max-width: 768px) {
-    .info-grid { grid-template-columns: 1fr; }
-    .steps-container { overflow-x: auto; padding-bottom: 20px; }
-    .step { min-width: 80px; }
+/* --- ORDER DETAILS RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile Global Layout (Max Width 900px) */
+@media (max-width: 900px) {
+    .main-container {
+        flex-direction: column;
+        padding: 20px 15px;
+        gap: 20px;
+    }
+
+    /* Info Grid: Stack Address and Payment info */
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* 2. Mobile Specific Adjustments (Max Width 600px) */
+@media (max-width: 600px) {
+
+    /* --- A. Header: Stack Title and Invoice Button --- */
+    .details-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .header-left {
+        width: 100%;
+    }
+
+    .btn-invoice {
+        width: 100%;
+        justify-content: center;
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+    }
+
+    /* --- B. Vertical Timeline (Crucial for Mobile) --- */
+    /* This transforms the horizontal circles into a vertical list */
+    .steps-container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 0;
+        margin-left: 10px; /* Space for the vertical line */
+        overflow: visible; /* Disable scroll, we want stacking */
+    }
+
+    .step {
+        flex-direction: row; /* Icon next to Text */
+        width: 100%;
+        text-align: left;
+        margin-bottom: 25px;
+        position: relative;
+        align-items: flex-start;
+    }
+
+    /* Hide the horizontal connecting lines */
+    .step-line {
+        display: none;
+    }
+
+    /* Create a Vertical Line using pseudo-element on the Container */
+    .steps-container::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        bottom: 30px;
+        left: 29px; /* Align with center of icons */
+        width: 2px;
+        background: #E5E7EB;
+        z-index: 0;
+    }
+
+    .step-icon {
+        margin-right: 15px;
+        margin-bottom: 0;
+        z-index: 1; /* Sit on top of the vertical line */
+        background: white; /* Hide line behind icon */
+        border: 1px solid #E5E7EB; /* Add border to stand out */
+    }
+
+    .step-text {
+        padding-top: 8px; /* Align text with icon */
+    }
+
+    /* --- C. Item List Transformation --- */
+    .item-row {
+        flex-wrap: wrap; /* Allow items to break lines */
+        gap: 10px;
+        position: relative;
+    }
+
+    .item-image {
+        width: 50px;
+        height: 50px;
+    }
+
+    .item-details {
+        width: calc(100% - 70px); /* Fill remaining space next to image */
+        padding-right: 0;
+    }
+    
+    .item-price {
+        width: 100%;
+        text-align: left;
+        margin-top: 5px;
+        padding-left: 70px; /* Align under text, not image */
+        color: #111827;
+        font-size: 16px;
+    }
+    
+    /* Buttons inside items (Return/Cancel item) */
+    .item-actions {
+        margin-left: 70px;
+        margin-top: 10px;
+    }
+
+    /* --- D. Summary & Footer Actions --- */
+    .summary-card {
+        padding: 15px;
+    }
+
+    .action-bar {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .btn-return, .btn-cancel {
+        width: 100%;
+        text-align: center;
+        padding: 14px;
+    }
+    
+    /* --- E. Modal Mobile Fix --- */
+    .modal-container {
+        width: 95%;
+        padding: 20px;
+        max-height: 85vh;
+    }
+    
+    .upload-area {
+        padding: 20px;
+    }
 }

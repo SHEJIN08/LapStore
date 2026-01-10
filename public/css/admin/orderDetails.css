@@ -368,3 +368,89 @@ ul { list-style: none; }
     background-color: #DC2626; /* Red */
 }
 .btn-reject:hover { background-color: #B91C1C; }
+/* --- ORDER DETAILS RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .admin-layout {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+
+    /* --- Main Grid: Switch to 1 Column --- */
+    /* This forces the "Order Info" (left) and "Customer Info" (right) 
+       to stack vertically instead of squeezing side-by-side */
+    .details-grid {
+        grid-template-columns: 1fr; 
+        gap: 20px;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Buttons --- */
+    .details-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .order-meta {
+        flex-wrap: wrap; /* Allow ID and Date to wrap if needed */
+        gap: 10px;
+    }
+
+    .btn-print {
+        width: 100%; /* Full width button */
+        text-align: center;
+    }
+
+    /* --- B. Table: Horizontal Scroll (Crucial) --- */
+    /* Tables break mobile layouts. This adds a scrollbar instead. */
+    .items-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* Enable scroll */
+        -webkit-overflow-scrolling: touch; 
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* Force table width so columns don't collapse */
+    .items-table tbody {
+        min-width: 600px;
+        display: table;
+        width: 100%;
+    }
+    
+    .items-table thead {
+         min-width: 600px;
+         display: table;
+         width: 100%;
+    }
+
+    /* Reduce cell padding */
+    .items-table th, 
+    .items-table td {
+        padding: 12px 10px;
+    }
+
+    .alert-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-approve, .btn-reject {
+        width: 100%;
+    }
+
+    .attachments-list {
+        flex-wrap: wrap;
+    }
+}

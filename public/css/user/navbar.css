@@ -402,14 +402,64 @@ ul { list-style: none; }
 .search-bar input {
     padding-right: 40px; /* Space for the icon */
 }
-/* Responsive adjustments */
+/* --- RESPONSIVE HEADER & LAYOUT --- */
 @media (max-width: 768px) {
-    .hero-content {
-        flex-direction: column-reverse;
-        text-align: center;
+
+    /* 1. Header Layout - "Amazon Style" */
+    .header-wrapper {
+        flex-wrap: wrap; /* Allows items to wrap to the next line */
+        gap: 15px; /* Space between rows */
+    }
+
+    .logo {
+        order: 1; /* Stays first */
+        flex: 1; /* Takes up available space on the left */
+    }
+
+    .user-nav {
+        order: 2; /* Moves to the right of the logo */
+    }
+
+    .search-bar {
+        order: 3; /* Force to a new line */
+        display: flex; /* UN-HIDE IT */
+        width: 100%; /* Full screen width */
+        max-width: 100%; /* Remove the 500px limit */
+        margin: 0; /* Reset margins */
+    }
+    .search-bar button {
+        font-size: 1rem;       /* Reduce from 1.2rem */
+        padding: 10px 15px;    /* Optional: Reduce padding to make the button slimmer */
+        width: auto;           /* Prevents button from stretching oddly */
+    }
+    .search-bar input {
+        font-size: 0.9rem;
     }
     
-    .hero h1 { font-size: 2rem; }
+    /* 2. Hero Section Adjustments */
+    .hero-content {
+        flex-direction: column-reverse; /* Text below image */
+        text-align: center;
+        gap: 30px;
+    }
+
+    .hero h1 { 
+        font-size: 2rem; 
+    }
     
-    .search-bar { display: none; /* Hide or move for mobile */ }
+    .hero-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center the buttons */
+    }
+
+    /* 3. Category Nav (Horizontal Scroll) */
+    .category-nav {
+        padding: 0 10px; /* Prevent edge touching */
+    }
+    
+    /* 4. Reset Icon Position Fix for Mobile */
+    .reset-search {
+        right: 15px; /* Adjust because button is smaller or removed */
+    }
 }

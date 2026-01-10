@@ -151,3 +151,74 @@
 .logout-link:hover svg {
     stroke: var(--status-red-text);
 }
+/* --- SIDEBAR RESPONSIVENESS --- */
+
+/* 1. Desktop: Hide the mobile menu toggle button */
+.menu-toggle {
+    display: none;
+}
+
+/* 2. Tablet & Mobile View (Max Width 900px) */
+@media (max-width: 900px) {
+    
+    /* --- The Sidebar (Hidden by default) --- */
+    .sidebar {
+        position: fixed;       /* Float on top of content */
+        top: 0;
+        left: -280px;         /* Hide off-screen to the left */
+        height: 100vh;        /* Full height */
+        width: 260px;
+        z-index: 1000;        /* Sit on top of everything */
+        transition: left 0.3s ease; /* Smooth slide animation */
+        box-shadow: 4px 0 15px rgba(0,0,0,0.1); /* Add shadow for depth */
+    }
+
+    /* --- The Class to Show Sidebar (Added via JS) --- */
+    .sidebar.active {
+        left: 0; /* Slide in */
+    }
+
+    /* --- The Hamburger Menu Button --- */
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1100; /* Above the sidebar */
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+    
+    .menu-toggle svg {
+        width: 24px;
+        height: 24px;
+        stroke: white;
+        stroke-width: 2;
+    }
+
+    /* --- Overlay (Dark background when menu is open) --- */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 900; /* Behind sidebar, above content */
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+}

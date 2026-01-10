@@ -5,6 +5,7 @@
 <body>
     <div class="dashboard-container">
 
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
         <%- include('../partials/sidebar', {activePage: 'dashboard'}) %>
         <main class="main-content">
 
@@ -485,12 +486,5 @@
         });
     }
 
-    // --- Table Tab Switcher (Visual only) ---
-    function switchTable(tableId, btn) {
-        document.querySelectorAll('.table-container').forEach(el => el.style.display = 'none');
-        document.getElementById(tableId).style.display = 'block';
-        
-        btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
+   
 </script>

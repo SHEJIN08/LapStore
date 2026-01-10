@@ -197,3 +197,57 @@ body {
     line-height: 1.6;
     opacity: 0.9;
 }
+/* --- ADMIN LOGIN RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 900px) */
+@media (max-width: 900px) {
+    
+    /* Hide the Right Side (Image/Blue Panel) */
+    .info-panel {
+        display: none;
+    }
+
+    /* Make the Form Side take full width */
+    .login-form-wrapper {
+        flex: none; /* Disable flex scaling */
+        width: 100%; /* Force full width */
+        padding: 40px 20px; /* Reduce side padding */
+    }
+
+    /* Center the content vertically if the screen is tall */
+    .login-container {
+        justify-content: center;
+        background-color: #ffffff; /* Ensure white bg */
+    }
+}
+
+/* 2. Small Mobile View (Max Width 480px) */
+@media (max-width: 480px) {
+    
+    /* Reduce Header Size */
+    .form-header h2 {
+        font-size: 24px;
+    }
+    
+    .form-header p {
+        font-size: 14px;
+    }
+
+    /* Adjust Form Padding */
+    .login-form-wrapper {
+        padding: 20px;
+        align-items: flex-start; /* Align to top on very small screens to avoid keyboard overlap */
+        padding-top: 60px;
+    }
+    
+    /* Adjust Input Sizes */
+    .form-group input[type="email"],
+    #password {
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    .login-btn {
+        padding: 12px;
+    }
+}

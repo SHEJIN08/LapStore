@@ -352,3 +352,93 @@ ul {
  .my-custom-toast {
       border-radius: 20px; 
       }  
+ /* --- USER MANAGEMENT RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+
+    /* --- Search & Filter: Stack Vertically --- */
+    .search-filter-container {
+        padding: 20px;
+    }
+
+    .search-form {
+        flex-direction: column; /* Stack Search on top, Filters below */
+        gap: 15px;
+    }
+
+    /* Make Search Bar full width */
+    .search-bar {
+        width: 100%;
+    }
+
+    /* Fix Icon Position for Stacked Layout */
+    .search-bar .search-icon {
+        /* Reset negative margins if they cause issues on mobile */
+        margin-bottom: -55px; 
+    }
+
+    /* Make Filter Section full width */
+    .filter-status {
+        width: 100%;
+    }
+
+    .filter-status select {
+        width: 100%; /* Full width dropdown */
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- Header --- */
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    /* --- Table: Horizontal Scroll --- */
+    /* This wraps the table to allow side-scrolling */
+    .orders-table {
+        display: block; /* Ensures container behaves like a block */
+        overflow-x: auto; /* Adds scrollbar */
+        width: 100%;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        border: 1px solid var(--border-color); /* Add border for clarity */
+        border-radius: 8px;
+    }
+
+    .orders-table table {
+        min-width: 800px; /* Force table width so it scrolls instead of squashing */
+    }
+
+    /* --- Pagination --- */
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* --- Modal Fixes --- */
+    .modal-content {
+        width: 95%; /* Fit to screen width */
+        margin: 10px;
+        padding: 20px;
+    }
+
+    .modal-header h3 {
+        font-size: 1.1rem;
+    }
+}

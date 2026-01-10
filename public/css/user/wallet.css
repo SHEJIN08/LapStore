@@ -337,3 +337,112 @@ a {
 .btn-proceed:hover {
     background-color: #0b5ed7;
 }
+/* --- WALLET RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 900px) */
+@media (max-width: 900px) {
+    .main-container {
+        flex-direction: column; /* Stack Layout */
+        padding: 20px 15px;
+        gap: 20px;
+    }
+
+    .wallet-content {
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 600px) */
+@media (max-width: 600px) {
+    
+    /* --- Balance Card Adjustments --- */
+    .balance-card {
+        padding: 25px 20px; /* Reduce padding */
+    }
+
+    .balance-info .amount {
+        font-size: 36px; /* Smaller font for balance */
+    }
+
+    .add-money-btn {
+        width: 100%; /* Full width button for easier tapping */
+        padding: 12px;
+    }
+
+    /* --- History Header & Tabs --- */
+    .history-header {
+        flex-direction: column; /* Stack Title and Tabs */
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .filter-tabs {
+        width: 100%;
+        overflow-x: auto; /* Horizontal scroll if tabs are too wide */
+        white-space: nowrap; /* Keep tabs on one line */
+        padding-bottom: 5px; /* Space for scrollbar */
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* Remove default scrollbar for cleaner look */
+    .filter-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* --- Transaction List Items --- */
+    .txn-item {
+        padding: 15px; /* Compact padding */
+    }
+
+    .txn-icon {
+        width: 40px; /* Smaller Icon */
+        height: 40px;
+        font-size: 16px;
+        margin-right: 12px;
+        flex-shrink: 0; /* Prevent icon from squishing */
+    }
+
+    .txn-title {
+        font-size: 14px; /* Smaller text */
+    }
+    
+    .txn-date {
+        font-size: 11px;
+    }
+
+    .amount {
+        font-size: 14px;
+    }
+    
+    .status {
+        font-size: 10px;
+        padding: 2px 8px;
+    }
+
+    /* --- Add Money Modal Fixes --- */
+    .add-money-modal {
+        width: 90%; /* Percentage width instead of fixed 400px */
+        max-width: 400px;
+        padding: 20px;
+    }
+
+    .modal-balance-card .balance-amount {
+        font-size: 24px;
+    }
+
+    /* Preset Chips */
+    .preset-chips {
+        flex-wrap: wrap; /* Allow chips to wrap to next line */
+        gap: 8px;
+    }
+
+    .chip {
+        min-width: 80px; /* Ensure chips aren't too tiny */
+        font-size: 14px;
+    }
+    
+    .close-btn {
+        font-size: 24px;
+    }
+}

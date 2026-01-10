@@ -313,3 +313,88 @@ ul {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/* --- ADD BRAND PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+    
+    /* Adjust Form Card padding */
+    .form-card {
+        padding: 30px 20px; /* Reduce padding */
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Buttons if needed --- */
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    /* --- B. Form Layout: Stack Inputs Vertically --- */
+    /* Change the grid from 2 columns to 1 column */
+    .form-row {
+        display: flex; /* Switch from Grid to Flex */
+        flex-direction: column; /* Stack vertically */
+        gap: 15px; /* Reduce gap slightly */
+        margin-bottom: 15px;
+    }
+
+    /* Ensure Inputs fill width */
+    .form-group {
+        width: 100%;
+    }
+
+    /* --- C. Upload Area --- */
+    .upload-container {
+        height: 160px; /* Make slightly shorter on mobile */
+    }
+
+    /* --- D. Footer Buttons --- */
+    .form-actions {
+        flex-direction: column-reverse; /* Put 'Save' on top or stack them */
+        gap: 10px;
+    }
+
+    /* Make buttons full width for easier tapping */
+    .btn-save, .btn-cancel {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        padding: 12px;
+    }
+    
+    /* --- E. Cropper Modal Fixes --- */
+    .cropper-container-box {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .cropper-image-wrapper {
+        max-height: 50vh; /* Reduce height on small screens */
+    }
+    
+    .cropper-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .cropper-actions button {
+        width: 100%;
+    }
+}

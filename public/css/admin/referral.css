@@ -262,3 +262,95 @@ td {
     background: #2563EB;
     color: white;
 }   
+/* --- REFERRAL/TRANSACTION PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar (if present) and Content */
+    .container {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        width: 100%;
+        padding: 20px;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Actions Bar: Stack Controls --- */
+    .actions-bar {
+        flex-direction: column;
+        align-items: stretch; /* Stretch children to full width */
+        gap: 15px;
+        padding: 15px;
+    }
+
+    /* Make Search Box Full Width */
+    .search-box {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* Filters Row: Adjust spacing */
+    .filters {
+        display: flex;
+        flex-direction: column; /* Stack dropdown and button on very small screens */
+        gap: 10px;
+        width: 100%;
+    }
+
+    .dropdown, 
+    .custom-select {
+        width: 100%;
+    }
+
+    .btn-search {
+        width: 100%; /* Full width search button */
+        justify-content: center;
+        margin-top: 5px;
+    }
+
+    /* --- B. Table: Horizontal Scroll (Crucial) --- */
+    /* This allows the table to keep its shape but scroll sideways */
+    .table-container {
+        overflow-x: auto; /* Adds horizontal scrollbar */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        padding: 0; /* Remove padding to maximize space */
+        border: none; /* Optional: Cleaner look on mobile */
+        box-shadow: none;
+    }
+
+    /* Force Table width so it scrolls instead of squashing */
+    table {
+        min-width: 700px; 
+    }
+    
+    /* Adjust cell padding for cleaner look */
+    th, td {
+        padding: 12px 15px;
+    }
+
+    /* --- C. Pagination: Stack It --- */
+    .pagination {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .page-buttons {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .page-buttons button {
+        flex: 1; /* Make buttons equal width */
+        justify-content: center;
+    }
+}

@@ -442,3 +442,86 @@ input:checked + .slider:before {
 .btn-save:hover {
     background: #1d4ed8;
 }
+/* --- BANNER PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .admin-layout {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Button --- */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .btn-add-banner {
+        width: 100%; /* Full width button */
+        justify-content: center;
+    }
+
+    /* --- B. Table: Horizontal Scroll --- */
+    /* Your .table-container already has overflow-x: auto, 
+       but we must force the table width so it triggers the scroll */
+    .banner-table {
+        min-width: 600px; 
+    }
+
+    /* Reduce cell padding for mobile */
+    .banner-table th, 
+    .banner-table td {
+        padding: 12px 15px;
+    }
+
+    /* Resize Banner Thumbnail for mobile list */
+    .banner-thumb {
+        width: 80px;
+        height: 40px;
+    }
+
+    /* --- C. Modal Fixes --- */
+    .modal-content {
+        width: 95%; /* Fit screen width */
+        max-width: 100%;
+        margin: 10px;
+        max-height: 85vh; /* Ensure it fits vertically */
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    /* Stack Form Rows (Start Date / End Date) */
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .form-group {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    /* Adjust Upload Area */
+    .upload-area {
+        padding: 20px;
+    }
+
+    /* Stack Footer Buttons */
+    .modal-footer {
+        padding: 15px 20px;
+    }
+}

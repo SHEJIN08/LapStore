@@ -197,3 +197,57 @@ body {
     background-color: var(--background-color);
     width: 100%;
 }
+/* --- RESPONSIVENESS (Add to bottom of file) --- */
+
+/* 1. Tablet & Small Desktop (Max Width 768px) */
+@media (max-width: 768px) {
+    .main-header {
+        padding: 15px 20px;
+    }
+
+    /* Reduce the massive heading size */
+    .verification-card h1 {
+        font-size: 26px; 
+    }
+    
+    .verification-card p {
+        font-size: 14px;
+    }
+}
+
+/* 2. Mobile View (Max Width 480px) */
+@media (max-width: 480px) {
+    
+    /* Stack the Header (Logo on top, Buttons below) */
+    .main-header {
+        flex-direction: column;
+        gap: 15px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f3f4f6; /* Optional: Separator line */
+    }
+
+    /* --- CRITICAL OTP INPUT FIX --- */
+    /* Shrink inputs so 6 digits fit on a small screen (320px-360px) */
+    .otp-inputs {
+        gap: 8px; /* Reduce gap from 12px */
+    }
+
+    .otp-input {
+        width: 40px;  /* Reduce width from 54px */
+        height: 45px; /* Reduce height */
+        font-size: 18px; /* Slightly smaller text */
+        border-radius: 6px;
+    }
+
+    /* Adjust Content Spacing */
+    .content-wrapper {
+        padding: 30px 20px;
+        justify-content: flex-start; /* Move content up slightly */
+    }
+    
+    /* Make the Verify Button easier to tap */
+    .btn-primary {
+        padding: 14px;
+        font-size: 15px;
+    }
+}

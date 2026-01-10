@@ -303,3 +303,90 @@ ul {
 /* Add this to your css if missing */
 .btn-confirm-block { background-color: #dc3545; color: white; } /* Default Red */
 .btn-confirm-unblock { background-color: #28a745; color: #000; } /* Green */
+/* --- BRAND PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar and Content */
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 20px;
+        width: 100%;
+    }
+
+    /* --- Search & Filter: Stack Vertically --- */
+    .search-filter-container {
+        padding: 20px;
+    }
+
+    .search-form {
+        flex-direction: column; /* Stack Search on top, Filters below */
+        gap: 15px;
+    }
+
+    /* Make Search Bar full width */
+    .search-bar {
+        width: 100%;
+    }
+
+    /* Fix Icon alignment in stacked layout */
+    .search-bar .search-icon {
+        margin-bottom: -55px; 
+    }
+
+    /* Make Filter Section full width */
+    .filter-status {
+        width: 100%;
+    }
+
+    .filter-status select {
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- Header --- */
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    /* --- Table: Horizontal Scroll (Crucial) --- */
+    /* Since we might not have a wrapper div, we force the table to scroll */
+    .brand-table {
+        display: block; /* Turns table into a block element */
+        width: 100%;
+        overflow-x: auto; /* Adds horizontal scrollbar */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        border: 1px solid #eee;
+    }
+
+    /* Force the table content to stay wide enough to read */
+    .brand-table tbody, 
+    .brand-table thead {
+        min-width: 600px; 
+    }
+
+    /* --- Pagination --- */
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* --- Modal Fixes --- */
+    .modal-content {
+        width: 95%; /* Fit to screen width */
+        max-width: 100%;
+        margin: 10px;
+        padding: 20px;
+    }
+}

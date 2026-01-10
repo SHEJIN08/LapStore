@@ -429,3 +429,88 @@ ul {
     border-radius: 5px;
     cursor: pointer;
 }
+/* --- PRODUCT PAGE RESPONSIVENESS --- */
+
+/* 1. Tablet & Mobile View (Max Width 992px) */
+@media (max-width: 992px) {
+    
+    /* Layout: Stack Sidebar (if present) and Content */
+    .product-main-content {
+        flex-direction: column;
+    }
+    
+    .main-page-content {
+        padding: 20px; /* Reduce padding */
+        width: 100%;
+    }
+}
+
+/* 2. Mobile View (Max Width 768px) */
+@media (max-width: 768px) {
+
+    /* --- A. Header: Stack Title and Add Button --- */
+    .product-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .add-product-btn {
+        width: 100%; /* Full width button */
+        justify-content: center;
+    }
+
+    /* --- B. Search & Filter: Stack Them --- */
+    .search-filter-container {
+        padding: 0 0 20px 0; /* Remove side padding */
+    }
+
+    .search-form {
+        flex-direction: column; /* Stack Input and Select */
+        gap: 12px;
+    }
+
+    .search-bar, 
+    .filter-status, 
+    .search-form .btn {
+        width: 100%;
+    }
+
+    /* Fix icons positions in stacked layout */
+    .search-bar .search-icon {
+        margin-bottom: -56px; /* Adjust based on new height */
+        z-index: 2;
+    }
+
+    /* --- C. Table: Optimized Horizontal Scroll --- */
+    .table-responsive {
+        border: 1px solid #eee; /* Add border for definition */
+        padding: 0; /* Remove padding to maximize space */
+        box-shadow: none; /* Simplify shadow on mobile */
+    }
+
+    .product-table th, 
+    .product-table td {
+        padding: 12px 15px; /* Reduce cell padding */
+    }
+
+    /* --- D. Pagination: Stack It --- */
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    /* --- E. Modal Fixes --- */
+    .modal-content {
+        width: 95% !important; /* Override fixed 400px/700px */
+        max-width: 100%;
+        margin: 10px;
+        padding: 20px;
+    }
+
+    .form-grid {
+        display: flex;
+        flex-direction: column; /* Stack form inputs in modal */
+    }
+}

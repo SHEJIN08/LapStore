@@ -737,33 +737,136 @@
     background-color: #1d4ed8;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
+/* --- FIXED RESPONSIVENESS (Copy & Paste to bottom) --- */
+
+/* 1. Tablet Adjustments (Max Width 900px) */
+@media (max-width: 900px) {
+    .main-container {
+        flex-direction: column;
+        padding: 0 15px;
+    }
+    
+    .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    /* Toolbar Stacking */
     .orders-toolbar {
         flex-direction: column;
         align-items: flex-start;
+        gap: 15px;
     }
-    
-    .search-container, .search-form {
+    .search-container, .search-form, .input-group {
         width: 100%;
     }
-    
-    .input-group {
-        flex: 1;
-    }
-    
     .input-group input {
         width: 100%;
     }
 }
 
-/* --- Responsive Mobile --- */
+/* 2. Mobile Order Card Transformation (Max Width 768px) */
 @media (max-width: 768px) {
-    .order-table-layout thead { display: none; }
-    .order-table-layout tr { display: flex; flex-direction: column; padding: 15px; }
-    .order-table-layout td { padding: 5px 0; width: 100%; display: flex; justify-content: space-between; }
+
+    /* --- A. Card Header Fixes --- */
+    .card-top {
+        flex-wrap: wrap; /* Allow items to stack */
+        gap: 10px;
+        padding: 15px;
+    }
     
-    .col-info { margin-bottom: 10px; }
-    .col-meta .label { display: inline-block; margin-right: 10px; margin-bottom: 0; }
-    .col-actions { text-align: left; margin-top: 15px; }
-}
+    .order-id {
+        font-size: 12px;
+        width: 100%; /* Force ID to top line */
+    }
+    
+    .status-badge {
+        font-size: 11px; /* Slightly smaller badge */
+    }
+
+    /* --- B. Table to Block Transformation (The Magic Part) --- */
+    /* This forces the table to stop acting like a table */
+    .order-table-layout, 
+    .order-table-layout tbody, 
+    .order-table-layout tr, 
+    .order-table-layout td {
+        display: block;
+        width: 100%;
+    }
+
+    .order-table-layout tr {
+        margin-bottom: 0; /* Remove gap inside the card */
+        border-bottom: none;
+    }
+
+    /* --- C. Column Overrides (CRITICAL FIX) --- */
+    
+    /* 1. Product Info Section */
+    .col-info {
+        width: 100% !important; /* Override the desktop 40% */
+        padding: 15px !important;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    /* 2. Meta Info (Date, Total, etc) */
+    .col-meta {
+        width: 100% !important; /* Override the desktop 15% */
+        padding: 10px 15px !important;
+        display: flex;
+        justify-content: space-between; /* Put Label on left, Value on right */
+        align-items: center;
+        border-bottom: 1px dashed #f3f4f6;
+    }
+    
+    /* Ensure label and value sit on same line nicely */
+    .col-meta .label {
+        margin-bottom: 0;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .col-meta .val {
+        display: inline-block;
+        text-align: right;
+    }
+
+    /* 3. Actions (Buttons) */
+    .col-actions {
+        width: 100% !important; /* Override the desktop 15% */
+        padding: 15px !important;
+        text-align: left; /* Reset alignment */
+        display: flex;
+        flex-direction: column; /* Stack buttons vertically on small phones */
+        gap: 10px;
+    }
+
+    /* Make buttons full width for touch */
+    .col-actions .btn-secondary,
+    .col-actions .btn-cancel,
+    .col-actions .btn-retry,
+    .col-actions a {
+        width: 100%;
+        display: block;
+        text-align: center;
+        margin-left: 0;
+        padding: 12px 0;
+    }
+    
+    /* Adjust the "Cancel" text button to look like a real button on mobile */
+    .btn-cancel, .btn-retry {
+        background-color: #FEF2F2;
+        border-radius: 6px;
+        margin-top: 0;
+    }
+    
+    /* --- D. Tabs Scrolling --- */
+    .order-tabs {
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    /* Optional: Fix Image size on very small screens */
+    .product-visual {
+        width: 60px;
+        height: 60px;
+    }
+}   

@@ -140,3 +140,58 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/* --- FOOTER RESPONSIVENESS --- */
+
+/* 1. Tablet View (Max Width 900px) */
+@media (max-width: 900px) {
+    .footer-container {
+        /* Switch from 5 columns to 2 equal columns */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 40px;
+    }
+
+    /* Make the "About/Logo" section span both columns so it sits on top */
+    .footer-col:first-child {
+        grid-column: span 2;
+        text-align: center; /* Optional: Center the logo section */
+    }
+
+    .footer-about {
+        margin: 15px auto; /* Center the text block */
+        max-width: 100%; /* Let it use full width */
+    }
+    
+    .social-icons {
+        justify-content: center; /* Center social icons */
+    }
+}
+
+/* 2. Mobile View (Max Width 600px) */
+@media (max-width: 600px) {
+    .main-footer {
+        padding: 40px 20px 0; /* Reduce padding */
+    }
+
+    .footer-container {
+        /* Switch to a single column stack */
+        grid-template-columns: 1fr; 
+        gap: 30px;
+        text-align: center; /* Center text for better readability on phone */
+    }
+
+    /* Reset the span we added for tablets */
+    .footer-col:first-child {
+        grid-column: span 1;
+    }
+
+    .social-icons {
+        justify-content: center;
+        margin-top: 10px;
+    }
+    
+    /* Add spacing between links to make them easier to tap */
+    .footer-col ul li {
+        margin-bottom: 15px;
+        font-size: 16px; /* Slightly larger text for touch targets */
+    }
+}
