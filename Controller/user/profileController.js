@@ -50,6 +50,24 @@ const editInfo = async (req, res) => {
   try {
     const { name, email } = req.body;
     const userId = req.session.user?._id || req.session.user;
+
+    const nameRegex = /^[a-zA-Z\s]+$/;
+
+    if (!name || !nameRegex.test(name)) {
+      return res.json({ 
+        success: false, 
+        message: "Invalid name format. Only letters and spaces are allowed." 
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email || !emailRegex.test(email)) {
+      return res.json({ 
+        success: false, 
+        message: "Invalid email address format." 
+      });
+    }
     
     //  Fetch current user to compare
     const currentUser = await profileService.getUserProfileService(userId);

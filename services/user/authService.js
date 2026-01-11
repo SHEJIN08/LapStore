@@ -149,7 +149,6 @@ const googleAuthService = async ({ email, name }) => {
             userId: newUserId,
             name: name || 'Google User',
             email,
-            password: 'oauth_google',
             referralCode: newReferralCode,
             isVerified: true,
             isActive: true

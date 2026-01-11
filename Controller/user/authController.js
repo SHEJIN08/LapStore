@@ -4,6 +4,7 @@ import { StatusCode, ResponseMessage } from "../../utils/statusCode.js";
 
 const registerSchema = Joi.object({
   name: Joi.string()
+    .pattern(/^[A-Za-z\s]+$/)
     .required()
     .messages({ "string.empty": "Name is required." }),
   email: Joi.string().email().required().messages({
