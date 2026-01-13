@@ -92,8 +92,8 @@ const createOfferService = async (data) => {
             isActive: status === 'Active' || status === true || status === 'on'
         };
 
-        if(discountType === 'percentage' && discountValue > 99){
-            throw new Error("Discount percentage must be less than 100")
+        if(discountType === 'percentage' && discountValue > 80){
+            throw new Error("Discount percentage must be less than 80")
         }
 
         if(discountType === 'fixed'){
@@ -109,12 +109,16 @@ const createOfferService = async (data) => {
                  if(!variants || variants.length === 0){
                     throw new Error("No variants found for the selected products");
                  }
-
-                 const invalidVariant = variants.find(v => v.salePrice <= fixedVal);
+              
+                 const invalidVariant = variants.find(v => fixedVal > (v.salePrice * 0.8));
                  
-                 if(invalidVariant){
-                    throw new Error(`Discount amount (₹${fixedVal}) cannot be greater than the price of product variant (₹${invalidVariant.salePrice})`);
-                 }
+                if (invalidVariant) {
+                const maxAllowed = Math.floor(invalidVariant.salePrice * 0.8);
+                throw new Error(
+                `Fixed discount (₹${fixedVal}) exceeds 80% of the price for ${invalidVariant.variantName || 'a product variant'}. 
+                 Maximum allowed discount for this item is ₹${maxAllowed}.`
+            );
+        }
 
             }else if(offerType === 'category'){
                 if(!categoryId) throw new Error('Please select a category')
@@ -128,9 +132,14 @@ const createOfferService = async (data) => {
                 const categoryProductsId = productsInCategory.map(s => s._id)
 
                 const categoryVariants = await Variant.find({productId: {$in: categoryProductsId}});
-                const invalidVariant = categoryVariants.find(v => v.salePrice <=fixedVal);
+                const invalidVariant = categoryVariants.find(v => fixedVal > (v.salePrice * 0.8));
                 if(invalidVariant){
-                  throw new Error(`Discount (₹${fixedVal}) is too high for some items in this category (Lowest Price found: ₹${invalidVariant.salePrice})`);
+                 const maxAllowed = Math.floor(invalidVariant.salePrice * 0.8);
+            throw new Error(
+                `Fixed discount (₹${fixedVal}) is too high for items in this category. 
+                 It exceeds 80% of a variant priced at ₹${invalidVariant.salePrice}. 
+                 Max allowed is ₹${maxAllowed}.`
+            );
                 }
             }
         }
@@ -180,8 +189,8 @@ const updatedOfferService = async (id, data) => {
             isActive: status === 'Active' || status === true || status === 'on'
         };
 
-        if (discountType === 'percentage' && discountValue > 99) {
-            throw new Error("Discount percentage must be less than 100");
+        if (discountType === 'percentage' && discountValue > 80) {
+            throw new Error("Discount percentage must be less than 80");
         }
 
         if (discountType === 'fixed') {
@@ -199,10 +208,15 @@ const updatedOfferService = async (id, data) => {
                     throw new Error("No variants found for selected products");
                 }
 
-                const invalidVariant = variants.find(v => v.salePrice <= fixedVal);
-                if (invalidVariant) {
-                    throw new Error(`Discount (₹${fixedVal}) cannot exceed product price (₹${invalidVariant.salePrice})`);
-                }
+                const invalidVariant = variants.find(v => fixedVal > (v.salePrice * 0.8));
+                    if (invalidVariant) {
+                const maxAllowed = Math.floor(invalidVariant.salePrice * 0.8);
+                throw new Error(
+                `Fixed discount (₹${fixedVal}) exceeds 80% of the price for ${invalidVariant.variantName || 'a product variant'}. 
+                 Maximum allowed discount for this item is ₹${maxAllowed}.`
+            );
+        }
+
 
             } else if (offerType === 'category') {
                 if (!categoryId) throw new Error('Please select a category');
@@ -217,9 +231,14 @@ const updatedOfferService = async (id, data) => {
                 const categoryProductIds = productsInCategory.map(p => p._id);
                 const categoryVariants = await Variant.find({ productId: { $in: categoryProductIds } });
 
-                const invalidVariant = categoryVariants.find(v => v.salePrice <= fixedVal);
-                if (invalidVariant) {
-                    throw new Error(`Discount (₹${fixedVal}) is too high for category items (Lowest: ₹${invalidVariant.salePrice})`);
+                const invalidVariant = categoryVariants.find( v => fixedVal > (v.salePrice * 0.8));
+                 if(invalidVariant){
+                 const maxAllowed = Math.floor(invalidVariant.salePrice * 0.8);
+                 throw new Error(
+                `Fixed discount (₹${fixedVal}) is too high for items in this category. 
+                 It exceeds 80% of a variant priced at ₹${invalidVariant.salePrice}. 
+                 Max allowed is ₹${maxAllowed}.`
+            );
                 }
             }
         }

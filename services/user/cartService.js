@@ -1,7 +1,6 @@
 import Cart from "../../model/cartModel.js";
 import Variant from "../../model/variantModel.js";
 import {calculateProductDiscount} from "../../services/admin/productService.js"
-import { ResponseMessage } from "../../utils/statusCode.js";
 
 const processCartWithOffers = async (cartItems) => {
     const validItems = cartItems.filter(item => item.productId && item.variantId);
@@ -142,11 +141,12 @@ const removeFromCartService = async (cartId) => {
     return true;
 };
 
+
 export default {
     getAllCartItems,
     getPaginatedCartItems,
     calculateTotals,
     addToCartService,
     updateQuantityService,
-    removeFromCartService
+    removeFromCartService,
 };

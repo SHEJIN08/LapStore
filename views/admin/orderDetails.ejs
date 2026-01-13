@@ -274,7 +274,7 @@
                                         <h3>Customer Details</h3>
                                         <div class="customer-row">
                                             <div class="avatar-circle" style="overflow:hidden;">
-                                        <% if (user && user.avatar && (user.avatar.startsWith('/'))) { %>
+                                        <% if (user && user.avatar &&  (user.avatar.startsWith('https')) ) { %>
                                             <img src="<%= user.avatar %>" alt="User Avatar" style="width:100%; height:100%; object-fit:cover;">
                                         <% } else { %>
                                             <span style="font-size:18px; font-weight:bold; color:#2563EB;">

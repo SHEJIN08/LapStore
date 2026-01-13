@@ -100,8 +100,8 @@ couponSchema.pre("validate", function (next) {
 
 // 2. Ensure Percentage discount doesn't exceed 100
 couponSchema.pre("save", function (next) {
-  if (this.type === "percentage" && this.discountValue > 100) {
-    next(new Error("Percentage discount cannot exceed 100%"));
+  if (this.type === "percentage" && this.discountValue > 60) {
+    next(new Error("Percentage discount cannot exceed 60%"));
   } else {
     next();
   }

@@ -28,11 +28,13 @@
                 <div class="form-group">
                     <label for="full-name">Full Name</label>
                     <input type="text" id="full-name" name="name" placeholder="Enter your full name">
+                    <span id="error-name" class="error-msg" style="color: red; font-size: 12px;"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" placeholder="Enter your email address">
+                    <span id="error-email" class="error-msg" style="color: red; font-size: 12px;"></span>
                 </div>
 
                 <div class="form-group">
@@ -44,11 +46,13 @@
                             <line x1="1" y1="1" x2="23" y2="23"></line>
                         </svg>
                     </div>
+                    <span id="error-password" class="error-msg" style="color: red; font-size: 12px;"></span>
                 </div>
                 <div class="form-group">
                     <label for="password">Confirm Password</label>
                     <div class="password-wrapper">
                      <input type="password" id="con-password" name="confirmPassword" placeholder="Confirm password">
+                     <span id="error-confirmPassword" class="error-msg" style="color: red; font-size: 12px;"></span>
                 </div>
                 <div class="form-group">
                     <label for="referral" class="label-optional">Optional</label>
@@ -81,6 +85,24 @@
  <script src="/js/axios.min.js"></script>
 <script>
     const Formdata = document.getElementById('Formdata');
+    const inputIds = {
+        name: 'full-name',
+        email: 'email',
+        password: 'password',
+        confirmPassword: 'con-password'
+    };
+
+    Object.keys(inputIds).forEach(key => {
+        const element = document.getElementById(inputIds[key]);
+        if (element) {
+            element.addEventListener('input', () => {
+                // Find the span by the KEY name (name, email, etc)
+                const errorSpan = document.getElementById(`error-${key}`);
+                if (errorSpan) errorSpan.textContent = '';
+                element.classList.remove('input-error');
+            });
+        }
+    });
 
        const showToast = (message, type) => {
             const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
@@ -138,41 +160,53 @@
     Formdata.addEventListener('submit',async (e) => {
         e.preventDefault();
 
+        document.querySelectorAll('.error-msg').forEach(span => span.textContent = '');
+
         const btn = e.target.querySelector('.btn-submit');
         Loading.showButton(btn)
-        btn.disabled = true;
-        btn.innerText = 'Generating otp...';
 
-        const name = document.getElementById('full-name').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('con-password').value;
-        const referralCode = document.getElementById('referral').value.trim();
+        const formDatas = {
+             name : document.getElementById('full-name').value,
+             email : document.getElementById('email').value,
+             password : document.getElementById('password').value,
+             confirmPassword : document.getElementById('con-password').value,
+             referralCode : document.getElementById('referral').value.trim(),
+        }
 
         try {
-            const response = await axios.post('/user/register', {
-                name: name,email:email, password:password,confirmPassword:confirmPassword, referralCode:referralCode
-            })
+            const response = await axios.post('/user/register', formDatas)
 
-            if(response.data.success){
-                showToast('register successful...','success');
+          if (response.data.success) {
+                showToast('Registration successful! Redirecting...', 'success');
                 setTimeout(() => {
-                    window.location.href = '/user/verify-otp'
-                },1000)
-            }else{
-                Loading.hideButton(btn)
-                showToast(response.data.message || 'Register failed','error');
-                btn.disabled = false;
-                btn.innerText = 'Sign Up';
+                    window.location.href = '/user/verify-otp';
+                }, 1000);
             }
-        } catch (error) {
-            Loading.hideButton(btn)
-            console.error(error)
+        } catch (err) {
+            Loading.hideButton(btn);
+            
+            if (err.response && err.response.data.errors) {
+                const errors = err.response.data.errors;
+                console.log("Validation Errors Received:", errors);
 
-               const errMsg = error.response?.data?.message || 'Something went wrong';
+                // Loop through Joi errors (name, email, password, confirmPassword)
+                Object.keys(errors).forEach(key => {
+                    // This matches id="error-name", id="error-confirmPassword", etc.
+                    const errorSpan = document.getElementById(`error-${key}`);
+                    if (errorSpan) {
+                        errorSpan.textContent = errors[key];
+                    }else {
+                    console.warn(`Could not find span with id: error-${key}`); // <--- AND THIS
+                     }
+                    
+                    // Add red border to the input
+                    const inputField = document.getElementById(inputIds[key]);
+                    if (inputField) inputField.classList.add('input-error');
+                });
+            } else {
+                const errMsg = err.response?.data?.message || 'Something went wrong';
                 showToast(errMsg, 'error');
-                 btn.disabled = false;
-                btn.innerText = 'Sign Up';
+            }
         }
     })
 </script>

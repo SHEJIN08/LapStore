@@ -31,11 +31,14 @@ const loadCheckout = async (req, res) => {
       wallet: wallet,
     });
   } catch (error) {
-    console.error("Load Checkout Error:", error);
-    res
-      .status(StatusCode.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
-  }
+    if (error.message.includes("out of stock")) {
+            // Redirect back to cart and attach the error message to the URL
+            return res.redirect(`/user/home/cart?error=${encodeURIComponent(error.message)}`);
+        }
+        
+        console.error("Checkout Load Error:", error);
+        res.redirect('/user/home/cart?error=Something+went+wrong');
+    }
 };
 
 // --- 1. CREATE PAYMENT ORDER (API) ---

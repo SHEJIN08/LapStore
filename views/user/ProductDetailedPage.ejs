@@ -55,17 +55,24 @@
                         <h1 class="product-title">
                             <%= product.name %>
                         </h1>
-
-                        <div class="rating">
-                            <div class="stars">
+                       <% if(reviews && reviews.length > 0){ %>
+                            <div class="rating">
+                                <div class="stars">
+                        <% for(let i = 1; i <= 5; i++) { %>
+                            <% if (i <= average) { %>
                                 <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-regular fa-star-half-stroke"></i>
+                            <% } else if (i - 0.5 <= average) { %>
+                                <i class="fa-solid fa-star-half-stroke"></i>
+                            <% } else { %>
+                                <i class="fa-regular fa-star"></i>
+                            <% } %>
+                        <% } %>
+                    </div>
+                                <span class="review-count"><%= average %> (<%= totalReviews %> reviews)</span>
                             </div>
-                            <span class="review-count">4.8 (412 reviews)</span>
-                        </div>
+                     <%   } else{ %>
+                            <span>No reviews</span>
+                    <%   } %>
 
                         <div class="price">
                             <% if (product.hasOffer) { %>

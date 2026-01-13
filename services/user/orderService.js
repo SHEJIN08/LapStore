@@ -271,32 +271,49 @@ const generateInvoiceService = async (orderId) => {
 
         doc.text(productName, 50, yPosition, { width: 250 });
         doc.text(item.quantity.toString(), 300, yPosition, { width: 90, align: "right" });
-        doc.text(`$${item.price.toLocaleString()}`, 400, yPosition, { width: 90, align: "right" });
-        doc.text(`$${totalPrice.toLocaleString()}`, 500, yPosition, { width: 90, align: "right" });
+        doc.text(`Rs.${item.price.toLocaleString()}`, 400, yPosition, { width: 90, align: "right" });
+        doc.text(`Rs.${totalPrice.toLocaleString()}`, 500, yPosition, { width: 90, align: "right" });
 
         yPosition += 20;
     });
 
-    // Bottom Line
+   // Bottom Line
     doc.moveTo(50, yPosition + 10).lineTo(590, yPosition + 10).stroke();
 
-    const summaryTop = yPosition + 30;
+    // --- FIX: Initialize currentY here ---
+    let currentY = yPosition + 30; 
     doc.font("Helvetica-Bold");
 
-    // Summary Section
-    doc.text("Subtotal:", 400, summaryTop, { width: 90, align: "right" });
-    doc.text(`$${order.totalPrice.toLocaleString()}`, 500, summaryTop, { width: 90, align: "right" });
+    // 1. Subtotal
+    doc.text("Subtotal:", 400, currentY, { width: 90, align: "right" });
+    doc.font("Helvetica").text(`Rs.${order.totalPrice.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
 
+    // 2. Tax (5%)
+    currentY += 15;
+    const taxAmount = order.totalPrice * 0.05;
+    doc.font("Helvetica-Bold").text("Tax (5%):", 400, currentY, { width: 90, align: "right" });
+    doc.font("Helvetica").text(`Rs.${taxAmount.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
+
+    // 3. Shipping Fee
+    currentY += 15;
+    const shippingFee = order.totalPrice < 100000 ? 100 : 0;
+    doc.font("Helvetica-Bold").text("Shipping:", 400, currentY, { width: 90, align: "right" });
+    doc.font("Helvetica").text(`Rs.${shippingFee.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
+
+    // 4. Discount
     if (order.discount > 0) {
-        doc.text("Discount:", 400, summaryTop + 15, { width: 90, align: "right" });
-        doc.text(`-$${order.discount.toLocaleString()}`, 500, summaryTop + 15, { width: 90, align: "right" });
+        currentY += 15;
+        doc.font("Helvetica-Bold").text("Discount:", 400, currentY, { width: 90, align: "right" });
+        doc.font("Helvetica").text(`-Rs.${order.discount.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
     }
 
-    doc.fontSize(12).text("Grand Total:", 400, summaryTop + 35, { width: 90, align: "right" });
-    doc.text(`$${order.finalAmount.toLocaleString()}`, 500, summaryTop + 35, { width: 90, align: "right" });
+    // 5. Grand Total
+    currentY += 25; 
+    doc.fontSize(12).font("Helvetica-Bold").text("Grand Total:", 400, currentY, { width: 90, align: "right" });
+    doc.text(`Rs.${order.finalAmount.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
 
     // Footer
-    doc.fontSize(10).text("Thank you for your business!", 50, 700, { align: "center", width: 500 });
+    doc.fontSize(10).font("Helvetica").text("Thank you for your business!", 50, 700, { align: "center", width: 500 });
 
     doc.end();
     

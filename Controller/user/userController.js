@@ -54,12 +54,16 @@ const detailedPage = async (req, res) => {
     }
 
     const reviews = await reviewService.getProductReviewService(data.product._id)
+    const totalReviews = await reviewService.totalReviewCountService(data.product._id)
+    const average = await reviewService.averageReviewService(data.product._id)
 
     res.render('user/ProductDetailedPage', {
         user: userId,
         product: data.product,
         relatedProducts: data.relatedProducts,
-        reviews: reviews || []
+        reviews: reviews || [],
+        totalReviews,
+        average
     });
 
   } catch (error) {

@@ -23,6 +23,12 @@ const getCheckoutData = async (userId) => {
         })
         .populate('variantId');
 
+       for(const item of cartItems){
+        if(item.variantId.stock < item.quantity){
+            throw new Error(`${item.productId.name} is out of stock`)
+        }
+       }
+
     // Filter valid items
     cartItems = cartItems.filter(item => item.productId !== null);
 
@@ -179,7 +185,7 @@ const calculateCouponDiscount = async (userId, couponCode, subtotal) => {
     if (coupon.totalUsageLimit && coupon.currentUsageCount >= coupon.totalUsageLimit) {
         throw new Error('Coupon usage limit reached');
     }
-
+ 
     let discount = 0;
     if (coupon.type === 'percentage') {
         discount = (subtotal * coupon.discountValue) / 100;
@@ -213,6 +219,9 @@ const placeOrderService = async (userId, addressId, paymentMethod, paymentDetail
         }
         if (item.variantId.stock < item.quantity) {
              throw new Error(`Out of stock: ${item.productId.name}`);
+        }
+        if(!item.productId.isPublished){
+            throw new Error(`${item.productId.name} has been blocked by the admin`);
         }
 
         const productForOffer = item.productId;

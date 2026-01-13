@@ -223,5 +223,22 @@
     function proceedToCheckout() {
         window.location.href = "/user/cart/checkout";
     }
+    //code to check any error message in url
+    document.addEventListener('DOMContentLoaded', () => {
+    // 1. Check if there are parameters in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorMessage = urlParams.get('error');
+
+    if (errorMessage) {
+        // 2. Use your existing showToast helper
+        showToast(decodeURIComponent(errorMessage), "error");
+
+        // 3. Clean the URL (removes the ?error=... from the address bar)
+        // This prevents the toast from popping up again if the user refreshes the page
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+    }
+});
+
 </script>
 </body>

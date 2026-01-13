@@ -58,6 +58,30 @@ const topRateReviewService = async () => {
     return reviews;
 }
 
+const totalReviewCountService = async (productId) => {
+    const totalReviews = await Review.countDocuments({productId: productId, isListed: true})
+
+    return totalReviews
+}
+
+const averageReviewService = async (productId) => {
+    try {
+        const reviews = await Review.find({productId: productId, isListed: true}).select('rating')
+        
+        if(reviews.length === 0) return 0;
+
+        const totalReviews = reviews.reduce((sum, review) => sum + review.rating, 0);
+
+        const average = parseFloat((totalReviews / reviews.length).toFixed(1));
+
+        await Product.findByIdAndUpdate(productId, { rating: average })
+
+        return average
+    } catch (error) {
+        throw new Error(error)
+    }
+}
 
 
-export default {addReviewService, getProductReviewService, topRateReviewService}
+
+export default {addReviewService, getProductReviewService, topRateReviewService, totalReviewCountService, averageReviewService}

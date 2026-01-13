@@ -15,10 +15,11 @@ const registerSchema = Joi.object({
     "string.empty": "Password is required.",
     "string.min": "Password must be at least 6 characters long.",
   }),
-  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
-    "any.only": "Passwords do not match.",
-    "string.empty": "Please confirm your password.",
-  }),
+  confirmPassword: Joi.string().required().valid(Joi.ref('password')).messages({
+      'any.only': 'Passwords do not match.',
+      'string.empty': 'Confirm password is required.',
+      'any.required': 'Confirm password is required.'
+  })
 });
 
 const forgotPasswordSchema = Joi.object({
@@ -46,10 +47,18 @@ const registerUser = async (req, res) => {
       abortEarly: false,
       allowUnknown: true,
     });
-    if (error)
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({ success: false, message: error.details[0].message });
+   if (error) {
+      // Map the Joi error details into a simple object
+      const validationErrors = {};
+      error.details.forEach((err) => {
+        validationErrors[err.path[0]] = err.message;
+      });
+
+      return res.status(StatusCode.BAD_REQUEST).json({ 
+        success: false, 
+        errors: validationErrors // Send the whole object
+      });
+    }
 
     const { name, email, password, referralCode } = req.body;
 

@@ -267,3 +267,14 @@ form {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }   
+.error-msg {
+    display: block;
+    min-height: 18px; /* Prevents layout jumping when error appears */
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.input-error {
+    border: 1px solid #ff4d4d !important;
+    background-color: #fff2f2;
+}

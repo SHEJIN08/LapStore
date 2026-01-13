@@ -32,7 +32,7 @@ const addCategory = async (req, res) => {
         const { categoryName, description, isListed, count } = req.body;
 
         if (!categoryName) {
-            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: ResponseMessage.MISSING_FIELDS });
+            return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: 'Please fill category name' });
         }
 
         await categoryService.createCategoryService({ categoryName, description, isListed, count });
@@ -86,7 +86,7 @@ const editCategory = async (req, res) => {
             return res.status(StatusCode.NOT_FOUND).render('user/404');
         }
         console.error(error);
-        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+        return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message});
     }
 };
 

@@ -98,6 +98,10 @@ const updateCategoryService = async (id, { categoryName, description, isListed }
         _id: { $ne: id }
     });
 
+    if(!categoryName){
+        throw new Error('categoryName is required')
+    }
+
     if (existingCategory) {
         throw new Error(ResponseMessage.DUP_CATEGORY);
     }

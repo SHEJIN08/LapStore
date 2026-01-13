@@ -1,4 +1,3 @@
-// services/paymentService.js
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import dotenv from "dotenv";
@@ -13,7 +12,7 @@ const instance = new Razorpay({
 // 1. Create Razorpay Order (For the Popup)
 const createRazorpayOrderService = async (amount) => {
   const options = {
-    amount: Math.round(amount * 100), // Convert Rupee to Paisa
+    amount: Math.round(amount * 100), // Convert paisa to rupee
     currency: "INR",
     receipt: `receipt_${Date.now()}`,
   };

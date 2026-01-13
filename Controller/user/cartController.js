@@ -41,7 +41,7 @@ const loadCart = async (req, res) => {
         cartItems,
         subtotal, tax, shipping, total,
         totalPages,
-        currentPage: page
+        currentPage: page,
     });
 
   } catch (error) {
@@ -109,4 +109,5 @@ const removeFromCart = async (req, res) => {
   }
 };
 
-export default { loadCart, addToCart, updateCartQuantity, removeFromCart };
+
+export default { loadCart, addToCart, updateCartQuantity, removeFromCart};

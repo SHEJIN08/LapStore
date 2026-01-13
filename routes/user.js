@@ -30,7 +30,7 @@ router.get('/auth/google/callback', (req, res) => {
   return res.render('user/googleCallback'); 
 });
 
-router.post('/auth/google/callback', authController.googleCallback); // server handles JSON
+router.post('/auth/google/callback', authController.googleCallback); 
 
 router.get('/home',userAuth.isUserBlocked,userController.loadHome)
 router.get('/product/:id',userAuth.isUserBlocked, userController.detailedPage)
@@ -58,7 +58,7 @@ router.get('/cart/checkout',userAuth.isUserBlocked, userAuth.checkSession, check
 router.post('/create-payment',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.createPaymentOrder);
 router.post('/verify-payment',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.verifyPayment);
 router.post('/cart/checkout/place-order',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.placeOrder)
-router.get('/order-success/:orderId',userAuth.isUserBlocked, checkoutController.orderSuccess)
+router.get('/order-success/:orderId',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.orderSuccess)
 router.get('/order-failure',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.orderFailed)
 router.post('/payment-failed',userAuth.isUserBlocked, userAuth.checkSession, checkoutController.handleFailedPayment);
 
