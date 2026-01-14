@@ -84,17 +84,19 @@ const downloadReport = async (req, res) => {
             // Table Headers
             const tableTop = 200;
             const itemX = 30;
-            const dateX = 250;
-            const amountX = 400;
-            const paymentX = 480;
+            const dateX = 220;  
+            const amountX = 330;  
+            const discountX = 410;
+            const paymentX = 490;
 
-            doc.font('Helvetica-Bold');
+            doc.font('Helvetica-Bold').fontSize(10);
             doc.text('Product / Order ID', itemX, tableTop);
             doc.text('Date', dateX, tableTop);
             doc.text('Amount', amountX, tableTop);
+            doc.text('Discount', discountX, tableTop); 
             doc.text('Payment', paymentX, tableTop);
             
-            doc.moveTo(30, tableTop + 15).lineTo(565, tableTop + 15).stroke();
+           doc.moveTo(30, tableTop + 15).lineTo(565, tableTop + 15).stroke();
 
             // Table Rows
             let y = tableTop + 25;
@@ -118,7 +120,8 @@ const downloadReport = async (req, res) => {
                 
                 doc.fillColor('black').fontSize(9);
                 doc.text(new Date(order.date).toLocaleDateString(), dateX, y);
-                doc.text(`Rs.${Math.round(order.rowTotal)}`, amountX, y);
+                doc.text(`Rs.${Math.round(order.rowTotal)}`, amountX, y);      
+                doc.text(`Rs.${order.discount || 0}`, discountX, y);
                 doc.text(order.paymentMethod, paymentX, y);
 
                 y += 30;
@@ -143,6 +146,7 @@ const downloadReport = async (req, res) => {
                 { header: 'Quantity', key: 'qty', width: 10 },
                 { header: 'Unit Price', key: 'price', width: 15 },
                 { header: 'Total', key: 'total', width: 15 },
+                { header: 'Discount', key: 'discount', width: 15 },
                 { header: 'Payment', key: 'payment', width: 10 },
             ];
 
@@ -159,6 +163,7 @@ const downloadReport = async (req, res) => {
                         qty: item.quantity,
                         price: item.price,
                         total: item.price * item.quantity,
+                        discount: order.discount || 0,
                         payment: order.paymentMethod
                     });
                 });

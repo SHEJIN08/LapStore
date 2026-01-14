@@ -2,7 +2,6 @@ import Order from "../../model/orderModel.js";
 import Wallet from "../../model/walletModel.js";
 import walletTransactions from "../../model/walletTransactionsModel.js";
 import Variant from "../../model/variantModel.js";
-import { ResponseMessage } from "../../utils/statusCode.js";
 
 // --- GET ALL ORDERS (Filter, Search, Pagination) ---
 const getAllOrdersService = async ({ startDate, endDate, search, status, page = 1, limit = 4 }) => {
@@ -23,7 +22,7 @@ const getAllOrdersService = async ({ startDate, endDate, search, status, page = 
     }
 
     // 2. Status Filter
-    const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'];
+    const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled','Return Request' ,'Returned', 'Return Rejected'];
     if (validStatuses.includes(status)) {
         query.status = status;
     }
@@ -110,7 +109,9 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
     // --- OPTION 1: Handle Specific Item Return ---
     if (itemId) {
         const item = order.orderedItems.id(itemId);
-        if (!item) throw new Error("Item not found");   
+        if (!item) throw new Error("Item not found");
+        
+        order.status = 'Return Request';
 
         if (action === 'approve') {
          item.productStatus = 'Return Approved'

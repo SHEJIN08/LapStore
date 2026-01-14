@@ -14,23 +14,22 @@ const loginSchema = Joi.object({
   }),
 });
 
-
 const loadLogin = async (req, res) => {
   res.render("admin/login");
 };
 
-const login = async (req, res) => { 
+const login = async (req, res) => {
   try {
     //  Step 1: Validate input using Joi
     const { error } = loginSchema.validate(req.body, {
-        abortEarly: false,
-        allowUnknown: true
+      abortEarly: false,
+      allowUnknown: true,
     });
 
     if (error) {
       return res.status(StatusCode.BAD_REQUEST).json({
-          success: false, 
-          message: error.details[0].message
+        success: false,
+        message: error.details[0].message,
       });
     }
 
@@ -42,121 +41,134 @@ const login = async (req, res) => {
 
     // Step 4: Login success (Set Session)
     req.session.admin = admin._id;
-    
-    return res.status(StatusCode.OK).json({
-        success: true, 
-        message: ResponseMessage.LOGIN_SUCCESS
-    });
 
+    return res.status(StatusCode.OK).json({
+      success: true,
+      message: ResponseMessage.LOGIN_SUCCESS,
+    });
   } catch (error) {
     if (error.message === ResponseMessage.INVALID_CREDENTIALS) {
-        return res.status(StatusCode.UNAUTHORIZED).json({
-            success: false, 
-            message: ResponseMessage.INVALID_CREDENTIALS
-        });
+      return res.status(StatusCode.UNAUTHORIZED).json({
+        success: false,
+        message: ResponseMessage.INVALID_CREDENTIALS,
+      });
     }
 
     console.error("Admin Login Error:", error);
     return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
-        success: false, 
-        message: ResponseMessage.SERVER_ERROR
+      success: false,
+      message: ResponseMessage.SERVER_ERROR,
     });
   }
 };
 
-
 const loadDashboard = async (req, res) => {
- try {
-      const defaultFilter = { reportType: 'monthly' };
+  try {
+    const defaultFilter = { reportType: "monthly" };
 
-        // We fetch everything using the default filter (Monthly)
-        const [reportData, topProducts, topCategories, topBrands, countStatus, activeUserCount] = await Promise.all([
-            salesService.getSalesReportService({ ...defaultFilter, page: 1, limit: 5 }),
-            salesService.getBestSellingProducts(defaultFilter),
-            salesService.getBestSellingCategory(defaultFilter),
-            salesService.getBestSellingBrand(defaultFilter),
-            salesService.getOrderStatus(defaultFilter),
-            salesService.activeUsersCount()
-        ]);
+    // We fetch everything using the default filter (Monthly)
+    const [
+      reportData,
+      topProducts,
+      topCategories,
+      topBrands,
+      countStatus,
+      activeUserCount,
+    ] = await Promise.all([
+      salesService.getSalesReportService({
+        ...defaultFilter,
+        page: 1,
+        limit: 5,
+      }),
+      salesService.getBestSellingProducts(defaultFilter),
+      salesService.getBestSellingCategory(defaultFilter),
+      salesService.getBestSellingBrand(defaultFilter),
+      salesService.getOrderStatus(defaultFilter),
+      salesService.activeUsersCount(),
+    ]);
 
-        res.render('admin/dashboard', { 
-            summary: reportData.summary,       
-            chartData: reportData.chartData,   
-            orders: reportData.orders,
-            topProducts,
-            topCategories,
-            topBrands,
-            orderStatusData: countStatus,
-            activeUser: activeUserCount       
-        });
-
-    } catch (error) {
-        console.log("Dashboard Error:", error);
-        res.render('admin/error/500');
-    }
+    res.render("admin/dashboard", {
+      summary: reportData.summary,
+      chartData: reportData.chartData,
+      orders: reportData.orders,
+      topProducts,
+      topCategories,
+      topBrands,
+      orderStatusData: countStatus,
+      activeUser: activeUserCount,
+    });
+  } catch (error) {
+    console.log("Dashboard Error:", error);
+    res.render("admin/error/500");
+  }
 };
 
-const filterChartData = async (req,res) => {
+const filterChartData = async (req, res) => {
   try {
     const { filter } = req.query;
-    
-    const data = await salesService.getSalesChartData(filter)
+
+    const data = await salesService.getSalesChartData(filter);
 
     res.json(data);
   } catch (error) {
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success: false, message: ResponseMessage.SERVER_ERROR})
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
-}
+};
 
 const filterDashboardData = async (req, res) => {
-    try {
-        const { filter, startDate, endDate } = req.query;
-        
-        const queryFilter = { 
-            reportType: filter, 
-            startDate: startDate, 
-            endDate: endDate 
-        };
+  try {
+    const { filter, startDate, endDate } = req.query;
 
-        // Fetch ALL data in parallel with the new dates
-        const [reportData, topProducts, topCategories, topBrands, countStatus] = await Promise.all([
-            salesService.getSalesReportService({ ...queryFilter, page: 1, limit: 5 }),
-            salesService.getBestSellingProducts(queryFilter),
-            salesService.getBestSellingCategory(queryFilter),
-            salesService.getBestSellingBrand(queryFilter),
-            salesService.getOrderStatus(queryFilter)
-        ]);
+    const queryFilter = {
+      reportType: filter,
+      startDate: startDate,
+      endDate: endDate,
+    };
 
-        // Return JSON to the frontend
-        res.json({
-            success: true,
-            data: {
-                summary: reportData.summary,
-                chartData: reportData.chartData,
-                orders: reportData.orders,
-                topProducts,
-                topCategories,
-                topBrands,
-                orderStatusData: countStatus
-            }
-        });
+    // Fetch ALL data in parallel with the new dates
+    const [reportData, topProducts, topCategories, topBrands, countStatus] =
+      await Promise.all([
+        salesService.getSalesReportService({
+          ...queryFilter,
+          page: 1,
+          limit: 5,
+        }),
+        salesService.getBestSellingProducts(queryFilter),
+        salesService.getBestSellingCategory(queryFilter),
+        salesService.getBestSellingBrand(queryFilter),
+        salesService.getOrderStatus(queryFilter),
+      ]);
 
-    } catch (error) {
-        console.error("Filter API Error:", error);
-        res.status(500).json({ success: false, message: "Server Error" });
-    }
-}
+    // Return JSON to the frontend
+    res.json({
+      success: true,
+      data: {
+        summary: reportData.summary,
+        chartData: reportData.chartData,
+        orders: reportData.orders,
+        topProducts,
+        topCategories,
+        topBrands,
+        orderStatusData: countStatus,
+      },
+    });
+  } catch (error) {
+    console.error("Filter API Error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
 
 const logout = async (req, res) => {
   try {
     delete req.session.admin;
-    res.redirect('/admin/login');
+    res.redirect("/admin/login");
   } catch (error) {
     console.error("Logout Error:", error);
-    res.redirect('/admin/login');
+    res.redirect("/admin/login");
   }
 };
-
 
 const authController = {
   loadDashboard,

@@ -205,29 +205,35 @@
                                                 <p class="specs">Qty: <%= item.quantity %></p>
 
                                                 <% 
-                                                    // --- LOGIC TO DETERMINE STATUS DISPLAY ---
-                                                    let displayStatus = item.productStatus;
+                                                    // 1. Get the specific status of this item
+                                                    let displayStatus = item.productStatus; 
                                                     let badgeClass = '';
 
-                                                    // 1. If item has a specific status, use it
+                                                    // 2. Map statuses to specific CSS classes
                                                     if (displayStatus === 'Cancelled') {
-                                                        badgeClass = 'status-cancelled';
+                                                        badgeClass = 'status-cancelled'; // Red
                                                     } 
                                                     else if (displayStatus === 'Returned') {
-                                                        badgeClass = 'status-returned'; // You might need to add CSS for this
+                                                        badgeClass = 'status-returned'; // Blue/Grey
                                                     } 
                                                     else if (displayStatus === 'Return Request') {
-                                                        badgeClass = 'status-pending';
+                                                        badgeClass = 'status-pending'; // Orange/Yellow
                                                     }
-                                                    // 2. If item status is generic ('Ordered'), inherit the main Order Status
+                                                    else if (displayStatus === 'Return Rejected') {
+                                                        badgeClass = 'status-cancelled'; // Red or a new color
+                                                        displayStatus = 'Return Rejected';
+                                                    }
+                                                    // 3. Handle Active/Default statuses
                                                     else {
-                                                        // If the main order is Delivered, this item is Delivered
-                                                        if (order.status === 'Delivered' || order.status === 'Return Request') {
+                                                        // If the individual item is "Ordered" or "Pending", 
+                                                        // it should show the progress of the overall order
+                                                        if (order.status === 'Delivered') {
                                                             displayStatus = 'Delivered';
                                                             badgeClass = 'status-active'; // Green
-                                                        } 
-                                                        // Fallback for Shipped, Processing, etc.
-                                                        else {
+                                                        } else if (order.status === 'Cancelled') {
+                                                            displayStatus = 'Cancelled';
+                                                            badgeClass = 'status-cancelled';
+                                                        } else {
                                                             displayStatus = order.status;
                                                             badgeClass = 'status-active';
                                                         }
@@ -244,34 +250,23 @@
                                             ₹<%= item.price.toLocaleString() %>
                                         </div>
 
-                                        <div class="item-actions">
-
-                                            <% if (item.status==='Cancelled' ) { %>
-                                                <button disabled
-                                                    style="opacity: 0.5; cursor: not-allowed; background: #eee; color: #333; padding: 5px 10px; border: none; border-radius: 5px;">Cancelled</button>
-
-                                                <% } else if (item.status==='Returned' ) { %>
-                                                    <button disabled
-                                                        style="opacity: 0.5; cursor: not-allowed; background: #eee; color: #333; padding: 5px 10px; border: none; border-radius: 5px;">Returned</button>
-
-                                                    <% } else { %>
-
-                                                        <% if (['Pending', 'Processing' ].includes(order.status)) { %>
-                                                            <button class="btn-cancel"
-                                                                style="padding: 6px 12px; font-size: 12px;"
-                                                                onclick="cancelItem('<%= order._id %>', '<%= item._id %>')">
-                                                                Cancel Item
-                                                            </button>
-                                                            <% } else if (order.status==='Delivered' && item.productStatus !== 'Cancelled' && item.productStatus !== 'Returned'  ) { %>
-                                                                <button class="btn-return"
-                                                                    style="padding: 6px 12px; font-size: 12px;"
-                                                                    onclick="openReturnModal('<%= order._id %>', '<%= item._id %>')">
-                                                                    Return Item
-                                                                </button>
-                                                                <% } %> </button>
-                                                             <%   } %>
-                                                                  
-                                        </div>
+                                    <div class="item-actions">
+                                        <% if (item.productStatus === 'Cancelled') { %>
+                                            <button disabled class="btn-disabled">Cancelled</button>
+                                        <% } else if (item.productStatus === 'Returned') { %>
+                                            <button disabled class="btn-disabled">Returned</button>
+                                        <% } else if (item.productStatus === 'Return Rejected') { %>
+                                            <button  class="btn-disabled" style=" background-color: rgb(255, 224, 224);color: #b91c1c;border: none;padding: 10px;border-radius: 9px;">Return Rejected</button>
+                                        <% } else if (item.productStatus === 'Return Request') { %>
+                                            <button disabled class="btn-disabled">Return Pending</button>
+                                        <% } else { %>
+                                            <% if (['Pending', 'Processing'].includes(order.status)) { %>
+                                                <button class="btn-cancel" onclick="cancelItem('<%= order._id %>', '<%= item._id %>')">Cancel Item</button>
+                                            <% } else if (order.status === 'Delivered') { %>
+                                                <button class="btn-return" onclick="openReturnModal('<%= order._id %>', '<%= item._id %>')" style="height: 42px;">Return Item</button>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
 
                                     </div>
                                     <% }) %>
@@ -326,10 +321,14 @@
                                     <span>₹<%= order.totalPrice.toLocaleString() %></span>
                                 </div>
                                 <div class="row">
-                                    <span>Shipping + Tax</span>
-                                    <span class="<%= order.finalAmount - order.totalPrice <= 0 ? 'free' : '' %>">
-                                        <%= order.finalAmount - order.totalPrice <=0 ? 'Free' : '₹' + (order.finalAmount
-                                            - order.totalPrice).toFixed(0)%>
+                                    <span>Shipping</span>
+                                    <span class="<%= order.totalPrice >= 100000 ? 'free' : '' %>">
+                                        <%= order.totalPrice >= 100000 ? 'Free' : '₹' + 100 %>
+                                       
+                                    </span>
+                                    <span>Tax</span>
+                                    <span class="<%= order.totalPrice * .05 %>">
+                                        <%= '₹' + Math.round(order.totalPrice * .05) %>
                                     </span>
                                 </div>
                                 <% if(order.discount> 0) { %>
@@ -339,7 +338,7 @@
                                     </div>
                                     <% } %>
                                         <div class="row total">
-                                            <span>Total</span>
+                                            <span>Total Amount</span>
                                             <span>₹<%= Math.round(order.finalAmount).toLocaleString() %></span>
                                         </div>
                             </div>

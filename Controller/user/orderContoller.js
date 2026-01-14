@@ -7,12 +7,16 @@ import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 const loadOrders = async (req, res) => {
   try {
     const userId = req.session.user;
-    const { status, page, search } = req.query;
+    const status = req.query.status || "All";
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
+    const search = req.query.search || "";
 
     const data = await orderService.getUserOrdersService({
         userId,
         status,
         page,
+        limit,
         search
     });
 
@@ -23,8 +27,8 @@ const loadOrders = async (req, res) => {
       orders: data.orders,
       currentPage: data.currentPage,
       totalPages: data.totalPages,
-      currentSearch: search || "",
-      currentStatus: status || "All",
+      currentSearch: search,
+      currentStatus: status,
       totalOrders: data.totalOrders,
     });
   } catch (error) {
@@ -42,7 +46,7 @@ const orderDetailedPage = async (req, res) => {
     }
     
     const order = await orderService.getOrderByIdService(orderId);
-    // Note: service populates userId, so we can access user data from order.userId
+    //  service populates userId, so we can access user data from order.userId
     const user = order.userId; 
 
     res.render("user/orderDetails", { user, order });

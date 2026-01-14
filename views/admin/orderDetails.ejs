@@ -199,10 +199,13 @@
                                                 <span>₹<%= order.totalPrice.toLocaleString() %></span>
                                             </div>
                                             <div class="summary-row">
-                                                <span>Shipping + Tax</span>  
-                                                <span>₹<%= (order.finalAmount - order.totalPrice +
-                                                        order.discount).toFixed(0) %>
-                                                </span>
+                                                <span>Shipping</span>  
+                                                <span><%= order.totalPrice >= 100000 ? 'Free' : '₹' + 100 %>
+                                                </span> 
+                                            <span>Tax</span>
+                                            <span>
+                                                <%= '₹' + Math.round(order.totalPrice * .05) %>
+                                            </span>
                                             </div>
                                             <div class="summary-row">
                                                 <span>Discount</span>

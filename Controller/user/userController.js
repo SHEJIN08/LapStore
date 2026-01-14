@@ -122,6 +122,21 @@ const shopPage = async (req, res) => {
   }
 };
 
+const aboutUs = async (req,res) => {
+  try {
+    res.render('user/aboutUs')
+  } catch (error) {
+    console.error(error)
+  }
+}
+const contactUs = async (req,res) => {
+  try {
+    res.render('user/contactUs')
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 // --- LOGOUT ---
 const logout = async (req, res) => {
     try {
@@ -133,4 +148,4 @@ const logout = async (req, res) => {
     }
 };
 
-export default { loadHome, logout, detailedPage, shopPage };
+export default { loadHome, logout, detailedPage, shopPage, aboutUs, contactUs };

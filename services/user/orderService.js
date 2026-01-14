@@ -3,24 +3,28 @@ import Variant from "../../model/variantModel.js";
 import Wallet from "../../model/walletModel.js";
 import walletTransactions from "../../model/walletTransactionsModel.js";
 import PDFDocument from "pdfkit";
-import { ResponseMessage } from "../../utils/statusCode.js";
 
- const processRefundToWallet = async (userId, amount, orderId, itemDetails = "") => {
-    let wallet = await Wallet.findOne({ userId });
-    if (!wallet) {
-        wallet = new Wallet({ userId, balance: 0 });
-    }
-    wallet.balance += amount;
-    await wallet.save();
 
+const processRefundToWallet = async (userId, amount, orderId, itemDetails = "") => {
+    // This increases balance and creates the transaction log in one step
+    const updatedWallet = await Wallet.findOneAndUpdate(
+        { userId },
+        { $inc: { balance: amount } },
+        { upsert: true, new: true } // Create wallet if it doesn't exist
+    );
+
+    // Log the Transaction with the Wallet ID
     await walletTransactions.create({
         userId,
-        walletId: wallet._id,
+        walletId: updatedWallet._id,
         amount,
         type: 'credit',
         reason: 'refund',
-        description: `Refund for Cancelled Order/Item #${orderId} ${itemDetails}`
+        description: `Refund for Cancelled Order/Item #${orderId} ${itemDetails}`,
+        date: new Date()
     });
+
+    return updatedWallet;
 };
 
 // --- GET USER ORDERS (Paginated & Search) ---
@@ -82,55 +86,70 @@ const cancelOrderService = async ({ orderId, itemId, reason }) => {
     const SHIPPING_FEE = 100;
 
     // --- CASE A: PARTIAL CANCEL (Specific Item) ---
-    if (itemId) {
-        const item = order.orderedItems.id(itemId);
-        if (!item) throw new Error("Item not found");
+// --- CASE A: PARTIAL CANCEL (Specific Item) ---
+if (itemId) {
+    const item = order.orderedItems.id(itemId);
+    if (!item) throw new Error("Item not found");
 
-        if (item.productStatus === "Cancelled" || item.productStatus === "Delivered") {
-            throw new Error("Item cannot be cancelled");
+    if (item.productStatus === "Cancelled" || item.productStatus === "Delivered") {
+        throw new Error("Item cannot be cancelled");
+    }
+
+    // 1. Restock
+    await Variant.findByIdAndUpdate(item.variantId, { $inc: { stock: item.quantity } });
+
+    // 2. Identify if this is the last item
+    const activeItemsBeforeCancel = order.orderedItems.filter(i => i.productStatus !== "Cancelled");
+    const isLastItem = activeItemsBeforeCancel.length === 1;
+
+    // 3. Calculate Item Values
+    const itemSubtotal = item.price * item.quantity;
+    const itemTax = Math.round(itemSubtotal * TAX_RATE);
+
+    // 4. Financials (Refund Logic)
+    if (order.paymentStatus === "Paid") {
+        let refundAmount = itemSubtotal + itemTax;
+
+        // If it's the last item, we MUST refund the shipping fee too 
+        // because the user is now getting NO products.
+        if (isLastItem && order.totalPrice < SHIPPING_THRESHOLD) {
+            refundAmount += SHIPPING_FEE;
         }
 
-        // 1. Restock
-        await Variant.findByIdAndUpdate(item.variantId, { $inc: { stock: item.quantity } });
+        await processRefundToWallet(order.userId, Math.round(refundAmount), order.orderId, `(${item.productName})`);
+    }
 
-        // 2. Calculate Refund
-        const itemBasePrice = item.price * item.quantity;
-        const priceAfterTax = itemBasePrice + (itemBasePrice * TAX_RATE);
-        const shippingRefund = priceAfterTax > 100000 ? 0 : 100;
-        const refundAmount = priceAfterTax + shippingRefund;
+    // 5. Update the Order Document
+    item.productStatus = "Cancelled";
 
-        // 3. Financials
-        if (order.paymentStatus === "Paid") {
-            // Refund Logic (Wallet) would go here
-         await processRefundToWallet(order.userId, refundAmount, order.orderId, `(${item.productName})`)
-        } else if (order.paymentMethod === "COD") {
-            let newTotalPrice = Math.max(0, order.totalPrice - refundAmount);
-            let newTax = Math.round(newTotalPrice * TAX_RATE);
-            let newShippingFee = (newTotalPrice > 0 && newTotalPrice < SHIPPING_THRESHOLD) ? SHIPPING_FEE : 0;
+    const activeItemsAfterCancel = order.orderedItems.filter(i => i.productStatus !== "Cancelled");
+    const newSubtotal = activeItemsAfterCancel.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    const newTax = Math.round(newSubtotal * TAX_RATE);
+    
+    // Shipping is only ₹100 if there are items left and subtotal is below threshold
+    const newShipping = (newSubtotal > 0 && newSubtotal < SHIPPING_THRESHOLD) ? SHIPPING_FEE : 0;
 
-            order.totalPrice = newTotalPrice;
-            order.finalAmount = Math.max(0, newTotalPrice + newTax + newShippingFee - (order.discount || 0));
-        }
-
-        item.productStatus = "Cancelled";
-
-        // 4. Check if Order is Fully Cancelled
-        const allCancelled = order.orderedItems.every(i => i.productStatus === "Cancelled");
-        if (allCancelled) {
-            order.status = "Cancelled";
-            order.cancellationReason = "All items cancelled individually";
-            if (order.paymentMethod === "COD") order.finalAmount = 0;
-        } else {
-            order.orderHistory.push({
-                status: "Item Cancelled",
-                date: new Date(),
-                comment: `Item ${item.productName} cancelled. Reason: ${reason || "User Request"}`
-            });
-        }
+    order.totalPrice = newSubtotal;
+    
+    // If no items left, finalAmount must be 0
+    if (activeItemsAfterCancel.length === 0) {
+        order.finalAmount = 0;
+        order.status = "Cancelled";
+        order.cancellationReason = "All items cancelled individually";
+    } else {
+        // Recalculate based on remaining items minus the original discount
+        order.finalAmount = Math.max(0, (newSubtotal + newTax + newShipping) - (order.discount || 0));
         
-        await order.save();
-        return "Item cancelled successfully";
-    } 
+        order.orderHistory.push({
+            status: "Item Cancelled",
+            date: new Date(),
+            comment: `Item ${item.productName} cancelled. Reason: ${reason || "User Request"}`
+        });
+    }
+    
+    await order.save();
+    return "Item cancelled successfully";
+}
     
     // --- CASE B: FULL ORDER CANCEL ---
     else {
@@ -222,49 +241,44 @@ const returnOrderService = async ({ orderId, itemId, returnType, reason, comment
 const generateInvoiceService = async (orderId) => {
     const order = await Order.findById(orderId);
     if (!order) throw new Error("Order not found");
+    // Only include items that are NOT cancelled
+    const activeItems = order.orderedItems.filter(item => item.productStatus !== 'Cancelled');
 
     const doc = new PDFDocument({ margin: 50 });
     const filename = `invoice-${order.orderId}.pdf`;
 
     // --- PDF CONTENT ---
-    
-    // Header
     doc.fontSize(20).text("INVOICE", { align: "center" });
     doc.moveDown();
     
-    // Order Details (Top Right)
     doc.fontSize(10).text(`Order ID: ${order.orderId}`, { align: "right" });
     doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, { align: "right" });
     doc.moveDown();
 
-    // Billing Info (Left)
     doc.text(`Bill To:`, 50, 150);
     doc.font("Helvetica-Bold").text(order.address.fullName, 50, 165);
     doc.font("Helvetica").text(order.address.address1, 50, 180);
     doc.text(`${order.address.city}, ${order.address.state} ${order.address.pincode}`, 50, 195);
     doc.text(`Phone: ${order.address.phone}`, 50, 210);
 
-    doc.moveDown();
     const tableTop = 250;
-
-    // Table Headers
     doc.font("Helvetica-Bold");
     doc.text("Item", 50, tableTop);
     doc.text("Quantity", 300, tableTop, { width: 90, align: "right" });
     doc.text("Price", 400, tableTop, { width: 90, align: "right" });
     doc.text("Total", 500, tableTop, { width: 90, align: "right" }); 
 
-    // Header Line
     doc.moveTo(50, tableTop + 15).lineTo(590, tableTop + 15).stroke();
 
     let yPosition = tableTop + 30;
+    let recalculatedSubtotal = 0; // Track subtotal of non-cancelled items
     doc.font("Helvetica");
 
-    // Table Rows
-    order.orderedItems.forEach((item) => {
-        const totalPrice = item.price * item.quantity;
+    // ---  RENDER FILTERED ITEMS ---
+    activeItems.forEach((item) => {
+        const itemTotal = item.price * item.quantity;
+        recalculatedSubtotal += itemTotal;
 
-        // Truncate long names to prevent overlap
         const productName = item.productName.length > 40 
             ? item.productName.substring(0, 37) + "..." 
             : item.productName;
@@ -272,52 +286,50 @@ const generateInvoiceService = async (orderId) => {
         doc.text(productName, 50, yPosition, { width: 250 });
         doc.text(item.quantity.toString(), 300, yPosition, { width: 90, align: "right" });
         doc.text(`Rs.${item.price.toLocaleString()}`, 400, yPosition, { width: 90, align: "right" });
-        doc.text(`Rs.${totalPrice.toLocaleString()}`, 500, yPosition, { width: 90, align: "right" });
+        doc.text(`Rs.${itemTotal.toLocaleString()}`, 500, yPosition, { width: 90, align: "right" });
 
         yPosition += 20;
     });
 
-   // Bottom Line
     doc.moveTo(50, yPosition + 10).lineTo(590, yPosition + 10).stroke();
 
-    // --- FIX: Initialize currentY here ---
     let currentY = yPosition + 30; 
     doc.font("Helvetica-Bold");
 
-    // 1. Subtotal
+    // ---  SUMMARY CALCULATIONS ---
+    // Subtotal
     doc.text("Subtotal:", 400, currentY, { width: 90, align: "right" });
-    doc.font("Helvetica").text(`Rs.${order.totalPrice.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
+    doc.font("Helvetica").text(`Rs.${recalculatedSubtotal.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
 
-    // 2. Tax (5%)
+    // Tax (5% of recalculated subtotal)
     currentY += 15;
-    const taxAmount = order.totalPrice * 0.05;
+    const taxAmount = Math.round(recalculatedSubtotal * 0.05);
     doc.font("Helvetica-Bold").text("Tax (5%):", 400, currentY, { width: 90, align: "right" });
     doc.font("Helvetica").text(`Rs.${taxAmount.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
 
-    // 3. Shipping Fee
+    // Shipping
     currentY += 15;
-    const shippingFee = order.totalPrice < 100000 ? 100 : 0;
+    const shippingFee = recalculatedSubtotal < 100000 && recalculatedSubtotal > 0 ? 100 : 0;
     doc.font("Helvetica-Bold").text("Shipping:", 400, currentY, { width: 90, align: "right" });
     doc.font("Helvetica").text(`Rs.${shippingFee.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
 
-    // 4. Discount
+    // Discount (Use existing order discount)
     if (order.discount > 0) {
         currentY += 15;
         doc.font("Helvetica-Bold").text("Discount:", 400, currentY, { width: 90, align: "right" });
         doc.font("Helvetica").text(`-Rs.${order.discount.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
     }
 
-    // 5. Grand Total
+    // Grand Total (Note: This should match your DB finalAmount if handled correctly during cancellation)
     currentY += 25; 
+    const finalDisplayTotal = (recalculatedSubtotal + taxAmount + shippingFee) - (order.discount || 0);
+    
     doc.fontSize(12).font("Helvetica-Bold").text("Grand Total:", 400, currentY, { width: 90, align: "right" });
-    doc.text(`Rs.${order.finalAmount.toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
+    doc.text(`Rs.${Math.max(0, finalDisplayTotal).toLocaleString()}`, 500, currentY, { width: 90, align: "right" });
 
-    // Footer
     doc.fontSize(10).font("Helvetica").text("Thank you for your business!", 50, 700, { align: "center", width: 500 });
 
     doc.end();
-    
-    // Return the stream and filename (Do not use res here)
     return { doc, filename };
 };
 

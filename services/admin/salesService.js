@@ -298,6 +298,10 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
             end.setHours(23, 59, 59, 999)
         }
 
+        const totalOrderCountResult = await Order.countDocuments({
+            createdAt: { $gte: start, $lte: end }
+        });
+
         const commonPipeline = [
             {$match: {createdAt: {$gte: start, $lte: end}}},
             {$unwind: '$orderedItems'},
@@ -349,7 +353,6 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
             {
                 $group: {
                     _id: null,
-                    totalOrders: { $sum: 1 },
                     totalSales: { $sum: "$finalOrderRevenue" },
                     totalItemsSold: { $sum: "$totalItemsInOrder" },
                     totalDiscount: { $sum: "$orderTotalDiscount" }
@@ -359,7 +362,7 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
         ])
 
         const summary = {
-         totalOrders: stats[0] ? stats[0].totalOrders : 0,
+         totalOrders:totalOrderCountResult,
             totalSales: stats[0] ? stats[0].totalSales : 0,
             totalDiscount: stats[0] ? stats[0].totalDiscount : 0,
             totalItems: stats[0] ? stats[0].totalItemsSold : 0
@@ -436,7 +439,7 @@ const getSalesReportService = async ({ reportType, startDate, endDate, page = 1,
         const totalCount = tableData[0].metadata[0] ? tableData[0].metadata[0].total : 0;
         const totalPages = Math.ceil(totalCount / limit);
 
-        summary.totalOrders = totalCount;
+        summary.totalOrders = totalOrderCountResult;
 
         const chartResult = await getSalesChartData(reportType);
 

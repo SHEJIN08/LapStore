@@ -86,6 +86,8 @@ router.get('/home/referral',userAuth.isUserBlocked, userAuth.checkSession, refer
 router.post('/product/reviews/add', userAuth.isUserBlocked, userAuth.checkSession, reviewController.addReview)
 router.get('/product/:productId', reviewController.getProductReviews)
 
+router.get('/aboutUs', userController.aboutUs)
+router.get('/contactUs', userController.contactUs)
 
 router.get('/logout',userAuth.checkSession,userController.logout);
 

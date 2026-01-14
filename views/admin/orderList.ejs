@@ -40,6 +40,8 @@
                     <option value="Delivered" <%= (locals.currentStatus === 'Delivered') ? 'selected' : '' %>>Status: Delivered</option>
                     <option value="Cancelled" <%= (locals.currentStatus === 'Cancelled') ? 'selected' : '' %>>Status: Cancelled</option>
                     <option value="Returned" <%= (locals.currentStatus === 'Returned') ? 'selected' : '' %>>Status: Returned</option>
+                     <option value="Return Request" <%= (locals.currentStatus === 'Return Request') ? 'selected' : '' %>>Status: Return Request</option>
+                    <option value="Return Rejected" <%= (locals.currentStatus === 'Return Rejected') ? 'selected' : '' %>>Status: Return Rejected</option>
                 </select>
                 <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
             </div>
@@ -122,20 +124,34 @@
                             </tbody>
                         </table>
 
-                        <div class="pagination-controls">
-                            <% if (currentPage> 1) { %>
-                                <a href="/admin/orders?page=<%= currentPage - 1 %>" class="btn prev-btn">Previous</a>
-                                <% } else { %>
-                                    <button class="btn prev-btn disabled-link" disabled>Previous</button>
-                                    <% } %>
+                       <div class="pagination-controls">
+                        <% 
+                            // Create a helper to build the URL with existing filters
+                            const getPaginatedUrl = (pageNum) => {
+                                let params = new URLSearchParams();
+                                params.append('page', pageNum);
+                                if (locals.currentStatus) params.append('status', currentStatus);
+                                if (locals.currentSearch) params.append('search', currentSearch);
+                                if (locals.startDate) params.append('startDate', startDate);
+                                if (locals.endDate) params.append('endDate', endDate);
+                                return '/admin/orders?' + params.toString();
+                            };
+                        %>
 
-                                        <% if (currentPage < totalPages) { %>
-                                            <a href="/admin/orders?page=<%= currentPage + 1 %>"
-                                                class="btn btn-primary next-btn">Next</a>
-                                            <% } else { %>
-                                                <button class="btn btn-primary next-btn" disabled>Next</button>
-                                                <% } %>
-                        </div>
+                        <% if (currentPage > 1) { %>
+                            <a href="<%= getPaginatedUrl(currentPage - 1) %>" class="btn prev-btn">Previous</a>
+                        <% } else { %>
+                            <button class="btn prev-btn disabled-link" disabled>Previous</button>
+                        <% } %>
+
+                        <span class="page-info">Page <%= currentPage %> of <%= totalPages %></span>
+
+                        <% if (currentPage < totalPages) { %>
+                            <a href="<%= getPaginatedUrl(currentPage + 1) %>" class="btn btn-primary next-btn">Next</a>
+                        <% } else { %>
+                            <button class="btn btn-primary next-btn" disabled>Next</button>
+                        <% } %>
+                    </div>
                     </section>
 
                 </main>
