@@ -1,5 +1,5 @@
 import cartService from "../../services/user/cartService.js";
-import User from '../../model/userModel.js';
+import User from "../../model/userModel.js";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
 const loadCart = async (req, res) => {
@@ -11,64 +11,89 @@ const loadCart = async (req, res) => {
     const limit = 3;
 
     const allCartItems = await cartService.getAllCartItems(userId);
-    const { subtotal, tax, shipping, total } = cartService.calculateTotals(allCartItems);
+    const { subtotal, tax, shipping, total } =
+      cartService.calculateTotals(allCartItems);
 
-    const cartItems = await cartService.getPaginatedCartItems(userId, page, limit);
+    const cartItems = await cartService.getPaginatedCartItems(
+      userId,
+      page,
+      limit
+    );
 
     const totalItems = allCartItems.length;
     const totalPages = Math.ceil(totalItems / limit);
 
     //  Handle AJAX vs Standard Request
     if (req.query.ajax) {
-        return res.render("user/partials/cart-items-list", { 
-            cartItems: cartItems, 
-            layout: false 
-        }, (err, html) => {
-            if (err) throw err;
-            return res.json({
-                success: true,
-                html: html,
-                summary: { subtotal, tax, shipping, total },
-                totalPages: totalPages,
-                currentPage: page
-            });
-        });
+      return res.render(
+        "user/partials/cart-items-list",
+        {
+          cartItems: cartItems,
+          layout: false,
+        },
+        (err, html) => {
+          if (err) throw err;
+          return res.json({
+            success: true,
+            html: html,
+            summary: { subtotal, tax, shipping, total },
+            totalPages: totalPages,
+            currentPage: page,
+          });
+        }
+      );
     }
 
     // Standard Render
     res.render("user/cart", {
-        user,
-        cartItems,
-        subtotal, tax, shipping, total,
-        totalPages,
-        currentPage: page,
+      user,
+      cartItems,
+      subtotal,
+      tax,
+      shipping,
+      total,
+      totalPages,
+      currentPage: page,
     });
-
   } catch (error) {
     console.error("Load Cart Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({success:false, message: ResponseMessage.SERVER_ERROR});
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
-
 
 const addToCart = async (req, res) => {
   try {
     const userId = req.session.user;
-    if(!userId) return res.status(StatusCode.UNAUTHORIZED).json({success: false, message: ResponseMessage.UNAUTHORIZED});
+    if (!userId)
+      return res
+        .status(StatusCode.UNAUTHORIZED)
+        .json({ success: false, message: ResponseMessage.UNAUTHORIZED });
 
     const { productId, variantId, quantity } = req.body;
 
-    const message = await cartService.addToCartService(userId, productId, variantId, quantity);
+    const message = await cartService.addToCartService(
+      userId,
+      productId,
+      variantId,
+      quantity
+    );
 
     res.json({ success: true, message });
-
   } catch (error) {
-    if (error.message.includes("stock") || error.message.includes("left") || error.message.includes("found")) {
-         return res.json({ success: false, message: error.message });
+    if (
+      error.message.includes("stock") ||
+      error.message.includes("left") ||
+      error.message.includes("found")
+    ) {
+      return res.json({ success: false, message: error.message });
     }
 
     console.error("Add Cart Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server error" });
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "Server error" });
   }
 };
 
@@ -76,38 +101,42 @@ const addToCart = async (req, res) => {
 const updateCartQuantity = async (req, res) => {
   try {
     const { cartId, action } = req.body;
-    
-    await cartService.updateQuantityService(cartId, action);
-    
-    res.json({ success: true, message: "Quantity updated" });
 
+    await cartService.updateQuantityService(cartId, action);
+
+    res.json({ success: true, message: "Quantity updated" });
   } catch (error) {
     if (error.message === "Out of stock" || error.message.includes("Max")) {
-        return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.message });
+      return res
+        .status(StatusCode.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
     if (error.message === "Item not found") {
-        return res.status(StatusCode.NOT_FOUND).json({ success: false, message: error.message });
+      return res
+        .status(StatusCode.NOT_FOUND)
+        .json({ success: false, message: error.message });
     }
 
     console.error("Update Qty Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR});
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
-
 
 const removeFromCart = async (req, res) => {
   try {
     const { cartId } = req.body;
-    
+
     await cartService.removeFromCartService(cartId);
 
     res.json({ success: true, message: "Item removed" });
-
   } catch (error) {
     console.error("Remove Item Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR});
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
-
-export default { loadCart, addToCart, updateCartQuantity, removeFromCart};
+export default { loadCart, addToCart, updateCartQuantity, removeFromCart };

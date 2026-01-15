@@ -1,10 +1,10 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
-import nodeMailer from './nodeMailer.js';
+import nodeMailer from "./nodeMailer.js";
 
 import UserOtpVerification from "../model/otpModel.js";
 
-const transporter = nodeMailer.transporter; 
+const transporter = nodeMailer.transporter;
 
 export const sendOtp = async (email) => {
   try {
@@ -17,7 +17,7 @@ export const sendOtp = async (email) => {
     await UserOtpVerification.create({
       email: email,
       otpCode: otp,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     // Send OTP email
@@ -28,12 +28,11 @@ export const sendOtp = async (email) => {
       html: `
         <h2>Your OTP is: <b>${otp}</b></h2>
         <p>This OTP is valid for 1 minutes.</p>
-      `
+      `,
     });
 
     console.log("OTP sent and saved:", otp);
     return otp;
-
   } catch (err) {
     console.error("Error sending OTP:", err);
     return null;

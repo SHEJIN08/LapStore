@@ -1,29 +1,29 @@
 import mongoose from "mongoose";
 
-const refferalSchema = new mongoose.Schema({
+const refferalSchema = new mongoose.Schema(
+  {
     referrerId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true // The person who shared the code 
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true, // The person who shared the code
     },
     refereeId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true // The new person who joined 
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true, // The new person who joined
     },
     status: {
-        type: String,
-        enum: ['Pending', 'Completed'],
-        default: 'Pending'
+      type: String,
+      enum: ["Pending", "Completed"],
+      default: "Pending",
     },
     referralAmount: {
-        type: Number,
-        required: true,
-        default: 100
+      type: Number,
+      required: true,
+      default: 100,
     },
-},
-{timestamps: true},
-)
+  },
+  { timestamps: true }
+);
 
-
-export default mongoose.model('Referral', refferalSchema)
+export default mongoose.model("Referral", refferalSchema);

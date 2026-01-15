@@ -1,53 +1,56 @@
 import mongoose from "mongoose";
 
-const offerSchema = new mongoose.Schema({
+const offerSchema = new mongoose.Schema(
+  {
     offerType: {
-        type: String,
-        enum: ['product', 'category'],
-        required: true
+      type: String,
+      enum: ["product", "category"],
+      required: true,
     },
     offerName: {
-        type: String,
-        required: true,
-        trim: true
+      type: String,
+      required: true,
+      trim: true,
     },
     discountType: {
-        type: String,
-        enum: ['percentage', 'fixed'],
-        required: true
+      type: String,
+      enum: ["percentage", "fixed"],
+      required: true,
     },
     discountValue: {
-        type: Number,
-        required: true,
-        min: 1
+      type: Number,
+      required: true,
+      min: 1,
     },
-    productIds: [{
+    productIds: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product'
-    }],
+        ref: "Product",
+      },
+    ],
     categoryId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category'
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
     },
     usageCount: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
     startDate: {
-        type: Date,
-        required: true
+      type: Date,
+      required: true,
     },
     endDate: {
-        type: Date,
-        required: true
+      type: Date,
+      required: true,
     },
     isActive: {
-        type: Boolean,
-        default: true
-    }
-},
-{timestamps: true}
-)   
+      type: Boolean,
+      default: true,
+    },
+  },
+  { timestamps: true }
+);
 
 offerSchema.pre("validate", function (next) {
   if (this.endDate < this.startDate) {
@@ -67,13 +70,16 @@ offerSchema.pre("save", function (next) {
 });
 
 offerSchema.pre("save", function (next) {
-    if (this.offerType === 'category' && !this.categoryId) {
-        next(new Error("Category offers require a categoryId"));
-    } else if (this.offerType === 'product' && (!this.productIds || this.productIds.length === 0)) {
-        next(new Error("Product offers require at least one productId"));
-    } else {
-        next();
-    }
+  if (this.offerType === "category" && !this.categoryId) {
+    next(new Error("Category offers require a categoryId"));
+  } else if (
+    this.offerType === "product" &&
+    (!this.productIds || this.productIds.length === 0)
+  ) {
+    next(new Error("Product offers require at least one productId"));
+  } else {
+    next();
+  }
 });
 
 export default mongoose.model("Offer", offerSchema);

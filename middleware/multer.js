@@ -10,9 +10,10 @@ const require = createRequire(import.meta.url);
 // We load the library into a temporary variable first
 const multerStorageCloudinary = require("multer-storage-cloudinary");
 
-// We try to find the class in the two most common places. 
+// We try to find the class in the two most common places.
 // If the first one is undefined, it falls back to the second.
-const CloudinaryStorage = multerStorageCloudinary.CloudinaryStorage || multerStorageCloudinary;
+const CloudinaryStorage =
+  multerStorageCloudinary.CloudinaryStorage || multerStorageCloudinary;
 // -----------------------------
 
 // Load environment variables
@@ -27,7 +28,7 @@ cloudinary.config({
 
 // 2. Configure Cloud Storage
 const storage = new CloudinaryStorage({
-   cloudinary: { v2: cloudinary },
+  cloudinary: { v2: cloudinary },
   params: {
     folder: "ecommerce-uploads",
     allowed_formats: ["jpg", "png", "jpeg", "webp"],

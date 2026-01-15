@@ -1,86 +1,93 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/admin/add-brand.css">
+    <link rel="stylesheet" href="/css/admin/add-brand.css">
 
-<body>
-    <div class="dashboard-container">
-        
-        <%- include('../partials/sidebar', { activePage: 'brands' }) %>
+    <body>
+        <div class="dashboard-container">
 
-        <main class="main-content">
-            <header class="main-header">
-                <div class="header-title">
-                    <h2>Add New Brand</h2>
-                    <p>Create a new brand entry.</p>
-                </div>
-            </header>
+            <%- include('../partials/sidebar', { activePage: 'brands' }) %>
 
-           <div class="card form-card">
-                <form id="addBrandForm" enctype="multipart/form-data">
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="brandName">Brand Name <span class="required">*</span></label>
-                            <input type="text" id="brandName" name="brandName" placeholder="e.g. Dell" required>
+                <main class="main-content">
+                    <header class="main-header">
+                        <div class="header-title">
+                            <h2>Add New Brand</h2>
+                            <p>Create a new brand entry.</p>
                         </div>
-                        <div class="form-group">
-                            <label for="brandCountry">Country <span class="required">*</span></label>
-                            <input type="text" id="brandCountry" name="country" placeholder="e.g. United States" required>
-                        </div>
-                    </div>
+                    </header>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="foundedYear">Founded Year <span class="required">*</span></label>
-                            <input type="number" id="foundedYear" name="foundedYear" placeholder="e.g. 1984" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="brandWebsite">Website <span class="required">*</span></label>
-                            <input type="url" id="brandWebsite" name="website" placeholder="https://www.example.com" required>
-                        </div>
-                    </div>
+                    <div class="card form-card">
+                        <form id="addBrandForm" enctype="multipart/form-data">
 
-                    <div class="form-group full-width">
-                        <label>Logo <span class="required">*</span></label>
-                        <div class="upload-container" id="uploadContainer">
-                            <div class="upload-content" id="uploadContent">
-                                <img src="/images/admin/icons/upload-cloud.svg" alt="Upload" class="upload-icon">
-                                <p>Drag & drop files here</p>
-                                <span class="browse-btn">Browse Files</span>
-                            </div>
-                            
-                            <div class="preview-content" id="previewContent" style="display: none;">
-                                <div>
-                                    <img src="" alt="Preview" id="imagePreview">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="brandName">Brand Name <span class="required">*</span></label>
+                                    <input type="text" id="brandName" name="brandName" placeholder="e.g. Dell" required>
                                 </div>
-                                <button type="button" id="removeImageBtn">&times;</button>
+                                <div class="form-group">
+                                    <label for="brandCountry">Country <span class="required">*</span></label>
+                                    <input type="text" id="brandCountry" name="country" placeholder="e.g. United States"
+                                        required>
+                                </div>
                             </div>
 
-                            <input type="file" name="brandLogo" id="fileInput" accept="image/*" hidden>
-                        </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="foundedYear">Founded Year <span class="required">*</span></label>
+                                    <input type="number" id="foundedYear" name="foundedYear" placeholder="e.g. 1984"
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="brandWebsite">Website <span class="required">*</span></label>
+                                    <input type="url" id="brandWebsite" name="website"
+                                        placeholder="https://www.example.com" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label>Logo <span class="required">*</span></label>
+                                <div class="upload-container" id="uploadContainer">
+                                    <div class="upload-content" id="uploadContent">
+                                        <img src="/images/admin/icons/upload-cloud.svg" alt="Upload"
+                                            class="upload-icon">
+                                        <p>Drag & drop files here</p>
+                                        <span class="browse-btn">Browse Files</span>
+                                    </div>
+
+                                    <div class="preview-content" id="previewContent" style="display: none;">
+                                        <div>
+                                            <img src="" alt="Preview" id="imagePreview">
+                                        </div>
+                                        <button type="button" id="removeImageBtn">&times;</button>
+                                    </div>
+
+                                    <input type="file" name="brandLogo" id="fileInput" accept="image/*" hidden>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="description">Description <span class="required">*</span></label>
+                                <textarea id="description" name="description" rows="4"
+                                    placeholder="Enter brand description..." required></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <a href="/admin/brands" class="btn btn-cancel">Cancel</a>
+                                <button type="submit" class="btn btn-primary new-brand" id="submitBtn">Add
+                                    Brand</button>
+                            </div>
+
+                        </form>
                     </div>
-
-                    <div class="form-group full-width">
-                        <label for="description">Description <span class="required">*</span></label>
-                        <textarea id="description" name="description" rows="4" placeholder="Enter brand description..." required></textarea>
-                    </div>
-
-                    <div class="form-actions">
-                        <a href="/admin/brands" class="btn btn-cancel">Cancel</a>
-                        <button type="submit" class="btn btn-primary new-brand" id="submitBtn">Add Brand</button>
-                    </div>
-
-                </form>
-            </div>
-        </main>
-    </div>
-  <!-- loaders   -->
-<div id="global-loader">
-<div class="spinner"></div>
-<p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
-</div>
+                </main>
+        </div>
+        <!-- loaders   -->
+        <div id="global-loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
+        </div>
 
 
-<script src="/js/axios.min.js"></script>
-<script src="/js/admin/add-brand.js"></script>
-</body>
-</html>
+        <script src="/js/axios.min.js"></script>
+        <script src="/js/admin/add-brand.js"></script>
+    </body>
+
+    </html>

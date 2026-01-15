@@ -304,7 +304,7 @@
                 document.addEventListener("DOMContentLoaded", function () {
                     // --- 1. Initialize Sales Chart ---
                     const ctx = document.getElementById('salesChart').getContext('2d');
-                    const initialData = <% - JSON.stringify(chartData || []) %>;
+                    const initialData = <%- JSON.stringify(chartData || []) %>;
 
                     salesChart = new Chart(ctx, {
                         type: 'line',
@@ -347,7 +347,7 @@
 
                 // --- 3. Initialize Status Donut Chart ---
                 function initStatusChart() {
-                    const statusRaw = <% - JSON.stringify(orderStatusData || []) %>;
+                    const statusRaw = <%- JSON.stringify(orderStatusData || []) %>;
                     renderStatusChart(statusRaw);
                 }
 

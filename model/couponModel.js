@@ -18,7 +18,7 @@ const couponSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      default: ""
+      default: "",
     },
     type: {
       type: String,
@@ -44,7 +44,7 @@ const couponSchema = new mongoose.Schema(
     usageLimitPerUser: {
       type: Number,
       default: 1,
-      min: 1
+      min: 1,
     },
     totalUsageLimit: {
       type: Number,
@@ -73,16 +73,16 @@ const couponSchema = new mongoose.Schema(
     endDate: {
       type: Date,
       required: true,
-      default: Date.now
+      default: Date.now,
     },
     isActive: {
       type: Boolean,
       default: true,
     },
     isListed: {
-        type: Boolean,
-        default: true
-    }
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );

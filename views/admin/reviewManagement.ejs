@@ -154,49 +154,49 @@
                 </div>
             </main>
     </div>
-     <%- include('../partials/footer') %> 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/axios.min.js"></script>
-    <script>
-        async function toggleReviewStatus(reviewId, shouldList) {
-            const actionText = shouldList ? "List" : "Unlist";
-            const confirmText = shouldList ? "This review will be visible to users." : "This review will be hidden from users.";
-            const btnColor = shouldList ? "#10b981" : "#ef4444"; // Green for List, Red for Unlist
+    <%- include('../partials/footer') %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="/js/axios.min.js"></script>
+        <script>
+            async function toggleReviewStatus(reviewId, shouldList) {
+                const actionText = shouldList ? "List" : "Unlist";
+                const confirmText = shouldList ? "This review will be visible to users." : "This review will be hidden from users.";
+                const btnColor = shouldList ? "#10b981" : "#ef4444"; // Green for List, Red for Unlist
 
-            const result = await Swal.fire({
-                title: `Are you sure you want to ${actionText}?`,
-                text: confirmText,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: btnColor,
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: `Yes, ${actionText} it!`
-            });
+                const result = await Swal.fire({
+                    title: `Are you sure you want to ${actionText}?`,
+                    text: confirmText,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: btnColor,
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: `Yes, ${actionText} it!`
+                });
 
-            if (result.isConfirmed) {
-                try {
-                    // Send PATCH request to update status
-                    const response = await axios.patch('/admin/reviews/toggle-status', {
-                        reviewId: reviewId,
-                        isListed: shouldList
-                    });
-
-
-                    if (response.data.success) {
-                        Swal.fire(
-                            `${actionText}ed!`,
-                            `The review has been ${actionText.toLowerCase()}ed.`,
-                            'success'
-                        ).then(() => {
-                            window.location.reload(); // Reload to update icons/stats
+                if (result.isConfirmed) {
+                    try {
+                        // Send PATCH request to update status
+                        const response = await axios.patch('/admin/reviews/toggle-status', {
+                            reviewId: reviewId,
+                            isListed: shouldList
                         });
-                    } else {
-                        Swal.fire('Error', data.message || 'Failed to update status', 'error');
+
+
+                        if (response.data.success) {
+                            Swal.fire(
+                                `${actionText}ed!`,
+                                `The review has been ${actionText.toLowerCase()}ed.`,
+                                'success'
+                            ).then(() => {
+                                window.location.reload(); // Reload to update icons/stats
+                            });
+                        } else {
+                            Swal.fire('Error', data.message || 'Failed to update status', 'error');
+                        }
+                    } catch (error) {
+                        const msg = error.response?.data?.message || 'Something went wrong';
+                        Swal.fire('Error', msg, 'error');
                     }
-                } catch (error) {
-                    const msg = error.response?.data?.message || 'Something went wrong';
-                    Swal.fire('Error', msg, 'error');
                 }
             }
-        }
-    </script>
+        </script>

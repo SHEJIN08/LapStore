@@ -112,10 +112,10 @@
             </div>
         </div>
         <!-- loaders   -->
-    <div id="global-loader">
-    <div class="spinner"></div>
-    <p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
-    </div>
+        <div id="global-loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
+        </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -150,31 +150,31 @@
             };
 
             const Loading = {
-    // 1. Show Full Page Loader
-    show: function(text = "Processing...") {
-        const loader = document.getElementById('global-loader');
-        const textEl = loader.querySelector('p');
-        if (textEl) textEl.innerText = text;
-        loader.style.display = 'flex';
-    },
+                // 1. Show Full Page Loader
+                show: function (text = "Processing...") {
+                    const loader = document.getElementById('global-loader');
+                    const textEl = loader.querySelector('p');
+                    if (textEl) textEl.innerText = text;
+                    loader.style.display = 'flex';
+                },
 
-    // 2. Hide Full Page Loader
-    hide: function() {
-        document.getElementById('global-loader').style.display = 'none';
-    },
+                // 2. Hide Full Page Loader
+                hide: function () {
+                    document.getElementById('global-loader').style.display = 'none';
+                },
 
-    // 3. Turn a Button into a Loader
-    showButton: function(btnElement) {
-        btnElement.classList.add('btn-loading');
-        btnElement.disabled = true; // Prevent double clicks
-    },
+                // 3. Turn a Button into a Loader
+                showButton: function (btnElement) {
+                    btnElement.classList.add('btn-loading');
+                    btnElement.disabled = true; // Prevent double clicks
+                },
 
-    // 4. Restore Button
-    hideButton: function(btnElement) {
-        btnElement.classList.remove('btn-loading');
-        btnElement.disabled = false;
-    }
-};
+                // 4. Restore Button
+                hideButton: function (btnElement) {
+                    btnElement.classList.remove('btn-loading');
+                    btnElement.disabled = false;
+                }
+            };
 
             // --- File Selection & Cropper Logic ---
             uploadContainer.addEventListener('click', () => {
@@ -275,12 +275,12 @@
                             window.location.href = '/admin/brands';
                         }, 1000);
                     } else {
-                         Loading.hideButton(submitBtn)
+                        Loading.hideButton(submitBtn)
                         showToast(response.data.message, "error");
                     }
 
                 } catch (error) {
-                     Loading.hideButton(submitBtn)
+                    Loading.hideButton(submitBtn)
                     console.error(error);
                     const errMsg = error.response?.data?.message || "Something went wrong";
                     showToast(errMsg, "error");

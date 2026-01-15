@@ -3,7 +3,6 @@ import User from "../../model/userModel.js";
 import mongoose from "mongoose";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
-
 const loadOrders = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -13,11 +12,11 @@ const loadOrders = async (req, res) => {
     const search = req.query.search || "";
 
     const data = await orderService.getUserOrdersService({
-        userId,
-        status,
-        page,
-        limit,
-        search
+      userId,
+      status,
+      page,
+      limit,
+      search,
     });
 
     const user = await User.findById(userId);
@@ -33,27 +32,27 @@ const loadOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Load Orders Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
-
 
 const orderDetailedPage = async (req, res) => {
   try {
     const { orderId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
-        res.render('user/404'); 
+      res.render("user/404");
     }
-    
+
     const order = await orderService.getOrderByIdService(orderId);
     //  service populates userId, so we can access user data from order.userId
-    const user = order.userId; 
+    const user = order.userId;
 
     res.render("user/orderDetails", { user, order });
-
   } catch (error) {
     if (error.message === "Order not found") {
-        return res.render("user/404"); 
+      return res.render("user/404");
     }
     console.error(error);
     res.status(StatusCode.INTERNAL_SERVER_ERROR).send("Server Error");
@@ -64,21 +63,36 @@ const cancelOrder = async (req, res) => {
   try {
     const { orderId, itemId, reason } = req.body;
 
-    const message = await orderService.cancelOrderService({ orderId, itemId, reason });
+    const message = await orderService.cancelOrderService({
+      orderId,
+      itemId,
+      reason,
+    });
 
     res.status(StatusCode.OK).json({ success: true, message });
-
   } catch (error) {
     // Handle Known Logic Errors
-    if (error.message === "Order not found" || error.message === "Item not found") {
-        return res.status(StatusCode.NOT_FOUND).json({ success: false, message: error.message });
+    if (
+      error.message === "Order not found" ||
+      error.message === "Item not found"
+    ) {
+      return res
+        .status(StatusCode.NOT_FOUND)
+        .json({ success: false, message: error.message });
     }
-    if (error.message === "Item cannot be cancelled" || error.message.includes("Cannot cancel")) {
-        return res.status(StatusCode.BAD_REQUEST).json({ success: false, message: error.message });
+    if (
+      error.message === "Item cannot be cancelled" ||
+      error.message.includes("Cannot cancel")
+    ) {
+      return res
+        .status(StatusCode.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
 
     console.error("Cancel Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server Error" });
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "Server Error" });
   }
 };
 
@@ -86,51 +100,64 @@ const cancelOrder = async (req, res) => {
 const returnOrder = async (req, res) => {
   try {
     const { orderId, itemId, returnType, reason, comment } = req.body;
-    
+
     let imageUrl = null;
     if (req.file) {
       imageUrl = req.file.secure_url;
     }
 
     const message = await orderService.returnOrderService({
-        orderId, itemId, returnType, reason, comment, imageUrl
+      orderId,
+      itemId,
+      returnType,
+      reason,
+      comment,
+      imageUrl,
     });
 
     res.status(StatusCode.OK).json({ success: true, message });
-
   } catch (error) {
     if (error.message.includes("not found")) {
-        return res.status(StatusCode.NOT_FOUND).json({ success: false, message: error.message });
+      return res
+        .status(StatusCode.NOT_FOUND)
+        .json({ success: false, message: error.message });
     }
     console.error("Return Error:", error);
-    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: ResponseMessage.SERVER_ERROR });
+    res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: ResponseMessage.SERVER_ERROR });
   }
 };
 
 // --- DOWNLOAD INVOICE ---
 const downloadInvoice = async (req, res) => {
-    try {
-        const { orderId } = req.params;
-        
-        // 1. Call Service to get PDF Stream
-        const { doc, filename } = await orderService.generateInvoiceService(orderId);
+  try {
+    const { orderId } = req.params;
 
-        // 2. Set Headers for Download
-        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-        res.setHeader("Content-Type", "application/pdf");
+    // 1. Call Service to get PDF Stream
+    const { doc, filename } = await orderService.generateInvoiceService(
+      orderId
+    );
 
-        // 3. Pipe the PDF document directly to the response
-        doc.pipe(res);
+    // 2. Set Headers for Download
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Type", "application/pdf");
 
-    } catch (error) {
-        console.error("Invoice Download Error:", error);
-        
-        if (error.message === "Order not found") {
-            return res.status(404).json({ success: false, message: "Order not found" });
-        }
-        
-        res.status(500).json({ success: false, message: "Failed to generate invoice" });
+    // 3. Pipe the PDF document directly to the response
+    doc.pipe(res);
+  } catch (error) {
+    console.error("Invoice Download Error:", error);
+
+    if (error.message === "Order not found") {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
+
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to generate invoice" });
+  }
 };
 
 export default {

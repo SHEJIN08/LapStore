@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import slugify from 'slugify';
+import slugify from "slugify";
 
 const productSchema = new mongoose.Schema(
   {
@@ -9,38 +9,39 @@ const productSchema = new mongoose.Schema(
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category", 
+      ref: "Category",
       required: true,
     },
-     slug: { type: String, unique: true, index: true},
+    slug: { type: String, unique: true, index: true },
     images: {
       type: [String],
       required: true,
     },
-      rating: {
+    rating: {
       type: Number,
       required: true,
-      default: 0, 
+      default: 0,
     },
     description: {
       type: String,
-      required: true
+      required: true,
     },
     brand: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Brand", 
+      ref: "Brand",
       required: true,
     },
-    productOffer: { 
-      type: Number, default: 0
+    productOffer: {
+      type: Number,
+      default: 0,
     },
     specifications: [
       {
-            key: { type: String, required: true },
-            value: { type: String, required: true }
-        }
-      ],
-    isPublished: { type: Boolean, default: true }
+        key: { type: String, required: true },
+        value: { type: String, required: true },
+      },
+    ],
+    isPublished: { type: Boolean, default: true },
   },
   {
     timestamps: true,
@@ -55,28 +56,28 @@ productSchema.virtual("variants", {
   foreignField: "productId", // ...'Variant.productId' matches 'this._id'
 });
 
-productSchema.pre('save', function(next) {
-  if(this.isModified('name')) {
-     this.slug = slugify(this.name, {
+productSchema.pre("save", function (next) {
+  if (this.isModified("name")) {
+    this.slug = slugify(this.name, {
       lower: true,
       strict: true,
-      trim: true
-     })
+      trim: true,
+    });
   }
   next();
-})
+});
 
-productSchema.pre('findOneAndUpdate', function(next) {
+productSchema.pre("findOneAndUpdate", function (next) {
   const update = this.getUpdate();
 
-  if(update.name){
+  if (update.name) {
     update.slug = slugify(update.name, {
       lower: true,
       strict: true,
-      trim: true
-    })
+      trim: true,
+    });
   }
-  next()
-})
+  next();
+});
 
-export default mongoose.model("Product", productSchema); 
+export default mongoose.model("Product", productSchema);

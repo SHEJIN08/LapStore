@@ -1,116 +1,129 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/admin/login.css">
-<body>
+    <link rel="stylesheet" href="/css/admin/login.css">
 
-    <div class="login-container">
-        
-        <div class="login-form-wrapper">
-            <div class="form-content">
-                <div class="form-header">
-                    <svg class="laptop-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55A1 1 0 0 1 20.28 20H3.72a1 1 0 0 1-.9-1.45L4 16z"></path></svg>
-                    <h2>Admin Panel Login</h2>
-                    <p>Welcome back! Please enter your details.</p>
-                </div>
-                
-                <form id="LoginForm">
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" >
+    <body>
+
+        <div class="login-container">
+
+            <div class="login-form-wrapper">
+                <div class="form-content">
+                    <div class="form-header">
+                        <svg class="laptop-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55A1 1 0 0 1 20.28 20H3.72a1 1 0 0 1-.9-1.45L4 16z">
+                            </path>
+                        </svg>
+                        <h2>Admin Panel Login</h2>
+                        <p>Welcome back! Please enter your details.</p>
                     </div>
 
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="password" name="password" placeholder="Enter your password" >
-                            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <form id="LoginForm">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email">
                         </div>
-                    </div>
 
-                    
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="password" name="password" placeholder="Enter your password">
+                                <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </div>
+                        </div>
 
-                    <button type="submit" class="login-btn">Log In</button>
-                </form>
+
+
+                        <button type="submit" class="login-btn">Log In</button>
+                    </form>
+                </div>
             </div>
+
+            <div class="info-panel">
+                <div class="info-content">
+                    <h1>Powerful, Fast, Secure</h1>
+                    <p>Manage your e-commerce platform with an intuitive and robust admin interface. All the tools you
+                        need, right at your fingertips.</p>
+                </div>
+            </div>
+
         </div>
 
-        <div class="info-panel">
-            <div class="info-content">
-                <h1>Powerful, Fast, Secure</h1>
-                <p>Manage your e-commerce platform with an intuitive and robust admin interface. All the tools you need, right at your fingertips.</p>
-            </div>
-        </div>
 
-    </div>
+        <%- include('../partials/footer') %>
+            <script src="/js/axios.min.js"></script>
+            <script>
+                const LoginForm = document.getElementById('LoginForm');
 
-     
-    <%- include('../partials/footer') %>
-    <script src="/js/axios.min.js"></script>
-   <script>
-        const LoginForm = document.getElementById('LoginForm');
+                const passwordInput = document.getElementById('password')
+                const eyeIcon = document.querySelector('.eye-icon')
 
-        const passwordInput = document.getElementById('password')
-        const eyeIcon = document.querySelector('.eye-icon')
+                eyeIcon.addEventListener('click', () => {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password'
 
-        eyeIcon.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text': 'password'
-            
-            passwordInput.setAttribute('type', type)
-    
-            //  Visual feedback (Change color when visible)
-                if (type === 'text') {
-                    eyeIcon.style.stroke = "#3B82F6"; // Blue (Active)
-                } else {
-                    eyeIcon.style.stroke = "currentColor"; // Default color
-                }
-        })
+                    passwordInput.setAttribute('type', type)
+
+                    //  Visual feedback (Change color when visible)
+                    if (type === 'text') {
+                        eyeIcon.style.stroke = "#3B82F6"; // Blue (Active)
+                    } else {
+                        eyeIcon.style.stroke = "currentColor"; // Default color
+                    }
+                })
 
 
-        const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top", 
-                position: "right", 
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
+                const showToast = (message, type) => {
+                    const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                    Toastify({
+                        text: message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: bgColor, borderRadius: '10px' }
+                    }).showToast();
+                };
 
-        LoginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+                LoginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
 
-            // ✅ FIX 1: Added .value to get the actual text
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+                    // ✅ FIX 1: Added .value to get the actual text
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
 
-            const btn = document.querySelector('.login-btn');
+                    const btn = document.querySelector('.login-btn');
 
-            Loading.showButton(btn)
+                    Loading.showButton(btn)
 
-            try {
-                // ✅ FIX 2: Fixed typo 'responce' -> 'response'
-                const response = await axios.post('/admin/login', { 
-                    email: email, 
-                    password: password 
+                    try {
+                        // ✅ FIX 2: Fixed typo 'responce' -> 'response'
+                        const response = await axios.post('/admin/login', {
+                            email: email,
+                            password: password
+                        });
+
+                        if (response.data.success) {
+                            showToast('Login successfull...', 'success');
+                            setTimeout(() => {
+                                window.location.href = '/admin/dashboard';
+                            }, 1000);
+                        } else {
+                            Loading.hideButton(btn)
+                            showToast(response.data.message || 'Login failed', 'error');
+                        }
+
+                    } catch (error) {
+                        Loading.hideButton(btn)
+                        console.error(error);
+
+
+                        const errMsg = error.response?.data?.message || 'Something went wrong';
+                        showToast(errMsg, 'error');
+                    }
                 });
-
-                if (response.data.success) {
-                    showToast('Login successfull...', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/admin/dashboard';
-                    }, 1000);
-                } else {
-                    Loading.hideButton(btn)
-                    showToast(response.data.message || 'Login failed', 'error');
-                }
-
-            } catch (error) {
-                Loading.hideButton(btn)
-                console.error(error);
-
-              
-                const errMsg = error.response?.data?.message || 'Something went wrong';
-                showToast(errMsg, 'error');
-            }
-        });
-    </script>
+            </script>

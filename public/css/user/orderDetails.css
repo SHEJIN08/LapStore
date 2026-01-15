@@ -515,6 +515,37 @@ h3 {
     color: #2563eb; /* Blue */
 }
 
+    /* Modal Styles matching Order List */
+    .reasons-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .reason-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    .reason-card:hover { background-color: #f9f9f9; border-color: #aaa; }
+    .reason-card.full-width { grid-column: span 2; }
+    .reason-text { font-size: 14px; color: #333; }
+    .other-input-container { margin-top: 10px; width: 100%; }
+    .other-input-container textarea {
+        width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;
+    }
+    .btn-keep {
+        padding: 10px 20px; background: #f3f4f6; border: none; border-radius: 6px; cursor: pointer;
+    }
+    .btn-confirm-cancel {
+        padding: 10px 20px; background: #EF4444; color: white; border: none; border-radius: 6px; cursor: pointer;
+    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 /* --- ORDER DETAILS RESPONSIVENESS --- */
 
 /* 1. Tablet & Mobile Global Layout (Max Width 900px) */

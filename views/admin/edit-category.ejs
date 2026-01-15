@@ -155,11 +155,11 @@
             </div>
         </div>
 
-              <!-- loaders   -->
-    <div id="global-loader">
-    <div class="spinner"></div>
-    <p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
-    </div>
+        <!-- loaders   -->
+        <div id="global-loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
+        </div>
 
         <script src="/js/axios.min.js"></script>
 
@@ -175,32 +175,32 @@
                 const closeBtn = document.querySelector('.modal-close-btn');
                 const cancelBtn = document.querySelector('.btn-cancel');
 
-     const Loading = {
-    // 1. Show Full Page Loader
-    show: function(text = "Processing...") {
-        const loader = document.getElementById('global-loader');
-        const textEl = loader.querySelector('p');
-        if (textEl) textEl.innerText = text;
-        loader.style.display = 'flex';
-    },
+                const Loading = {
+                    // 1. Show Full Page Loader
+                    show: function (text = "Processing...") {
+                        const loader = document.getElementById('global-loader');
+                        const textEl = loader.querySelector('p');
+                        if (textEl) textEl.innerText = text;
+                        loader.style.display = 'flex';
+                    },
 
-    // 2. Hide Full Page Loader
-    hide: function() {
-        document.getElementById('global-loader').style.display = 'none';
-    },
+                    // 2. Hide Full Page Loader
+                    hide: function () {
+                        document.getElementById('global-loader').style.display = 'none';
+                    },
 
-    // 3. Turn a Button into a Loader
-    showButton: function(btnElement) {
-        btnElement.classList.add('btn-loading');
-        btnElement.disabled = true; 
-    },
+                    // 3. Turn a Button into a Loader
+                    showButton: function (btnElement) {
+                        btnElement.classList.add('btn-loading');
+                        btnElement.disabled = true;
+                    },
 
-    // 4. Restore Button
-    hideButton: function(btnElement) {
-        btnElement.classList.remove('btn-loading');
-        btnElement.disabled = false;
-    }
-};
+                    // 4. Restore Button
+                    hideButton: function (btnElement) {
+                        btnElement.classList.remove('btn-loading');
+                        btnElement.disabled = false;
+                    }
+                };
 
                 // Get the Category ID from the EJS variable embedded in script
                 const categoryId = '<%= category._id %>';
@@ -306,7 +306,7 @@
 
 
                 form.addEventListener('submit', async (e) => {
-                    e.preventDefault(); 
+                    e.preventDefault();
 
                     const btn = document.querySelector('.px-4');
 
@@ -336,7 +336,7 @@
                             showToast(response.data.message, 'error');
                         }
                     } catch (error) {
-                         Loading.hideButton(btn)
+                        Loading.hideButton(btn)
                         console.error(error);
                         const errMsg = error.response?.data?.message || 'Something went wrong';
                         showToast(errMsg, 'error');

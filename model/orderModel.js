@@ -1,127 +1,159 @@
-import mongoose  from "mongoose";
+import mongoose from "mongoose";
 
-const orderSchema = new mongoose.Schema({
+const orderSchema = new mongoose.Schema(
+  {
     orderId: {
-        type: String,
-        default: () => Math.floor(100000 + Math.random() * 900000).toString(), // Generates a random 6-digit ID
-        unique: true
+      type: String,
+      default: () => Math.floor(100000 + Math.random() * 900000).toString(), // Generates a random 6-digit ID
+      unique: true,
     },
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    orderedItems: [{
+    orderedItems: [
+      {
         productId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product',
-            required: true
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
         },
         variantId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Variant',  // Assuming you have a Variant model, otherwise just ObjectId
-            required: true
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Variant", // Assuming you have a Variant model, otherwise just ObjectId
+          required: true,
         },
         // We snapshot these details in case the Product is deleted later
         productName: { type: String, required: true }, //productName
         image: { type: String, required: true },
         productStatus: {
-            type: String,
-            enum: [ "Placed", "Cancelled", "Delivered" ,"Return Request", "Returned","Return Approved", "Return Rejected", "Failed"],
-            default: "Placed"
+          type: String,
+          enum: [
+            "Placed",
+            "Cancelled",
+            "Delivered",
+            "Return Request",
+            "Returned",
+            "Return Approved",
+            "Return Rejected",
+            "Failed",
+          ],
+          default: "Placed",
         },
-        
+
         returnReason: { type: String, default: null },
         returnComment: { type: String, default: null },
 
         quantity: { type: Number, required: true },
         price: { type: Number, required: true }, // Price at time of purchase
         offerId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Offer',
-            default: null // Null if no offer was applied to this item
-        }
-    }],
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Offer",
+          default: null, // Null if no offer was applied to this item
+        },
+      },
+    ],
     totalPrice: { type: Number, required: true }, // Subtotal
-    discount: { type: Number, default: 0 },       // Coupon discount
+    discount: { type: Number, default: 0 }, // Coupon discount
     finalAmount: { type: Number, required: true }, // Amount to be paid
-    
+
     // We embed the address details directly so history remains accurate
     address: {
-        fullName: { type: String, required: true },
-        phone: { type: String, required: true },
-        address1: { type: String, required: true },
-         address2: { type: String },
-         city: { type: String, required: true },
-         state: { type: String, required: true },
-         pincode: { type: String, required: true },
-         addressType: { type: String, required: true },
+      fullName: { type: String, required: true },
+      phone: { type: String, required: true },
+      address1: { type: String, required: true },
+      address2: { type: String },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      pincode: { type: String, required: true },
+      addressType: { type: String, required: true },
     },
-    
+
     paymentMethod: {
-        type: String,
-        enum: ['COD', 'Razorpay', 'Wallet'],
-        required: true
+      type: String,
+      enum: ["COD", "Razorpay", "Wallet"],
+      required: true,
     },
     paymentStatus: {
-        type: String,
-        enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
-        default: 'Pending'
+      type: String,
+      enum: ["Pending", "Paid", "Failed", "Refunded"],
+      default: "Pending",
     },
     status: {
-        type: String,
-        enum: ['Pending', 'Processing', 'Shipped', 'Out for Delivery' ,'Delivered', 'Cancelled', 'Return Request', 'Returned','Return Approved','Return Rejected', 'Failed'],
-        default: 'Pending'
+      type: String,
+      enum: [
+        "Pending",
+        "Processing",
+        "Shipped",
+        "Out for Delivery",
+        "Delivered",
+        "Cancelled",
+        "Return Request",
+        "Returned",
+        "Return Approved",
+        "Return Rejected",
+        "Failed",
+      ],
+      default: "Pending",
     },
-   
+
     returnRequest: {
-        type: { type: String, enum: ['Refund', 'Replacement'] },
-        reason: String,
-        comment: String,
-        image: { type: String, default: null },
-        status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
-        requestDate: Date
+      type: { type: String, enum: ["Refund", "Replacement"] },
+      reason: String,
+      comment: String,
+      image: { type: String, default: null },
+      status: {
+        type: String,
+        enum: ["Pending", "Approved", "Rejected"],
+        default: "Pending",
+      },
+      requestDate: Date,
     },
     cancellationReason: {
-        type: String,
-        default: null
+      type: String,
+      default: null,
     },
     invoiceDate: {
-        type: Date
+      type: Date,
     },
     couponCode: {
-        type: String,
-        default: null
+      type: String,
+      default: null,
     },
 
-    orderHistory: [{
+    orderHistory: [
+      {
         status: {
-            type: String,
-            required: true
+          type: String,
+          required: true,
         },
         date: {
-            type: Date,
-            default: Date.now
+          type: Date,
+          default: Date.now,
         },
         comment: {
-            type: String,
-            default: ''
-        }
-    }],
+          type: String,
+          default: "",
+        },
+      },
+    ],
     //Razor pay
     razorpayOrderId: {
-        type: String,
-        default: null
+      type: String,
+      default: null,
     },
     razorpayPaymentId: {
-        type: String,
-        default: null
+      type: String,
+      default: null,
     },
     razorpayStatus: {
-        type: String,
-        enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
-        default: 'Pending'
+      type: String,
+      enum: ["Pending", "Paid", "Failed", "Refunded"],
+      default: "Pending",
     },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model('Order', orderSchema);
+export default mongoose.model("Order", orderSchema);

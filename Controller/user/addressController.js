@@ -2,7 +2,6 @@ import addressService from "../../services/user/addressService.js";
 import User from "../../model/userModel.js";
 import { ResponseMessage, StatusCode } from "../../utils/statusCode.js";
 
-
 const loadAddress = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -46,12 +45,10 @@ const addAddress = async (req, res) => {
         .status(StatusCode.BAD_REQUEST)
         .json({ success: false, message: "Please select a address type" });
     if (!["Home", "Work", "Other"].includes(addressType))
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({
-          success: false,
-          message: "Please choose address from the given option",
-        });
+      return res.status(StatusCode.BAD_REQUEST).json({
+        success: false,
+        message: "Please choose address from the given option",
+      });
     if (!name)
       return res
         .status(StatusCode.BAD_REQUEST)
@@ -122,7 +119,6 @@ const setDefaultAddress = async (req, res) => {
   }
 };
 
-
 const getAddressDetails = async (req, res) => {
   try {
     const { addressId } = req.params;
@@ -142,7 +138,6 @@ const getAddressDetails = async (req, res) => {
   }
 };
 
-
 const editAddress = async (req, res) => {
   try {
     const { addressId } = req.params;
@@ -158,12 +153,10 @@ const editAddress = async (req, res) => {
     } = req.body;
 
     if (!name || !phone || !addressLine1 || !city || !state || !pincode) {
-      return res
-        .status(StatusCode.BAD_REQUEST)
-        .json({
-          success: false,
-          message: "All required fields must be filled",
-        });
+      return res.status(StatusCode.BAD_REQUEST).json({
+        success: false,
+        message: "All required fields must be filled",
+      });
     }
 
     await addressService.updateAddressService(addressId, {
@@ -185,7 +178,6 @@ const editAddress = async (req, res) => {
       .json({ success: false, message: "Failed to update address" });
   }
 };
-
 
 const deleteAddress = async (req, res) => {
   try {
