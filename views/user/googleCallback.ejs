@@ -1,54 +1,55 @@
 <%- include('../partials/header') %>
-<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1/dist/iife/sdk.min.js"></script>
-<script src="/js/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1/dist/iife/sdk.min.js"></script>
+  <script src="/js/axios.min.js"></script>
 
-<body>
-  <div style="text-align: center; padding: 50px;">
-    <p>Processing Google login...</p>
-  </div>
+  <body>
+    <div style="text-align: center; padding: 50px;">
+      <p>Processing Google login...</p>
+    </div>
 
-  <script>
-    window.APPWRITE_CONFIG = {
-      APPWRITE_ENDPOINT: "<%= process.env.APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1' %>",
-      APPWRITE_PROJECT:  "<%= process.env.APPWRITE_PROJECT || '691181470024b6460a13' %>"
-    };
+    <script>
+      window.APPWRITE_CONFIG = {
+        APPWRITE_ENDPOINT: "<%= process.env.APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1' %>",
+        APPWRITE_PROJECT: "<%= process.env.APPWRITE_PROJECT || '691181470024b6460a13' %>"
+      };
 
-    (async function(){
-      try {
-        console.log("Starting Google callback...");
-        
-        const client = new Appwrite.Client()
-          .setEndpoint(window.APPWRITE_CONFIG.APPWRITE_ENDPOINT)
-          .setProject(window.APPWRITE_CONFIG.APPWRITE_PROJECT);
+      (async function () {
+        try {
+          console.log("Starting Google callback...");
 
-        const account = new Appwrite.Account(client);
-        const appwriteUser = await account.get();
+          const client = new Appwrite.Client()
+            .setEndpoint(window.APPWRITE_CONFIG.APPWRITE_ENDPOINT)
+            .setProject(window.APPWRITE_CONFIG.APPWRITE_PROJECT);
 
-        console.log("Appwrite user:", appwriteUser);
+          const account = new Appwrite.Account(client);
+          const appwriteUser = await account.get();
 
-        // Send POST to server
-        const res = await axios.post('/user/auth/google/callback', {
-          email: appwriteUser.email,
-          name: appwriteUser.name || '',
-          appwriteId: appwriteUser.$id
-        }, {
-          headers: { 'Content-Type': 'application/json' }
-        });
+          console.log("Appwrite user:", appwriteUser);
 
-        console.log("Server response:", res.data);
+          // Send POST to server
+          const res = await axios.post('/user/auth/google/callback', {
+            email: appwriteUser.email,
+            name: appwriteUser.name || '',
+            appwriteId: appwriteUser.$id
+          }, {
+            headers: { 'Content-Type': 'application/json' }
+          });
 
-        if (res.data && res.data.success) {
-          window.location.href = res.data.redirectUrl || '/user/home';
-        } else {
-          alert(res.data.message || 'Login failed');
+          console.log("Server response:", res.data);
+
+          if (res.data && res.data.success) {
+            window.location.href = res.data.redirectUrl || '/user/home';
+          } else {
+            alert(res.data.message || 'Login failed');
+            window.location.href = '/user/login';
+          }
+        } catch (err) {
+          console.error('Callback error:', err.response?.data || err.message);
           window.location.href = '/user/login';
         }
-      } catch (err) {
-        console.error('Callback error:', err.response?.data || err.message);
-        window.location.href = '/user/login';
-      }
-    })();
-  </script>
+      })();
+    </script>
 
-</body>
-</html>
+  </body>
+
+  </html>

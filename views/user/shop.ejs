@@ -1,173 +1,180 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/user/shop.css">
+    <link rel="stylesheet" href="/css/user/shop.css">
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <div style="background: #f4f4f4; padding: 20px 0;">
-        <div class="container">
-            <span style="color: #666;"> <a href="/user/home">Home</a> / </span> <b>Shop</b>
-        </div>
-    </div>
-
-    <div class="shop-container"> 
-
-        <aside class="sidebar">
-            <div class="filter-section">
-                <span class="filter-title">Categories</span>
-                <ul class="filter-list">
-                    <li>
-                        <% const allCatActive = !selectedCat ? 'active' : ''; %>
-                        <a href="/user/home/shop" class="<%= allCatActive %>">All Categories</a>
-                    </li>
-                    <% if(typeof categories !== 'undefined' && categories.length > 0) { %>
-                        <% categories.forEach(cat => { %>
-                            <li>
-                                <% let isActive = (typeof selectedCat !== 'undefined' && selectedCat === cat.slug) ? 'active' : ''; %>
-                                <a href="#" onclick="updateParams('category', '<%= cat.slug %>')" class="<%= isActive %>">
-                                    <%= cat.categoryName %>
-                                </a>
-                            </li>
-                        <% }) %>
-                    <% } %>
-                </ul>
+            <div style="background: #f4f4f4; padding: 20px 0;">
+                <div class="container">
+                    <span style="color: #666;"> <a href="/user/home">Home</a> / </span> <b>Shop</b>
+                </div>
             </div>
 
-            <div class="filter-section">
-                <span class="filter-title">Brands</span>
-                <ul class="filter-list">
-                    <li>
-                        <% const allBrandActive = !currentBrand ? 'active' : ''; %>
-                        <a href="#" onclick="updateParams('brand', '')" class="<%= allBrandActive %>">All Brands</a>
-                    </li>
-                    <% if(typeof brands !== 'undefined' && brands.length > 0) { %>
-                        <% brands.forEach(brand => { %>
-                            <li>
-                                <% let isBrandActive = (typeof currentBrand !== 'undefined' && currentBrand === brand.brandName) ? 'active' : ''; %>
-                                <a href="#" onclick="updateParams('brand', '<%= brand.brandName %>')" class="<%= isBrandActive %>">
-                                    <%= brand.brandName %>
-                                </a>
-                            </li>
-                        <% }) %>
-                    <% } %>
-                </ul>
-            </div>
+            <div class="shop-container">
 
-            <div class="filter-section">
-                <span class="filter-title">Filter Price</span>
-                <form id="priceForm" onsubmit="applyPrice(event)">
-                    <div class="price-filter-group">
-                        <input type="number" id="minPrice" placeholder="Min" class="price-input" min="0" value="<%= typeof minPrice !== 'undefined' ? minPrice : '' %>">
-                        <input type="number" id="maxPrice" placeholder="Max" class="price-input" min="0" value="<%= typeof maxPrice !== 'undefined' ? maxPrice : '' %>">
+                <aside class="sidebar">
+                    <div class="filter-section">
+                        <span class="filter-title">Categories</span>
+                        <ul class="filter-list">
+                            <li>
+                                <% const allCatActive=!selectedCat ? 'active' : '' ; %>
+                                    <a href="/user/home/shop" class="<%= allCatActive %>">All Categories</a>
+                            </li>
+                            <% if(typeof categories !=='undefined' && categories.length> 0) { %>
+                                <% categories.forEach(cat=> { %>
+                                    <li>
+                                        <% let isActive=(typeof selectedCat !=='undefined' && selectedCat===cat.slug)
+                                            ? 'active' : '' ; %>
+                                            <a href="#" onclick="updateParams('category', '<%= cat.slug %>')"
+                                                class="<%= isActive %>">
+                                                <%= cat.categoryName %>
+                                            </a>
+                                    </li>
+                                    <% }) %>
+                                        <% } %>
+                        </ul>
                     </div>
-                    <button type="submit" class="btn-filter">Apply Filter</button>
-                </form>
+
+                    <div class="filter-section">
+                        <span class="filter-title">Brands</span>
+                        <ul class="filter-list">
+                            <li>
+                                <% const allBrandActive=!currentBrand ? 'active' : '' ; %>
+                                    <a href="#" onclick="updateParams('brand', '')" class="<%= allBrandActive %>">All
+                                        Brands</a>
+                            </li>
+                            <% if(typeof brands !=='undefined' && brands.length> 0) { %>
+                                <% brands.forEach(brand=> { %>
+                                    <li>
+                                        <% let isBrandActive=(typeof currentBrand !=='undefined' &&
+                                            currentBrand===brand.brandName) ? 'active' : '' ; %>
+                                            <a href="#" onclick="updateParams('brand', '<%= brand.brandName %>')"
+                                                class="<%= isBrandActive %>">
+                                                <%= brand.brandName %>
+                                            </a>
+                                    </li>
+                                    <% }) %>
+                                        <% } %>
+                        </ul>
+                    </div>
+
+                    <div class="filter-section">
+                        <span class="filter-title">Filter Price</span>
+                        <form id="priceForm" onsubmit="applyPrice(event)">
+                            <div class="price-filter-group">
+                                <input type="number" id="minPrice" placeholder="Min" class="price-input" min="0"
+                                    value="<%= typeof minPrice !== 'undefined' ? minPrice : '' %>">
+                                <input type="number" id="maxPrice" placeholder="Max" class="price-input" min="0"
+                                    value="<%= typeof maxPrice !== 'undefined' ? maxPrice : '' %>">
+                            </div>
+                            <button type="submit" class="btn-filter">Apply Filter</button>
+                        </form>
+                    </div>
+                </aside>
+
+                <main class="shop-content" id="productGridContainer">
+                    <%- include('./partials/shop-grid') %>
+                </main>
             </div>
-        </aside>
 
-        <main class="shop-content" id="productGridContainer">
-             <%- include('./partials/shop-grid') %>
-        </main>
-    </div>
+            <%- include('../partials/footer') %>
 
-    <%- include('../partials/footer') %>
+                <script src="/js/axios.min.js"></script>
 
-    <script src="/js/axios.min.js"></script>
+                <script>
+                    // 1. Core function to update URL params and Load content
+                    async function updateParams(key, value) {
+                        const currentUrl = new URL(window.location.href);
 
-    <script>
-    // 1. Core function to update URL params and Load content
-    async function updateParams(key, value) {
-        const currentUrl = new URL(window.location.href);
+                        // Handle "Clear All" logic
+                        if (key === 'clear') {
+                            currentUrl.search = '';
+                        } else {
+                            // Reset page to 1 unless we are just paginating
+                            if (key !== 'page') {
+                                currentUrl.searchParams.set('page', 1);
+                            }
 
-        // Handle "Clear All" logic
-        if (key === 'clear') {
-            currentUrl.search = '';
-        } else {
-            // Reset page to 1 unless we are just paginating
-            if (key !== 'page') {
-                currentUrl.searchParams.set('page', 1);
-            }
+                            // Set or Delete the param
+                            if (value) {
+                                currentUrl.searchParams.set(key, value);
+                            } else {
+                                currentUrl.searchParams.delete(key);
+                            }
+                        }
 
-            // Set or Delete the param
-            if (value) {
-                currentUrl.searchParams.set(key, value);
-            } else {
-                currentUrl.searchParams.delete(key);
-            }
-        }
+                        // A. Update URL without reloading
+                        window.history.pushState({}, '', currentUrl);
 
-        // A. Update URL without reloading
-        window.history.pushState({}, '', currentUrl);
+                        // B. Axios Call
+                        try {
+                            const response = await axios.get(currentUrl.toString(), {
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest' // Essential for req.xhr in Express
+                                }
+                            });
 
-        // B. Axios Call
-        try {
-            const response = await axios.get(currentUrl.toString(), {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Essential for req.xhr in Express
-                }
-            });
+                            // C. Replace content
+                            // Axios automatically puts the response body (HTML) into .data
+                            document.getElementById('productGridContainer').innerHTML = response.data;
 
-            // C. Replace content
-            // Axios automatically puts the response body (HTML) into .data
-            document.getElementById('productGridContainer').innerHTML = response.data;
+                            // D. Update Active States (Visual only)
+                            updateSidebarActiveState(key, value);
 
-            // D. Update Active States (Visual only)
-            updateSidebarActiveState(key, value);
+                        } catch (error) {
+                            console.error("Axios Error:", error);
+                            // Fallback: If something breaks, reload the page normally
+                            window.location.href = currentUrl;
+                        }
+                    }
 
-        } catch (error) {
-            console.error("Axios Error:", error);
-            // Fallback: If something breaks, reload the page normally
-            window.location.href = currentUrl;
-        }
-    }
+                    // 2. Handle Price Form Submission
+                    function applyPrice(e) {
+                        e.preventDefault();
+                        const min = document.getElementById('minPrice').value;
+                        const max = document.getElementById('maxPrice').value;
 
-    // 2. Handle Price Form Submission
-    function applyPrice(e) {
-        e.preventDefault();
-        const min = document.getElementById('minPrice').value;
-        const max = document.getElementById('maxPrice').value;
+                        const currentUrl = new URL(window.location.href);
+                        currentUrl.searchParams.set('page', 1);
 
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('page', 1);
+                        if (min) currentUrl.searchParams.set('minPrice', min);
+                        else currentUrl.searchParams.delete('minPrice');
 
-        if (min) currentUrl.searchParams.set('minPrice', min);
-        else currentUrl.searchParams.delete('minPrice');
+                        if (max) currentUrl.searchParams.set('maxPrice', max);
+                        else currentUrl.searchParams.delete('maxPrice');
 
-        if (max) currentUrl.searchParams.set('maxPrice', max);
-        else currentUrl.searchParams.delete('maxPrice');
+                        // Trigger the update
+                        updateContent(currentUrl.toString());
+                    }
 
-        // Trigger the update
-        updateContent(currentUrl.toString());
-    }
+                    // Helper: Reusable Axios function for Price Filter
+                    async function updateContent(url) {
+                        window.history.pushState({}, '', url);
+                        try {
+                            const response = await axios.get(url, {
+                                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                            });
+                            document.getElementById('productGridContainer').innerHTML = response.data;
+                        } catch (error) {
+                            console.error("Axios Error:", error);
+                            window.location.href = url;
+                        }
+                    }
 
-    // Helper: Reusable Axios function for Price Filter
-    async function updateContent(url) {
-        window.history.pushState({}, '', url);
-        try {
-            const response = await axios.get(url, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            document.getElementById('productGridContainer').innerHTML = response.data;
-        } catch (error) {
-            console.error("Axios Error:", error);
-            window.location.href = url;
-        }
-    }
+                    // 3. Helper to update Sidebar visually
+                    function updateSidebarActiveState(key, value) {
+                        if (key === 'category' || key === 'brand') {
+                            const list = key === 'category' ?
+                                document.querySelectorAll('.filter-list a[onclick*="category"]') :
+                                document.querySelectorAll('.filter-list a[onclick*="brand"]');
 
-    // 3. Helper to update Sidebar visually
-    function updateSidebarActiveState(key, value) {
-        if (key === 'category' || key === 'brand') {
-            const list = key === 'category' ? 
-                document.querySelectorAll('.filter-list a[onclick*="category"]') : 
-                document.querySelectorAll('.filter-list a[onclick*="brand"]');
+                            list.forEach(el => el.classList.remove('active'));
 
-            list.forEach(el => el.classList.remove('active'));
-
-            // Try to find the link that matches the new value and make it active
-            // This regex looks for the value inside the onclick string
-            const activeLink = Array.from(list).find(el => el.getAttribute('onclick').includes(`'${value}'`));
-            if (activeLink) activeLink.classList.add('active');
-        }
-    }
-</script>
-</body>
+                            // Try to find the link that matches the new value and make it active
+                            // This regex looks for the value inside the onclick string
+                            const activeLink = Array.from(list).find(el => el.getAttribute('onclick').includes(`'${value}'`));
+                            if (activeLink) activeLink.classList.add('active');
+                        }
+                    }
+                </script>
+    </body>

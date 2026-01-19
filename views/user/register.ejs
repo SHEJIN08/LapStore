@@ -1,214 +1,221 @@
-
-<link rel="stylesheet" href="/css/user/register.css">   
+<link rel="stylesheet" href="/css/user/register.css">
 <%- include('../partials/header') %>
 
-<body>
+    <body>
 
-    <header class="page-header">
-        <div class="logo">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#3B82F6" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-            </svg>
-            <span>LapStore</span>
-        </div>
-    </header>
-
-    <main class="main-content">
-        <div class="register-container">
-            
-            <div class="register-header">
-                <h1>Create Your Account</h1>
-                <p>Join us to get the best deals on the latest laptops.</p>
+        <header class="page-header">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#3B82F6"
+                    stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>LapStore</span>
             </div>
+        </header>
 
-            <form id="Formdata">
-                <div class="form-group">
-                    <label for="full-name">Full Name</label>
-                    <input type="text" id="full-name" name="name" placeholder="Enter your full name">
-                    <span id="error-name" class="error-msg" style="color: red; font-size: 12px;"></span>
+        <main class="main-content">
+            <div class="register-container">
+
+                <div class="register-header">
+                    <h1>Create Your Account</h1>
+                    <p>Join us to get the best deals on the latest laptops.</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email address">
-                    <span id="error-email" class="error-msg" style="color: red; font-size: 12px;"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" name="password" placeholder="Enter your password">
-                        <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                            <line x1="1" y1="1" x2="23" y2="23"></line>
-                        </svg>
+                <form id="Formdata">
+                    <div class="form-group">
+                        <label for="full-name">Full Name</label>
+                        <input type="text" id="full-name" name="name" placeholder="Enter your full name">
+                        <span id="error-name" class="error-msg" style="color: red; font-size: 12px;"></span>
                     </div>
-                    <span id="error-password" class="error-msg" style="color: red; font-size: 12px;"></span>
-                </div>
-                <div class="form-group">
-                    <label for="password">Confirm Password</label>
-                    <div class="password-wrapper">
-                     <input type="password" id="con-password" name="confirmPassword" placeholder="Confirm password">
-                     <span id="error-confirmPassword" class="error-msg" style="color: red; font-size: 12px;"></span>
-                </div>
-                <div class="form-group">
-                    <label for="referral" class="label-optional">Optional</label>
-                    <input type="text" id="referral" name="referralCode" placeholder="Referral Code" >
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email address">
+                        <span id="error-email" class="error-msg" style="color: red; font-size: 12px;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Enter your password">
+                            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                </path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </div>
+                        <span id="error-password" class="error-msg" style="color: red; font-size: 12px;"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Confirm Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="con-password" name="confirmPassword"
+                                placeholder="Confirm password">
+                            <span id="error-confirmPassword" class="error-msg"
+                                style="color: red; font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="referral" class="label-optional">Optional</label>
+                            <input type="text" id="referral" name="referralCode" placeholder="Referral Code">
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" id="agree-terms">
+                            <label for="agree-terms">
+                                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn-submit">Sign Up</button>
+                </form>
+
+                <div class="login-link">
+                    Already have an account? <a href="/user/login">Log in</a>
                 </div>
 
-                <div class="form-check">
-                    <input type="checkbox" id="agree-terms">
-                    <label for="agree-terms">
-                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-                    </label>
-                </div>
-
-                <button type="submit" class="btn-submit">Sign Up</button>
-            </form>
-
-            <div class="login-link">
-                Already have an account? <a href="/user/login">Log in</a>
             </div>
+        </main>
 
+        <!-- loaders   -->
+        <div id="global-loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
         </div>
-    </main>
 
-                  <!-- loaders   -->
-    <div id="global-loader">
-    <div class="spinner"></div>
-    <p style="margin-top: 10px; font-weight: bold; color: #555;">Processing...</p>
-    </div>
+        <script src="/js/axios.min.js"></script>
+        <script>
+            const Formdata = document.getElementById('Formdata');
+            const inputIds = {
+                name: 'full-name',
+                email: 'email',
+                password: 'password',
+                confirmPassword: 'con-password'
+            };
 
- <script src="/js/axios.min.js"></script>
-<script>
-    const Formdata = document.getElementById('Formdata');
-    const inputIds = {
-        name: 'full-name',
-        email: 'email',
-        password: 'password',
-        confirmPassword: 'con-password'
-    };
-
-    Object.keys(inputIds).forEach(key => {
-        const element = document.getElementById(inputIds[key]);
-        if (element) {
-            element.addEventListener('input', () => {
-                // Find the span by the KEY name (name, email, etc)
-                const errorSpan = document.getElementById(`error-${key}`);
-                if (errorSpan) errorSpan.textContent = '';
-                element.classList.remove('input-error');
+            Object.keys(inputIds).forEach(key => {
+                const element = document.getElementById(inputIds[key]);
+                if (element) {
+                    element.addEventListener('input', () => {
+                        // Find the span by the KEY name (name, email, etc)
+                        const errorSpan = document.getElementById(`error-${key}`);
+                        if (errorSpan) errorSpan.textContent = '';
+                        element.classList.remove('input-error');
+                    });
+                }
             });
-        }
-    });
 
-       const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top", 
-                position: "right", 
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
-         // loading logic
-    const Loading = {
-    // 1. Show Full Page Loader
-    show: function(text = "Processing...") {
-        const loader = document.getElementById('global-loader');
-        const textEl = loader.querySelector('p');
-        if (textEl) textEl.innerText = text;
-        loader.style.display = 'flex';
-    },
+            const showToast = (message, type) => {
+                const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: bgColor, borderRadius: '10px' }
+                }).showToast();
+            };
+            // loading logic
+            const Loading = {
+                // 1. Show Full Page Loader
+                show: function (text = "Processing...") {
+                    const loader = document.getElementById('global-loader');
+                    const textEl = loader.querySelector('p');
+                    if (textEl) textEl.innerText = text;
+                    loader.style.display = 'flex';
+                },
 
-    // 2. Hide Full Page Loader
-    hide: function() {
-        document.getElementById('global-loader').style.display = 'none';
-    },
+                // 2. Hide Full Page Loader
+                hide: function () {
+                    document.getElementById('global-loader').style.display = 'none';
+                },
 
-    // 3. Turn a Button into a Loader
-    showButton: function(btnElement) {
-        btnElement.classList.add('btn-loading');
-        btnElement.disabled = true; // Prevent double clicks
-    },
+                // 3. Turn a Button into a Loader
+                showButton: function (btnElement) {
+                    btnElement.classList.add('btn-loading');
+                    btnElement.disabled = true; // Prevent double clicks
+                },
 
-    // 4. Restore Button
-    hideButton: function(btnElement) {
-        btnElement.classList.remove('btn-loading');
-        btnElement.disabled = false;
-    }
-};
+                // 4. Restore Button
+                hideButton: function (btnElement) {
+                    btnElement.classList.remove('btn-loading');
+                    btnElement.disabled = false;
+                }
+            };
 
-         const passwordInput = document.getElementById('password')
-        const eyeIcon = document.querySelector('.eye-icon')
+            const passwordInput = document.getElementById('password')
+            const eyeIcon = document.querySelector('.eye-icon')
 
-        eyeIcon.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text': 'password'
-        
-         passwordInput.setAttribute('type', type)
+            eyeIcon.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password'
 
-         if(type === 'text') {
-            eyeIcon.style.stroke = '#3B82F6'
-         }else{
-            eyeIcon.style.stroke = "currentColor"
-         }
-        })
+                passwordInput.setAttribute('type', type)
 
-    Formdata.addEventListener('submit',async (e) => {
-        e.preventDefault();
+                if (type === 'text') {
+                    eyeIcon.style.stroke = '#3B82F6'
+                } else {
+                    eyeIcon.style.stroke = "currentColor"
+                }
+            })
 
-        document.querySelectorAll('.error-msg').forEach(span => span.textContent = '');
+            Formdata.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-        const btn = e.target.querySelector('.btn-submit');
-        Loading.showButton(btn)
+                document.querySelectorAll('.error-msg').forEach(span => span.textContent = '');
 
-        const formDatas = {
-             name : document.getElementById('full-name').value,
-             email : document.getElementById('email').value,
-             password : document.getElementById('password').value,
-             confirmPassword : document.getElementById('con-password').value,
-             referralCode : document.getElementById('referral').value.trim(),
-        }
+                const btn = e.target.querySelector('.btn-submit');
+                Loading.showButton(btn)
 
-        try {
-            const response = await axios.post('/user/register', formDatas)
+                const formDatas = {
+                    name: document.getElementById('full-name').value,
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value,
+                    confirmPassword: document.getElementById('con-password').value,
+                    referralCode: document.getElementById('referral').value.trim(),
+                }
 
-          if (response.data.success) {
-                showToast('Registration successful! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = '/user/verify-otp';
-                }, 1000);
-            }
-        } catch (err) {
-            Loading.hideButton(btn);
-            
-            if (err.response && err.response.data.errors) {
-                const errors = err.response.data.errors;
-                console.log("Validation Errors Received:", errors);
+                try {
+                    const response = await axios.post('/user/register', formDatas)
 
-                // Loop through Joi errors (name, email, password, confirmPassword)
-                Object.keys(errors).forEach(key => {
-                    // This matches id="error-name", id="error-confirmPassword", etc.
-                    const errorSpan = document.getElementById(`error-${key}`);
-                    if (errorSpan) {
-                        errorSpan.textContent = errors[key];
-                    }else {
-                    console.warn(`Could not find span with id: error-${key}`); // <--- AND THIS
-                     }
-                    
-                    // Add red border to the input
-                    const inputField = document.getElementById(inputIds[key]);
-                    if (inputField) inputField.classList.add('input-error');
-                });
-            } else {
-                const errMsg = err.response?.data?.message || 'Something went wrong';
-                showToast(errMsg, 'error');
-            }
-        }
-    })
-</script>
-</body>
-</html>
+                    if (response.data.success) {
+                        showToast('Registration successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/user/verify-otp';
+                        }, 1000);
+                    }
+                } catch (err) {
+                    Loading.hideButton(btn);
+
+                    if (err.response && err.response.data.errors) {
+                        const errors = err.response.data.errors;
+                        console.log("Validation Errors Received:", errors);
+
+                        // Loop through Joi errors (name, email, password, confirmPassword)
+                        Object.keys(errors).forEach(key => {
+                            // This matches id="error-name", id="error-confirmPassword", etc.
+                            const errorSpan = document.getElementById(`error-${key}`);
+                            if (errorSpan) {
+                                errorSpan.textContent = errors[key];
+                            } else {
+                                console.warn(`Could not find span with id: error-${key}`); // <--- AND THIS
+                            }
+
+                            // Add red border to the input
+                            const inputField = document.getElementById(inputIds[key]);
+                            if (inputField) inputField.classList.add('input-error');
+                        });
+                    } else {
+                        const errMsg = err.response?.data?.message || 'Something went wrong';
+                        showToast(errMsg, 'error');
+                    }
+                }
+            })
+        </script>
+    </body>
+
+    </html>

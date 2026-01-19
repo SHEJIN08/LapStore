@@ -18,21 +18,22 @@
 
                 <section class="product-detail">
                     <div class="product-images">
-                        <div class="main-image" id="img-container" style="position: relative;"> <% if (product.hasOffer) { %>
+                        <div class="main-image" id="img-container" style="position: relative;">
+                            <% if (product.hasOffer) { %>
                                 <div class="offer-badge">
-                                    <% if (product.offerType === 'percentage') { %>
+                                    <% if (product.offerType==='percentage' ) { %>
                                         <%= product.offerValue %>% OFF
-                                    <% } else if (product.offerType === 'fixed') { %>
-                                        SAVE ₹<%= product.offerValue %>
-                                    <% } else { %>
-                                        OFFER
-                                    <% } %>
+                                            <% } else if (product.offerType==='fixed' ) { %>
+                                                SAVE ₹<%= product.offerValue %>
+                                                    <% } else { %>
+                                                        OFFER
+                                                        <% } %>
                                 </div>
-                            <% } %>
-                            <img id="mainImg" src="<%= product.images[0] %>" alt="<%= product.name %>"
-                                style="width:100%; height:100%; object-fit:contain;">
+                                <% } %>
+                                    <img id="mainImg" src="<%= product.images[0] %>" alt="<%= product.name %>"
+                                        style="width:100%; height:100%; object-fit:contain;">
 
-                            <div id="zoom-lens" class="img-zoom-lens"></div>
+                                    <div id="zoom-lens" class="img-zoom-lens"></div>
                         </div>
 
                         <div id="zoom-result" class="img-zoom-result"></div>
@@ -46,7 +47,7 @@
                                 <% }) %>
                         </div>
                     </div>
-                    
+
                     <div class="product-info">
                         <span class="brand">
                             <%= product.brand?.brandName || 'Brand' %>
@@ -55,128 +56,129 @@
                         <h1 class="product-title">
                             <%= product.name %>
                         </h1>
-                       <% if(reviews && reviews.length > 0){ %>
+                        <% if(reviews && reviews.length> 0){ %>
                             <div class="rating">
                                 <div class="stars">
-                        <% for(let i = 1; i <= 5; i++) { %>
-                            <% if (i <= average) { %>
-                                <i class="fa-solid fa-star"></i>
-                            <% } else if (i - 0.5 <= average) { %>
-                                <i class="fa-solid fa-star-half-stroke"></i>
-                            <% } else { %>
-                                <i class="fa-regular fa-star"></i>
-                            <% } %>
-                        <% } %>
-                    </div>
-                                <span class="review-count"><%= average %> (<%= totalReviews %> reviews)</span>
-                            </div>
-                     <%   } else{ %>
-                            <span>No reviews</span>
-                    <%   } %>
-
-                        <div class="price">
-                            <% if (product.hasOffer) { %>
-                                <span class="original-price" id="displayOriginal" style="color: red;">
-                                    ₹<%= product.originalPrice.toLocaleString('en-IN') %>
-                                </span>
-                                <span class="sale-price price-highlight" id="displaySale">
-                                    ₹<%= product.finalPrice.toLocaleString('en-IN') %>
-                                </span> 
-                            <% } else { %>
-                                <span class="sale-price" id="displaySale">
-                                    ₹<%= product.originalPrice.toLocaleString('en-IN') %>
-                                </span>
-                                <span class="original-price" id="displayOriginal" style="display:none"></span>
-                            <% } %>
-                        </div>
-
-                        <p class="description">
-                            <%= product.description || 'Experience the power and portability of this premium laptop.' %>
-                        </p>
-
-                        <% if(product.variants && product.variants.length> 0) { %>
-                            <div class="product-option">
-                                <h3 class="option-title">Configuration</h3>
-                                <div class="config-options">
-
-                                    <% product.variants.forEach((variant, index)=> { %>
-                                        
-                                        <% 
-                                            
-                                            let variantOriginal = variant.salePrice; // This is the database price
-                                            let variantFinal = variantOriginal;
-
-                                            if(product.hasOffer) {
-                                                if(product.offerType === 'percentage') {
-                                                    let discount = (variantOriginal * product.offerValue) / 100;
-                                                    variantFinal = Math.round(variantOriginal - discount);
-                                                } else if (product.offerType === 'fixed') {
-                                                    variantFinal = Math.max(0, variantOriginal - product.offerValue);
-                                                }
-                                            }
-                                        %>
-
-                                        <label class="config-box <%= index === 0 ? 'selected' : '' %>"
-                                            data-image="<%= variant.image %>"
-                                            onclick="selectVariant(this, '<%= variantFinal %>', '<%= variantOriginal %>')">
-
-                                            <input type="radio" name="variant" value="<%= variant._id %>" <%=index===0
-                                                ? 'checked' : '' %>>
-
-                                            <span class="config-details">
-                                                <%= variant.ram %> / <%= variant.storage %> / <i>
-                                                                <%= variant.graphics %>
-                                                            </i>
-                                            </span>
-                                            
-                                            <span class="config-price">
-                                                ₹<%= variantFinal.toLocaleString('en-IN') %>
-                                            </span>
-                                        </label>
-                                    <% }) %>
-
-                                </div>
-                            </div>
-                            <% } %>
-
-                                <div class="specs-section">
-                                    <h3 class="section-title">Specification</h3>
-                                    <ul>
-                                        <% if (product.specifications && product.specifications.length> 0) { %>
-                                            <% product.specifications.forEach(spec=> { %>
-                                                <li>
-                                                    <span style="font-weight: 600; color: #333;">
-                                                        <%= spec.key %>
-                                                    </span>
-                                                    <span style="color: #666;">
-                                                        <%= spec.value %>
-                                                    </span>
-                                                </li>
-                                                <% }) %>
-                                                    <% } else { %>
-                                                        <li> <span>No specifications available for this product </span>
-                                                        </li>
+                                    <% for(let i=1; i <=5; i++) { %>
+                                        <% if (i <=average) { %>
+                                            <i class="fa-solid fa-star"></i>
+                                            <% } else if (i - 0.5 <=average) { %>
+                                                <i class="fa-solid fa-star-half-stroke"></i>
+                                                <% } else { %>
+                                                    <i class="fa-regular fa-star"></i>
+                                                    <% } %>
                                                         <% } %>
-                                    </ul>
                                 </div>
-                                <div class="product-actions">
-                                    <button class="btn-add-to-cart" onclick="addToCart()">
-                                        <i class="fa-solid fa-cart-plus"></i> Add to Cart
-                                    </button>
-                                     <button class="wishlist-btn" style="margin-top: 7px;"
-                                        onclick="addToWishlist(event, '<%= product._id %>')">
-                                        <i class="fa-regular fa-heart"></i>
-                                     </button>
-                                </div>
+                                <span class="review-count">
+                                    <%= average %> (<%= totalReviews %> reviews)
+                                </span>
+                            </div>
+                            <% } else{ %>
+                                <span>No reviews</span>
+                                <% } %>
 
-                                <div class="additional-info">
-                                    <div class="info-item">
-                                        <i class="fa-solid fa-truck"></i> Free shipping on orders over ₹1,00,000
+                                    <div class="price">
+                                        <% if (product.hasOffer) { %>
+                                            <span class="original-price" id="displayOriginal" style="color: red;">
+                                                ₹<%= product.originalPrice.toLocaleString('en-IN') %>
+                                            </span>
+                                            <span class="sale-price price-highlight" id="displaySale">
+                                                ₹<%= product.finalPrice.toLocaleString('en-IN') %>
+                                            </span>
+                                            <% } else { %>
+                                                <span class="sale-price" id="displaySale">
+                                                    ₹<%= product.originalPrice.toLocaleString('en-IN') %>
+                                                </span>
+                                                <span class="original-price" id="displayOriginal"
+                                                    style="display:none"></span>
+                                                <% } %>
                                     </div>
-                                    <div class="info-item">
-                                        <i class="fa-solid fa-shield-halved"></i> Official Warranty
-                                    </div>
-                                </div>
+
+                                    <p class="description">
+                                        <%= product.description
+                                            || 'Experience the power and portability of this premium laptop.' %>
+                                    </p>
+
+                                    <% if(product.variants && product.variants.length> 0) { %>
+                                        <div class="product-option">
+                                            <h3 class="option-title">Configuration</h3>
+                                            <div class="config-options">
+
+                                                <% product.variants.forEach((variant, index)=> { %>
+
+                                                    <% let variantOriginal=variant.salePrice;
+                                                         let variantFinal=variantOriginal; if(product.hasOffer) {
+                                                        if(product.offerType==='percentage' ) { let
+                                                        discount=(variantOriginal * product.offerValue) / 100;
+                                                        variantFinal=Math.round(variantOriginal - discount); } else if
+                                                        (product.offerType==='fixed' ) { variantFinal=Math.max(0,
+                                                        variantOriginal - product.offerValue); } } %>
+
+                                                        <label class="config-box <%= index === 0 ? 'selected' : '' %>"
+                                                            data-image="<%= variant.image %>"
+                                                            onclick="selectVariant(this, '<%= variantFinal %>', '<%= variantOriginal %>')">
+
+                                                            <input type="radio" name="variant"
+                                                                value="<%= variant._id %>" <%=index===0 ? 'checked' : ''
+                                                                %>>
+
+                                                            <span class="config-details">
+                                                                <%= variant.ram %> / <%= variant.storage %> / <i>
+                                                                            <%= variant.graphics %>
+                                                                        </i>
+                                                            </span>
+
+                                                            <span class="config-price">
+                                                                ₹<%= variantFinal.toLocaleString('en-IN') %>
+                                                            </span>
+                                                        </label>
+                                                        <% }) %>
+
+                                            </div>
+                                        </div>
+                                        <% } %>
+
+                                            <div class="specs-section">
+                                                <h3 class="section-title">Specification</h3>
+                                                <ul>
+                                                    <% if (product.specifications && product.specifications.length> 0) {
+                                                        %>
+                                                        <% product.specifications.forEach(spec=> { %>
+                                                            <li>
+                                                                <span style="font-weight: 600; color: #333;">
+                                                                    <%= spec.key %>
+                                                                </span>
+                                                                <span style="color: #666;">
+                                                                    <%= spec.value %>
+                                                                </span>
+                                                            </li>
+                                                            <% }) %>
+                                                                <% } else { %>
+                                                                    <li> <span>No specifications available for this
+                                                                            product </span>
+                                                                    </li>
+                                                                    <% } %>
+                                                </ul>
+                                            </div>
+                                            <div class="product-actions">
+                                                <button class="btn-add-to-cart" onclick="addToCart()">
+                                                    <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                                                </button>
+                                                <button class="wishlist-btn" style="margin-top: 7px;"
+                                                    onclick="addToWishlist(event, '<%= product._id %>')">
+                                                    <i class="fa-regular fa-heart"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="additional-info">
+                                                <div class="info-item">
+                                                    <i class="fa-solid fa-truck"></i> Free shipping on orders over
+                                                    ₹1,00,000
+                                                </div>
+                                                <div class="info-item">
+                                                    <i class="fa-solid fa-shield-halved"></i> Official Warranty
+                                                </div>
+                                            </div>
                     </div>
                 </section>
 
@@ -185,46 +187,55 @@
                         <h2 class="section-heading">Customer Reviews</h2>
                         <button class="btn-add-review">Add a Review</button>
                     </div>
-                 <div class="review-list">
-                    <% if (reviews && reviews.length > 0) { %>
-                        <% reviews.forEach(review => { %>
-                            <div class="review-card" style="border-bottom: 1px solid #eee; padding: 15px 0; margin-bottom: 10px;">
-                                <div class="review-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                    <div class="reviewer-info" style="display: flex; align-items: center; gap: 10px;">
-                                        <div style="width: 35px; height: 35px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #555;">
-                                            <%= review.userId.name.charAt(0).toUpperCase() %>
+                    <div class="review-list">
+                        <% if (reviews && reviews.length> 0) { %>
+                            <% reviews.forEach(review=> { %>
+                                <div class="review-card"
+                                    style="border-bottom: 1px solid #eee; padding: 15px 0; margin-bottom: 10px;">
+                                    <div class="review-header"
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <div class="reviewer-info"
+                                            style="display: flex; align-items: center; gap: 10px;">
+                                            <div
+                                                style="width: 35px; height: 35px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #555;">
+                                                <%= review.userId.name.charAt(0).toUpperCase() %>
+                                            </div>
+                                            <div>
+                                                <strong style="display: block; font-size: 0.95rem;">
+                                                    <%= review.userId.name %>
+                                                </strong>
+                                                <span style="font-size: 0.8rem; color: #888;">
+                                                    <%= new Date(review.createdAt).toLocaleDateString('en-IN') %>
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <strong style="display: block; font-size: 0.95rem;"><%= review.userId.name %></strong>
-                                            <span style="font-size: 0.8rem; color: #888;">
-                                                <%= new Date(review.createdAt).toLocaleDateString('en-IN') %>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="star-display" style="color: #FFD700;">
-                                        <% for(let i=1; i<=5; i++) { %>
-                                            <% if(i <= review.rating) { %>
-                                                <i class="fa-solid fa-star"></i>
-                                            <% } else { %>
-                                                <i class="fa-regular fa-star" style="color: #ccc;"></i>
-                                            <% } %>
-                                        <% } %>
-                                    </div>
-                                </div>
 
-                                <p class="review-comment" style="color: #444; line-height: 1.5; font-size: 0.95rem;">
-                                    <%= review.comment %>
-                                </p>
-                            </div>
-                        <% }) %>
-                    <% } else { %>
-                        <div style="text-align: center; padding: 20px;">
-                            <i class="fa-regular fa-comments" style="font-size: 2rem; color: #ddd; margin-bottom: 10px;"></i>
-                            <p style="color: #666;">No reviews yet. Be the first to review this product!</p>
-                        </div>
-                    <% } %>
-                </div>
+                                        <div class="star-display" style="color: #FFD700;">
+                                            <% for(let i=1; i<=5; i++) { %>
+                                                <% if(i <=review.rating) { %>
+                                                    <i class="fa-solid fa-star"></i>
+                                                    <% } else { %>
+                                                        <i class="fa-regular fa-star" style="color: #ccc;"></i>
+                                                        <% } %>
+                                                            <% } %>
+                                        </div>
+                                    </div>
+
+                                    <p class="review-comment"
+                                        style="color: #444; line-height: 1.5; font-size: 0.95rem;">
+                                        <%= review.comment %>
+                                    </p>
+                                </div>
+                                <% }) %>
+                                    <% } else { %>
+                                        <div style="text-align: center; padding: 20px;">
+                                            <i class="fa-regular fa-comments"
+                                                style="font-size: 2rem; color: #ddd; margin-bottom: 10px;"></i>
+                                            <p style="color: #666;">No reviews yet. Be the first to review this product!
+                                            </p>
+                                        </div>
+                                        <% } %>
+                    </div>
                 </section>
 
                 <% if(relatedProducts && relatedProducts.length> 0) { %>
@@ -236,24 +247,24 @@
                                 <% relatedProducts.forEach(rel=> { %>
                                     <div class="product-card">
                                         <div class="card-image" style="position: relative;">
-                                            
+
                                             <% if (rel.hasOffer) { %>
                                                 <div class="offer-badge-small">
-                                                    <% if (rel.offerType === 'percentage') { %>
+                                                    <% if (rel.offerType==='percentage' ) { %>
                                                         <%= rel.offerValue %>% OFF
-                                                    <% } else { %>
-                                                        ₹<%= rel.offerValue %> OFF
-                                                    <% } %>
+                                                            <% } else { %>
+                                                                ₹<%= rel.offerValue %> OFF
+                                                                    <% } %>
                                                 </div>
-                                            <% } %>
+                                                <% } %>
 
-                                            <a href="/user/product/<%= rel.slug %>">
-                                                <img src="<%= rel.images[0] %>" alt="<%= rel.name %>">
-                                            </a>
-                                             <button class="wishlist-btn-cat" style="margin-top: 7px;"
-                                            onclick="addToWishlist(event, '<%= product._id %>')">
-                                            <i class="fa-regular fa-heart"></i>
-                                     </button>
+                                                    <a href="/user/product/<%= rel.slug %>">
+                                                        <img src="<%= rel.images[0] %>" alt="<%= rel.name %>">
+                                                    </a>
+                                                    <button class="wishlist-btn-cat" style="margin-top: 7px;"
+                                                        onclick="addToWishlist(event, '<%= product._id %>')">
+                                                        <i class="fa-regular fa-heart"></i>
+                                                    </button>
                                         </div>
                                         <div class="card-info">
                                             <span class="card-brand">
@@ -271,9 +282,10 @@
                                                     <del style="color: #999; font-size: 13px; margin-left: 5px;">
                                                         ₹<%= rel.originalPrice.toLocaleString('en-IN') %>
                                                     </del>
-                                                <% } else { %>
-                                                    <span class="card-sale">₹<%= rel.originalPrice.toLocaleString('en-IN') %></span>
-                                                <% } %>
+                                                    <% } else { %>
+                                                        <span class="card-sale">₹<%=
+                                                                rel.originalPrice.toLocaleString('en-IN') %></span>
+                                                        <% } %>
                                             </div>
                                         </div>
                                     </div>
@@ -287,48 +299,53 @@
             </main>
 
             <div id="reviewModal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 style="font-size: 1.2rem; font-weight: 600;">
-                <i class="fa-solid fa-circle-info" style="color: #2563eb; margin-right: 8px;"></i> 
-                Write a Review
-            </h3>
-            <button class="close-modal" onclick="closeReviewModal()">&times;</button>
-        </div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 style="font-size: 1.2rem; font-weight: 600;">
+                            <i class="fa-solid fa-circle-info" style="color: #2563eb; margin-right: 8px;"></i>
+                            Write a Review
+                        </h3>
+                        <button class="close-modal" onclick="closeReviewModal()">&times;</button>
+                    </div>
 
-        <div class="modal-product-summary">
-            <div class="modal-prod-img">
-                <img id="modalImg" src="" alt="Product">
-            </div>
-            <div class="modal-prod-details">
-                <h4 id="modalProdName"><%= product.name %></h4>
-                <p id="modalVariantSpecs" style="color: #666; font-size: 0.9rem;"></p>
-            </div>
-        </div>
+                    <div class="modal-product-summary">
+                        <div class="modal-prod-img">
+                            <img id="modalImg" src="" alt="Product">
+                        </div>
+                        <div class="modal-prod-details">
+                            <h4 id="modalProdName">
+                                <%= product.name %>
+                            </h4>
+                            <p id="modalVariantSpecs" style="color: #666; font-size: 0.9rem;"></p>
+                        </div>
+                    </div>
 
-        <div class="modal-section">
-            <label class="modal-label">Your Overall Rating</label>
-            <div class="star-rating-input">
-                <i class="fa-regular fa-star" data-value="1"></i>
-                <i class="fa-regular fa-star" data-value="2"></i>
-                <i class="fa-regular fa-star" data-value="3"></i>
-                <i class="fa-regular fa-star" data-value="4"></i>
-                <i class="fa-regular fa-star" data-value="5"></i>
-                <span id="rating-text" style="font-size: 0.9rem; color: #666; margin-left: 10px;">Select a rating</span>
-            </div>
-        </div>
+                    <div class="modal-section">
+                        <label class="modal-label">Your Overall Rating</label>
+                        <div class="star-rating-input">
+                            <i class="fa-regular fa-star" data-value="1"></i>
+                            <i class="fa-regular fa-star" data-value="2"></i>
+                            <i class="fa-regular fa-star" data-value="3"></i>
+                            <i class="fa-regular fa-star" data-value="4"></i>
+                            <i class="fa-regular fa-star" data-value="5"></i>
+                            <span id="rating-text" style="font-size: 0.9rem; color: #666; margin-left: 10px;">Select a
+                                rating</span>
+                        </div>
+                    </div>
 
-        <div class="modal-section">
-            <label class="modal-label">Add a Written Review</label>
-            <div class="textarea-container">
-                <textarea id="reviewComment" placeholder="What did you like or dislike? How did you use this product?" maxlength="1000"></textarea>
-                <div class="char-count"><span id="charCount">0</span>/1000</div>
-            </div>
-        </div>
+                    <div class="modal-section">
+                        <label class="modal-label">Add a Written Review</label>
+                        <div class="textarea-container">
+                            <textarea id="reviewComment"
+                                placeholder="What did you like or dislike? How did you use this product?"
+                                maxlength="1000"></textarea>
+                            <div class="char-count"><span id="charCount">0</span>/1000</div>
+                        </div>
+                    </div>
 
-        <button class="btn-submit-review" onclick="submitReview()">Submit Review</button>
-    </div>
-</div>
+                    <button class="btn-submit-review" onclick="submitReview()">Submit Review</button>
+                </div>
+            </div>
 
             <%- include('../partials/footer') %>
 
@@ -336,22 +353,22 @@
 
 
                 <script>
-                 
+
                     const container = document.getElementById("img-container");
                     const mainImg = document.getElementById("mainImg");
                     const lens = document.getElementById("zoom-lens");
                     const result = document.getElementById("zoom-result");
 
-                  
+
                     const cx = result.offsetWidth / lens.offsetWidth;
                     const cy = result.offsetHeight / lens.offsetHeight;
 
-                  
+
                     container.addEventListener("mouseenter", () => {
                         lens.style.visibility = "visible";
                         result.style.visibility = "visible";
 
-                     
+
                         result.style.backgroundImage = `url('${mainImg.src}')`;
                         result.style.backgroundSize = (mainImg.width * cx) + "px " + (mainImg.height * cy) + "px";
                     });
@@ -362,9 +379,9 @@
                     });
 
                     container.addEventListener("mousemove", moveLens);
-                    container.addEventListener("touchmove", moveLens); 
+                    container.addEventListener("touchmove", moveLens);
 
-                  
+
                     function moveLens(e) {
                         e.preventDefault();
 
@@ -399,7 +416,7 @@
                         return { x: x, y: y };
                     }
 
-                  
+
                     function changeImage(element, src) {
                         // 1. Update Main Image
                         mainImg.src = src;
@@ -459,7 +476,7 @@
                     // --- ADD TO CART FUNCTION ---
                     async function addToCart() {
                         try {
-                         
+
                             const productId = '<%= product._id %>';
 
                             const selectedVariant = document.querySelector('input[name="variant"]:checked');
@@ -471,14 +488,14 @@
 
                             const variantId = selectedVariant.value;
 
-                          
+
                             const response = await axios.post('/user/home/cart/add', {
                                 productId: productId,
                                 variantId: variantId,
                                 quantity: 1
                             });
 
-                          
+
                             if (response.data.success) {
                                 showToast("Item added to cart successfully!", "success");
 
@@ -494,220 +511,219 @@
                                     window.location.href = '/user/login'
                                 }, 2000)
 
-                            } else {                            
-                              const msg = error.response?.data?.message || "Failed to add to cart";
-                              showToast(msg, "error");
-                                  }
+                            } else {
+                                const msg = error.response?.data?.message || "Failed to add to cart";
+                                showToast(msg, "error");
+                            }
                         }
                     }
 
-    async function addToWishlist(event, productId) {
-    // 1. Stop navigation
-    event.preventDefault();
-    event.stopPropagation();
+                    async function addToWishlist(event, productId) {
+                        // 1. Stop navigation
+                        event.preventDefault();
+                        event.stopPropagation();
 
-    
 
-    const btn = event.currentTarget;
-    const icon = btn.querySelector('i');
 
-    // 2. FIND SELECTED VARIANT (Dynamic Check)
-    // This ensures we get the variant the user actually clicked on
-    const selectedVariant = document.querySelector('input[name="variant"]:checked');
-    
-    if (!selectedVariant) {
-        showToast("Please select a configuration option", "error");
-        return;
-    }
-    
-    const variantId = selectedVariant.value;
+                        const btn = event.currentTarget;
+                        const icon = btn.querySelector('i');
 
-    try {
-        // 3. Send API Request
-        const response = await axios.post('/user/wishlist/add', {
-            productId: productId,
-            variantId: variantId
-        });
+                        // 2. FIND SELECTED VARIANT (Dynamic Check)
+                        // This ensures we get the variant the user actually clicked on
+                        const selectedVariant = document.querySelector('input[name="variant"]:checked');
 
-        if (response.data.success) {
-            showToast('Item added to the wishlist', 'success');
+                        if (!selectedVariant) {
+                            showToast("Please select a configuration option", "error");
+                            return;
+                        }
 
-            // 4. Update UI (Visual Feedback)
-            icon.classList.remove('fa-regular');
-            icon.classList.add('fa-solid');
-            icon.style.color = '#ef4444'; // Red color
+                        const variantId = selectedVariant.value;
 
-            // Bounce animation
-            btn.style.transform = "scale(1.2)";
-            setTimeout(() => btn.style.transform = "scale(1)", 200);
-        }
+                        try {
+                            // 3. Send API Request
+                            const response = await axios.post('/user/wishlist/add', {
+                                productId: productId,
+                                variantId: variantId
+                            });
 
-    } catch (error) {
-        console.error(error);
-       
-        let message = "Something went wrong";
-        
-        if(error.response){
-       if (error.response.data && error.response.data.message) {
-                message = error.response.data.message;
-            }
+                            if (response.data.success) {
+                                showToast('Item added to the wishlist', 'success');
 
-            // Handle Not Logged In (401)
-            if (error.response.status === 401) {
-               message = "Please login to add items to wishlist";
-                setTimeout(() => {
-                    window.location.href = '/user/login';
-                }, 1500);
-                return;
-            }
-        }
-        showToast(message, "error");
-        }
-        
-    }   
+                                // 4. Update UI (Visual Feedback)
+                                icon.classList.remove('fa-regular');
+                                icon.classList.add('fa-solid');
+                                icon.style.color = '#ef4444'; // Red color
 
-    // --- VARIABLES ---
-    let currentRating = 0;
-    const modal = document.getElementById('reviewModal');
-    const commentInput = document.getElementById('reviewComment');
-    const charCount = document.getElementById('charCount');
-    const stars = document.querySelectorAll('.star-rating-input i');
-    const ratingText = document.getElementById('rating-text');
+                                // Bounce animation
+                                btn.style.transform = "scale(1.2)";
+                                setTimeout(() => btn.style.transform = "scale(1)", 200);
+                            }
 
-    // --- 1. OPEN MODAL LOGIC ---
-    // Attach this to your existing "Add a Review" button
-    document.querySelector('.btn-add-review').addEventListener('click', openReviewModal);
+                        } catch (error) {
+                            console.error(error);
 
-    function openReviewModal() {
-        // Get Selected Variant Details from your existing DOM
-        const selectedVariant = document.querySelector('input[name="variant"]:checked');
-        
-        if (!selectedVariant) {
-            showToast("Please select a variant first", "error");
-            return;
-        }
+                            let message = "Something went wrong";
 
-        // Find the visual box associated with the checkbox to get text details
-        const variantBox = selectedVariant.closest('.config-box');
-        const variantImage = variantBox.getAttribute('data-image');
-        const variantSpecs = variantBox.querySelector('.config-details').innerText.trim(); // e.g., "8GB / 512GB..."
+                            if (error.response) {
+                                if (error.response.data && error.response.data.message) {
+                                    message = error.response.data.message;
+                                }
 
-        // Populate Modal
-        document.getElementById('modalImg').src = variantImage;
-        document.getElementById('modalVariantSpecs').innerText = variantSpecs;
-        
-        // Show Modal
-        modal.style.display = 'flex';
-    }
+                                // Handle Not Logged In (401)
+                                if (error.response.status === 401) {
+                                    message = "Please login to add items to wishlist";
+                                    setTimeout(() => {
+                                        window.location.href = '/user/login';
+                                    }, 1500);
+                                    return;
+                                }
+                            }
+                            showToast(message, "error");
+                        }
 
-    // --- 2. CLOSE MODAL LOGIC ---
-    function closeReviewModal() {
-        modal.style.display = 'none';
-        resetForm();
-    }
+                    }
 
-    // Close on clicking outside
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            closeReviewModal();
-        }
-    }
+                    // --- VARIABLES ---
+                    let currentRating = 0;
+                    const modal = document.getElementById('reviewModal');
+                    const commentInput = document.getElementById('reviewComment');
+                    const charCount = document.getElementById('charCount');
+                    const stars = document.querySelectorAll('.star-rating-input i');
+                    const ratingText = document.getElementById('rating-text');
 
-    // --- 3. STAR RATING INTERACTION ---
-    stars.forEach(star => {
-        // Hover Effect
-        star.addEventListener('mouseenter', function() {
-            const val = this.getAttribute('data-value');
-            highlightStars(val);
-        });
+                    // --- 1. OPEN MODAL LOGIC ---
+                    // Attach this to your existing "Add a Review" button
+                    document.querySelector('.btn-add-review').addEventListener('click', openReviewModal);
 
-        // Click to Set
-        star.addEventListener('click', function() {
-            currentRating = this.getAttribute('data-value');
-            highlightStars(currentRating);
-            
-            // Update Text
-            const texts = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
-            ratingText.innerText = texts[currentRating - 1];
-            
-            // Lock the active state visually
-            stars.forEach(s => {
-                if(s.getAttribute('data-value') <= currentRating) {
-                    s.classList.add('active');
-                    s.classList.remove('fa-regular');
-                    s.classList.add('fa-solid');
-                } else {
-                    s.classList.remove('active');
-                    s.classList.add('fa-regular');
-                    s.classList.remove('fa-solid');
-                }
-            });
-        });
-    });
+                    function openReviewModal() {
+                        // Get Selected Variant Details from your existing DOM
+                        const selectedVariant = document.querySelector('input[name="variant"]:checked');
 
-    // Reset stars when mouse leaves container (unless clicked)
-    document.querySelector('.star-rating-input').addEventListener('mouseleave', function() {
-        highlightStars(currentRating); // Reset to saved rating
-    });
+                        if (!selectedVariant) {
+                            showToast("Please select a variant first", "error");
+                            return;
+                        }
 
-    function highlightStars(val) {
-        stars.forEach(star => {
-            if (star.getAttribute('data-value') <= val) {
-                star.classList.add('hover');
-                star.classList.remove('fa-regular');
-                star.classList.add('fa-solid');
-            } else {
-                star.classList.remove('hover');
-                // Only revert to empty if not part of permanent selection
-                if (!star.classList.contains('active')) {
-                    star.classList.add('fa-regular');
-                    star.classList.remove('fa-solid');
-                }
-            }
-        });
-    }
+                        // Find the visual box associated with the checkbox to get text details
+                        const variantBox = selectedVariant.closest('.config-box');
+                        const variantImage = variantBox.getAttribute('data-image');
+                        const variantSpecs = variantBox.querySelector('.config-details').innerText.trim(); // e.g., "8GB / 512GB..."
 
-    // --- 4. CHARACTER COUNT ---
-    commentInput.addEventListener('input', function() {
-        charCount.innerText = this.value.length;
-    });
+                        // Populate Modal
+                        document.getElementById('modalImg').src = variantImage;
+                        document.getElementById('modalVariantSpecs').innerText = variantSpecs;
 
-    // --- 5. SUBMIT FUNCTION ---
-    async function submitReview() {
-        const comment = commentInput.value.trim();
-        const productId = '<%= product._id %>';
+                        // Show Modal
+                        modal.style.display = 'flex';
+                    }
 
-        // Validation
-        if (currentRating === 0) return showToast("Please select a star rating", "error");
-        if (!comment) return showToast("Please write a review", "error");
+                    // --- 2. CLOSE MODAL LOGIC ---
+                    function closeReviewModal() {
+                        modal.style.display = 'none';
+                        resetForm();
+                    }
 
-        try {
-            const response = await axios.post('/user/product/reviews/add', {
-                productId: productId,
-                rating: parseInt(currentRating),
-                comment: comment
-            });
+                    // Close on clicking outside
+                    window.onclick = function (event) {
+                        if (event.target == modal) {
+                            closeReviewModal();
+                        }
+                    }
 
-            if (response.data.success) {
-                showToast("Review submitted successfully!", "success");
-                closeReviewModal();
-                 setTimeout(() => window.location.reload(), 1000);
-            }
-        } catch (error) {
-            console.error(error);
-            const msg = error.response?.data?.message || "Failed to submit review";
-            showToast(msg, "error");
-        }
-    }
+                    // --- 3. STAR RATING INTERACTION ---
+                    stars.forEach(star => {
+                        // Hover Effect
+                        star.addEventListener('mouseenter', function () {
+                            const val = this.getAttribute('data-value');
+                            highlightStars(val);
+                        });
 
-    function resetForm() {
-        currentRating = 0;
-        commentInput.value = '';
-        charCount.innerText = '0';
-        ratingText.innerText = 'Select a rating';
-        stars.forEach(s => {
-            s.className = 'fa-regular fa-star'; // Reset classes
-        });
-    }
- </script>
-    
+                        // Click to Set
+                        star.addEventListener('click', function () {
+                            currentRating = this.getAttribute('data-value');
+                            highlightStars(currentRating);
+
+                            // Update Text
+                            const texts = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
+                            ratingText.innerText = texts[currentRating - 1];
+
+                            // Lock the active state visually
+                            stars.forEach(s => {
+                                if (s.getAttribute('data-value') <= currentRating) {
+                                    s.classList.add('active');
+                                    s.classList.remove('fa-regular');
+                                    s.classList.add('fa-solid');
+                                } else {
+                                    s.classList.remove('active');
+                                    s.classList.add('fa-regular');
+                                    s.classList.remove('fa-solid');
+                                }
+                            });
+                        });
+                    });
+
+                    // Reset stars when mouse leaves container (unless clicked)
+                    document.querySelector('.star-rating-input').addEventListener('mouseleave', function () {
+                        highlightStars(currentRating); // Reset to saved rating
+                    });
+
+                    function highlightStars(val) {
+                        stars.forEach(star => {
+                            if (star.getAttribute('data-value') <= val) {
+                                star.classList.add('hover');
+                                star.classList.remove('fa-regular');
+                                star.classList.add('fa-solid');
+                            } else {
+                                star.classList.remove('hover');
+                                // Only revert to empty if not part of permanent selection
+                                if (!star.classList.contains('active')) {
+                                    star.classList.add('fa-regular');
+                                    star.classList.remove('fa-solid');
+                                }
+                            }
+                        });
+                    }
+
+                    // --- 4. CHARACTER COUNT ---
+                    commentInput.addEventListener('input', function () {
+                        charCount.innerText = this.value.length;
+                    });
+
+                    // --- 5. SUBMIT FUNCTION ---
+                    async function submitReview() {
+                        const comment = commentInput.value.trim();
+                        const productId = '<%= product._id %>';
+
+                        // Validation
+                        if (currentRating === 0) return showToast("Please select a star rating", "error");
+                        if (!comment) return showToast("Please write a review", "error");
+
+                        try {
+                            const response = await axios.post('/user/product/reviews/add', {
+                                productId: productId,
+                                rating: parseInt(currentRating),
+                                comment: comment
+                            });
+
+                            if (response.data.success) {
+                                showToast("Review submitted successfully!", "success");
+                                closeReviewModal();
+                                setTimeout(() => window.location.reload(), 1000);
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            const msg = error.response?.data?.message || "Failed to submit review";
+                            showToast(msg, "error");
+                        }
+                    }
+
+                    function resetForm() {
+                        currentRating = 0;
+                        commentInput.value = '';
+                        charCount.innerText = '0';
+                        ratingText.innerText = 'Select a rating';
+                        stars.forEach(s => {
+                            s.className = 'fa-regular fa-star'; // Reset classes
+                        });
+                    }
+                </script>

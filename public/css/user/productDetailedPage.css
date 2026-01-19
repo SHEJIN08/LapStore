@@ -48,64 +48,6 @@ a {
   justify-content: space-between;
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.search-bar {
-  flex: 1;
-  max-width: 600px;
-  margin: 0 2rem;
-  position: relative;
-}
-
-.search-bar input {
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  background-color: var(--bg-light);
-}
-
-.search-bar i {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-gray);
-}
-
-.header-icons {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.icon-link {
-  font-size: 1.25rem;
-  color: var(--text-gray);
-  position: relative;
-}
-
-.badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: var(--primary-color);
-  color: #fff;
-  font-size: 0.75rem;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 /* --- Breadcrumbs --- */
 .breadcrumbs {
   padding: 1rem 0;

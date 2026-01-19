@@ -1,152 +1,149 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/user/cart.css">
+    <link rel="stylesheet" href="/css/user/cart.css">
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <div class="main-container">
-        
-        <h1 class="page-title">Shopping Cart</h1>
+            <div class="main-container">
 
-        <div class="cart-layout">
-            
-          <div class="cart-items-container" id="cartItemsList">
-        <%- include('./partials/cart-items-list') %>
-       </div>
-   
-            <% if (cartItems && cartItems.length > 0) { %>
-            <div class="summary-section">
-    <div class="summary-card">
-        <h3>Order Summary</h3>
-        
-        <div class="summary-row">
-            <span>Subtotal</span>
-            <span class="val" id="summarySubtotal">₹<%= subtotal.toLocaleString() %></span>
-        </div>
-        <div class="summary-row">
-            <span>Shipping</span>
-            <span class="val" id="summaryShipping">
-                <% if (shipping === 0) { %>
-                    <span class="green">Free</span>
-                <% } else { %>
-                    ₹<%= shipping %>
-                <% } %>
-            </span>
-        </div>
-        <div class="summary-row">
-            <span>Tax (5%)</span>
-            <span class="val" id="summaryTax">₹<%= tax.toFixed(2) %></span>
-        </div>
+                <h1 class="page-title">Shopping Cart</h1>
 
-        <div class="summary-row total">
-            <span>Total</span>
-            <span id="summaryTotal">₹<%= total.toFixed(2) %></span>
-        </div>
+                <div class="cart-layout">
 
-        <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
-        
-        <a href="/user/home/shop" class="continue-link">Continue Shopping</a>
-    </div>
-</div>
-            <% } %>
+                    <div class="cart-items-container" id="cartItemsList">
+                        <%- include('./partials/cart-items-list') %>
+                    </div>
 
-        </div>
+                    <% if (cartItems && cartItems.length> 0) { %>
+                        <div class="summary-section">
+                            <div class="summary-card">
+                                <h3>Order Summary</h3>
 
-        <% if (cartItems && cartItems.length > 0) { %>
-        <div class="pagination-container" id="paginationControls">
-        
-        <button class="nav-link prev" 
-            onclick="fetchCartPage('<%= currentPage - 1 %>')" 
-            <%= currentPage === 1 ? 'disabled' : '' %> 
-            style="background:none; border:none; cursor:pointer;">
-            <i class="fa-solid fa-arrow-left-long"></i> Previous
-        </button>
+                                <div class="summary-row">
+                                    <span>Subtotal</span>
+                                    <span class="val" id="summarySubtotal">₹<%= subtotal.toLocaleString() %></span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Shipping</span>
+                                    <span class="val" id="summaryShipping">
+                                        <% if (shipping===0) { %>
+                                            <span class="green">Free</span>
+                                            <% } else { %>
+                                                ₹<%= shipping %>
+                                                    <% } %>
+                                    </span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Tax (5%)</span>
+                                    <span class="val" id="summaryTax">₹<%= tax.toFixed(2) %></span>
+                                </div>
 
-        <div class="page-numbers">
-            <% for(let i = 1; i <= totalPages; i++) { %>
-                <a href="javascript:void(0)" 
-                   class="page-num <%= currentPage === i ? 'active' : '' %>" 
-                   onclick="fetchCartPage('<%= i %>')">
-                   <%= i %>
-                </a>
-            <% } %>
-        </div>
+                                <div class="summary-row total">
+                                    <span>Total</span>
+                                    <span id="summaryTotal">₹<%= total.toFixed(2) %></span>
+                                </div>
 
-        <button class="nav-link next" 
-            onclick="fetchCartPage('<%= currentPage + 1 %>')" 
-            <%= currentPage === totalPages ? 'disabled' : '' %> 
-            style="background:none; border:none; cursor:pointer;">
-            Next <i class="fa-solid fa-arrow-right-long"></i>
-        </button>
+                                <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
 
-    </div>
-        <% } %>
+                                <a href="/user/home/shop" class="continue-link">Continue Shopping</a>
+                            </div>
+                        </div>
+                        <% } %>
 
-    </div>
+                </div>
 
-<%- include('../partials/footer') %>
+                <% if (cartItems && cartItems.length> 0) { %>
+                    <div class="pagination-container" id="paginationControls">
 
-<script src="/js/axios.min.js"></script>
+                        <button class="nav-link prev" onclick="fetchCartPage('<%= currentPage - 1 %>')"
+                            <%=currentPage===1 ? 'disabled' : '' %>
+                            style="background:none; border:none; cursor:pointer;">
+                            <i class="fa-solid fa-arrow-left-long"></i> Previous
+                        </button>
 
-<script>
-  
-     const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top", 
-                position: "right", 
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
+                        <div class="page-numbers">
+                            <% for(let i=1; i <=totalPages; i++) { %>
+                                <a href="javascript:void(0)" class="page-num <%= currentPage === i ? 'active' : '' %>"
+                                    onclick="fetchCartPage('<%= i %>')">
+                                    <%= i %>
+                                </a>
+                                <% } %>
+                        </div>
+
+                        <button class="nav-link next" onclick="fetchCartPage('<%= currentPage + 1 %>')"
+                            <%=currentPage===totalPages ? 'disabled' : '' %>
+                            style="background:none; border:none; cursor:pointer;">
+                            Next <i class="fa-solid fa-arrow-right-long"></i>
+                        </button>
+
+                    </div>
+                    <% } %>
+
+            </div>
+
+            <%- include('../partials/footer') %>
+
+                <script src="/js/axios.min.js"></script>
+
+                <script>
+
+                    const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                        Toastify({
+                            text: message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: bgColor, borderRadius: '10px' }
+                        }).showToast();
+                    };
 
 
-   async function fetchCartPage(page) {
-        try {
-        
-            const response = await axios.get(`/user/home/cart?page=${page}&ajax=true`);
-            
-            if (response.data.success) {
-                const { html, totalPages, currentPage, summary } = response.data;
-              
-                document.getElementById('cartItemsList').innerHTML = html;
-                
-             
-                renderPagination(currentPage, totalPages);
-                
-          
-                updateSummary(summary);
-         
-              
-                window.history.pushState(null, null, `?page=${page}`);
-                document.querySelector('.main-container').scrollIntoView({ behavior: 'smooth' });
+                    async function fetchCartPage(page) {
+                        try {
 
-            } else {
-                showToast("Failed to load page", "error");
-            }
-   
-        } catch (error) {
-            console.error(error);
-            
-            showToast("Error fetching data", "error");
-        }
-    }
+                            const response = await axios.get(`/user/home/cart?page=${page}&ajax=true`);
+
+                            if (response.data.success) {
+                                const { html, totalPages, currentPage, summary } = response.data;
+
+                                document.getElementById('cartItemsList').innerHTML = html;
 
 
-    function renderPagination(current, total) {
-        const container = document.getElementById('paginationControls');
-        if (!container) return; 
+                                renderPagination(currentPage, totalPages);
 
-        let pagesHtml = '';
-        for (let i = 1; i <= total; i++) {
-            pagesHtml += `<a href="javascript:void(0)" class="page-num ${i === current ? 'active' : ''}" onclick="fetchCartPage(${i})">${i}</a>`;
-        }
 
-        container.innerHTML = `
+                                updateSummary(summary);
+
+
+                                window.history.pushState(null, null, `?page=${page}`);
+                                document.querySelector('.main-container').scrollIntoView({ behavior: 'smooth' });
+
+                            } else {
+                                showToast("Failed to load page", "error");
+                            }
+
+                        } catch (error) {
+                            console.error(error);
+
+                            showToast("Error fetching data", "error");
+                        }
+                    }
+
+
+                    function renderPagination(current, total) {
+                        const container = document.getElementById('paginationControls');
+                        if (!container) return;
+
+                        let pagesHtml = '';
+                        for (let i = 1; i <= total; i++) {
+                            pagesHtml += `<a href="javascript:void(0)" class="page-num ${i === current ? 'active' : ''}" onclick="fetchCartPage(${i})">${i}</a>`;
+                        }
+
+                        container.innerHTML = `
             <button class="nav-link prev" onclick="fetchCartPage(${current - 1})" ${current === 1 ? 'disabled' : ''} style="background:none; border:none; cursor:pointer;">
                 <i class="fa-solid fa-arrow-left-long"></i> Previous
             </button>
@@ -155,90 +152,90 @@
                 Next <i class="fa-solid fa-arrow-right-long"></i>
             </button>
         `;
-    }
-
- 
-    function updateSummary(summary) {
-        document.getElementById('summarySubtotal').innerText = `₹${summary.subtotal.toLocaleString()}`;
-        document.getElementById('summaryTax').innerText = `₹${summary.tax.toFixed(2)}`;
-        document.getElementById('summaryTotal').innerText = `₹${summary.total.toFixed(2)}`;
-        
-        const shipElem = document.getElementById('summaryShipping');
-        if (summary.shipping === 0) {
-            shipElem.innerText = 'Free';
-            shipElem.classList.add('green'); 
-        } else {
-            shipElem.innerText = `₹${summary.shipping}`;
-            shipElem.classList.remove('green');
-        }
-    }
+                    }
 
 
-    async function updateQuantity(cartId, action) {
-        try {
-            const response = await axios.post('/user/home/cart/update-quantity', { cartId, action });
-            if (response.data.success) {
-             
-                const params = new URLSearchParams(window.location.search);
-                const page = parseInt(params.get('page')) || 1;
-                fetchCartPage(page);
-            } else {
-                showToast(response.data.message, 'error');
-            }
-        } catch (error) {
-             console.error(error);
-            showToast(error.response?.data?.message || "Update failed");
-        }
-    }
+                    function updateSummary(summary) {
+                        document.getElementById('summarySubtotal').innerText = `₹${summary.subtotal.toLocaleString()}`;
+                        document.getElementById('summaryTax').innerText = `₹${summary.tax.toFixed(2)}`;
+                        document.getElementById('summaryTotal').innerText = `₹${summary.total.toFixed(2)}`;
 
-    function confirmDelete(cartId) {
-        Swal.fire({
-            title: 'Remove item?',
-            text: "Are you sure?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
-        }).then((result) => {
-            if (result.isConfirmed) deleteItem(cartId);
-        });
-    }
+                        const shipElem = document.getElementById('summaryShipping');
+                        if (summary.shipping === 0) {
+                            shipElem.innerText = 'Free';
+                            shipElem.classList.add('green');
+                        } else {
+                            shipElem.innerText = `₹${summary.shipping}`;
+                            shipElem.classList.remove('green');
+                        }
+                    }
 
-    async function deleteItem(cartId) {
-        try {
-            const response = await axios.delete('/user/home/cart/remove', { data: { cartId } });
-            if (response.data.success) {
-                showToast('Item removed', 'success');
-                const params = new URLSearchParams(window.location.search);
-                const page = parseInt(params.get('page')) || 1;
-                fetchCartPage(page);
-            } else {
-                showToast('Could not remove item', 'error');
-            }
-        } catch (error) {
-            showToast('Server error', 'error');
-        }
-    }
 
-    function proceedToCheckout() {
-        window.location.href = "/user/cart/checkout";
-    }
-    //code to check any error message in url
-    document.addEventListener('DOMContentLoaded', () => {
-    // 1. Check if there are parameters in the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const errorMessage = urlParams.get('error');
+                    async function updateQuantity(cartId, action) {
+                        try {
+                            const response = await axios.post('/user/home/cart/update-quantity', { cartId, action });
+                            if (response.data.success) {
 
-    if (errorMessage) {
-        // 2. Use your existing showToast helper
-        showToast(decodeURIComponent(errorMessage), "error");
+                                const params = new URLSearchParams(window.location.search);
+                                const page = parseInt(params.get('page')) || 1;
+                                fetchCartPage(page);
+                            } else {
+                                showToast(response.data.message, 'error');
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            showToast(error.response?.data?.message || "Update failed");
+                        }
+                    }
 
-        // 3. Clean the URL (removes the ?error=... from the address bar)
-        // This prevents the toast from popping up again if the user refreshes the page
-        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        window.history.replaceState({}, document.title, cleanUrl);
-    }
-});
+                    function confirmDelete(cartId) {
+                        Swal.fire({
+                            title: 'Remove item?',
+                            text: "Are you sure?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'Yes, remove it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) deleteItem(cartId);
+                        });
+                    }
 
-</script>
-</body>
+                    async function deleteItem(cartId) {
+                        try {
+                            const response = await axios.delete('/user/home/cart/remove', { data: { cartId } });
+                            if (response.data.success) {
+                                showToast('Item removed', 'success');
+                                const params = new URLSearchParams(window.location.search);
+                                const page = parseInt(params.get('page')) || 1;
+                                fetchCartPage(page);
+                            } else {
+                                showToast('Could not remove item', 'error');
+                            }
+                        } catch (error) {
+                            showToast('Server error', 'error');
+                        }
+                    }
+
+                    function proceedToCheckout() {
+                        window.location.href = "/user/cart/checkout";
+                    }
+                    //code to check any error message in url
+                    document.addEventListener('DOMContentLoaded', () => {
+                        // 1. Check if there are parameters in the URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const errorMessage = urlParams.get('error');
+
+                        if (errorMessage) {
+                            // 2. Use your existing showToast helper
+                            showToast(decodeURIComponent(errorMessage), "error");
+
+                            // 3. Clean the URL (removes the ?error=... from the address bar)
+                            // This prevents the toast from popping up again if the user refreshes the page
+                            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                            window.history.replaceState({}, document.title, cleanUrl);
+                        }
+                    });
+
+                </script>
+    </body>

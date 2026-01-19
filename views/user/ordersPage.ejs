@@ -43,7 +43,7 @@
                         <div class="orders-toolbar">
 
                             <div class="toolbar-left">
-                     
+
                             </div>
 
                             <div class="search-container">
@@ -129,12 +129,12 @@
                                                                     onclick="openCancelModal('<%= order._id %>')">
                                                                     Cancel Order
                                                                 </button>
-                                                                <% } else if(order.status === 'Failed'){ %>
-                                                                     <button class="btn-retry rtr-pay"
-                                                                     onclick="retryPayment('<%= order.orderId %>')">
-                                                                    Retry payment
-                                                                </button>
-                                                               <% } %>
+                                                                <% } else if(order.status==='Failed' ){ %>
+                                                                    <button class="btn-retry rtr-pay"
+                                                                        onclick="retryPayment('<%= order.orderId %>')">
+                                                                        Retry payment
+                                                                    </button>
+                                                                    <% } %>
                                                         </td>
                                                     </tr>
 
@@ -242,7 +242,7 @@
 
             <%- include('../partials/footer') %>
 
-            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
                 <script src="/js/axios.min.js"></script>
 
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -346,78 +346,78 @@
                     }
 
                     async function retryPayment(orderId) {
-        if (!orderId) return showToast("Invalid Order ID", "error");
+                        if (!orderId) return showToast("Invalid Order ID", "error");
 
-        try {
-            // 1. Notify user
-            showToast("Initializing payment...", "info");
+                        try {
+                            // 1. Notify user
+                            showToast("Initializing payment...", "info");
 
-            // 2. Call Backend to create Razorpay Order
-            const response = await axios.post('/user/repay-failed-order', { orderId: orderId });
+                            // 2. Call Backend to create Razorpay Order
+                            const response = await axios.post('/user/repay-failed-order', { orderId: orderId });
 
-            if (!response.data.success) {
-                throw new Error(response.data.message || "Failed to initiate payment");
-            }
+                            if (!response.data.success) {
+                                throw new Error(response.data.message || "Failed to initiate payment");
+                            }
 
-            const { key_id, amount, currency, razorpayOrderId, user } = response.data;
+                            const { key_id, amount, currency, razorpayOrderId, user } = response.data;
 
-            // 3. Configure Razorpay Options
-            const options = {
-                "key": key_id,
-                "amount": amount,
-                "currency": currency,
-                "name": "LapStore",
-                "description": "Retry Payment",
-                "order_id": razorpayOrderId,
-                "handler": async function (response) {
-                    try {
-                        // 4. Verify Payment on Success
-                        const verifyRes = await axios.post('/user/verify-payment', {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            orderId: orderId 
-                        });
+                            // 3. Configure Razorpay Options
+                            const options = {
+                                "key": key_id,
+                                "amount": amount,
+                                "currency": currency,
+                                "name": "LapStore",
+                                "description": "Retry Payment",
+                                "order_id": razorpayOrderId,
+                                "handler": async function (response) {
+                                    try {
+                                        // 4. Verify Payment on Success
+                                        const verifyRes = await axios.post('/user/verify-payment', {
+                                            razorpay_order_id: response.razorpay_order_id,
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_signature: response.razorpay_signature,
+                                            orderId: orderId
+                                        });
 
-                        if (verifyRes.data.success) {
-                            // Redirect to success page
-                            window.location.href = `/user/order-success/${verifyRes.data.orderId}`;
-                        } else {
-                            showToast('Payment verification failed', 'error');
+                                        if (verifyRes.data.success) {
+                                            // Redirect to success page
+                                            window.location.href = `/user/order-success/${verifyRes.data.orderId}`;
+                                        } else {
+                                            showToast('Payment verification failed', 'error');
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                        showToast('Verification error. Please contact support.', 'error');
+                                    }
+                                },
+                                "prefill": {
+                                    "name": user.name,
+                                    "email": user.email,
+                                    "contact": user.phone
+                                },
+                                "theme": { "color": "#3399cc" },
+                                "modal": {
+                                    "ondismiss": function () {
+                                        showToast("Payment cancelled", "error");
+                                    }
+                                }
+                            };
+
+                            // 5. Open Razorpay
+                            const rzp1 = new Razorpay(options);
+
+                            rzp1.on('payment.failed', function (response) {
+                                // If it fails again, redirect to failure page to log the error
+                                const errorDesc = response.error.description;
+                                window.location.href = `/user/order-failure?error=${encodeURIComponent(errorDesc)}&orderId=${orderId}`;
+                            });
+
+                            rzp1.open();
+
+                        } catch (error) {
+                            console.error(error);
+                            showToast(error.response?.data?.message || error.message || "Retry failed", 'error');
                         }
-                    } catch (err) {
-                        console.error(err);
-                        showToast('Verification error. Please contact support.', 'error');
                     }
-                },
-                "prefill": {
-                    "name": user.name,
-                    "email": user.email,
-                    "contact": user.phone
-                },
-                "theme": { "color": "#3399cc" },
-                "modal": {
-                    "ondismiss": function() {
-                        showToast("Payment cancelled", "error");
-                    }
-                }
-            };
-
-            // 5. Open Razorpay
-            const rzp1 = new Razorpay(options);
-            
-            rzp1.on('payment.failed', function (response){
-                // If it fails again, redirect to failure page to log the error
-                const errorDesc = response.error.description;
-                window.location.href = `/user/order-failure?error=${encodeURIComponent(errorDesc)}&orderId=${orderId}`;
-            });
-
-            rzp1.open();
-
-        } catch (error) {
-            console.error(error);
-            showToast(error.response?.data?.message || error.message || "Retry failed", 'error');
-        }
-    }
 
                 </script>

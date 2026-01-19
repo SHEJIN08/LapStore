@@ -1,168 +1,180 @@
 <%- include('../partials/header') %>
 
-<link rel="stylesheet" href="/css/user/orderFailure.css"> 
+    <link rel="stylesheet" href="/css/user/orderFailure.css">
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <div class="main-container">
-        
-        <div class="failure-card">
-            <div class="failure-icon">
-                <i class="fa-solid fa-circle-xmark"></i>
+            <div class="main-container">
+
+                <div class="failure-card">
+                    <div class="failure-icon">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </div>
+
+                    <h1 class="failure-title">Payment Failed</h1>
+
+                    <p class="error-message">
+                        Unfortunately, we could not process your order.
+                        <% if (typeof error !=='undefined' && error) { %>
+                            <br><span class="server-msg">
+                                <%= error %>
+                            </span>
+                            <% } %>
+                    </p>
+                    <div class="transaction-details">
+                        <% if (typeof razorpayPaymentId !=='undefined' && razorpayPaymentId) { %>
+                            <p class="detail-row">Payment ID: <span>
+                                    <%= razorpayPaymentId %>
+                                </span></p>
+                            <% } %>
+
+                                <% if (typeof razorpayOrderId !=='undefined' && razorpayOrderId) { %>
+                                    <p class="detail-row">Razorpay Order ID: <span>
+                                            <%= razorpayOrderId %>
+                                        </span></p>
+                                    <% } %>
+
+                                        <% if (typeof orderId !=='undefined' && orderId) { %>
+                                            <p class="detail-row">Order Reference: <span id="failedOrderId">
+                                                    <%= orderId %>
+                                                </span></p>
+                                            <% } %>
+                    </div>
+
+                    <p class="advice-text">
+                        Your account has not been charged. If money was deducted, it will be refunded automatically
+                        within 3-5 business days.
+                    </p>
+
+                    <% if (typeof orderId !=='undefined' && orderId) { %>
+                        <p class="order-ref">Order Reference: <span>
+                                <%= orderId %>
+                            </span></p>
+                        <% } %>
+
+                            <div class="action-buttons">
+                                <button type="button" class="retry-btn" onclick="retryPayment('<%= orderId %>')">Try
+                                    Again</button>
+
+                                <a href="/user/home/cart" class="cart-btn">Go to Cart</a>
+                            </div>
+
+                            <a href="/user/home/shop" class="continue-link">Continue Shopping</a>
+                </div>
+
             </div>
 
-            <h1 class="failure-title">Payment Failed</h1>
-            
-            <p class="error-message">
-                Unfortunately, we could not process your order.
-                <% if (typeof error !== 'undefined' && error) { %>
-                    <br><span class="server-msg"><%= error %></span>
-                <% } %>
-            </p>
-            <div class="transaction-details">
-                <% if (typeof razorpayPaymentId !== 'undefined' && razorpayPaymentId) { %>
-                    <p class="detail-row">Payment ID: <span><%= razorpayPaymentId %></span></p>
-                <% } %>
-                
-                <% if (typeof razorpayOrderId !== 'undefined' && razorpayOrderId) { %>
-                    <p class="detail-row">Razorpay Order ID: <span><%= razorpayOrderId %></span></p>
-                <% } %>
+            <%- include('../partials/footer') %>
+    </body>
+    <script src="/js/axios.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        async function retryPayment(orderIdParam) {
+            const button = document.querySelector('.retry-btn');
 
-                <% if (typeof orderId !== 'undefined' && orderId) { %>
-                   <p class="detail-row">Order Reference: <span id="failedOrderId"><%= orderId %></span></p>
-                <% } %>
-            </div>
+            // --- SAFE ID RETRIEVAL ---
+            let orderId = orderIdParam;
 
-            <p class="advice-text">
-                Your account has not been charged. If money was deducted, it will be refunded automatically within 3-5 business days.
-            </p>
-
-            <% if (typeof orderId !== 'undefined' && orderId) { %>
-                <p class="order-ref">Order Reference: <span><%= orderId %></span></p>
-            <% } %>
-
-            <div class="action-buttons">
-<button type="button" class="retry-btn" onclick="retryPayment('<%= orderId %>')">Try Again</button>
-
-                <a href="/user/home/cart" class="cart-btn">Go to Cart</a>
-            </div>
-            
-            <a href="/user/home/shop" class="continue-link">Continue Shopping</a>
-        </div>
-
-    </div>
-
-<%- include('../partials/footer') %>
-</body>
-<script src="/js/axios.min.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-    async function retryPayment(orderIdParam) {
-        const button = document.querySelector('.retry-btn');
-        
-        // --- SAFE ID RETRIEVAL ---
-        let orderId = orderIdParam;
-        
-        // Fallback: If button didn't pass it, try the HTML span
-        if (!orderId) {
-            const orderSpan = document.getElementById('failedOrderId');
-            if (orderSpan) orderId = orderSpan.innerText.trim();
-        }
-
-        // Fallback: Try URL
-        if (!orderId) {
-            const urlParams = new URLSearchParams(window.location.search);
-            orderId = urlParams.get('orderId');
-        }
-
-        // Final Check
-        if (!orderId) {
-            console.error("Critical: No Order ID found.");
-            showToast("Cannot retry: Order ID missing.", "error");
-            return;
-        }
-
-        try {
-            button.innerText = "Processing...";
-            button.disabled = true;
-
-            // Call Backend
-            const response = await axios.post('/user/repay-failed-order', { orderId: orderId });
-
-            if (!response.data.success) {
-                throw new Error(response.data.message);
+            // Fallback: If button didn't pass it, try the HTML span
+            if (!orderId) {
+                const orderSpan = document.getElementById('failedOrderId');
+                if (orderSpan) orderId = orderSpan.innerText.trim();
             }
 
-            const { key_id, amount, currency, razorpayOrderId, user } = response.data;
+            // Fallback: Try URL
+            if (!orderId) {
+                const urlParams = new URLSearchParams(window.location.search);
+                orderId = urlParams.get('orderId');
+            }
 
-            const options = {
-                "key": key_id,
-                "amount": amount,
-                "currency": currency,
-                "name": "LapStore",
-                "order_id": razorpayOrderId,
-                "handler": async function (response) {
-                    try {
-                        const verifyRes = await axios.post('/user/verify-payment', {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            orderId: orderId // Send the custom ID back for verification
-                        });
+            // Final Check
+            if (!orderId) {
+                console.error("Critical: No Order ID found.");
+                showToast("Cannot retry: Order ID missing.", "error");
+                return;
+            }
 
-                        if (verifyRes.data.success) {
-                            window.location.href = `/user/order-success/${verifyRes.data.orderId}`;
-                        } else {
-                            showToast('Payment verification failed', 'error');
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        showToast('Verification error', 'error');
-                    }
-                },
-                "prefill": {
-                    "name": user.name,
-                    "email": user.email,
-                    "contact": user.phone
-                },
-                "modal": {
-                    "ondismiss": function() {
-                        button.innerText = "Try Again";
-                        button.disabled = false;
-                        showToast("Payment cancelled", "error");
-                    }
+            try {
+                button.innerText = "Processing...";
+                button.disabled = true;
+
+                // Call Backend
+                const response = await axios.post('/user/repay-failed-order', { orderId: orderId });
+
+                if (!response.data.success) {
+                    throw new Error(response.data.message);
                 }
-            };
 
-            const rzp1 = new Razorpay(options);
-            
-            rzp1.on('payment.failed', function (response){
-                 // Redirect to failure page with specific error
-                 const errorDesc = response.error.description;
-                 window.location.href = `/user/order-failure?error=${encodeURIComponent(errorDesc)}&orderId=${orderId}`;
-            });
+                const { key_id, amount, currency, razorpayOrderId, user } = response.data;
 
-            rzp1.open();
+                const options = {
+                    "key": key_id,
+                    "amount": amount,
+                    "currency": currency,
+                    "name": "LapStore",
+                    "order_id": razorpayOrderId,
+                    "handler": async function (response) {
+                        try {
+                            const verifyRes = await axios.post('/user/verify-payment', {
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                orderId: orderId // Send the custom ID back for verification
+                            });
 
-        } catch(error) {
-            console.error(error);
-            button.innerText = "Try Again";
-            button.disabled = false;
-            showToast(error.response?.data?.message || error.message || "Retry failed", 'error');
+                            if (verifyRes.data.success) {
+                                window.location.href = `/user/order-success/${verifyRes.data.orderId}`;
+                            } else {
+                                showToast('Payment verification failed', 'error');
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            showToast('Verification error', 'error');
+                        }
+                    },
+                    "prefill": {
+                        "name": user.name,
+                        "email": user.email,
+                        "contact": user.phone
+                    },
+                    "modal": {
+                        "ondismiss": function () {
+                            button.innerText = "Try Again";
+                            button.disabled = false;
+                            showToast("Payment cancelled", "error");
+                        }
+                    }
+                };
+
+                const rzp1 = new Razorpay(options);
+
+                rzp1.on('payment.failed', function (response) {
+                    // Redirect to failure page with specific error
+                    const errorDesc = response.error.description;
+                    window.location.href = `/user/order-failure?error=${encodeURIComponent(errorDesc)}&orderId=${orderId}`;
+                });
+
+                rzp1.open();
+
+            } catch (error) {
+                console.error(error);
+                button.innerText = "Try Again";
+                button.disabled = false;
+                showToast(error.response?.data?.message || error.message || "Retry failed", 'error');
+            }
         }
-    }
-    // Helper Toast Function
-    function showToast(msg, type) {
-        // Use your existing Toastify logic here
-        Toastify({
-            text: msg,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            style: { background: type === 'success' ? "green" : "#e52d27" }
-        }).showToast();
-    }
+        // Helper Toast Function
+        function showToast(msg, type) {
+            // Use your existing Toastify logic here
+            Toastify({
+                text: msg,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { background: type === 'success' ? "green" : "#e52d27" }
+            }).showToast();
+        }
 
-   
-</script>
+
+    </script>

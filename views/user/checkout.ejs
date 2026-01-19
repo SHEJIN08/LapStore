@@ -1,527 +1,562 @@
 <%- include('../partials/header') %>
 
-<link rel="stylesheet" href="/css/user/checkout.css">
+    <link rel="stylesheet" href="/css/user/checkout.css">
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <div class="main-container">
-        
-        <h1 class="page-title">Checkout</h1>
+            <div class="main-container">
 
-        <form id="checkoutForm">
-            <div class="checkout-layout">
-                
-                <div class="checkout-left">
-                    
-                    <section class="checkout-section">
-                        <div class="section-header">
-                            <h2 class="section-title">Delivery Address</h2>
-                           <button type="button" class="add-new-btn" onclick="openAddressModal()">+ Add New</button>
-                        </div>
+                <h1 class="page-title">Checkout</h1>
 
-                        <div class="address-grid">
-                            <% if (addresses && addresses.length > 0) { %>
-                                <% addresses.forEach((addr, index) => { %>
-                                    <label class="selection-card address-card <%= addr.isDefault ? 'selected' : '' %>">
-                                        <input type="radio" name="addressId" value="<%= addr._id %>" 
-                                               <%= addr.isDefault ? 'checked' : '' %> 
-                                               onchange="selectCard(this)">
-                                        
+                <form id="checkoutForm">
+                    <div class="checkout-layout">
+
+                        <div class="checkout-left">
+
+                            <section class="checkout-section">
+                                <div class="section-header">
+                                    <h2 class="section-title">Delivery Address</h2>
+                                    <button type="button" class="add-new-btn" onclick="openAddressModal()">+ Add
+                                        New</button>
+                                </div>
+
+                                <div class="address-grid">
+                                    <% if (addresses && addresses.length> 0) { %>
+                                        <% addresses.forEach((addr, index)=> { %>
+                                            <label
+                                                class="selection-card address-card <%= addr.isDefault ? 'selected' : '' %>">
+                                                <input type="radio" name="addressId" value="<%= addr._id %>"
+                                                    <%=addr.isDefault ? 'checked' : '' %>
+                                                onchange="selectCard(this)">
+
+                                                <div class="card-content">
+                                                    <div class="card-header">
+                                                        <span class="addr-name">
+                                                            <%= addr.fullName %>
+                                                        </span>
+                                                        <span class="addr-type">
+                                                            <%= addr.addressType %>
+                                                        </span>
+                                                    </div>
+                                                    <p class="addr-text">
+                                                        <%= addr.address1 %>, <%= addr.city %>, <%= addr.state %>
+                                                                    <%= addr.pincode %>
+                                                    </p>
+                                                    <p class="addr-phone">Phone: <%= addr.phone %>
+                                                    </p>
+                                                </div>
+
+
+                                            </label>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <p>No addresses found. Please add one.</p>
+                                                    <% } %>
+                                </div>
+                            </section>
+
+                            <section class="checkout-section">
+                                <h2 class="section-title">Payment Method</h2>
+
+                                <div class="payment-options">
+                                    <label class="selection-card payment-card">
+                                        <input type="radio" name="paymentMethod" value="COD"
+                                            onchange="selectCard(this)">
                                         <div class="card-content">
-                                            <div class="card-header">
-                                                <span class="addr-name"><%= addr.fullName %></span>
-                                                <span class="addr-type"><%= addr.addressType %></span>
-                                            </div>
-                                            <p class="addr-text">
-                                                <%= addr.address1 %>, <%= addr.city %>, <%= addr.state %> <%= addr.pincode %>
-                                            </p>
-                                            <p class="addr-phone">Phone: <%= addr.phone %></p>
+                                            <span class="payment-name">Cash on Delivery (COD)</span>
                                         </div>
-
-                                   
                                     </label>
-                                <% }) %>
-                            <% } else { %>
-                                <p>No addresses found. Please add one.</p>
-                            <% } %>
-                        </div>
-                    </section>
 
-                    <section class="checkout-section">
-                        <h2 class="section-title">Payment Method</h2>
-                        
-                        <div class="payment-options">
-                            <label class="selection-card payment-card">
-                                <input type="radio" name="paymentMethod" value="COD" onchange="selectCard(this)">
-                                <div class="card-content">
-                                    <span class="payment-name">Cash on Delivery (COD)</span>
+                                    <label class="selection-card payment-card">
+                                        <% if (locals.wallet && wallet.balance>= total) { %>
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="wallet"
+                                                    name="paymentMethod" value="Wallet" onchange="selectCard(this)">
+                                                <label class="custom-control-label d-flex justify-content-between w-100"
+                                                    for="wallet">
+                                                    <span>
+                                                        <i class="fa-solid fa-wallet"
+                                                            style="margin-right: 8px; color: #0d6efd;"></i> Pay with
+                                                        Wallet
+                                                    </span>
+                                                    <span style="font-weight: 600; color: #166534;">(Bal: ₹<%=
+                                                            wallet.balance.toFixed(2) %>)</span>
+                                                </label>
+                                            </div>
+                                            <% } else { %>
+                                                <div class="custom-control custom-radio">
+                                                    <input type="radio" class="custom-control-input" id="wallet"
+                                                        name="paymentMethod" value="wallet" disabled>
+                                                    <label
+                                                        class="custom-control-label d-flex justify-content-between w-100"
+                                                        for="wallet" style="opacity: 0.6; cursor: not-allowed;">
+                                                        <span>
+                                                            <i class="fa-solid fa-wallet"
+                                                                style="margin-right: 8px; color: #6c757d;"></i> Pay with
+                                                            Wallet
+                                                        </span>
+                                                        <span style="color: #dc2626; font-size: 0.9em;">
+                                                            (Low Bal: ₹<%= locals.wallet ? wallet.balance.toFixed(2)
+                                                                : '0.00' %>)
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                                <% if (locals.wallet) { %>
+                                                    <small class="text-danger"
+                                                        style="margin-left: 28px; font-size: 11px;">
+                                                        You need ₹<%= (total - wallet.balance).toFixed(2) %> more.
+                                                    </small>
+                                                    <% } %>
+                                                        <% } %>
+                                    </label>
+
+                                    <label class="selection-card payment-card selected">
+                                        <input type="radio" name="paymentMethod" value="Razorpay" checked
+                                            onchange="selectCard(this)">
+                                        <div class="card-content">
+                                            <span class="payment-name">Razorpay (Online Payment)</span>
+                                        </div>
+                                    </label>
                                 </div>
-                            </label>
+                            </section>
 
-                            <label class="selection-card payment-card">
-                               <% if (locals.wallet && wallet.balance >= total) { %>
-        <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" id="wallet" name="paymentMethod" value="Wallet" onchange="selectCard(this)">
-            <label class="custom-control-label d-flex justify-content-between w-100" for="wallet">
-                <span>
-                    <i class="fa-solid fa-wallet" style="margin-right: 8px; color: #0d6efd;"></i> Pay with Wallet
-                </span>
-                <span style="font-weight: 600; color: #166534;">(Bal: ₹<%= wallet.balance.toFixed(2) %>)</span>
-            </label>
-        </div>
-    <% } else { %>
-        <div class="custom-control custom-radio">
-            <input type="radio" class="custom-control-input" id="wallet" name="paymentMethod" value="wallet" disabled>
-            <label class="custom-control-label d-flex justify-content-between w-100" for="wallet" style="opacity: 0.6; cursor: not-allowed;">
-                <span>
-                    <i class="fa-solid fa-wallet" style="margin-right: 8px; color: #6c757d;"></i> Pay with Wallet
-                </span>
-                <span style="color: #dc2626; font-size: 0.9em;">
-                    (Low Bal: ₹<%= locals.wallet ? wallet.balance.toFixed(2) : '0.00' %>)
-                </span>
-            </label>
-        </div>
-        <% if (locals.wallet) { %>
-            <small class="text-danger" style="margin-left: 28px; font-size: 11px;">
-                You need ₹<%= (total - wallet.balance).toFixed(2) %> more.
-            </small>
-        <% } %>
-    <% } %>
-                            </label>
-
-                            <label class="selection-card payment-card selected">
-                                <input type="radio" name="paymentMethod" value="Razorpay" checked onchange="selectCard(this)">
-                                <div class="card-content">
-                                    <span class="payment-name">Razorpay (Online Payment)</span>
-                                </div>
-                            </label>
                         </div>
-                    </section>
 
-                </div>
+                        <div class="checkout-right">
+                            <div class="summary-card">
+                                <h3>Order Summary</h3>
 
-               <div class="checkout-right">
-    <div class="summary-card">
-        <h3>Order Summary</h3>
-        
-        <div class="mini-cart-list">
-            <% cartItems.forEach(item => { %>
-                <div class="mini-item">
-                    <div class="mini-img">
-                        <img src="<%= item.variantId.image %>" alt="Product">
+                                <div class="mini-cart-list">
+                                    <% cartItems.forEach(item=> { %>
+                                        <div class="mini-item">
+                                            <div class="mini-img">
+                                                <img src="<%= item.variantId.image %>" alt="Product">
+                                            </div>
+                                            <div class="mini-details">
+                                                <h4>
+                                                    <%= item.productId.name %>
+                                                </h4>
+                                                <p>Qty: <%= item.quantity %>
+                                                </p>
+                                                <span class="price">₹<%= item.price %></span>
+
+                                                <% if(item.offerDiscount> 0) { %>
+                                                    <small class="text-success">
+                                                        (Offer Applied: -₹<%= item.offerDiscount %>)
+                                                    </small>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <input type="hidden" id="originalTotalAmount" value="<%= total %>">
+
+                                <div class="coupon-input-section">
+                                    <div class="input-group">
+                                        <input type="text" id="couponCodeInput" placeholder="Enter Coupon Code">
+
+                                        <button type="button" class="apply-btn" id="applyCouponBtn"
+                                            onclick="applyManualCoupon()">Apply</button>
+
+                                        <button type="button" class="remove-btn" id="removeCouponBtn"
+                                            onclick="removeCoupon()" style="display: none;">
+                                            <i class="fa-solid fa-times"></i> Remove
+                                        </button>
+                                    </div>
+                                    <p id="couponMessage" class="coupon-msg"></p>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="summary-row">
+                                    <span>Subtotal</span>
+                                    <span id="subtotalDisplay" data-value="<%= subtotal %>">₹<%=
+                                            subtotal.toLocaleString() %></span>
+                                </div>
+
+                                <div class="summary-row" id="discountRow" style="display: none;">
+                                    <span>Coupon Discount</span>
+                                    <span id="discountDisplay" class="green">- ₹0</span>
+                                </div>
+
+                                <div class="summary-row">
+                                    <span>Shipping</span>
+                                    <% if(shipping===0) { %>
+                                        <span class="green">Free</span>
+                                        <% } else { %>
+                                            <span>₹<%= shipping %></span>
+                                            <% } %>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Tax</span>
+                                    <span>₹<%= tax.toFixed(2) %></span>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="summary-row total">
+                                    <span>Total</span>
+                                    <span id="totalAmountDisplay">₹<%= total.toFixed(2) %></span>
+                                    <input type="hidden" id="realTotalAmount" value="<%= total %>">
+                                </div>
+
+                                <button type="submit" class="place-order-btn">Place Order</button>
+                            </div>
+
+                            <div class="coupons-card">
+                                <h3><i class="fa-solid fa-tag"></i> Available Coupons</h3>
+
+                                <% if (coupons && coupons.length> 0) { %>
+                                    <% coupons.forEach(coupon=> { %>
+                                        <div class="coupon-ticket">
+                                            <div class="coupon-info">
+                                                <span class="code">
+                                                    <%= coupon.code %>
+                                                </span>
+                                                <span class="desc">
+                                                    <%= coupon.description %>
+                                                </span>
+                                                <span class="min-order">Min. order: ₹<%= coupon.minPurchaseAmount %>
+                                                        </span>
+                                            </div>
+                                            <button type="button" class="copy-btn"
+                                                onclick="useCoupon('<%= coupon.code %>')">Apply</button>
+                                        </div>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <div class="no-coupons">
+                                                    <p>No coupons available</p>
+                                                </div>
+                                                <% } %>
+                            </div>
+                        </div>
+
                     </div>
-                    <div class="mini-details">
-                        <h4><%= item.productId.name %></h4>
-                        <p>Qty: <%= item.quantity %></p>
-                     <span class="price">₹<%= item.price %></span>
-
-                    <% if(item.offerDiscount > 0) { %>
-                        <small class="text-success">
-                            (Offer Applied: -₹<%= item.offerDiscount %>)
-                        </small>
-                    <% } %>
-                    </div>
-                </div>
-            <% }) %>
-        </div>
-
-        <div class="divider"></div>
-
-     <input type="hidden" id="originalTotalAmount" value="<%= total %>">
-
-<div class="coupon-input-section">
-    <div class="input-group">
-        <input type="text" id="couponCodeInput" placeholder="Enter Coupon Code">
-        
-        <button type="button" class="apply-btn" id="applyCouponBtn" onclick="applyManualCoupon()">Apply</button>
-        
-        <button type="button" class="remove-btn" id="removeCouponBtn" onclick="removeCoupon()" style="display: none;">
-            <i class="fa-solid fa-times"></i> Remove
-        </button>
-    </div>
-    <p id="couponMessage" class="coupon-msg"></p>
-</div>
-
-        <div class="divider"></div>
-
-        <div class="summary-row">
-            <span>Subtotal</span>
-            <span id="subtotalDisplay" data-value="<%= subtotal %>">₹<%= subtotal.toLocaleString() %></span>
-        </div>
-        
-        <div class="summary-row" id="discountRow" style="display: none;">
-            <span>Coupon Discount</span>
-            <span id="discountDisplay" class="green">- ₹0</span>
-        </div>
-
-        <div class="summary-row">
-            <span>Shipping</span>
-            <% if(shipping === 0) { %>
-                <span class="green">Free</span>
-            <% } else { %>
-                <span>₹<%= shipping %></span>
-            <% } %>
-        </div>
-        <div class="summary-row">
-            <span>Tax</span>
-            <span>₹<%= tax.toFixed(2) %></span>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="summary-row total">
-            <span>Total</span>
-            <span id="totalAmountDisplay">₹<%= total.toFixed(2) %></span>
-            <input type="hidden" id="realTotalAmount" value="<%= total %>">
-        </div>
-
-        <button type="submit" class="place-order-btn">Place Order</button>
-    </div>
-
-    <div class="coupons-card">
-        <h3><i class="fa-solid fa-tag"></i> Available Coupons</h3>
-        
-        <% if (coupons && coupons.length > 0) { %>
-            <% coupons.forEach(coupon => { %>
-                <div class="coupon-ticket">
-                    <div class="coupon-info">
-                        <span class="code"><%= coupon.code %></span>
-                        <span class="desc"><%= coupon.description %></span>
-                        <span class="min-order">Min. order: ₹<%= coupon.minPurchaseAmount %></span>
-                    </div>
-                    <button type="button" class="copy-btn" onclick="useCoupon('<%= coupon.code %>')">Apply</button>
-                </div>
-            <% }) %>
-        <% } else { %>
-            <div class="no-coupons">
-                <p>No coupons available</p>
+                </form>
             </div>
-        <% } %>
-    </div>
-</div>
 
+            <div id="addressModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3>Add a new address</h3>
+
+                    <form id="addAddressForm">
+                        <div class="form-group">
+                            <input type="text" name="addressType" placeholder="Address name (e.g. Home, Work, Other)"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="name" placeholder="Full Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="phone" placeholder="Phone" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="addressLine1" placeholder="Address Line 1" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="addressLine2" placeholder="Address Line 2 (Optional)">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <input type="text" name="city" placeholder="City" required>
+                            </div>
+                            <div class="form-group half">
+                                <input type="text" name="state" placeholder="State" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="pincode" placeholder="Pincode" required>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" onclick="closeAddressModal()">Cancel</button>
+                            <button type="submit" class="btn-save">Save Address</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
-    </div>
 
-    <div id="addressModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Add a new address</h3>
-            
-            <form id="addAddressForm">
-                <div class="form-group">
-                    <input type="text" name="addressType" placeholder="Address name (e.g. Home, Work, Other)" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" name="name" placeholder="Full Name" required>
-                </div>
-                <div class="form-group">
-                    <input type="tel" name="phone" placeholder="Phone" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" name="addressLine1" placeholder="Address Line 1" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" name="addressLine2" placeholder="Address Line 2 (Optional)">
-                </div>
-                <div class="form-row">
-                    <div class="form-group half">
-                        <input type="text" name="city" placeholder="City" required>
-                    </div>
-                    <div class="form-group half">
-                        <input type="text" name="state" placeholder="State" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <input type="number" name="pincode" placeholder="Pincode" required>
-                </div>
+            <%- include('../partials/footer') %>
 
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" onclick="closeAddressModal()">Cancel</button>
-                    <button type="submit" class="btn-save">Save Address</button>
-                </div>
-            </form>
-        </div>
-    </div>
+                <script src="/js/axios.min.js"></script>
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<%- include('../partials/footer') %>
-
-<script src="/js/axios.min.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<script>
-    const showToast = (message, type) => {
-  const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-        Toastify({
-            text: message,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            style: { background: bgColor, borderRadius: '10px' }
-        }).showToast();
-    }
-
-    function selectCard(input) {
-        const container = input.closest('.address-grid') || input.closest('.payment-options');
-        container.querySelectorAll('.selection-card').forEach(card => card.classList.remove('selected'));
-        input.closest('.selection-card').classList.add('selected');
-    }
-
-    // --- 1. COUPON LOGIC ---
-
-    // A. Manual Input
-    function applyManualCoupon() {
-        const code = document.getElementById('couponCodeInput').value;
-        if(code) applyCouponBackend(code);
-    }
-
-    // B. Clicking a Ticket
-    function useCoupon(code) {
-        document.getElementById('couponCodeInput').value = code;
-        applyCouponBackend(code);
-    }
-
-    // C. Backend Call (Apply)
-    async function applyCouponBackend(code) {
-        const subtotal = document.getElementById('subtotalDisplay').getAttribute('data-value');
-        
-        try {
-            const response = await axios.post('/user/cart/apply-coupon', {
-                couponCode: code,
-                subtotal: subtotal
-            });
-
-            if (response.data.success) {
-                showToast("Coupon Applied!", "success");
-                
-                // Update UI
-                document.getElementById('couponMessage').innerText = response.data.message;
-                document.getElementById('couponMessage').style.color = "green";
-                
-                document.getElementById('discountRow').style.display = 'flex';
-                document.getElementById('discountDisplay').innerText = `- ₹${response.data.discount}`;
-                document.getElementById('totalAmountDisplay').innerText = `₹${response.data.newTotal}`;
-                document.getElementById('realTotalAmount').value = response.data.newTotal;
-
-                // Toggle Buttons
-                document.getElementById('couponCodeInput').disabled = true;
-                document.getElementById('applyCouponBtn').style.display = 'none'; 
-                document.getElementById('removeCouponBtn').style.display = 'block'; 
-
-            } else {
-                showToast(response.data.message, "error");
-                document.getElementById('couponMessage').innerText = response.data.message;
-                document.getElementById('couponMessage').style.color = "red";
-            }
-        } catch (error) {
-            console.error(error);
-            showToast("Failed to apply coupon", "error");
-        }
-    }
-
-    // D. Remove Coupon Logic (FIXED)
-    async function removeCoupon() {
-        const originalTotal = document.getElementById('originalTotalAmount').value;
-
-        try {
-            // 1. Tell Backend to remove coupon
-            // Make sure you have this route: router.post('/cart/remove-coupon', ...)
-            const response = await axios.post('/user/cart/remove-coupon'); 
-
-            if(response.data.success) {
-                // 2. Reset UI Values
-                document.getElementById('discountRow').style.display = 'none';
-                document.getElementById('discountDisplay').innerText = `- ₹0`;
-                document.getElementById('totalAmountDisplay').innerText = `₹${parseFloat(originalTotal).toFixed(2)}`;
-                document.getElementById('realTotalAmount').value = originalTotal;
-
-                // 3. Reset Inputs
-                const input = document.getElementById('couponCodeInput');
-                input.value = '';
-                input.disabled = false;
-                document.getElementById('couponMessage').innerText = '';
-
-                // 4. Toggle Buttons
-                document.getElementById('removeCouponBtn').style.display = 'none';
-                document.getElementById('applyCouponBtn').style.display = 'block';
-                
-                showToast("Coupon removed", "info");
-            } else {
-                showToast("Could not remove coupon", "error");
-            }
-        } catch(error) {
-            console.error(error);
-            // Fallback UI reset if backend call fails but we want to reset UI anyway
-            showToast("Network error removing coupon", "error");
-        }
-    }
-    // --- 2. MAIN FORM SUBMIT ---
-    document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
-        e.preventDefault(); 
-
-        const selectedAddressInput = document.querySelector('input[name="addressId"]:checked');
-        const selectedPaymentInput = document.querySelector('input[name="paymentMethod"]:checked');
-
-        if (!selectedAddressInput) return showToast("Please select a delivery address", "error");
-        if (!selectedPaymentInput) return showToast("Please select a payment method", "error");
-
-        const addressId = selectedAddressInput.value;
-        const paymentMethod = selectedPaymentInput.value;
-        
-        // Get the FINAL amount from hidden input (handling discounts)
-        const totalAmount = parseFloat(document.getElementById('realTotalAmount').value);
-        const couponCode = document.getElementById('couponCodeInput').value;
-
-
-        if (paymentMethod === 'Razorpay') {
-            await handleRazorpay(totalAmount, addressId, couponCode);
-        } else {
-            await handleCodOrWallet(paymentMethod, addressId, couponCode);
-        }
-    });
-
-    // --- 3. RAZORPAY HANDLER ---
-    async function handleRazorpay(amount, addressId, couponCode, btn) {
-      Loading.show("Initializing Payment...");
-        try {
-            const response = await axios.post('/user/create-payment', { amount: amount });
-           Loading.hide();
-            const orderData = response.data;
-
-            if (!orderData.success) return showToast('Error initiating payment', 'error');
-
-            const options = {
-                "key": orderData.key_id,
-                "amount": orderData.amount,
-                "currency": "INR",
-                "name": "LapStore",
-                "description": "Purchase Payment",
-                "order_id": orderData.id,
-                "handler": async function (response) {
-                    try {
-                        Loading.show("Verifying Payment...");
-                        const verifyResponse = await axios.post('/user/verify-payment', {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            addressId: addressId,
-                            couponCode: couponCode
-                        });
-
-                        if (verifyResponse.data.success) {
-                            window.location.href = `/user/order-success/${verifyResponse.data.orderId}`;
-                        } else {
-                            Loading.hide();
-                            showToast('Payment verification failed!', 'error');
-                        }
-                    } catch (err) {
-                        Loading.hide();
-                        showToast("Verification error: " + (err.response?.data?.message || err.message), 'error');
+                <script>
+                    const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                        Toastify({
+                            text: message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: bgColor, borderRadius: '10px' }
+                        }).showToast();
                     }
-                },
-                "theme": { "color": "#3399cc" },
-                "modal": { "ondismiss": function() { showToast('Payment Cancelled', 'error'); } }
-            };
 
-            const rzp1 = new Razorpay(options);
+                    function selectCard(input) {
+                        const container = input.closest('.address-grid') || input.closest('.payment-options');
+                        container.querySelectorAll('.selection-card').forEach(card => card.classList.remove('selected'));
+                        input.closest('.selection-card').classList.add('selected');
+                    }
 
-            rzp1.on('payment.failed', async function (response){
-                const errorDesc = response.error.description;
-                const rzpOrderId = response.error.metadata.order_id;
-                const rzpPaymentId = response.error.metadata.payment_id;
-              let finalOrderId = '';
-                try {
-                    // 1. Save Failed Order to DB
-                  const saveResponse =  await axios.post('/user/payment-failed', {
-                        razorpay_order_id: rzpOrderId,
-                        razorpay_payment_id: rzpPaymentId,
-                        razorpay_error: errorDesc,
-                        addressId: addressId,
-                        couponCode: couponCode
+                    // --- 1. COUPON LOGIC ---
+
+                    // A. Manual Input
+                    function applyManualCoupon() {
+                        const code = document.getElementById('couponCodeInput').value;
+                        if (code) applyCouponBackend(code);
+                    }
+
+                    // B. Clicking a Ticket
+                    function useCoupon(code) {
+                        document.getElementById('couponCodeInput').value = code;
+                        applyCouponBackend(code);
+                    }
+
+                    // C. Backend Call (Apply)
+                    async function applyCouponBackend(code) {
+                        const subtotal = document.getElementById('subtotalDisplay').getAttribute('data-value');
+
+                        try {
+                            const response = await axios.post('/user/cart/apply-coupon', {
+                                couponCode: code,
+                                subtotal: subtotal
+                            });
+
+                            if (response.data.success) {
+                                showToast("Coupon Applied!", "success");
+
+                                // Update UI
+                                document.getElementById('couponMessage').innerText = response.data.message;
+                                document.getElementById('couponMessage').style.color = "green";
+
+                                document.getElementById('discountRow').style.display = 'flex';
+                                document.getElementById('discountDisplay').innerText = `- ₹${response.data.discount}`;
+                                document.getElementById('totalAmountDisplay').innerText = `₹${response.data.newTotal}`;
+                                document.getElementById('realTotalAmount').value = response.data.newTotal;
+
+                                // Toggle Buttons
+                                document.getElementById('couponCodeInput').disabled = true;
+                                document.getElementById('applyCouponBtn').style.display = 'none';
+                                document.getElementById('removeCouponBtn').style.display = 'block';
+
+                            } else {
+                                showToast(response.data.message, "error");
+                                document.getElementById('couponMessage').innerText = response.data.message;
+                                document.getElementById('couponMessage').style.color = "red";
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            showToast("Failed to apply coupon", "error");
+                        }
+                    }
+
+                    // D. Remove Coupon Logic (FIXED)
+                    async function removeCoupon() {
+                        const originalTotal = document.getElementById('originalTotalAmount').value;
+
+                        try {
+                            // 1. Tell Backend to remove coupon
+                            // Make sure you have this route: router.post('/cart/remove-coupon', ...)
+                            const response = await axios.post('/user/cart/remove-coupon');
+
+                            if (response.data.success) {
+                                // 2. Reset UI Values
+                                document.getElementById('discountRow').style.display = 'none';
+                                document.getElementById('discountDisplay').innerText = `- ₹0`;
+                                document.getElementById('totalAmountDisplay').innerText = `₹${parseFloat(originalTotal).toFixed(2)}`;
+                                document.getElementById('realTotalAmount').value = originalTotal;
+
+                                // 3. Reset Inputs
+                                const input = document.getElementById('couponCodeInput');
+                                input.value = '';
+                                input.disabled = false;
+                                document.getElementById('couponMessage').innerText = '';
+
+                                // 4. Toggle Buttons
+                                document.getElementById('removeCouponBtn').style.display = 'none';
+                                document.getElementById('applyCouponBtn').style.display = 'block';
+
+                                showToast("Coupon removed", "info");
+                            } else {
+                                showToast("Could not remove coupon", "error");
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            // Fallback UI reset if backend call fails but we want to reset UI anyway
+                            showToast("Network error removing coupon", "error");
+                        }
+                    }
+                    // --- 2. MAIN FORM SUBMIT ---
+                    document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
+                        e.preventDefault();
+
+                        const selectedAddressInput = document.querySelector('input[name="addressId"]:checked');
+                        const selectedPaymentInput = document.querySelector('input[name="paymentMethod"]:checked');
+
+                        if (!selectedAddressInput) return showToast("Please select a delivery address", "error");
+                        if (!selectedPaymentInput) return showToast("Please select a payment method", "error");
+
+                        const addressId = selectedAddressInput.value;
+                        const paymentMethod = selectedPaymentInput.value;
+
+                        // Get the FINAL amount from hidden input (handling discounts)
+                        const totalAmount = parseFloat(document.getElementById('realTotalAmount').value);
+                        const couponCode = document.getElementById('couponCodeInput').value;
+
+
+                        if (paymentMethod === 'Razorpay') {
+                            await handleRazorpay(totalAmount, addressId, couponCode);
+                        } else {
+                            await handleCodOrWallet(paymentMethod, addressId, couponCode);
+                        }
                     });
-               
 
-                  if (saveResponse.data.success && saveResponse.data.orderId) {
-            finalOrderId = saveResponse.data.orderId;
-        }
-                } catch (err) {
-                   Loading.hide();
-                    console.error("Could not save failed order", err);
-                    showToast("Something went wrong with payment", 'error');
-                }
+                    // --- 3. RAZORPAY HANDLER ---
+                    async function handleRazorpay(amount, addressId, couponCode, btn) {
+                        Loading.show("Initializing Payment...");
+                        try {
+                            const response = await axios.post('/user/create-payment', { amount: amount });
+                            Loading.hide();
+                            const orderData = response.data;
 
-                let failureUrl = `/user/order-failure?error=${encodeURIComponent(errorDesc)}`;
-                if(rzpOrderId) failureUrl += `&razorpayOrderId=${rzpOrderId}`;
-                if(rzpPaymentId) failureUrl += `&razorpayPaymentId=${rzpPaymentId}`;
+                            if (!orderData.success) return showToast('Error initiating payment', 'error');
 
-               if(finalOrderId) {
-        failureUrl += `&orderId=${finalOrderId}`; 
-    }
+                            const options = {
+                                "key": orderData.key_id,
+                                "amount": orderData.amount,
+                                "currency": "INR",
+                                "name": "LapStore",
+                                "description": "Purchase Payment",
+                                "order_id": orderData.id,
+                                "handler": async function (response) {
+                                    try {
+                                        Loading.show("Verifying Payment...");
+                                        const verifyResponse = await axios.post('/user/verify-payment', {
+                                            razorpay_order_id: response.razorpay_order_id,
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_signature: response.razorpay_signature,
+                                            addressId: addressId,
+                                            couponCode: couponCode
+                                        });
 
-                window.location.href = failureUrl;
-            });
+                                        if (verifyResponse.data.success) {
+                                            window.location.href = `/user/order-success/${verifyResponse.data.orderId}`;
+                                        } else {
+                                            Loading.hide();
+                                            showToast('Payment verification failed!', 'error');
+                                        }
+                                    } catch (err) {
+                                        Loading.hide();
+                                        showToast("Verification error: " + (err.response?.data?.message || err.message), 'error');
+                                    }
+                                },
+                                "theme": { "color": "#3399cc" },
+                                "modal": { "ondismiss": function () { showToast('Payment Cancelled', 'error'); } }
+                            };
 
-            rzp1.open();
+                            const rzp1 = new Razorpay(options);
 
-        } catch (error) {
-            console.error("Razorpay Error:", error);
-            showToast("Something went wrong with payment", 'error');
-        }
-    }
+                            rzp1.on('payment.failed', async function (response) {
+                                const errorDesc = response.error.description;
+                                const rzpOrderId = response.error.metadata.order_id;
+                                const rzpPaymentId = response.error.metadata.payment_id;
+                                let finalOrderId = '';
+                                try {
+                                    // 1. Save Failed Order to DB
+                                    const saveResponse = await axios.post('/user/payment-failed', {
+                                        razorpay_order_id: rzpOrderId,
+                                        razorpay_payment_id: rzpPaymentId,
+                                        razorpay_error: errorDesc,
+                                        addressId: addressId,
+                                        couponCode: couponCode
+                                    });
 
-    // --- B. COD / WALLET HANDLER ---
-    async function handleCodOrWallet(paymentMethod, addressId, couponCode) {
 
-        // 1. Show Button Spinner
-       Loading.show("Placing your order...");
-        try {
-            const response = await axios.post('/user/cart/checkout/place-order', {
-                addressId: addressId,
-                paymentMethod: paymentMethod,
-                couponCode: couponCode
-            });
+                                    if (saveResponse.data.success && saveResponse.data.orderId) {
+                                        finalOrderId = saveResponse.data.orderId;
+                                    }
+                                } catch (err) {
+                                    Loading.hide();
+                                    console.error("Could not save failed order", err);
+                                    showToast("Something went wrong with payment", 'error');
+                                }
 
-            if (response.data.success) {
-                window.location.href = `/user/order-success/${response.data.orderId}`;
-            } else {
-              Loading.hide();
-                showToast(response.data.message || "Failed to place order", "error");
-            }
-        } catch (error) {
-            console.error(error);
-            Loading.hide();
-            showToast(error.response?.data?.message || "Something went wrong", "error");
-        }
-    }
-    // --- C. ADDRESS MODAL LOGIC ---
-    const modal = document.getElementById('addressModal');
+                                let failureUrl = `/user/order-failure?error=${encodeURIComponent(errorDesc)}`;
+                                if (rzpOrderId) failureUrl += `&razorpayOrderId=${rzpOrderId}`;
+                                if (rzpPaymentId) failureUrl += `&razorpayPaymentId=${rzpPaymentId}`;
 
-    function openAddressModal() { modal.classList.add('active'); }
-    function closeAddressModal() { modal.classList.remove('active'); }
-    
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeAddressModal();
-    });
+                                if (finalOrderId) {
+                                    failureUrl += `&orderId=${finalOrderId}`;
+                                }
 
-    document.getElementById('addAddressForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const data = Object.fromEntries(formData.entries());
+                                window.location.href = failureUrl;
+                            });
 
-        try {
-            const response = await axios.post('/user/home/manageAddress/add', data);
-            if (response.data.success) {
-                showToast('New address added success', 'success');
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                showToast(response.data.message, 'error');
-            }
-        } catch (error) {
-            console.error(error);
-            showToast("Failed to add address", "error");
-        }
-    });
+                            rzp1.open();
 
-  
-</script>
+                        } catch (error) {
+                            console.error("Razorpay Error:", error);
+                            showToast("Something went wrong with payment", 'error');
+                        }
+                    }
+
+                    // --- B. COD / WALLET HANDLER ---
+                    async function handleCodOrWallet(paymentMethod, addressId, couponCode) {
+
+                        // 1. Show Button Spinner
+                        Loading.show("Placing your order...");
+                        try {
+                            const response = await axios.post('/user/cart/checkout/place-order', {
+                                addressId: addressId,
+                                paymentMethod: paymentMethod,
+                                couponCode: couponCode
+                            });
+
+                            if (response.data.success) {
+                                window.location.href = `/user/order-success/${response.data.orderId}`;
+                            } else {
+                                Loading.hide();
+                                showToast(response.data.message || "Failed to place order", "error");
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Loading.hide();
+                            showToast(error.response?.data?.message || "Something went wrong", "error");
+                        }
+                    }
+                    // --- C. ADDRESS MODAL LOGIC ---
+                    const modal = document.getElementById('addressModal');
+
+                    function openAddressModal() { modal.classList.add('active'); }
+                    function closeAddressModal() { modal.classList.remove('active'); }
+
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) closeAddressModal();
+                    });
+
+                    document.getElementById('addAddressForm').addEventListener('submit', async function (e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
+                        const data = Object.fromEntries(formData.entries());
+
+                        try {
+                            const response = await axios.post('/user/home/manageAddress/add', data);
+                            if (response.data.success) {
+                                showToast('New address added success', 'success');
+                                setTimeout(() => window.location.reload(), 1500);
+                            } else {
+                                showToast(response.data.message, 'error');
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            showToast("Failed to add address", "error");
+                        }
+                    });
+
+
+                </script>

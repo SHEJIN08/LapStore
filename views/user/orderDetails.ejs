@@ -208,21 +208,19 @@
                                                 </p>
 
                                                 <% // 1. Get the specific status of this item let
-                                                    displayStatus=item.productStatus; let badgeClass='' ; // 2. Map
-                                                    statuses to specific CSS classes if (displayStatus==='Cancelled' ) {
-                                                    badgeClass='status-cancelled' ; // Red } else if
-                                                    (displayStatus==='Returned' ) { badgeClass='status-returned' ; //
-                                                    Blue/Grey } else if (displayStatus==='Return Request' ) {
-                                                    badgeClass='status-pending' ; // Orange/Yellow } else if
+                                                    displayStatus=item.productStatus; let badgeClass='' ; 
+                                                     if (displayStatus==='Cancelled' ) {
+                                                    badgeClass='status-cancelled' } else if
+                                                    (displayStatus==='Returned' ) { badgeClass='status-returned' ; 
+                                                     } else if (displayStatus==='Return Request' ) {
+                                                    badgeClass='status-pending' } else if
                                                     (displayStatus==='Return Rejected' ) { badgeClass='status-cancelled'
-                                                    ; // Red or a new color displayStatus='Return Rejected' ; } // 3.
-                                                    Handle Active/Default statuses else { // If the individual item
-                                                    is "Ordered" or "Pending" , // it should show the progress of the
-                                                    overall order if (order.status==='Delivered' ) {
-                                                    displayStatus='Delivered' ; badgeClass='status-active' ; // Green }
+                                                    ;displayStatus='Return Rejected' ;} 
+                                                     else if(order.status==='Delivered' ) {
+                                                    displayStatus='Delivered' ; badgeClass='status-active'}
                                                     else if (order.status==='Cancelled' ) { displayStatus='Cancelled' ;
                                                     badgeClass='status-cancelled' ; } else { displayStatus=order.status;
-                                                    badgeClass='status-active' ; } } %>
+                                                    badgeClass='status-active' ; } %>
 
                                                     <span class="status-badge <%= badgeClass %>">
                                                         <%= displayStatus %>

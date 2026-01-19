@@ -1,113 +1,123 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/user/referral.css">
+    <link rel="stylesheet" href="/css/user/referral.css">
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <div class="main-container">
-           <%- include('./partials/profileSidebar', {active: 'referPage'}) %>
-            
-            <main class="referral-content">
-                <div class="referral-header-section">
-                    <h2>Refer & Earn</h2>
-                    <p class="subtitle">Share your referral link with friends and earn rewards when they make their first purchase.</p>
-                </div>
+            <div class="main-container">
+                <%- include('./partials/profileSidebar', {active: 'referPage' }) %>
 
-                <div class="referral-link-card">
-                    <label>Your Unique Referral Link</label>
-                    <div class="input-group">
-                        <input type="text" value="<%= referralLink %>" id="referralLinkInput" readonly>
-                        <button onclick="copyLink()" class="copy-btn">
-                            <i class="fa-regular fa-copy"></i> Copy
-                        </button>
-                    </div>
-                    
-                    <div class="share-options">
-                        <span>Share via:</span>
-                        <a href="whatsapp://send?text=Join LapStore using my code <%= user.referralCode %> and get ₹100! <%= referralLink %>" class="share-icon whatsapp"><i class="fa-brands fa-whatsapp"></i></a>
-                        <a href="mailto:?subject=Join LapStore!&body=Use my code <%= user.referralCode %>" class="share-icon email"><i class="fa-regular fa-envelope"></i></a>
-                    </div>
-                </div>
-
-                <div class="rewards-grid">
-                    <div class="reward-card blue">
-                        <div class="icon-box"><i class="fa-solid fa-user-plus"></i></div>
-                        <div class="text-box">
-                            <h4>You Get</h4>
-                            <span class="highlight">₹200 Wallet Cash</span>
-                            <p>Receive ₹200 for every friend who makes their first purchase.</p>
+                    <main class="referral-content">
+                        <div class="referral-header-section">
+                            <h2>Refer & Earn</h2>
+                            <p class="subtitle">Share your referral link with friends and earn rewards when they make
+                                their first purchase.</p>
                         </div>
-                    </div>
-                    
-                    <div class="reward-card green">
-                        <div class="icon-box"><i class="fa-solid fa-gift"></i></div>
-                        <div class="text-box">
-                            <h4>Your Friend Gets</h4>
-                            <span class="highlight">₹100 Signup Bonus</span>
-                            <p>Your friend gets instant ₹100 wallet credit upon signing up.</p>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="referrals-list-section">
-                    <div class="list-header">
-                        <h3>Your Referrals</h3>
-                        <span class="counter"><%= successfulCount %> Successful Referrals</span>
-                    </div>
-
-                    <div class="referral-list">
-                        <% if (referrals && referrals.length > 0) { %>
-                            <% referrals.forEach(ref => { %>
-                                <div class="referral-item">
-                                    <div class="user-info">
-                                        <div class="avatar">
-                                           <% if(ref.refereeId.avatar === 'user'){ %>
-                                                <%= ref.refereeId.name.charAt(0).toUpperCase() %>
-                                           <% }else{ %>
-                                               <img src="<%= ref.refereeId.avatar %>" alt="Referral Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                                           <% } %>
-                                        </div>
-                                        <div class="details">
-                                            <h4><%= ref.refereeId.name %></h4>
-                                            <span class="date">Referred on: <%= new Date(ref.createdAt).toLocaleDateString() %></span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="status-badge <%= ref.status.toLowerCase() %>">
-                                        <% if(ref.status === 'Completed') { %>
-                                            <i class="fa-solid fa-check-circle"></i> Reward Claimed
-                                        <% } else { %>
-                                            <i class="fa-solid fa-clock"></i> Pending Purchase
-                                        <% } %>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        <% } else { %>
-                            <div class="empty-state">
-                                <i class="fa-solid fa-users-slash"></i>
-                                <p>No referrals yet. Share your link to start earning!</p>
+                        <div class="referral-link-card">
+                            <label>Your Unique Referral Link</label>
+                            <div class="input-group">
+                                <input type="text" value="<%= referralLink %>" id="referralLinkInput" readonly>
+                                <button onclick="copyLink()" class="copy-btn">
+                                    <i class="fa-regular fa-copy"></i> Copy
+                                </button>
                             </div>
-                        <% } %>
-                    </div>
-                </div>
 
-            </main>
-    </div>
+                            <div class="share-options">
+                                <span>Share via:</span>
+                                <a href="whatsapp://send?text=Join LapStore using my code <%= user.referralCode %> and get ₹100! <%= referralLink %>"
+                                    class="share-icon whatsapp"><i class="fa-brands fa-whatsapp"></i></a>
+                                <a href="mailto:?subject=Join LapStore!&body=Use my code <%= user.referralCode %>"
+                                    class="share-icon email"><i class="fa-regular fa-envelope"></i></a>
+                            </div>
+                        </div>
 
-<%- include('../partials/footer') %>
-<script>
-    function copyLink() {
-        const copyText = document.getElementById("referralLinkInput");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999); // For mobile
-        navigator.clipboard.writeText(copyText.value);
-        
-        // Show Toast (Using your existing Toastify setup)
-        Toastify({
-            text: "Link copied to clipboard!",
-            duration: 3000,
-            style: { background: "#28a745", borderRadius: "10px" }
-        }).showToast();
-    }
-</script>
-</body>
+                        <div class="rewards-grid">
+                            <div class="reward-card blue">
+                                <div class="icon-box"><i class="fa-solid fa-user-plus"></i></div>
+                                <div class="text-box">
+                                    <h4>You Get</h4>
+                                    <span class="highlight">₹200 Wallet Cash</span>
+                                    <p>Receive ₹200 for every friend who makes their first purchase.</p>
+                                </div>
+                            </div>
+
+                            <div class="reward-card green">
+                                <div class="icon-box"><i class="fa-solid fa-gift"></i></div>
+                                <div class="text-box">
+                                    <h4>Your Friend Gets</h4>
+                                    <span class="highlight">₹100 Signup Bonus</span>
+                                    <p>Your friend gets instant ₹100 wallet credit upon signing up.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="referrals-list-section">
+                            <div class="list-header">
+                                <h3>Your Referrals</h3>
+                                <span class="counter">
+                                    <%= successfulCount %> Successful Referrals
+                                </span>
+                            </div>
+
+                            <div class="referral-list">
+                                <% if (referrals && referrals.length> 0) { %>
+                                    <% referrals.forEach(ref=> { %>
+                                        <div class="referral-item">
+                                            <div class="user-info">
+                                                <div class="avatar">
+                                                    <% if(ref.refereeId.avatar==='user' ){ %>
+                                                        <%= ref.refereeId.name.charAt(0).toUpperCase() %>
+                                                            <% }else{ %>
+                                                                <img src="<%= ref.refereeId.avatar %>"
+                                                                    alt="Referral Avatar"
+                                                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                                                <% } %>
+                                                </div>
+                                                <div class="details">
+                                                    <h4>
+                                                        <%= ref.refereeId.name %>
+                                                    </h4>
+                                                    <span class="date">Referred on: <%= new
+                                                            Date(ref.createdAt).toLocaleDateString() %></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="status-badge <%= ref.status.toLowerCase() %>">
+                                                <% if(ref.status==='Completed' ) { %>
+                                                    <i class="fa-solid fa-check-circle"></i> Reward Claimed
+                                                    <% } else { %>
+                                                        <i class="fa-solid fa-clock"></i> Pending Purchase
+                                                        <% } %>
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <div class="empty-state">
+                                                    <i class="fa-solid fa-users-slash"></i>
+                                                    <p>No referrals yet. Share your link to start earning!</p>
+                                                </div>
+                                                <% } %>
+                            </div>
+                        </div>
+
+                    </main>
+            </div>
+
+            <%- include('../partials/footer') %>
+                <script>
+                    function copyLink() {
+                        const copyText = document.getElementById("referralLinkInput");
+                        copyText.select();
+                        copyText.setSelectionRange(0, 99999); // For mobile
+                        navigator.clipboard.writeText(copyText.value);
+
+                        // Show Toast (Using your existing Toastify setup)
+                        Toastify({
+                            text: "Link copied to clipboard!",
+                            duration: 3000,
+                            style: { background: "#28a745", borderRadius: "10px" }
+                        }).showToast();
+                    }
+                </script>
+    </body>

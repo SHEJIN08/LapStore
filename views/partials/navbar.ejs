@@ -7,15 +7,18 @@
             <i class='bx bx-laptop'></i> LapStore
         </a>
 
-    <form action="/user/home/shop" method="GET" class="search-bar" onsubmit="handleSearch(event)" style="position: relative; display: flex; align-items: center;">
-    
-    <input type="text" name="search" id="searchInput" placeholder="Search for laptops..."
-        value="<%= typeof search !== 'undefined' ? search : '' %>" style="padding-right: 35px;" oninput="toggleResetButton()">
+        <form action="/user/home/shop" method="GET" class="search-bar" onsubmit="handleSearch(event)"
+            style="position: relative; display: flex; align-items: center;">
 
-    <i class='bx bx-x reset-search' id="resetSearchBtn" onclick="clearSearch(event)" title="Clear Search" style="display: none;"></i>
+            <input type="text" name="search" id="searchInput" placeholder="Search for laptops..."
+                value="<%= typeof search !== 'undefined' ? search : '' %>" style="padding-right: 35px;"
+                oninput="toggleResetButton()">
 
-    <button type="submit"><i class='bx bx-search'></i></button>
-</form>
+            <i class='bx bx-x reset-search' id="resetSearchBtn" onclick="clearSearch(event)" title="Clear Search"
+                style="display: none;"></i>
+
+            <button type="submit"><i class='bx bx-search'></i></button>
+        </form>
 
         <nav class="user-nav">
             <% if (typeof user !=='undefined' && user) { %>
@@ -40,11 +43,11 @@
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <a href="/user/login" style="text-decoration: none; color: #333; font-weight: 500;">Log
                             In</a>
-                            <a href="/user/register"
+                        <a href="/user/register"
                             style="text-decoration: none; background-color: #333; color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: 500; transition: 0.3s;">Sign
                             Up</a>
-                        </div>
-                        <a href="/user/home/cart" class="nav-icon" style="margin-bottom: -17px;">
+                    </div>
+                    <a href="/user/home/cart" class="nav-icon" style="margin-bottom: -17px;">
                         <i class='bx bx-cart'></i>
                         <span class="tooltip"></span>
                     </a>
@@ -54,7 +57,7 @@
 </header>
 <script>
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         toggleResetButton();
     });
 
@@ -62,7 +65,7 @@
     function toggleResetButton() {
         const input = document.getElementById('searchInput');
         const resetBtn = document.getElementById('resetSearchBtn');
-        
+
         if (input.value.trim().length > 0) {
             resetBtn.style.display = 'block';
         } else {
@@ -88,7 +91,7 @@
     // 4. Handle Clear Logic
     function clearSearch(e) {
         e.preventDefault();
-        
+
         const input = document.getElementById('searchInput');
         input.value = ''; // Clear text
         toggleResetButton(); // Hide X button immediately
@@ -97,7 +100,7 @@
 
         if (isShopPage && typeof updateParams === 'function') {
             // AJAX Clear for Shop Page
-            updateParams('search', ''); 
+            updateParams('search', '');
         } else {
             // Redirect Clear for other pages
             window.location.href = '/user/home/shop';

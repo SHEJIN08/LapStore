@@ -1,121 +1,121 @@
-  <link rel="stylesheet" href="/css/admin/sidebar.css">
-  <button class="menu-toggle" onclick="toggleSidebar()">
+<link rel="stylesheet" href="/css/admin/sidebar.css">
+<button class="menu-toggle" onclick="toggleSidebar()">
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 6H20M4 12H20M4 18H20" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 6H20M4 12H20M4 18H20" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
 </button>
-  <div class="layout-container">
+<div class="layout-container">
 
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="/images/Logo.png" alt="" style="width: 30px; height: 30px;">
-                <span class="logo-text">LapStore</span>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/images/Logo.png" alt="" style="width: 30px; height: 30px;">
+            <span class="logo-text">LapStore</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="/admin/dashboard" class="<%= (activePage === 'dashboard') ? 'active' : '' %>">
+                        <img src="/images/admin/icons/dashboard.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/Products" class="<%= (activePage === 'products') ? 'active' : '' %>">
+                        <img src="/images/admin/icons/product.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/orders" class="<%= (activePage === 'orders') ? 'active' : '' %>">
+                        <img src="/images/admin/icons/order-icon.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/users" class="<%= (activePage === 'users') ? 'active' : '' %>">
+                        <img src="/images/admin/icons/users.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/brands" class="<%= (activePage === 'brands') ? 'active' : '' %>">
+                        <img src="/images/admin/icons/brand.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Brands</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/offers" class="<%= (activePage === 'offers') ? 'active' : '' %>">
+                        <!-- Category icon -->
+                        <img src="/images/admin/icons/offer.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Offers</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/referrals" class="<%= (activePage === 'referrals') ? 'active' : '' %>">
+                        <!-- Category icon -->
+                        <img src="/images/admin/icons/referral.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Referral</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/reviews" class="<%= (activePage === 'reviews') ? 'active' : '' %>">
+                        <!-- Category icon -->
+                        <img src="/images/admin/icons/review.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Reviews</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/coupons" class="<%= (activePage === 'coupons') ? 'active' : '' %>">
+                        <!-- Category icon -->
+                        <img src="/images/admin/icons/coupon.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Coupons</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/sales" class="<%= (activePage === 'sales') ? 'active' : '' %>">
+                        <!-- Category icon -->
+                        <img src="/images/admin/icons/sales.png" alt="" style="width: 24px; height: 24px;">
+                        <span>Sales</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/category" class="<%= (activePage === 'category') ? 'active' : '' %>">
+                        <!-- Category icon -->
+                        <img src="/images/admin/icons/category-icon.png" alt="" style="width: 24px; height: 24px; ">
+                        <span>Category</span>
+                    </a>
+                </li>
+                <li class="icon-img">
+                    <a href="/admin/banners" class="<%= (activePage === 'banners') ? 'active' : '' %>">
+                        <!-- Category icon -->
+                        <img src="/images/admin/icons/banner-icon.png" alt="" style="width: 30px; height: 40px;">
+                        <span>Banners</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-profile">
+                <img src="/images/admin/adminProfile.png" alt="Admin Avatar">
+                <div>
+                    <span class="admin-name">Admin</span>
+                    <span class="admin-role">Administrator</span>
+                </div>
             </div>
-
-            <nav class="sidebar-nav">
-                <ul>
-                    <li>
-                <a href="/admin/dashboard" class="<%= (activePage === 'dashboard') ? 'active' : '' %>">
-                    <img src="/images/admin/icons/dashboard.png" alt="" style="width: 24px; height: 24px;">
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="icon-img">
-                <a href="/admin/Products" class="<%= (activePage === 'products') ? 'active' : '' %>">
-                    <img src="/images/admin/icons/product.png" alt="" style="width: 24px; height: 24px;">
-                    <span>Products</span>
-                </a>
-            </li>
-            <li class="icon-img">
-                <a href="/admin/orders" class="<%= (activePage === 'orders') ? 'active' : '' %>">
-                    <img src="/images/admin/icons/order-icon.png" alt="" style="width: 24px; height: 24px;">
-                    <span>Orders</span>
-                </a>
-            </li>
-            <li class="icon-img">
-                <a href="/admin/users" class="<%= (activePage === 'users') ? 'active' : '' %>">
-                    <img src="/images/admin/icons/users.png" alt="" style="width: 24px; height: 24px;">
-                    <span>Users</span>
-                </a>
-            </li>
-            <li class="icon-img">
-                <a href="/admin/brands" class="<%= (activePage === 'brands') ? 'active' : '' %>">
-                    <img src="/images/admin/icons/brand.png" alt="" style="width: 24px; height: 24px;">
-                    <span>Brands</span>
-                </a>
-            </li>
-                         <li class="icon-img">
-                            <a href="/admin/offers" class="<%= (activePage === 'offers') ? 'active' : '' %>">
-                                <!-- Category icon -->
-                                <img src="/images/admin/icons/offer.png"  alt="" style="width: 24px; height: 24px;">
-                                <span>Offers</span>
-                            </a>
-                        </li>
-                         <li class="icon-img">
-                            <a href="/admin/referrals" class="<%= (activePage === 'referrals') ? 'active' : '' %>">
-                                <!-- Category icon -->
-                                <img src="/images/admin/icons/referral.png"  alt="" style="width: 24px; height: 24px;">
-                                <span>Referral</span>
-                            </a>
-                        </li>
-                       <li class="icon-img">
-                            <a href="/admin/reviews" class="<%= (activePage === 'reviews') ? 'active' : '' %>">
-                                <!-- Category icon -->
-                                <img src="/images/admin/icons/review.png"  alt="" style="width: 24px; height: 24px;">
-                                <span>Reviews</span>
-                            </a>
-                        </li>
-                      <li class="icon-img">
-                            <a href="/admin/coupons" class="<%= (activePage === 'coupons') ? 'active' : '' %>">
-                                <!-- Category icon -->
-                                <img src="/images/admin/icons/coupon.png"  alt="" style="width: 24px; height: 24px;">
-                                <span>Coupons</span>
-                            </a>
-                        </li>
-                         <li class="icon-img">
-                            <a href="/admin/sales" class="<%= (activePage === 'sales') ? 'active' : '' %>">
-                                <!-- Category icon -->
-                                <img src="/images/admin/icons/sales.png"  alt="" style="width: 24px; height: 24px;">
-                                <span>Sales</span>
-                            </a>
-                        </li>
-                        <li class="icon-img">
-                            <a href="/admin/category" class="<%= (activePage === 'category') ? 'active' : '' %>">
-                                <!-- Category icon -->
-                                <img src="/images/admin/icons/category-icon.png"  alt="" style="width: 24px; height: 24px; ">
-                                <span>Category</span>
-                            </a>
-                        </li>
-                        <li class="icon-img">
-                            <a href="/admin/banners" class="<%= (activePage === 'banners') ? 'active' : '' %>">
-                                <!-- Category icon -->
-                                <img src="/images/admin/icons/banner-icon.png"  alt="" style="width: 30px; height: 40px;">
-                                <span>Banners</span>
-                            </a>
-                        </li>
-                </ul>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="admin-profile">
-                        <img src="/images/admin/adminProfile.png" alt="Admin Avatar">
-                        <div>
-                            <span class="admin-name">Admin Name</span>
-                            <span class="admin-role">Administrator</span>
-                        </div>
-                    </div>
-                <a href="/admin/logout" class="logout-link">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </aside>
-    </div>
+            <a href="/admin/logout" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+</div>
 <script>
-     // --- Table Tab Switcher in mobile device (Visual only) ---
+    // --- Table Tab Switcher in mobile device (Visual only) ---
     function switchTable(tableId, btn) {
         document.querySelectorAll('.table-container').forEach(el => el.style.display = 'none');
         document.getElementById(tableId).style.display = 'block';
-        
+
         btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     }
@@ -123,11 +123,9 @@
     function toggleSidebar() {
         const sidebar = document.querySelector('.sidebar');
         const overlay = document.querySelector('.sidebar-overlay');
-        
+
         // Toggle the .active class
         sidebar.classList.toggle('active');
         overlay.classList.toggle('active');
     }
 </script>
-
-    

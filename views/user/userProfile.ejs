@@ -26,8 +26,8 @@
                                     <%= user.email %>
                                 </span>
                             </div>
-                              <%  if(user.userId.slice(0,6) === 'google'){ %>
-                                 <span class="label" style="margin-top: 26px;"> No password for Google users</span>
+                            <% if(user.userId.slice(0,6)==='google' ){ %>
+                                <span class="label" style="margin-top: 26px;"> No password for Google users</span>
                                 <% }else { %>
                                     <div class="info-row">
                                         <span class="label">Password</span>
@@ -35,7 +35,7 @@
                                         <span><img src="/images/admin/icons/edit-btn.png" alt="" id="editPassword"
                                                 style="margin-left: 5rem; width: 20px; height: 20px;"></span>
                                     </div>
-                        <%  } %>
+                                    <% } %>
                         </div>
                     </main>
             </div>
@@ -53,20 +53,20 @@
                                 <label>Full Name</label>
                                 <input type="text" id="editName" name="name" value="<%= user.name %>">
                             </div>
-                          <%  if(user.userId.slice(0,6) === 'google'){ %>
-                                  <div class="form-group">
-                                <label>Email</label>
-                                <span style="color: red; font-size: 15px;" >Google users cannot edit email </span>
-                                <input type="email" id="editEmail" name="email" value="<%= user.email %>" disabled>
-                            </div>
-                          <%  }else{ %>
+                            <% if(user.userId.slice(0,6)==='google' ){ %>
                                 <div class="form-group">
                                     <label>Email</label>
-                                    <input type="email" id="editEmail" name="email" value="<%= user.email %>">
+                                    <span style="color: red; font-size: 15px;">Google users cannot edit email </span>
+                                    <input type="email" id="editEmail" name="email" value="<%= user.email %>" disabled>
                                 </div>
+                                <% }else{ %>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="editEmail" name="email" value="<%= user.email %>">
+                                    </div>
 
-                         <%   } %>
-                            <button type="submit" class="btn-save" id="updateBtn">Update Changes</button>
+                                    <% } %>
+                                        <button type="submit" class="btn-save" id="updateBtn">Update Changes</button>
                         </form>
 
                         <div id="otpSection" style="display: none; margin-top: 20px;">
@@ -114,236 +114,236 @@
                 <script src="/js/axios.min.js"></script>
 
 
-             <script>
-    // --- 1. SETUP VARIABLES ---
+                <script>
+                    // --- 1. SETUP VARIABLES ---
 
-    const originalData = {
-        name: "<%= user.name %>",
-        email: "<%= user.email %>",
-    };
+                    const originalData = {
+                        name: "<%= user.name %>",
+                        email: "<%= user.email %>",
+                    };
 
-    // Profile Modal Elements
-    const profileModal = document.getElementById('editProfileModal');
-    const openProfileBtn = document.getElementById('openEditModalBtn');
-    const closeProfileBtn = document.querySelector('.close-modal');
+                    // Profile Modal Elements
+                    const profileModal = document.getElementById('editProfileModal');
+                    const openProfileBtn = document.getElementById('openEditModalBtn');
+                    const closeProfileBtn = document.querySelector('.close-modal');
 
-    // Password Modal Elements (might be null for Google users)
-    const passModal = document.getElementById('editPasswordModal');
-    const passBtn = document.getElementById('editPassword'); 
-    const passClose = passModal ? passModal.querySelector('.close-modal') : null;
-    const passForm = document.getElementById('EditPassword');
+                    // Password Modal Elements (might be null for Google users)
+                    const passModal = document.getElementById('editPasswordModal');
+                    const passBtn = document.getElementById('editPassword');
+                    const passClose = passModal ? passModal.querySelector('.close-modal') : null;
+                    const passForm = document.getElementById('EditPassword');
 
-    // General Elements
-    const editForm = document.getElementById('editForm');
-    const otpSection = document.getElementById('otpSection');
-    const updateBtn = document.getElementById('updateBtn');
-    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-    const otpTimerDisplay = document.getElementById('otpTimer');
-    let timerInterval; 
+                    // General Elements
+                    const editForm = document.getElementById('editForm');
+                    const otpSection = document.getElementById('otpSection');
+                    const updateBtn = document.getElementById('updateBtn');
+                    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+                    const otpTimerDisplay = document.getElementById('otpTimer');
+                    let timerInterval;
 
-    // --- 2. OPEN/CLOSE LOGIC ---
+                    // --- 2. OPEN/CLOSE LOGIC ---
 
-    // Open Profile Modal
-    if (openProfileBtn) {
-        openProfileBtn.onclick = () => {
-            document.getElementById('editName').value = originalData.name;
-            document.getElementById('editEmail').value = originalData.email;
-            profileModal.style.display = "flex";
-        };
-    }
+                    // Open Profile Modal
+                    if (openProfileBtn) {
+                        openProfileBtn.onclick = () => {
+                            document.getElementById('editName').value = originalData.name;
+                            document.getElementById('editEmail').value = originalData.email;
+                            profileModal.style.display = "flex";
+                        };
+                    }
 
-    // Close Profile Modal
-    if (closeProfileBtn) {
-        closeProfileBtn.onclick = () => {
-            profileModal.style.display = "none";
-            resetModal();
-        };
-    }
+                    // Close Profile Modal
+                    if (closeProfileBtn) {
+                        closeProfileBtn.onclick = () => {
+                            profileModal.style.display = "none";
+                            resetModal();
+                        };
+                    }
 
-    // --- FIX: Only add Password listeners if the button exists ---
-    if (passBtn) {
-        passBtn.addEventListener('click', () => {
-            passModal.style.display = "flex";
-        });
-    }
+                    // --- FIX: Only add Password listeners if the button exists ---
+                    if (passBtn) {
+                        passBtn.addEventListener('click', () => {
+                            passModal.style.display = "flex";
+                        });
+                    }
 
-    if (passClose) {
-        passClose.addEventListener('click', () => {
-            passModal.style.display = "none";
-            passForm.reset();
-        });
-    }
+                    if (passClose) {
+                        passClose.addEventListener('click', () => {
+                            passModal.style.display = "none";
+                            passForm.reset();
+                        });
+                    }
 
-    // --- 3. WINDOW CLICK (CLOSE OUTSIDE) ---
-    window.onclick = (e) => {
-        if (e.target === profileModal) {
-            profileModal.style.display = "none";
-            resetModal();
-        }
-        if (passModal && e.target === passModal) {
-            passModal.style.display = "none";
-            passForm.reset();
-        }
-    };
+                    // --- 3. WINDOW CLICK (CLOSE OUTSIDE) ---
+                    window.onclick = (e) => {
+                        if (e.target === profileModal) {
+                            profileModal.style.display = "none";
+                            resetModal();
+                        }
+                        if (passModal && e.target === passModal) {
+                            passModal.style.display = "none";
+                            passForm.reset();
+                        }
+                    };
 
-    // --- 4. HELPER FUNCTIONS ---
-    function resetModal() {
-        editForm.style.display = "block";
-        otpSection.style.display = "none";
-        clearInterval(timerInterval);
-        otpTimerDisplay.textContent = "";
-        document.getElementById('editName').value = originalData.name;
-        document.getElementById('editEmail').value = originalData.email;
-    }
+                    // --- 4. HELPER FUNCTIONS ---
+                    function resetModal() {
+                        editForm.style.display = "block";
+                        otpSection.style.display = "none";
+                        clearInterval(timerInterval);
+                        otpTimerDisplay.textContent = "";
+                        document.getElementById('editName').value = originalData.name;
+                        document.getElementById('editEmail').value = originalData.email;
+                    }
 
-    function startOtpTimer(duration) {
-        let timer = duration;
-        clearInterval(timerInterval);
-        
-        timerInterval = setInterval(function () {
-            let minutes = parseInt(timer / 60, 10);
-            let seconds = parseInt(timer % 60, 10);
+                    function startOtpTimer(duration) {
+                        let timer = duration;
+                        clearInterval(timerInterval);
 
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
+                        timerInterval = setInterval(function () {
+                            let minutes = parseInt(timer / 60, 10);
+                            let seconds = parseInt(timer % 60, 10);
 
-            otpTimerDisplay.textContent = `Resend OTP in ${minutes}:${seconds}`;
+                            minutes = minutes < 10 ? "0" + minutes : minutes;
+                            seconds = seconds < 10 ? "0" + seconds : seconds;
 
-            if (--timer < 0) {
-                clearInterval(timerInterval);
-                otpTimerDisplay.textContent = "OTP Expired. Please try again.";
-            }
-        }, 1000);
-    }
+                            otpTimerDisplay.textContent = `Resend OTP in ${minutes}:${seconds}`;
 
-    // --- 5. FORM SUBMISSIONS ---
+                            if (--timer < 0) {
+                                clearInterval(timerInterval);
+                                otpTimerDisplay.textContent = "OTP Expired. Please try again.";
+                            }
+                        }, 1000);
+                    }
 
-    // Profile Edit Submission
-   if (editForm) {
-       editForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+                    // --- 5. FORM SUBMISSIONS ---
 
-        const newName = document.getElementById('editName').value.trim();
-        const newEmail = document.getElementById('editEmail').value.trim();
+                    // Profile Edit Submission
+                    if (editForm) {
+                        editForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
 
-        if (!newName || !newEmail) {
-            return showToast("Name and Email are required", "error");
-        }
-        
-        updateBtn.disabled = true;
-        updateBtn.innerText = "Processing...";
+                            const newName = document.getElementById('editName').value.trim();
+                            const newEmail = document.getElementById('editEmail').value.trim();
 
-        try {
-            const res = await axios.put('/user/home/profile/edit-info', {
-                name: newName,
-                email: newEmail
-            });
+                            if (!newName || !newEmail) {
+                                return showToast("Name and Email are required", "error");
+                            }
 
-            if (res.data.success) {
-                if (res.data.otpRequired) {
-                    showToast(res.data.message, "success");
-                    editForm.style.display = "none";
-                    otpSection.style.display = "block";
-                    startOtpTimer(60); 
-                } else {
-                    showToast(res.data.message, "success");
-                    setTimeout(() => location.reload(), 1000);
-                }
-            } else {
-                showToast(res.data.message || "Update failed", "error");
-            }
-        } catch (err) {
-            console.error(err);
-            showToast(err.response?.data?.message || "Something went wrong", "error");
-        } finally {
-            updateBtn.disabled = false;
-            updateBtn.innerText = "Update Changes";
-        }
-    });
-   }
+                            updateBtn.disabled = true;
+                            updateBtn.innerText = "Processing...";
 
-    // Password Edit Submission (Only if form exists)
-    if (passForm) {
-        passForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+                            try {
+                                const res = await axios.put('/user/home/profile/edit-info', {
+                                    name: newName,
+                                    email: newEmail
+                                });
 
-            const currentPassword = document.getElementById('password').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+                                if (res.data.success) {
+                                    if (res.data.otpRequired) {
+                                        showToast(res.data.message, "success");
+                                        editForm.style.display = "none";
+                                        otpSection.style.display = "block";
+                                        startOtpTimer(60);
+                                    } else {
+                                        showToast(res.data.message, "success");
+                                        setTimeout(() => location.reload(), 1000);
+                                    }
+                                } else {
+                                    showToast(res.data.message || "Update failed", "error");
+                                }
+                            } catch (err) {
+                                console.error(err);
+                                showToast(err.response?.data?.message || "Something went wrong", "error");
+                            } finally {
+                                updateBtn.disabled = false;
+                                updateBtn.innerText = "Update Changes";
+                            }
+                        });
+                    }
 
-            if (newPassword !== confirmNewPassword) {
-                showToast("New passwords do not match", "error");
-                return;
-            }
-            if (newPassword.length === 0) {
-                showToast('Please fill the form before update', 'error');
-                return;
-            }
-            if (newPassword.length < 6) {
-                showToast("Password must be at least 6 characters", "error");
-                return;
-            }
+                    // Password Edit Submission (Only if form exists)
+                    if (passForm) {
+                        passForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
 
-            try {
-                const res = await axios.put('/user/home/profile/change-password', {
-                    currentPassword,
-                    newPassword
-                });
+                            const currentPassword = document.getElementById('password').value;
+                            const newPassword = document.getElementById('newPassword').value;
+                            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
 
-                if (res.data.success) {
-                    showToast("Password changed successfully!", "success");
-                    passModal.style.display = "none";
-                    passForm.reset();
-                } else {
-                    showToast(res.data.message, "error");
-                }
-            } catch (err) {
-                console.error(err);
-                const errorMsg = err.response?.data?.message || "Failed to update password";
-                showToast(errorMsg, "error");
-            }
-        });
-    }
+                            if (newPassword !== confirmNewPassword) {
+                                showToast("New passwords do not match", "error");
+                                return;
+                            }
+                            if (newPassword.length === 0) {
+                                showToast('Please fill the form before update', 'error');
+                                return;
+                            }
+                            if (newPassword.length < 6) {
+                                showToast("Password must be at least 6 characters", "error");
+                                return;
+                            }
 
-    // OTP Verification Logic
-    if (verifyOtpBtn) {
-        verifyOtpBtn.addEventListener('click', async () => {
-            const otp = document.getElementById('otpInput').value;
-            const newName = document.getElementById('editName').value;
-            const newEmail = document.getElementById('editEmail').value;
-            
-            if(!otp) return showToast("Please enter OTP", "error");
+                            try {
+                                const res = await axios.put('/user/home/profile/change-password', {
+                                    currentPassword,
+                                    newPassword
+                                });
 
-            try {
-                const res = await axios.post('/user/home/profile/verify-update-otp', {
-                    otp, 
-                    name: newName, 
-                    email: newEmail
-                });
+                                if (res.data.success) {
+                                    showToast("Password changed successfully!", "success");
+                                    passModal.style.display = "none";
+                                    passForm.reset();
+                                } else {
+                                    showToast(res.data.message, "error");
+                                }
+                            } catch (err) {
+                                console.error(err);
+                                const errorMsg = err.response?.data?.message || "Failed to update password";
+                                showToast(errorMsg, "error");
+                            }
+                        });
+                    }
 
-                if (res.data.success) {
-                    showToast("Profile Updated Successfully!", "success");
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showToast(res.data.message || "Invalid OTP", "error");
-                }
-            } catch (error) {
-                console.error(error);
-                showToast("Verification failed", "error");
-            }
-        });
-    }
+                    // OTP Verification Logic
+                    if (verifyOtpBtn) {
+                        verifyOtpBtn.addEventListener('click', async () => {
+                            const otp = document.getElementById('otpInput').value;
+                            const newName = document.getElementById('editName').value;
+                            const newEmail = document.getElementById('editEmail').value;
 
-    // Toast Notification Helper
-     const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top", 
-                position: "right", 
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
+                            if (!otp) return showToast("Please enter OTP", "error");
 
-</script>
+                            try {
+                                const res = await axios.post('/user/home/profile/verify-update-otp', {
+                                    otp,
+                                    name: newName,
+                                    email: newEmail
+                                });
+
+                                if (res.data.success) {
+                                    showToast("Profile Updated Successfully!", "success");
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    showToast(res.data.message || "Invalid OTP", "error");
+                                }
+                            } catch (error) {
+                                console.error(error);
+                                showToast("Verification failed", "error");
+                            }
+                        });
+                    }
+
+                    // Toast Notification Helper
+                    const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                        Toastify({
+                            text: message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: bgColor, borderRadius: '10px' }
+                        }).showToast();
+                    };
+
+                </script>

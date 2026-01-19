@@ -1,217 +1,226 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/user/wallet.css">
+    <link rel="stylesheet" href="/css/user/wallet.css">
 
-<body>
-    <%- include('../partials/navbar') %>
+    <body>
+        <%- include('../partials/navbar') %>
 
-    <div class="main-container">
-      
-            <%- include('./partials/profileSidebar', {active: 'walletPage'}) %>
-            
-            <main class="wallet-content">
-            <h2 class="page-title">My Wallet</h2>
+            <div class="main-container">
 
-            <div class="balance-card">
-                <div class="balance-info">
-                    <span class="label">Wallet Balance</span>
-                    <h1 class="amount">₹<%= wallet.balance.toFixed(2) %></h1>
-                    <span class="wallet-id">Wallet ID: <%= wallet._id.toString().slice(-8).toUpperCase() %></span>
-                </div>
-                <button class="add-money-btn" onclick="openAddMoneyModal()">Add Money</button>
-            </div>
+                <%- include('./partials/profileSidebar', {active: 'walletPage' }) %>
 
-            <div class="history-header">
-                <h3>Transaction History</h3>
-               <div class="filter-tabs">
-                <a href="/user/home/wallet?type=all" class="tab <%= currentFilter === 'all' ? 'active' : '' %>">All</a>
-                <a href="/user/home/wallet?type=credit" class="tab <%= currentFilter === 'credit' ? 'active' : '' %>">Credit</a>
-                <a href="/user/home/wallet?type=debit" class="tab <%= currentFilter === 'debit' ? 'active' : '' %>">Debit</a>
-            </div>
-            </div>
+                    <main class="wallet-content">
+                        <h2 class="page-title">My Wallet</h2>
 
-            <div class="transaction-list">
-                <% if (transactions && transactions.length > 0) { %>
-                    <% transactions.forEach(txn => { %>
-                        <div class="txn-item">
-                            
-                            <div class="txn-icon <%= txn.type %>">
-                                <% if (txn.reason === 'order_payment') { %>
-                                    <i class="fa-solid fa-bag-shopping"></i>
-                                <% } else if (txn.reason === 'top-up') { %>
-                                    <i class="fa-solid fa-wallet"></i>
-                                <% } else if (txn.reason === 'refund') { %>
-                                    <i class="fa-solid fa-rotate-left"></i>
-                                <% } else if (txn.reason === 'referral_bonus') { %>
-                                    <i class="fa-solid fa-gift"></i>
-                                <% } else { %>
-                                    <i class="fa-solid fa-money-bill-transfer"></i>
-                                <% } %>
+                        <div class="balance-card">
+                            <div class="balance-info">
+                                <span class="label">Wallet Balance</span>
+                                <h1 class="amount">₹<%= wallet.balance.toFixed(2) %>
+                                </h1>
+                                <span class="wallet-id">Wallet ID: <%= wallet._id.toString().slice(-8).toUpperCase() %>
+                                        </span>
                             </div>
-                            
-                            <div class="txn-details">
-                                <h4 class="txn-title">
-                                    <%= txn.description || txn.reason.replace(/_/g, ' ').toUpperCase() %>
-                                </h4>
-                                <span class="txn-date">
-                                    <%= new Date(txn.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
-                                </span>
-                            </div>
+                            <button class="add-money-btn" onclick="openAddMoneyModal()">Add Money</button>
+                        </div>
 
-                            <div class="txn-amount-status">
-                                <span class="amount <%= txn.type %>">
-                                    <%= txn.type === 'credit' ? '+' : '-' %> ₹<%= txn.amount.toFixed(2) %>
-                                </span>
-                                
-                                <span class="status success">Success</span>
+                        <div class="history-header">
+                            <h3>Transaction History</h3>
+                            <div class="filter-tabs">
+                                <a href="/user/home/wallet?type=all"
+                                    class="tab <%= currentFilter === 'all' ? 'active' : '' %>">All</a>
+                                <a href="/user/home/wallet?type=credit"
+                                    class="tab <%= currentFilter === 'credit' ? 'active' : '' %>">Credit</a>
+                                <a href="/user/home/wallet?type=debit"
+                                    class="tab <%= currentFilter === 'debit' ? 'active' : '' %>">Debit</a>
                             </div>
                         </div>
-                    <% }) %>
-                <% } else { %>
-                    <div class="no-txn" style="text-align:center; padding: 20px; color: #999;">
-                        <i class="fa-solid fa-receipt" style="font-size: 24px; margin-bottom: 10px;"></i>
-                        <p>No transactions yet.</p>
-                    </div>
-                <% } %>
+
+                        <div class="transaction-list">
+                            <% if (transactions && transactions.length> 0) { %>
+                                <% transactions.forEach(txn=> { %>
+                                    <div class="txn-item">
+
+                                        <div class="txn-icon <%= txn.type %>">
+                                            <% if (txn.reason==='order_payment' ) { %>
+                                                <i class="fa-solid fa-bag-shopping"></i>
+                                                <% } else if (txn.reason==='top-up' ) { %>
+                                                    <i class="fa-solid fa-wallet"></i>
+                                                    <% } else if (txn.reason==='refund' ) { %>
+                                                        <i class="fa-solid fa-rotate-left"></i>
+                                                        <% } else if (txn.reason==='referral_bonus' ) { %>
+                                                            <i class="fa-solid fa-gift"></i>
+                                                            <% } else { %>
+                                                                <i class="fa-solid fa-money-bill-transfer"></i>
+                                                                <% } %>
+                                        </div>
+
+                                        <div class="txn-details">
+                                            <h4 class="txn-title">
+                                                <%= txn.description || txn.reason.replace(/_/g, ' ' ).toUpperCase() %>
+                                            </h4>
+                                            <span class="txn-date">
+                                                <%= new Date(txn.createdAt).toLocaleDateString('en-US', { month: 'short'
+                                                    , day: 'numeric' , year: 'numeric' , hour: '2-digit' ,
+                                                    minute: '2-digit' }) %>
+                                            </span>
+                                        </div>
+
+                                        <div class="txn-amount-status">
+                                            <span class="amount <%= txn.type %>">
+                                                <%= txn.type==='credit' ? '+' : '-' %> ₹<%= txn.amount.toFixed(2) %>
+                                            </span>
+
+                                            <span class="status success">Success</span>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="no-txn" style="text-align:center; padding: 20px; color: #999;">
+                                                <i class="fa-solid fa-receipt"
+                                                    style="font-size: 24px; margin-bottom: 10px;"></i>
+                                                <p>No transactions yet.</p>
+                                            </div>
+                                            <% } %>
+                        </div>
+                    </main>
+
             </div>
-        </main>
-       
-    </div>
 
-    <div id="addMoneyModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content add-money-modal">
-        
-        <div class="modal-header">
-            <h3 class="modal-title">Add Money</h3>
-            <button class="close-btn" onclick="closeAddMoneyModal()">&times;</button>
-        </div>
+            <div id="addMoneyModal" class="modal-overlay" style="display: none;">
+                <div class="modal-content add-money-modal">
 
-        <div class="modal-balance-card">
-            <span class="label">Available Balance</span>
-            <h2 class="balance-amount">₹<%= wallet.balance.toFixed(2) %></h2>
-        </div>
+                    <div class="modal-header">
+                        <h3 class="modal-title">Add Money</h3>
+                        <button class="close-btn" onclick="closeAddMoneyModal()">&times;</button>
+                    </div>
 
-        <div class="input-group">
-            <label>Add to wallet</label>
-            <input type="number" id="addAmountInput" placeholder="Enter your amount" min="1">
-        </div>
+                    <div class="modal-balance-card">
+                        <span class="label">Available Balance</span>
+                        <h2 class="balance-amount">₹<%= wallet.balance.toFixed(2) %>
+                        </h2>
+                    </div>
 
-        <div class="preset-chips">
-            <button class="chip" onclick="setAmount(100)">₹ 100</button>
-            <button class="chip" onclick="setAmount(200)">₹ 200</button>
-            <button class="chip" onclick="setAmount(500)">₹ 500</button>
-            <button class="chip" onclick="setAmount(1000)">₹ 1000</button>
-        </div>
+                    <div class="input-group">
+                        <label>Add to wallet</label>
+                        <input type="number" id="addAmountInput" placeholder="Enter your amount" min="1">
+                    </div>
 
-        <p class="modal-note">
-            Balance is non-transferable and can only be used for purchases on LapStore.
-        </p>
+                    <div class="preset-chips">
+                        <button class="chip" onclick="setAmount(100)">₹ 100</button>
+                        <button class="chip" onclick="setAmount(200)">₹ 200</button>
+                        <button class="chip" onclick="setAmount(500)">₹ 500</button>
+                        <button class="chip" onclick="setAmount(1000)">₹ 1000</button>
+                    </div>
 
-        <button class="btn-proceed" onclick="processAddMoney()">Proceed</button>
-        
-    </div>
-</div>  
+                    <p class="modal-note">
+                        Balance is non-transferable and can only be used for purchases on LapStore.
+                    </p>
 
-<%- include('../partials/footer') %>
- <script src="/js/axios.min.js"></script>
-<script>
-     const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "#28a745" : "#dc3545";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top",
-                position: "right",
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
+                    <button class="btn-proceed" onclick="processAddMoney()">Proceed</button>
 
-    // 1. Modal Logic
-    const addMoneyModal = document.getElementById('addMoneyModal');
-    const amountInput = document.getElementById('addAmountInput');
+                </div>
+            </div>
 
-    function openAddMoneyModal() {
-        addMoneyModal.style.display = 'flex';
-        amountInput.value = ''; // Reset input
-        // Reset chips
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    }
+            <%- include('../partials/footer') %>
+                <script src="/js/axios.min.js"></script>
+                <script>
+                    const showToast = (message, type) => {
+                        const bgColor = type === 'success' ? "#28a745" : "#dc3545";
+                        Toastify({
+                            text: message,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: bgColor, borderRadius: '10px' }
+                        }).showToast();
+                    };
 
-    function closeAddMoneyModal() {
-        addMoneyModal.style.display = 'none';
-    }
+                    // 1. Modal Logic
+                    const addMoneyModal = document.getElementById('addMoneyModal');
+                    const amountInput = document.getElementById('addAmountInput');
 
-    // Close if clicked outside
-    window.onclick = function(event) {
-        if (event.target == addMoneyModal) {
-            closeAddMoneyModal();
-        }
-    }
+                    function openAddMoneyModal() {
+                        addMoneyModal.style.display = 'flex';
+                        amountInput.value = ''; // Reset input
+                        // Reset chips
+                        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    }
 
-    // 2. Preset Amount Logic
-    function setAmount(amount) {
-        amountInput.value = amount;
-        
-        // Visual Feedback for Chips
-        document.querySelectorAll('.chip').forEach(btn => {
-            btn.classList.remove('active');
-            if(btn.innerText.includes(amount)) {
-                btn.classList.add('active');
-            }
-        });
-    }
+                    function closeAddMoneyModal() {
+                        addMoneyModal.style.display = 'none';
+                    }
 
-    // 3. Process Payment (Razorpay Integration Skeleton)
-    async function processAddMoney() {
-        const amount = amountInput.value;
-
-        if (!amount || amount < 1) {
-            showToast("Please enter a valid amount", "error");
-            return;
-        }
-
-        try {
-            // A. Create Order on Backend
-            const response = await axios.post('/user/wallet/add-money', { amount });
-            
-            if (response.data.success) {
-                const { order } = response.data;
-                
-                // B. Open Razorpay
-                const options = {
-                    "key": "<%= razorpayKeyId %>", // Ensure this env var is passed to view or handled in JS
-                    "amount": order.amount,
-                    "currency": "INR",
-                    "name": "LapStore Wallet",
-                    "description": "Add Money to Wallet",
-                    "order_id": order.id,
-                    "handler": async function (response) {
-                        // C. Verify Payment
-                        const verifyRes = await axios.post('/user/wallet/verify-payment', {
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_signature: response.razorpay_signature
-                        });
-
-                        if (verifyRes.data.success) {
-                            showToast("Money added successfully!", "success");
-                            setTimeout(() => location.reload(), 1500);
-                        } else {
-                            showToast("Payment verification failed", "error");
+                    // Close if clicked outside
+                    window.onclick = function (event) {
+                        if (event.target == addMoneyModal) {
+                            closeAddMoneyModal();
                         }
-                    },
-                    "theme": { "color": "#0d6efd" }
-                };
-                
-                const rzp1 = new Razorpay(options);
-                rzp1.open();
-                closeAddMoneyModal();
-            } else {
-                showToast(response.data.message, "error");
-            }
-        } catch (error) {
-            console.error(error);
-            showToast("Something went wrong", "error");
-        }
-    }
-</script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+                    }
+
+                    // 2. Preset Amount Logic
+                    function setAmount(amount) {
+                        amountInput.value = amount;
+
+                        // Visual Feedback for Chips
+                        document.querySelectorAll('.chip').forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.innerText.includes(amount)) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+
+                    // 3. Process Payment (Razorpay Integration Skeleton)
+                    async function processAddMoney() {
+                        const amount = amountInput.value;
+
+                        if (!amount || amount < 1) {
+                            showToast("Please enter a valid amount", "error");
+                            return;
+                        }
+
+                        try {
+                            // A. Create Order on Backend
+                            const response = await axios.post('/user/wallet/add-money', { amount });
+
+                            if (response.data.success) {
+                                const { order } = response.data;
+
+                                // B. Open Razorpay
+                                const options = {
+                                    "key": "<%= razorpayKeyId %>", // Ensure this env var is passed to view or handled in JS
+                                    "amount": order.amount,
+                                    "currency": "INR",
+                                    "name": "LapStore Wallet",
+                                    "description": "Add Money to Wallet",
+                                    "order_id": order.id,
+                                    "handler": async function (response) {
+                                        // C. Verify Payment
+                                        const verifyRes = await axios.post('/user/wallet/verify-payment', {
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_order_id: response.razorpay_order_id,
+                                            razorpay_signature: response.razorpay_signature
+                                        });
+
+                                        if (verifyRes.data.success) {
+                                            showToast("Money added successfully!", "success");
+                                            setTimeout(() => location.reload(), 1500);
+                                        } else {
+                                            showToast("Payment verification failed", "error");
+                                        }
+                                    },
+                                    "theme": { "color": "#0d6efd" }
+                                };
+
+                                const rzp1 = new Razorpay(options);
+                                rzp1.open();
+                                closeAddMoneyModal();
+                            } else {
+                                showToast(response.data.message, "error");
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            showToast("Something went wrong", "error");
+                        }
+                    }
+                </script>
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

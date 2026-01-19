@@ -1,55 +1,68 @@
-<% if (!cartItems || cartItems.length === 0) { %>
+<% if (!cartItems || cartItems.length===0) { %>
     <div style="text-align: center; padding: 50px; background: white; border-radius: 12px;">
         <i class="fa-solid fa-cart-shopping" style="font-size: 50px; color: #ddd; margin-bottom: 20px;"></i>
         <h3>Your cart is empty</h3>
-        <a href="/user/home/shop" class="checkout-btn" style="display: inline-block; width: auto; text-decoration: none; margin-top: 20px;">Start Shopping</a>
+        <a href="/user/home/shop" class="checkout-btn"
+            style="display: inline-block; width: auto; text-decoration: none; margin-top: 20px;">Start Shopping</a>
     </div>
-<% } else { %>
-    <% cartItems.forEach(item => { %>
-        <div class="cart-card">
-            <div class="card-content">
-                <div class="img-wrapper">
-                    <img src="<%= item.variantId.image %>" alt="Product" onerror="this.src='https://placehold.co/120x120?text=No+Image'">
-                </div>
-              <div class="item-details">
-                    <span class="brand"><%= item.productId.brand?.brandName || 'Generic' %></span>
-                    <h3 class="product-name"><%= item.productId.name %></h3>
-                    <p class="specs">
-                        <%= item.variantId.color %> | <%= item.variantId.ram %> RAM | <%= item.variantId.storage %> SSD
-                    </p>
-                    <div class="qty-control">
-                        <button class="qty-btn" onclick="updateQuantity('<%= item._id %>', 'decrement')">-</button>
-                        <span class="qty-val"><%= item.quantity %></span>
-                        <button class="qty-btn" onclick="updateQuantity('<%= item._id %>', 'increment')">+</button>
+    <% } else { %>
+        <% cartItems.forEach(item=> { %>
+            <div class="cart-card">
+                <div class="card-content">
+                    <div class="img-wrapper">
+                        <img src="<%= item.variantId.image %>" alt="Product"
+                            onerror="this.src='https://placehold.co/120x120?text=No+Image'">
                     </div>
-                </div>
+                    <div class="item-details">
+                        <span class="brand">
+                            <%= item.productId.brand?.brandName || 'Generic' %>
+                        </span>
+                        <h3 class="product-name">
+                            <%= item.productId.name %>
+                        </h3>
+                        <p class="specs">
+                            <%= item.variantId.color %> | <%= item.variantId.ram %> RAM | <%= item.variantId.storage %>
+                                        SSD
+                        </p>
+                        <div class="qty-control">
+                            <button class="qty-btn" onclick="updateQuantity('<%= item._id %>', 'decrement')">-</button>
+                            <span class="qty-val">
+                                <%= item.quantity %>
+                            </span>
+                            <button class="qty-btn" onclick="updateQuantity('<%= item._id %>', 'increment')">+</button>
+                        </div>
+                    </div>
 
-                <div class="item-meta" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;">
-                    
-                    <button class="delete-btn" onclick="confirmDelete('<%= item._id %>')" style="margin-bottom: 10px;">
-                        <i class="fa-regular fa-trash-can"></i>
-                    </button>
+                    <div class="item-meta"
+                        style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;">
 
-                    <div class="price-display" style="text-align: right;">
-                        <% if (item.discountAmount > 0) { %>
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
-                                <span class="price" style="color: #ef4444; font-weight: 700;">
-                                    ₹<%= (item.finalPrice * item.quantity).toLocaleString() %>
-                                </span>
-                                <span class="old-price" style="text-decoration: line-through; color: #9ca3af; font-size: 0.9em;">
-                                    ₹<%= (item.regularPrice * item.quantity).toLocaleString() %>
-                                </span>
-                                <span class="save-badge" style="font-size: 0.75em; color: #166534; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">
-                                    Save ₹<%= (item.discountAmount * item.quantity) %>
-                                </span>
-                            </div>
-                        <% } else { %>
-                            <span class="price">₹<%= item.finalPrice.toLocaleString() %></span>
-                        <% } %>
+                        <button class="delete-btn" onclick="confirmDelete('<%= item._id %>')"
+                            style="margin-bottom: 10px;">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+
+                        <div class="price-display" style="text-align: right;">
+                            <% if (item.discountAmount> 0) { %>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+                                    <span class="price" style="color: #ef4444; font-weight: 700;">
+                                        ₹<%= (item.finalPrice * item.quantity).toLocaleString() %>
+                                    </span>
+                                    <span class="old-price"
+                                        style="text-decoration: line-through; color: #9ca3af; font-size: 0.9em;">
+                                        ₹<%= (item.regularPrice * item.quantity).toLocaleString() %>
+                                    </span>
+                                    <span class="save-badge"
+                                        style="font-size: 0.75em; color: #166534; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">
+                                        Save ₹<%= (item.discountAmount * item.quantity) %>
+                                    </span>
+                                </div>
+                                <% } else { %>
+                                    <span class="price">₹<%= item.finalPrice.toLocaleString() %></span>
+                                    <% } %>
+                        </div>
+
                     </div>
-                    
-                    </div>
+                </div>
             </div>
-        </div>
-    <% }) %>
-<% } %>
+            <% }) %>
+                <% } %>

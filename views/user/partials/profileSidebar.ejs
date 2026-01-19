@@ -2,26 +2,24 @@
 
 <aside class="sidebar card">
     <div class="user-summary">
-        
-        <div class="image-container">
-    <img src="<%= (user.avatar && user.avatar !== 'user') ? user.avatar : '/images/user/defaultUser.jpg' %>" 
-         alt="Profile pic" 
-         class="profile-img"
-         id="profileImageDisplay">
 
-    <label for="profileUpload" class="upload-icon">
-        <i class="fa-solid fa-camera"></i>
-    </label>
-    <input type="file" 
-           id="profileUpload" 
-           name="avatar" 
-           accept="image/*" 
-           style="display: none;">
-</div>
+        <div class="image-container">
+            <img src="<%= (user.avatar && user.avatar !== 'user') ? user.avatar : '/images/user/defaultUser.jpg' %>"
+                alt="Profile pic" class="profile-img" id="profileImageDisplay">
+
+            <label for="profileUpload" class="upload-icon">
+                <i class="fa-solid fa-camera"></i>
+            </label>
+            <input type="file" id="profileUpload" name="avatar" accept="image/*" style="display: none;">
+        </div>
 
         <div class="user-details">
-            <h3><%= user.name %></h3>
-            <span><%= user.email %></span>
+            <h3>
+                <%= user.name %>
+            </h3>
+            <span>
+                <%= user.email %>
+            </span>
         </div>
     </div>
 
@@ -53,13 +51,15 @@
             <h3>Crop Image</h3>
             <span class="close-modal" onclick="closeCropperModal()">&times;</span>
         </div>
-        
-        <div class="modal-body" style="height: 400px; display: flex; justify-content: center; align-items: center; background: #f0f0f0; overflow: hidden;">
+
+        <div class="modal-body"
+            style="height: 400px; display: flex; justify-content: center; align-items: center; background: #f0f0f0; overflow: hidden;">
             <img id="imageToCrop" src="" style="max-width: 100%; max-height: 100%; display: block;">
         </div>
 
         <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-            <button class="btn-cancel" onclick="closeCropperModal()" style="padding: 8px 16px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">Cancel</button>
+            <button class="btn-cancel" onclick="closeCropperModal()"
+                style="padding: 8px 16px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">Cancel</button>
             <button class="btn-save" id="cropAndSave" style="width: auto;">Save & Upload</button>
         </div>
     </div>
@@ -111,24 +111,24 @@
             canvas.toBlob((blob) => {
                 const formData = new FormData();
                 // 'avatar' must match the name your Multer config expects
-                formData.append('avatar', blob, 'profile-pic.png'); 
+                formData.append('avatar', blob, 'profile-pic.png');
 
                 // Send to Server
                 fetch('/user/home/profile/upload-profile-pic', {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.reload(); // Reload to see new image
-                    } else {
-                        alert('Upload failed. Please try again.');
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    alert('Something went wrong.');
-                });
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload(); // Reload to see new image
+                        } else {
+                            alert('Upload failed. Please try again.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        alert('Something went wrong.');
+                    });
             }, 'image/png');
         }
     });

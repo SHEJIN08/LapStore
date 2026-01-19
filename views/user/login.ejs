@@ -1,155 +1,166 @@
 <%- include('../partials/header') %>
     <link rel="stylesheet" href="/css/user/login.css">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/appwrite@21.4.0"></script>
 
-<body>
+    <body>
 
-    <section class="logo-panel">
-        <div class="logo">
-            <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="56" height="56" rx="12" fill="#3A5FEC"/>
-                <path d="M16 22C16 20.8954 16.8954 20 18 20H38C39.1046 20 40 20.8954 40 22V32H16V22Z" fill="white"/>
-                <path d="M14 36H42C43.1046 36 44 35.1046 44 34V34C44 32.8954 43.1046 32 42 32H14C12.8954 32 12 32.8954 12 34V34C12 35.1046 12.8954 36 14 36Z" fill="white" fill-opacity="0.7"/>
-            </svg>
-            <span>LapStore</span>
-        </div>
-    </section>
-
-    <section class="login-panel">
-        <div class="form-wrapper">
-            <h1>Welcome Back</h1>
-            <p class="subtitle">Sign in to continue to your account.</p>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                    
-                </div>
-
-                <div class="form-group">
-                    <div class="label-row">
-                        <label for="password">Password</label>
-                        <a href="/user/forgot-password" class="forgot-link">Forgot Password?</a>
-                    </div>
-                    <div class="password-wrapper">
-                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                        <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 10.224 7.29 6 12 6s8.577 4.224 9.964 5.683c.21.226.21.585 0 .811C20.577 13.776 16.71 18 12 18s-8.577-4.224-9.964-5.683z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary log-btn">Login</button>
-            </form>
-
-            <div class="separator">
-                <span>Or continue with</span>
-            </div>
-
-            <button type="button" class="btn btn-google" id="google-btn" style="margin-left: 150px; margin-bottom: 20px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-                    <path fill="#4285F4" d="M17.64 9.20455c0-.63864-.05727-1.25182-.16818-1.84091H9v3.48182h4.84364c-.20864 1.125-.84273 2.07818-1.77727 2.71636v2.25818h2.90864c1.70182-1.56682 2.68364-3.875 2.68364-6.61545z"/>
-                    <path fill="#34A853" d="M9 18c2.43 0 4.46727-.80591 5.95636-2.18045l-2.90864-2.25818c-.80591.54364-1.84091.86727-2.99364.86727-2.34545 0-4.32545-1.58182-5.03591-3.71045H.957273v2.33182C2.43818 16.1427 5.48182 18 9 18z"/>
-                    <path fill="#FBBC05" d="M3.96409 10.71c-.18-.54364-.28227-1.11545-.28227-1.71s.10227-1.16636.28227-1.71V4.95818H.957273C.347727 6.17364 0 7.54773 0 9s.347727 2.82636.957273 4.04182L3.96409 10.71z"/>
-                    <path fill="#EA4335" d="M9 3.57955c1.32136 0 2.50773.45454 3.44091 1.34591l2.58182-2.58182C13.4636.925 11.43 0 9 0 5.48182 0 2.43818 1.85727.957273 4.95818L3.96409 7.29C4.67455 5.16182 6.65455 3.57955 9 3.57955z"/>
+        <section class="logo-panel">
+            <div class="logo">
+                <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="56" height="56" rx="12" fill="#3A5FEC" />
+                    <path d="M16 22C16 20.8954 16.8954 20 18 20H38C39.1046 20 40 20.8954 40 22V32H16V22Z"
+                        fill="white" />
+                    <path
+                        d="M14 36H42C43.1046 36 44 35.1046 44 34V34C44 32.8954 43.1046 32 42 32H14C12.8954 32 12 32.8954 12 34V34C12 35.1046 12.8954 36 14 36Z"
+                        fill="white" fill-opacity="0.7" />
                 </svg>
-                <span>Google</span>
-            </button>
-            
+                <span>LapStore</span>
+            </div>
+        </section>
 
-            <p class="signup-link">
-                Don't have an account? <a href="/user/register">Sign Up</a> </p>
+        <section class="login-panel">
+            <div class="form-wrapper">
+                <h1>Welcome Back</h1>
+                <p class="subtitle">Sign in to continue to your account.</p>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                    </div>
+
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label for="password">Password</label>
+                            <a href="/user/forgot-password" class="forgot-link">Forgot Password?</a>
+                        </div>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Enter your password"
+                                required>
+                            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 10.224 7.29 6 12 6s8.577 4.224 9.964 5.683c.21.226.21.585 0 .811C20.577 13.776 16.71 18 12 18s-8.577-4.224-9.964-5.683z" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary log-btn">Login</button>
+                </form>
+
+                <div class="separator">
+                    <span>Or continue with</span>
+                </div>
+
+                <button type="button" class="btn btn-google" id="google-btn"
+                    style="margin-left: 150px; margin-bottom: 20px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                        <path fill="#4285F4"
+                            d="M17.64 9.20455c0-.63864-.05727-1.25182-.16818-1.84091H9v3.48182h4.84364c-.20864 1.125-.84273 2.07818-1.77727 2.71636v2.25818h2.90864c1.70182-1.56682 2.68364-3.875 2.68364-6.61545z" />
+                        <path fill="#34A853"
+                            d="M9 18c2.43 0 4.46727-.80591 5.95636-2.18045l-2.90864-2.25818c-.80591.54364-1.84091.86727-2.99364.86727-2.34545 0-4.32545-1.58182-5.03591-3.71045H.957273v2.33182C2.43818 16.1427 5.48182 18 9 18z" />
+                        <path fill="#FBBC05"
+                            d="M3.96409 10.71c-.18-.54364-.28227-1.11545-.28227-1.71s.10227-1.16636.28227-1.71V4.95818H.957273C.347727 6.17364 0 7.54773 0 9s.347727 2.82636.957273 4.04182L3.96409 10.71z" />
+                        <path fill="#EA4335"
+                            d="M9 3.57955c1.32136 0 2.50773.45454 3.44091 1.34591l2.58182-2.58182C13.4636.925 11.43 0 9 0 5.48182 0 2.43818 1.85727.957273 4.95818L3.96409 7.29C4.67455 5.16182 6.65455 3.57955 9 3.57955z" />
+                    </svg>
+                    <span>Google</span>
+                </button>
+
+
+                <p class="signup-link">
+                    Don't have an account? <a href="/user/register">Sign Up</a> </p>
+            </div>
+        </section>
+        <div class="footer" style="width: 200%; margin-top: 33px;">
+            <%- include('../partials/footer') %>
         </div>
-    </section>
-    <div class="footer" style="width: 200%; margin-top: 33px;">
-        <%- include('../partials/footer') %>
-    </div>
 
 
-<script src="/js/axios.min.js"></script>
+        <script src="/js/axios.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/appwrite@8.0.2/dist/appwrite.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/appwrite@8.0.2/dist/appwrite.min.js"></script>
 
-<script>
-     window.APPWRITE_CONFIG = {
-    APPWRITE_ENDPOINT: "<%= process.env.APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1' %>",
-    APPWRITE_PROJECT:  "<%= process.env.APPWRITE_PROJECT  || '691181470024b6460a13' %>",
-      GOOGLE_CALLBACK:   "<%= process.env.GOOGLE_CALLBACK   || 'http://localhost:5000/user/auth/google/callback' %>",
-    LOGIN_REDIRECT:    "<%= process.env.LOGIN_REDIRECT    || 'http://localhost:5000/user/login' %>"
-    };
-</script>
+        <script>
+            window.APPWRITE_CONFIG = {
+                APPWRITE_ENDPOINT: "<%= process.env.APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1' %>",
+                APPWRITE_PROJECT: "<%= process.env.APPWRITE_PROJECT  || '691181470024b6460a13' %>",
+                GOOGLE_CALLBACK: "<%= process.env.GOOGLE_CALLBACK   || 'http://localhost:5000/user/auth/google/callback' %>",
+                LOGIN_REDIRECT: "<%= process.env.LOGIN_REDIRECT    || 'http://localhost:5000/user/login' %>"
+            };
+        </script>
 
-<script type="module" src="/js/googleAuth.js"></script>
-
-
-<script>
-    const loginForm = document.getElementById('loginForm')
-
-     const showToast = (message, type) => {
-            const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
-            Toastify({
-                text: message,
-                duration: 3000,
-                gravity: "top", 
-                position: "right", 
-                style: { background: bgColor, borderRadius: '10px' }
-            }).showToast();
-        };
+        <script type="module" src="/js/googleAuth.js"></script>
 
 
-        const passwordInput = document.getElementById('password')
-        const eyeIcon = document.querySelector('.eye-icon')
+        <script>
+            const loginForm = document.getElementById('loginForm')
 
-        eyeIcon.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text': 'password'
-        
-         passwordInput.setAttribute('type', type)
+            const showToast = (message, type) => {
+                const bgColor = type === 'success' ? "linear-gradient(to right, #30E527, #238500)" : "linear-gradient(to right, #e52d27, #b31217)";
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: bgColor, borderRadius: '10px' }
+                }).showToast();
+            };
 
-         if(type === 'text') {
-            eyeIcon.style.stroke = '#3B82F6'
-         }else{
-            eyeIcon.style.stroke = "currentColor"
-         }
-        })
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            const passwordInput = document.getElementById('password')
+            const eyeIcon = document.querySelector('.eye-icon')
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const btn = document.querySelector('.log-btn')
+            eyeIcon.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password'
 
-            Loading.showButton(btn)
+                passwordInput.setAttribute('type', type)
 
-            try {
-                const response = await axios.post('/user/login', {
-                    email: email,
-                    password: password
-                });
-
-                if(response.data.success){
-                    Loading.show('Redirecting...')
-                    showToast('Login successfull...','success');
-                    setTimeout(() => {
-                        window.location.href = '/user/home';
-                    },1000)
-                }else {
-                    Loading.hideButton(btn)
-                    showToast(response.data.message || 'Login failed!','error')
+                if (type === 'text') {
+                    eyeIcon.style.stroke = '#3B82F6'
+                } else {
+                    eyeIcon.style.stroke = "currentColor"
                 }
-            } catch (error) {
-                Loading.hideButton(btn)
-                console.error(error);
+            })
 
-                const errMsg = error.response?.data?.message || 'Something went wrong';
-                showToast(errMsg, 'error');
-            }
-        })
-</script>
-</body>
-</html>
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const btn = document.querySelector('.log-btn')
 
+                Loading.showButton(btn)
+
+                try {
+                    const response = await axios.post('/user/login', {
+                        email: email,
+                        password: password
+                    });
+
+                    if (response.data.success) {
+                        Loading.show('Redirecting...')
+                        showToast('Login successfull...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/user/home';
+                        }, 1000)
+                    } else {
+                        Loading.hideButton(btn)
+                        showToast(response.data.message || 'Login failed!', 'error')
+                    }
+                } catch (error) {
+                    Loading.hideButton(btn)
+                    console.error(error);
+
+                    const errMsg = error.response?.data?.message || 'Something went wrong';
+                    showToast(errMsg, 'error');
+                }
+            })
+        </script>
+    </body>
+
+    </html>

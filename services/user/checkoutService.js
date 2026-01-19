@@ -88,11 +88,21 @@ const getCheckoutData = async (userId) => {
 const applyCouponService = async (userId, couponCode, totalAmount) => {
   try {
     // 1. Validation Logic
-    if (!couponCode)
-      return { success: false, message: "No coupon code provided" };
+    if (!couponCode){
+      return {success: false, message: "No coupon code provided" };
+    }
 
     const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
-
+    
+    if (!coupon) {
+      return { success: false, message: "Invalid Coupon code" };
+    }
+    if (!coupon.isActive) {
+      return { success: false, message: "This coupon is inactive" };
+    }
+    if (new Date(coupon.endDate) < new Date()) {
+      return { success: false, message: "This coupon has expired" };
+    }
     if (coupon.usageLimitPerUser) {
       const userUsageCount = await Order.countDocuments({
         userId: userId,
@@ -104,15 +114,6 @@ const applyCouponService = async (userId, couponCode, totalAmount) => {
       }
     }
 
-    if (!coupon) {
-      return { success: false, message: "Invalid Coupon code" };
-    }
-    if (!coupon.isActive) {
-      return { success: false, message: "This coupon is inactive" };
-    }
-    if (new Date(coupon.endDate) < new Date()) {
-      return { success: false, message: "This coupon has expired" };
-    }
 
     if (
       coupon.userEligibility === "specific" &&
