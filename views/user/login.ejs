@@ -90,8 +90,8 @@
             window.APPWRITE_CONFIG = {
                 APPWRITE_ENDPOINT: "<%= process.env.APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1' %>",
                 APPWRITE_PROJECT: "<%= process.env.APPWRITE_PROJECT  || '691181470024b6460a13' %>",
-                GOOGLE_CALLBACK: "<%= process.env.GOOGLE_CALLBACK || '' %>"  || `${currentDomain}/user/auth/google/callback`,
-                LOGIN_REDIRECT: "<%= process.env.LOGIN_REDIRECT || ''  %>"   || `${currentDomain}/user/login`
+                GOOGLE_CALLBACK: `${currentDomain}/user/auth/google/callback`,
+                LOGIN_REDIRECT: `${currentDomain}/user/login`
             };
         </script>
 
