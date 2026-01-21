@@ -251,7 +251,7 @@
                                                                         onclick="openCancelModal('<%= order._id %>', '<%= item._id %>')">
                                                                         Cancel Item
                                                                     </button>
-                                                                    <% } else if (order.status==='Delivered' ) { %>
+                                                                    <% } else if (order.status==='Delivered' && order.orderedItems.length > 1) { %>
                                                                         <button class="btn-return"
                                                                             onclick="openReturnModal('<%= order._id %>', '<%= item._id %>')"
                                                                             style="height: 42px;">Return Item</button>

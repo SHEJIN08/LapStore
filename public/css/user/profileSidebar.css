@@ -110,3 +110,125 @@
     background-color: #E0E7FF;
     color: #3B82F6;
 }
+/* --- Cropper Modal Styles --- */
+
+/* 1. The Dark Overlay Background */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Dark semi-transparent background */
+    z-index: 9999; /* Ensure it sits on top of everything */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 2. The White Modal Box */
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeInScale 0.3s ease-out; /* Smooth entrance animation */
+}
+
+/* 3. Header */
+.modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.close-modal {
+    font-size: 28px;
+    color: #9ca3af;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #ef4444; /* Red on hover */
+}
+
+/* 4. Body (Where image sits) */
+.modal-body {
+    background-color: #000; /* Black background highlights the image better */
+    position: relative;
+    width: 100%;
+}
+
+/* Ensure the image fits inside Cropper's container */
+#imageToCrop {
+    display: block;
+    max-width: 100%;
+}
+
+/* 5. Footer (Buttons) */
+.modal-footer {
+    padding: 16px 24px;
+    background-color: #fff;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Button Styles */
+.btn-cancel {
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    color: #374151;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.btn-save {
+    padding: 8px 20px;
+    border: none;
+    background-color: #3B82F6; /* Matches your sidebar active color */
+    color: white;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.btn-save:hover {
+    background-color: #2563EB; /* Darker blue on hover */
+}
+
+/* Animation Keyframes */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

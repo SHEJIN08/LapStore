@@ -89,7 +89,7 @@ const updateOrderStatusService = async (orderId, status) => {
       order.paymentStatus = "Paid";
     }
   }
-  // Optional: If Order is Cancelled, mark items Cancelled
+  // If Order is Cancelled, mark items Cancelled
   else if (status === "Cancelled") {
     order.orderedItems.forEach((item) => {
       item.productStatus = "Cancelled";
@@ -256,13 +256,16 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
   }
 
   // --- SYNC MAIN ORDER STATUS ---
-  // (This logic ensures that if all items are returned/rejected, the main order status updates)
   order.markModified("orderedItems");
 
   const itemStatuses = order.orderedItems.map((item) => item.productStatus);
 
-  // Check conditions
-  const hasPendingRequests = itemStatuses.includes("Return Request");
+  // 1. Check if ANY item is currently in a return process (Request or Approved)
+  const isReturnActive = itemStatuses.some((status) => 
+    ["Return Request", "Return Approved"].includes(status)
+  );
+
+  // 2. Check other conditions
   const allReturned = itemStatuses.every((status) => status === "Returned");
   const allCancelledOrReturned = itemStatuses.every((status) =>
     ["Returned", "Cancelled", "Return Rejected"].includes(status)
@@ -278,26 +281,27 @@ const processReturnRequestService = async ({ orderId, itemId, action }) => {
     ].includes(item.productStatus)
   );
 
-  if (!hasPendingRequests) {
-    if (allReturned) {
+  // --- LOGIC UPDATE ---
+  if (isReturnActive) {
+    // If any item is being returned, keep the main status as Return Request
+    order.status = "Return Request"; 
+  } else if (allReturned) {
+    order.status = "Returned";
+    if (order.returnRequest) order.returnRequest.status = "Approved";
+  } else if (hasActiveItems) {
+    // Only set back to normal statuses if NO returns are active
+    if (itemStatuses.includes("Delivered")) {
+      order.status = "Delivered";
+    } else if (itemStatuses.includes("Shipped")) {
+      order.status = "Shipped";
+    } else {
+      order.status = "Processing";
+    }
+  } else if (allCancelledOrReturned) {
+    if (itemStatuses.includes("Returned")) {
       order.status = "Returned";
-      if (order.returnRequest) order.returnRequest.status = "Approved";
-    } else if (hasActiveItems) {
-      if (itemStatuses.includes("Delivered")) {
-        order.status = "Delivered";
-      } else if (itemStatuses.includes("Shipped")) {
-        order.status = "Shipped";
-      } else if (itemStatuses.includes("Processing")) {
-        order.status = "Processing";
-      } else {
-        order.status = "Processing";
-      }
-    } else if (allCancelledOrReturned) {
-      if (itemStatuses.includes("Returned")) {
-        order.status = "Returned";
-      } else {
-        order.status = "Return Rejected";
-      }
+    } else {
+      order.status = "Return Rejected";
     }
   }
 

@@ -242,6 +242,7 @@ const returnOrderService = async ({
     item.returnReason = reason;
     item.returnComment = comment;
 
+    order.status = "Return Request";
     order.orderHistory.push({
       status: "Return Request",
       date: new Date(),
