@@ -86,11 +86,12 @@
         <script src="https://cdn.jsdelivr.net/npm/appwrite@8.0.2/dist/appwrite.min.js"></script>
 
         <script>
+            const currentDomain = window.location.origin;
             window.APPWRITE_CONFIG = {
                 APPWRITE_ENDPOINT: "<%= process.env.APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1' %>",
                 APPWRITE_PROJECT: "<%= process.env.APPWRITE_PROJECT  || '691181470024b6460a13' %>",
-                GOOGLE_CALLBACK: "<%= process.env.GOOGLE_CALLBACK   || 'http://localhost:5000/user/auth/google/callback' %>",
-                LOGIN_REDIRECT: "<%= process.env.LOGIN_REDIRECT    || 'http://localhost:5000/user/login' %>"
+                GOOGLE_CALLBACK: "<%= process.env.GOOGLE_CALLBACK || '' %>"  || `${currentDomain}/user/auth/google/callback`,
+                LOGIN_REDIRECT: "<%= process.env.LOGIN_REDIRECT || ''  %>"   || `${currentDomain}/user/login`
             };
         </script>
 
