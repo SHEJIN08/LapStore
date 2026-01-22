@@ -17,7 +17,7 @@
                                 <h1 class="amount">₹<%= wallet.balance.toFixed(2) %>
                                 </h1>
                                 <span class="wallet-id">Wallet ID: <%= wallet._id.toString().slice(-8).toUpperCase() %>
-                                        </span>
+                                </span>
                             </div>
                             <button class="add-money-btn" onclick="openAddMoneyModal()">Add Money</button>
                         </div>
@@ -81,6 +81,40 @@
                                             </div>
                                             <% } %>
                         </div>
+                        <% if (totalPages> 1) { %>
+                            <div class="pagination-container">
+
+                                <% if (currentPage> 1) { %>
+                                    <a href="?page=<%= currentPage - 1 %>&type=<%= currentFilter %>"
+                                        class="page-link prev">
+                                        <i class="fa-solid fa-chevron-left"></i> Prev
+                                    </a>
+                                    <% } else { %>
+                                        <span class="page-link prev disabled"><i class="fa-solid fa-chevron-left"></i>
+                                            Prev</span>
+                                        <% } %>
+
+                                            <div class="page-numbers">
+                                                <% for(let i=1; i <=totalPages; i++) { %>
+                                                    <a href="?page=<%= i %>&type=<%= currentFilter %>"
+                                                        class="page-num <%= currentPage === i ? 'active' : '' %>">
+                                                        <%= i %>
+                                                    </a>
+                                                    <% } %>
+                                            </div>
+
+                                            <% if (currentPage < totalPages) { %>
+                                                <a href="?page=<%= currentPage + 1 %>&type=<%= currentFilter %>"
+                                                    class="page-link next">
+                                                    Next <i class="fa-solid fa-chevron-right"></i>
+                                                </a>
+                                                <% } else { %>
+                                                    <span class="page-link next disabled">Next <i
+                                                            class="fa-solid fa-chevron-right"></i></span>
+                                                    <% } %>
+
+                            </div>
+                            <% } %>
                     </main>
 
             </div>

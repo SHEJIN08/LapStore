@@ -46,11 +46,21 @@ const createCouponService = async (data) => {
       status,
     } = data;
 
+    const discountAmount = Number(discountValue);
+    const minOrderAmount = Number(minOrderValue) || 0;
+
     const start = new Date(startDate);
     const end = new Date(endDate);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    if(couponType === 'fixed' && discountAmount > 10000 ){
+      throw new Error('Coupon cannot be greater than 10000')
+    }
+    if(couponType === 'fixed' && discountAmount >= minOrderAmount){
+      throw new Error('Discount value cannot be greater than or equal to minOrderValue')
+    }
 
     if (start < today) {
       throw new Error("Start date cannot be in the past");
@@ -69,8 +79,8 @@ const createCouponService = async (data) => {
       name: name || code,
       description: description,
       type: couponType,
-      discountValue: discountValue,
-      minPurchaseAmount: minOrderValue || 0,
+      discountValue: discountAmount,
+      minPurchaseAmount: minOrderAmount || 0,
       usageLimitPerUser: limitPerUser || 1,
       totalUsageLimit: totalUsageLimit || null,
 
@@ -121,6 +131,9 @@ const updateCouponService = async (id, data) => {
       status,
     } = data;
 
+     const discountAmount = Number(discountValue);
+     const minOrderAmount = Number(minOrderValue) || 0;
+
     // Check if code exists (excluding the current coupon ID)
     const existingCoupon = await Coupon.findOne({
       code: code,
@@ -129,6 +142,12 @@ const updateCouponService = async (id, data) => {
 
     if (existingCoupon) {
       throw new Error("Coupon code already exists");
+    }
+    if(couponType === 'fixed' && discountAmount >= minOrderAmount){
+      throw new Error('Discount value cannot be greater than or equal to minOrderValue')
+    }
+    if(couponType === 'fixed' && discountAmount > 10000 ){
+      throw new Error('Coupon cannot be greater than 10000')
     }
     if (totalUsageLimit < 1) {
       throw new Error("totalUsageLimit cannot become less than 1");
@@ -139,8 +158,8 @@ const updateCouponService = async (id, data) => {
       name: name || code,
       description,
       type: couponType,
-      discountValue,
-      minPurchaseAmount: minOrderValue || 0,
+      discountValue: discountAmount,
+      minPurchaseAmount: minOrderAmount || 0,
       usageLimitPerUser: limitPerUser || 1,
       totalUsageLimit: totalUsageLimit || null,
       userEligibility,

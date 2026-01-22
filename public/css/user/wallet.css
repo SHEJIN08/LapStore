@@ -337,6 +337,71 @@ a {
 .btn-proceed:hover {
     background-color: #0b5ed7;
 }
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.page-link {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    color: #555;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.page-link:hover:not(.disabled) {
+    background-color: #f8f9fa;
+    color: #3B82F6;
+    border-color: #3B82F6;
+}
+
+.page-link.disabled {
+    color: #ccc;
+    border-color: #eee;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.page-num {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    color: #555;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.page-num:hover {
+    background-color: #f0f0f0;
+}
+
+.page-num.active {
+    background-color: #3B82F6;
+    color: white;
+    font-weight: 600;
+}
 /* --- WALLET RESPONSIVENESS --- */
 
 /* 1. Tablet View (Max Width 900px) */

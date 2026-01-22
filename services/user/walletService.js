@@ -11,7 +11,7 @@ const instance = new Razorpay({
 });
 
 const getWalletData = async (userId, page = 1, filter = "all") => {
-  const limit = 5;
+  const limit = 4;
   const skip = (page - 1) * limit;
 
   let wallet = await Wallet.findOne({ userId });
