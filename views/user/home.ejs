@@ -56,7 +56,8 @@
                                     <% let myImage='https://placehold.co/300x200/png?text=' + cat.categoryName; let
                                         name=cat.categoryName.toLowerCase().trim(); if (name.includes('gaming')) {
                                         myImage='/images/user/gaming.jpg' ; } else if (name.includes('business')) {
-                                        myImage='/images/user/business.jpg' ; } else if (name.includes('2-in-1')) {
+                                        myImage='/images/user/business.jpg' ; }else if(name.includes('premium')){
+                                        myImage='/images/user/premium.jpg'; }else if (name.includes('2-in-1')) {
                                         myImage='/images/user/2-in-1.jpg' ; } else if (name.includes('60000')) {
                                         myImage='/images/user/under60k.jpg' ; } %>
 
