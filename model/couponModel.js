@@ -57,7 +57,7 @@ const couponSchema = new mongoose.Schema(
     },
     userEligibility: {
       type: String,
-      enum: ["all", "new_users", "specific"],
+      enum: ["all", "specific"],
       default: "all",
     },
     specificUsers: [
